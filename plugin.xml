@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin
+   id="org.eclipse.uide"
+   name="org.eclipse.uide"
+   version="1.0.1"
+   provider-name="IBM"
+   class="org.eclipse.uide.core.Plugin">
+
+   <runtime>
+      <library name="uide.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.help"/>
+      <import plugin="org.eclipse.jdt.ui"/>
+      <import plugin="org.eclipse.jdt.core"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.pde"/>
+      <import plugin="org.eclipse.pde.build"/>
+      <import plugin="org.eclipse.pde.core"/>
+      <import plugin="org.eclipse.pde.ui"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.forms"/>      
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+   </requires>
+   
+   
+   <extension-point id="contentProposer" name="Universal IDE Content Proposer" schema="schema/contentProposer.exsd"/>
+   <extension-point id="hoverHelper" name="Universal IDE Hover Helper" schema="schema/hoverHelper.exsd"/>
+   <extension-point id="outliner" name="Universal IDE Outliner" schema="schema/outliner.exsd"/>
+   <extension-point id="tokenColorer" name="Universal IDE Token Colorer" schema="schema/tokenColorer.exsd"/>
+   <extension-point id="languageDescription" name="Description of a programming language" schema="schema/languageDescription.exsd"/>
+   <extension-point id="index" name="Shared index of language-specific items, such as types" schema="schema/index.exsd"/>
+   <extension-point id="parser" name="Language-specific parser" schema="schema/parser.exsd"/>
+   <extension-point id="modelListener" name="Listener for model changes" schema="schema/modelListener.exsd"/>
+   
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            primary="true"
+            file="doc/toc.xml"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="Universal IDE Editor"
+            icon="icons/uide.gif"
+            extensions="txt"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            class="org.eclipse.uide.editor.UniversalEditor"
+            id="org.eclipse.ui.DefaultTextEditor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <primaryWizard id="org.eclipse.uide.wizards.NewLanguageWizard"/>
+      <category
+            id="org.eclipse.uide.wizards"
+            name="Universal IDE"/>
+      <wizard
+            class="org.eclipse.uide.wizards.Wizards$NewLanguage"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards"
+            name="Programming language"
+            id="org.eclipse.uide.wizards.NewLanguageWizard"/>
+      <category
+            id="org.eclipse.uide.wizards.core"
+            name="Core Services"
+            parentCategory="org.eclipse.uide.wizards"/>
+      <wizard
+            class="org.eclipse.uide.wizards.Wizards$NewIndex"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
+            name="Index"
+            id="org.eclipse.uide.wizards.NewIndex"/>
+      <category
+            id="org.eclipse.uide.wizards.parser"
+            name="Parser Services"
+            parentCategory="org.eclipse.uide.wizards"/>
+      <wizard
+            class="org.eclipse.uide.wizards.Wizards$NewParser"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.parser"
+            name="Parser written by hand"
+            id="org.eclipse.uide.wizards.NewParser"/>
+      <wizard
+            class="org.eclipse.uide.wizards.Wizards$NewModelListener"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.parser"
+            name="Model Listener"
+            id="org.eclipse.uide.wizards.NewModelListener"/>
+      <category
+            id="org.eclipse.uide.wizards.editor"
+            name="Editor Services"
+            parentCategory="org.eclipse.uide.wizards"/>
+      <wizard
+            class="org.eclipse.uide.wizards.Wizards$NewOutliner"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            name="Outliner"
+            id="org.eclipse.uide.wizards.NewOutliner"/>
+      <wizard
+            class="org.eclipse.uide.wizards.Wizards$NewHoverHelper"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            name="Hover helper"
+            id="org.eclipse.uide.wizards.NewHoverHelper"/>
+      <wizard
+            class="org.eclipse.uide.wizards.Wizards$NewTokenColorer"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            name="Token Colorer"
+            id="org.eclipse.uide.wizards.NewTokenColorer"/>
+      <wizard
+            class="org.eclipse.uide.wizards.Wizards$NewContentProposer"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            name="Content proposer"
+            id="org.eclipse.uide.wizards.NewContentProposer"/>
+   </extension>
+   
+   
+</plugin>
