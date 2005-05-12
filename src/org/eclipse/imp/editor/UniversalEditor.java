@@ -79,6 +79,7 @@ public class UniversalEditor extends TextEditor {
         setSourceViewerConfiguration(new Configuration());
 	}
      
+    
     public Object getAdapter(Class required) {
 		if (IContentOutlinePage.class.equals(required)) {
 		    return outlineController;
@@ -139,6 +140,7 @@ public class UniversalEditor extends TextEditor {
 			reconciler.setRepairer(new PresentationRepairer(), IDocument.DEFAULT_CONTENT_TYPE);
 			return reconciler;
 		}
+        
 		public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
 		   ContentAssistant ca = new ContentAssistant();
 		   completionProcessor = new CompletionProcessor();
@@ -194,6 +196,7 @@ public class UniversalEditor extends TextEditor {
 	    IDocument document;
         public void createPresentation(TextPresentation presentation, ITypedRegion damage) {
             try {
+                
                 if (presentationController != null)
                     presentationController.damage(damage.getOffset(), damage.getLength());
                 if (parserScheduler != null) {

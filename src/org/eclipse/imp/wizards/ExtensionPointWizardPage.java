@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.ui.dialogs.TypeSelectionDialog;
 import org.eclipse.jdt.internal.ui.wizards.NewClassCreationWizard;
 import org.eclipse.jdt.ui.wizards.NewClassWizardPage;
-import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.viewers.ISelection;
@@ -417,7 +416,12 @@ public class ExtensionPointWizardPage extends WizardPage {
 									"Please select a project first");
 						else {
 							ExtensionPointEnabler.addImports(ExtensionPointWizardPage.this);
-							openClassDialog(basedOn, text);
+                            String interfaceName = basedOn;
+                            String className = basedOn.substring(interfaceName.lastIndexOf('.')+1);
+                            if (className.charAt(0) == 'I') {
+                                className = "org.eclipse.uide.defaults.Default"+className.substring(1);
+                            }
+							openClassDialog(interfaceName, className, text);
 						}
 					}
 					catch (Exception ee) {
@@ -472,35 +476,28 @@ public class ExtensionPointWizardPage extends WizardPage {
 		return text;
 	}
 	
-	protected void openClassDialog(String basedOn, Text text) {
+	protected void openClassDialog(String interfaceName, String superClassName, Text text) {
 		try {
-			String className = basedOn.substring(basedOn.lastIndexOf('.')+1);
+			String className = interfaceName.substring(interfaceName.lastIndexOf('.')+1);
 			IJavaProject javaProject = JavaCore.create(getProject());
-			IType basedOnClass = javaProject.findType(basedOn);
+			IType basedOnClass = javaProject.findType(interfaceName);
 			if (basedOnClass == null) {
 				ErrorHandler.reportError("Internal Error, specified basedOn attribute does not resolve to a class or an interface.", true);
 				return;
 			}
-			boolean isInterface = basedOnClass.isInterface();
 			IJavaElement result = null;
 			NewClassCreationWizard wizard = new NewClassCreationWizard();
 			wizard.init(Workbench.getInstance(), null);
 			WizardDialog dialog = new WizardDialog(null, wizard);
 			dialog.create();
 			NewClassWizardPage page = (NewClassWizardPage)wizard.getPages()[0];
-			if (isInterface) {
-				page.setSuperClass("java.lang.Object", true);
-				ArrayList interfaces = new ArrayList();
-				interfaces.add(basedOn);
-				page.setSuperInterfaces(interfaces, true);
-			}
-			else {
-				page.setSuperClass(basedOn, true);
-			}
+			page.setSuperClass(superClassName, true);
+			ArrayList interfaces = new ArrayList();
+			interfaces.add(interfaceName);
+			page.setSuperInterfaces(interfaces, true);
 			IResource src = getProject().findMember("src");
 			page.setPackageFragmentRoot(javaProject.getPackageFragmentRoot(src), true);
-			if (isInterface)
-				className = className.substring(1);
+			className = className.substring(1);
 			page.setTypeName(className, true);
 			SWTUtil.setDialogSize(dialog, 400, 500);
 			if (dialog.open() == WizardDialog.OK) {
@@ -512,7 +509,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 			}
 		}
 		catch (Exception e) {
-			ErrorHandler.reportError("Could not create type for "+basedOn, true, e);
+			ErrorHandler.reportError("Could not create type for "+superClassName, true, e);
 		}
 	}
 	

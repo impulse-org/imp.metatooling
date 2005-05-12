@@ -9,14 +9,7 @@ public class Wizards {
 	public static class NewLanguage extends GenericServiceWizard implements INewWizard {		
 		public void addPages() {		
 			addPages(new ExtensionPointWizardPage[] {
-				new ExtensionPointWizardPage(this, 0, 8, UIDE, 	"languageDescription",	false),
-				new ExtensionPointWizardPage(this, 1, 8, UIDE, 	"parser", 				true),
-				new ExtensionPointWizardPage(this, 2, 8, UIDE, 	"modelListener", 		true),
-				new ExtensionPointWizardPage(this, 3, 8, UIDE, 	"index", 				true),
-				new ExtensionPointWizardPage(this, 4, 8, UIDE, 	"outliner", 			true),
-				new ExtensionPointWizardPage(this, 5, 8, UIDE, 	"contentProposer", 		true),
-				new ExtensionPointWizardPage(this, 6, 8, UIDE, 	"hoverHelper", 			true),
-				new ExtensionPointWizardPage(this, 7, 8, UIDE, 	"tokenColorer", 		true),
+				new ExtensionPointWizardPage(this, UIDE, "languageDescription")
 			});
 		}
 	}

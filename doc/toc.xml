@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Using the LPG Parser Generator" topic="index.html">
+	<topic label="Main Topic"  href="maintopic.html"> 
+		<topic label="Sub Topic" href="subtopic.html"/> 
+	</topic>
+	<topic label="Main Topic 2"/>
+</toc>
