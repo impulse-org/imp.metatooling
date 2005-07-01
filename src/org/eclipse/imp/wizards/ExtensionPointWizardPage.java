@@ -4,7 +4,6 @@ package org.eclipse.uide.wizards;
  * (c) Copyright IBM Corp. 2005  All Rights Reserved
  */
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +15,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -26,9 +24,10 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
-import org.eclipse.jdt.internal.ui.dialogs.TypeSelectionDialog;
+import org.eclipse.jdt.internal.ui.dialogs.TypeSelectionDialog2;
 import org.eclipse.jdt.internal.ui.wizards.NewClassCreationWizard;
 import org.eclipse.jdt.ui.wizards.NewClassWizardPage;
+import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.viewers.ISelection;
@@ -149,7 +148,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 			Bundle core = Platform.getBundle(pluginID);
 			String location = core.getLocation();
 			location = location.substring(location.indexOf('/')+1)+ep.getSchemaReference();
-			File file = new File(location);
+//			File file = new File(location);
 			schema = new Schema(pluginID, pointID, "", false);
 			schema.load(new FileInputStream(location));
 			setDescription(schema.getDescription());
@@ -310,7 +309,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 		});
 		projectText.addFocusListener(new FocusAdapter() {
 			public void focusGained(FocusEvent e) {
-				Text text = (Text)e.widget;
+//				Text text = (Text)e.widget;
 				descriptionText.setText("Select the plug-in project to add this extension point to");
 			}
 		});
@@ -458,8 +457,8 @@ public class ExtensionPointWizardPage extends WizardPage {
 					try {
 						IRunnableContext context = PlatformUI.getWorkbench().getProgressService();
 						IJavaSearchScope scope = new JavaWorkspaceScope();
-						TypeSelectionDialog dialog = new TypeSelectionDialog(null, context, IJavaSearchConstants.CLASS, scope);
-						if (dialog.open() == TypeSelectionDialog.OK) {
+						TypeSelectionDialog2 dialog = new TypeSelectionDialog2(null, false, context, scope, IJavaSearchConstants.CLASS);
+						if (dialog.open() == TypeSelectionDialog2.OK) {
 							Text text = (Text)e.widget.getData();
 							BinaryType type = (BinaryType) dialog.getFirstResult();
 							text.setText(type.getFullyQualifiedName());
@@ -485,7 +484,6 @@ public class ExtensionPointWizardPage extends WizardPage {
 				ErrorHandler.reportError("Internal Error, specified basedOn attribute does not resolve to a class or an interface.", true);
 				return;
 			}
-			IJavaElement result = null;
 			NewClassCreationWizard wizard = new NewClassCreationWizard();
 			wizard.init(Workbench.getInstance(), null);
 			WizardDialog dialog = new WizardDialog(null, wizard);
