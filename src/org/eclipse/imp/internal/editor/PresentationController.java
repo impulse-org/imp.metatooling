@@ -21,7 +21,6 @@ import org.eclipse.uide.editor.ITokenColorer;
 import org.eclipse.uide.internal.util.ExensionPointFactory;
 import org.eclipse.uide.parser.IModel;
 import org.eclipse.uide.parser.IModelListener;
-import org.eclipse.uide.parser.IParser;
 import org.eclipse.uide.parser.IToken;
 import org.eclipse.uide.parser.ParseError;
 
@@ -38,7 +37,7 @@ import org.eclipse.uide.parser.ParseError;
 public class PresentationController implements IModelListener {
     private ArrayList squigglies;
     private ISourceViewer sourceViewer;
-    private IParser parser;
+//  private IParser parser;
     private ITokenColorer colorer; 
     private List annotations;
 
@@ -48,7 +47,7 @@ public class PresentationController implements IModelListener {
     }
     public void setLanguage(Language language) {
         colorer = (ITokenColorer) ExensionPointFactory.createExtensionPoint(language, "org.eclipse.uide", "tokenColorer");
-		parser = (IParser) ExensionPointFactory.createExtensionPoint(language, "org.eclipse.uide", "parser");
+//		parser = (IParser) ExensionPointFactory.createExtensionPoint(language, "org.eclipse.uide", "parser");
     }
  
 	protected void generateErrorAnnotations(IModel model) {

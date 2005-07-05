@@ -1,7 +1,6 @@
 package org.eclipse.uide.internal.editor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewer;
@@ -10,8 +9,8 @@ import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.core.Language;
 import org.eclipse.uide.editor.IHoverHelper;
 import org.eclipse.uide.internal.util.ExensionPointFactory;
-import org.eclipse.uide.parser.IModelListener;
 import org.eclipse.uide.parser.IModel;
+import org.eclipse.uide.parser.IModelListener;
 
 /*
  * Licensed Materials - Property of IBM,
@@ -32,7 +31,7 @@ public class HoverHelpController implements ITextHover, IModelListener {
 	}
 	public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
 		try {
-			IDocument document = textViewer.getDocument();
+//			IDocument document = textViewer.getDocument();
 			if (parseResult != null)
 			    return hoverHelper.getHoverHelpAt(parseResult, hoverRegion.getOffset());
 		}

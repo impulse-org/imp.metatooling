@@ -40,7 +40,7 @@ public class OutlineController implements IContentOutlinePage, IModelListener {
     private UniversalEditor editor;
     private IOutliner outliner;
     private UIJob job;
-    private Language language;
+//  private Language language;
     private int DELAY;
     
     public OutlineController(UniversalEditor editor) {
@@ -58,8 +58,8 @@ public class OutlineController implements IContentOutlinePage, IModelListener {
 					TreeItem item = tree.getSelection()[0];
 					Ast node = (Ast) item.getData();
 					if (node != null) {
-						int start = node.getStartOffset();
-						int end = node.getEndOffset();
+//						int start = node.getStartOffset();
+//						int end = node.getEndOffset();
 					}
 				}
 				catch (Throwable ee) {

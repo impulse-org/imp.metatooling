@@ -23,7 +23,7 @@ public class DefaultHoverHelper implements IHoverHelper {
     
 	public String getHoverHelpAt(IModel model, int offset) {
 		try {
-			Ast ast = model.getAst();
+//			Ast ast = model.getAst();
 			IToken token = model.getTokenAtCharacter(offset);
 			if (token == null)
 				return null;
@@ -42,8 +42,8 @@ public class DefaultHoverHelper implements IHoverHelper {
 		    IToken lastErrorToken = model.getLastErrorToken();
 			if (lastErrorToken != null) {
 				int startOffset = lastErrorToken.getStartOffset();
-				int endOffset = lastErrorToken.getEndOffset();
-				String tokenKindName = lastErrorToken.getTokenKindName();
+//				int endOffset = lastErrorToken.getEndOffset();
+//				String tokenKindName = lastErrorToken.getTokenKindName();
 				String value = model.getString(lastErrorToken);
 				answer += "\n\nSyntax error at \""+value+"\" at offset "+startOffset;
 		    }
