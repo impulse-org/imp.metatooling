@@ -13,8 +13,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -147,10 +149,10 @@ public class ExtensionPointWizardPage extends WizardPage {
 			IExtensionPoint ep = (IExtensionPoint)Platform.getExtensionRegistry().getExtensionPoint(pluginID, pointID);
 			Bundle core = Platform.getBundle(pluginID);
 			String location = core.getLocation();
-			location = location.substring(location.indexOf('/')+1)+ep.getSchemaReference();
+			String schemaLoc= location.substring(location.indexOf('@')+1)+ep.getSchemaReference();
 //			File file = new File(location);
 			schema = new Schema(pluginID, pointID, "", false);
-			schema.load(new FileInputStream(location));
+			schema.load(new FileInputStream(schemaLoc));
 			setDescription(schema.getDescription());
 		}
 		catch (Exception e) {
@@ -415,12 +417,13 @@ public class ExtensionPointWizardPage extends WizardPage {
 									"Please select a project first");
 						else {
 							ExtensionPointEnabler.addImports(ExtensionPointWizardPage.this);
-                            String interfaceName = basedOn;
-                            String className = basedOn.substring(interfaceName.lastIndexOf('.')+1);
-                            if (className.charAt(0) == 'I') {
-                                className = "org.eclipse.uide.defaults.Default"+className.substring(1);
+                            String basedOnQualName= basedOn;
+                            String basedOnTypeName= basedOn.substring(basedOnQualName.lastIndexOf('.')+1);
+                            String superClassName= "";
+                            if (basedOnTypeName.charAt(0) == 'I' && Character.isUpperCase(basedOnTypeName.charAt(1))) {
+                                superClassName= "org.eclipse.uide.defaults.Default"+basedOnTypeName.substring(1);
                             }
-							openClassDialog(interfaceName, className, text);
+							openClassDialog(basedOnQualName, superClassName, text);
 						}
 					}
 					catch (Exception ee) {
@@ -475,14 +478,26 @@ public class ExtensionPointWizardPage extends WizardPage {
 		return text;
 	}
 	
-	protected void openClassDialog(String interfaceName, String superClassName, Text text) {
+	protected void openClassDialog(String interfaceQualName, String superClassName, Text text) {
 		try {
-			String className = interfaceName.substring(interfaceName.lastIndexOf('.')+1);
+			String intfName = interfaceQualName.substring(interfaceQualName.lastIndexOf('.')+1);
 			IJavaProject javaProject = JavaCore.create(getProject());
-			IType basedOnClass = javaProject.findType(interfaceName);
+			// RMF 7/5/2005 - If the project doesn't yet have the necessary plug-in dependency
+			// on org.eclipse.uide for this reference to be satisfiable, an error ensues. I don't
+			// see any code that would augment the project's build-path appropriately, and even
+			// if there were, it would have to be undoable if the user cancelled the wizard.
+			IType basedOnClass = javaProject.findType(interfaceQualName);
 			if (basedOnClass == null) {
-				ErrorHandler.reportError("Internal Error, specified basedOn attribute does not resolve to a class or an interface.", true);
-				return;
+//				IClasspathEntry[] cp= javaProject.getRawClasspath();
+//				List/*<IClasspathEntry>*/ newCP= new ArrayList();
+//				for(int i= 0; i < cp.length; i++) {
+//					if (cp[i] != null) // sometimes there are null entries in the classpath array???
+//						newCP.add(cp[i]);
+//				}
+//				newCP.add(JavaCore.newContainerEntry(new Path("org.eclipse.uide")));
+//				javaProject.setRawClasspath((IClasspathEntry[]) newCP.toArray(new IClasspathEntry[newCP.size()]), new NullProgressMonitor());
+				ErrorHandler.reportError("Base interface '" + interfaceQualName + "' does not exist in project's build path; be sure to add org.eclipse.uide to the plug-in dependecies.", true);
+//				return;
 			}
 			NewClassCreationWizard wizard = new NewClassCreationWizard();
 			wizard.init(Workbench.getInstance(), null);
@@ -491,12 +506,15 @@ public class ExtensionPointWizardPage extends WizardPage {
 			NewClassWizardPage page = (NewClassWizardPage)wizard.getPages()[0];
 			page.setSuperClass(superClassName, true);
 			ArrayList interfaces = new ArrayList();
-			interfaces.add(interfaceName);
+			interfaces.add(interfaceQualName);
 			page.setSuperInterfaces(interfaces, true);
 			IResource src = getProject().findMember("src");
 			page.setPackageFragmentRoot(javaProject.getPackageFragmentRoot(src), true);
-			className = className.substring(1);
-			page.setTypeName(className, true);
+//			className = className.substring(1); // RMF 7/5/2005 - why this substring? className already refers to the part after the last '.' ...
+			if (intfName.charAt(0) == 'I' && Character.isUpperCase(intfName.charAt(1)))
+				page.setTypeName("My" + intfName.substring(1), true);
+			else
+				page.setTypeName("My" + intfName, true);
 			SWTUtil.setDialogSize(dialog, 400, 500);
 			if (dialog.open() == WizardDialog.OK) {
 				String name = page.getTypeName();
