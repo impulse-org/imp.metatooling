@@ -99,6 +99,7 @@ consume ASTs created for the Common Lisp language.
             language=&quot;Common Lisp&quot;
             name=&quot;Common Lisp Content Proposer&quot;
             id=&quot;org.common.lisp.proposer&quot;&gt;
+     &lt;/proposer&gt;
  &lt;/extension&gt;
 &lt;/pre&gt;
       </documentation>
