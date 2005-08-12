@@ -4,7 +4,7 @@
    id="org.eclipse.uide"
    name="org.eclipse.uide"
    version="1.0.1"
-   provider-name="IBM"
+   provider-name="IBM Watson Research Center"
    class="org.eclipse.uide.core.Plugin">
 
    <runtime>
@@ -16,12 +16,10 @@
    <requires>
       <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.help"/>
       <import plugin="org.eclipse.jdt.ui"/>
       <import plugin="org.eclipse.jdt.core"/>
       <import plugin="org.eclipse.jface.text"/>
       <import plugin="org.eclipse.pde"/>
-      <import plugin="org.eclipse.pde.build"/>
       <import plugin="org.eclipse.pde.core"/>
       <import plugin="org.eclipse.pde.ui"/>
       <import plugin="org.eclipse.ui"/>
