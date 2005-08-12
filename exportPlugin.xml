@@ -96,8 +96,6 @@
 				<pathelement path="f:/eclipse-3.1/plugins/org.eclipse.debug.core_3.1.0.jar"/>
 				<pathelement path="f:/eclipse-3.1/plugins/org.eclipse.debug.ui_3.1.0.jar"/>
 				<pathelement path="f:/eclipse-3.1/plugins/org.eclipse.jdt.launching_3.1.0.jar"/>
-				<pathelement path="F:/eclipse-3.1/plugins/org.eclipse.jdt.debug_3.1.0/eclipse-3.1/plugins/org.eclipse.jdt.debug_3.1.0/jdi.jar"/>
-				<pathelement path="F:/eclipse-3.1/plugins/org.eclipse.jdt.debug_3.1.0/eclipse-3.1/plugins/org.eclipse.jdt.debug_3.1.0/jdimodel.jar"/>
 				<pathelement path="F:/eclipse-3.1/plugins/org.eclipse.jdt.debug_3.1.0/jdi.jar"/>
 				<pathelement path="F:/eclipse-3.1/plugins/org.eclipse.jdt.debug_3.1.0/jdimodel.jar"/>
 				<pathelement path="F:/eclipse-3.1/plugins/org.eclipse.jdt.debug_3.1.0/tools.jar"/>
@@ -108,9 +106,7 @@
 				<pathelement path="f:/eclipse-3.1/plugins/org.eclipse.pde.core_3.1.0.jar"/>
 				<pathelement path="f:/eclipse-3.1/plugins/org.eclipse.pde.ui_3.1.0.jar"/>
 				<pathelement path="f:/eclipse-3.1/plugins/org.eclipse.jdt.debug.ui_3.1.0.jar"/>
-				<pathelement path="F:/eclipse-3.1/plugins/org.eclipse.pde.build_3.1.0/eclipse-3.1/plugins/org.eclipse.pde.build_3.1.0/pdebuild.jar"/>
 				<pathelement path="F:/eclipse-3.1/plugins/org.eclipse.pde.build_3.1.0/pdebuild.jar"/>
-				<pathelement path="F:/eclipse-3.1/plugins/org.apache.ant_1.6.5/eclipse-3.1/plugins/org.apache.ant_1.6.5/bin"/>
 				<pathelement path="F:/eclipse-3.1/plugins/org.apache.ant_1.6.5/lib/ant.jar"/>
 				<pathelement path="F:/eclipse-3.1/plugins/org.apache.ant_1.6.5/lib/ant-antlr.jar"/>
 				<pathelement path="F:/eclipse-3.1/plugins/org.apache.ant_1.6.5/lib/ant-apache-bcel.jar"/>
@@ -141,17 +137,12 @@
 				<pathelement path="F:/eclipse-3.1/plugins/org.apache.ant_1.6.5/lib/ant-xslp.jar"/>
 				<pathelement path="f:/eclipse-3.1/plugins/org.eclipse.ant.ui_3.1.0.jar"/>
 				<pathelement path="f:/eclipse-3.1/plugins/org.eclipse.ui.externaltools_3.1.0.jar"/>
-				<pathelement path="F:/eclipse-3.1/plugins/org.eclipse.jdt.junit_3.1.0/eclipse-3.1/plugins/org.eclipse.jdt.junit_3.1.0/junitsupport.jar"/>
 				<pathelement path="F:/eclipse-3.1/plugins/org.eclipse.jdt.junit_3.1.0/junitsupport.jar"/>
-				<pathelement path="F:/eclipse-3.1/plugins/org.eclipse.jdt.junit.runtime_3.1.0/eclipse-3.1/plugins/org.eclipse.jdt.junit.runtime_3.1.0/junitruntime.jar"/>
 				<pathelement path="F:/eclipse-3.1/plugins/org.eclipse.jdt.junit.runtime_3.1.0/junitruntime.jar"/>
-				<pathelement path="F:/eclipse-3.1/plugins/org.junit_3.8.1/eclipse-3.1/plugins/org.junit_3.8.1/junit.jar"/>
 				<pathelement path="F:/eclipse-3.1/plugins/org.junit_3.8.1/junit.jar"/>
 				<pathelement path="f:/eclipse-3.1/plugins/org.eclipse.ui.intro_3.1.0.jar"/>
 				<pathelement path="f:/eclipse-3.1/plugins/org.eclipse.ui.cheatsheets_3.1.0.jar"/>
 				<pathelement path="f:/eclipse-3.1/plugins/org.eclipse.help.base_3.1.0.jar"/>
-				<pathelement path="F:/eclipse-3.1/plugins/org.apache.lucene_1.4.3/eclipse-3.1/plugins/org.apache.lucene_1.4.3/lucene-1.4.3.jar"/>
-				<pathelement path="F:/eclipse-3.1/plugins/org.apache.lucene_1.4.3/eclipse-3.1/plugins/org.apache.lucene_1.4.3/parser.jar"/>
 				<pathelement path="F:/eclipse-3.1/plugins/org.apache.lucene_1.4.3/lucene-1.4.3.jar"/>
 				<pathelement path="F:/eclipse-3.1/plugins/org.apache.lucene_1.4.3/parser.jar"/>
 				<pathelement path="f:/eclipse-3.1/plugins/org.eclipse.help.appserver_3.1.0.jar"/>
@@ -175,7 +166,7 @@
 	</target>
 
 	<target name="build.jars" depends="init" description="Build all the jars for the plug-in: org.eclipse.uide.">
-		<available property="uide.jar" file="${build.result.folder}/uide.jar"/>
+		<available property="uide.jar" file="${build.result.folder}/${uide.jar.name}"/>
 		<antcall target="uide.jar"/>
 	</target>
 
@@ -187,10 +178,10 @@
 	<target name="gather.bin.parts" depends="init" if="destination.temp.folder">
 		<mkdir dir="${destination.temp.folder}/org.eclipse.uide_1.0.1"/>
 		<copy todir="${destination.temp.folder}/org.eclipse.uide_1.0.1" failonerror="true" overwrite="false">
-			<fileset dir="${build.result.folder}" includes="uide.jar"			/>
+			<fileset dir="${build.result.folder}" includes="${uide.jar.name}"			/>
 		</copy>
 		<copy todir="${destination.temp.folder}/org.eclipse.uide_1.0.1" failonerror="true" overwrite="false">
-			<fileset dir="${basedir}" includes="plugin.xml,icons/,schema/,uide.jar"			/>
+			<fileset dir="${basedir}" includes="plugin.xml,icons/,schema/,${uide.jar.name}"			/>
 		</copy>
 	</target>
 
@@ -211,7 +202,7 @@
 	</target>
 
 	<target name="clean" depends="init" description="Clean the plug-in: org.eclipse.uide of all the zips, jars and logs created.">
-		<delete file="${build.result.folder}/uide.jar"/>
+		<delete file="${build.result.folder}/${uide.jar.name}"/>
 		<delete file="${build.result.folder}/uidesrc.zip"/>
 		<delete file="${plugin.destination}/org.eclipse.uide_1.0.1.jar"/>
 		<delete file="${plugin.destination}/org.eclipse.uide_1.0.1.zip"/>
