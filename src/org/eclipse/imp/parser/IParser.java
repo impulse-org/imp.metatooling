@@ -1,7 +1,10 @@
 package org.eclipse.uide.parser;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uide.core.ILanguageService;
+
+import com.ibm.lpg.LexStream;
+import com.ibm.lpg.Monitor;
+import com.ibm.lpg.PrsStream;
 
 /*
  * Licensed Materials - Property of IBM,
@@ -24,26 +27,32 @@ public interface IParser extends ILanguageService {
      * @param monitor stop scanning/parsing when monitor.isCanceled() is true.
      * @return
      */
-	public abstract IModel parse(String contents, boolean scanOnly, IProgressMonitor monitor);
+    public Ast parser(int error_repair_count, Monitor monitor);
+    
+	//public abstract ILexer getLexer();
 
-	/**
-	 * Minimize the size of the generated AST. Flatten nodes with no siblings into their parent nodes.
-	 * Remove nodes that have no child nodes.
-	 * @return whether or not the parser likes nodes to be flattened
-	 */
-	public abstract boolean shouldFlatten();
+	//public abstract LexStream getLexStream();
 
-	/**
-	 * Indicate whether a given production should be ignored, so that no AST nodes
-	 * are created for it. This will reduce the size of the generated AST. 
-	 * @param ruleName the name of the rule
-	 * @return whether to ignore this rule
-	 */
-	public abstract boolean shouldIgnoreNode(String ruleName);
+	public abstract PrsStream getParseStream();
+	
+//	/**
+//	 * Minimize the size of the generated AST. Flatten nodes with no siblings into their parent nodes.
+//	 * Remove nodes that have no child nodes.
+//	 * @return whether or not the parser likes nodes to be flattened
+//	 */
+//	public abstract boolean shouldFlatten();
+//
+//	/**
+//	 * Indicate whether a given production should be ignored, so that no AST nodes
+//	 * are created for it. This will reduce the size of the generated AST. 
+//	 * @param ruleName the name of the rule
+//	 * @return whether to ignore this rule
+//	 */
+//	public abstract boolean shouldIgnoreNode(String ruleName);
 	
 	/**
 	 * Inform the parser what language it is parsing.
 	 * @param language the name of the language
 	 */
-	public void setLanguage(String language);
+	//public void setLanguage(String language);
 }
