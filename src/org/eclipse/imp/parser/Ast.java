@@ -1,4 +1,7 @@
 package org.eclipse.uide.parser;
+
+import com.ibm.lpg.IToken;
+
 /*
  * Licensed Materials - Property of IBM,
  * (c) Copyright IBM Corp. 1998, 2004  All Rights Reserved
@@ -10,12 +13,21 @@ package org.eclipse.uide.parser;
  */
 public class Ast {
 	public final static Ast EMPTY = new Ast("");
+	public static char[] contents;
 	public List children;
 	public IToken token;	 
 	public String ruleName;
 	public IRule rule;
 	public Ast parent;
+
+	public static void setContents(char[] c) {
+		contents= c;
+	}
+
 	public Ast(String ruleName) { this.ruleName = ruleName; }
+
+	public String getRuleName() { return ruleName; }
+	
 	public IRule getRule() { return rule; }		
 	public boolean isTerminal() { return children == null || children.size() == 0; }
 	public void setRule(IRule rule) { this.rule = rule; }	
@@ -33,37 +45,40 @@ public class Ast {
 	public boolean hasOneChild() { return children != null && children.elements != null && children.elements.next == null; }
 	public boolean isRule() { return rule != null; }
 	public String getLhs(char contents[]) { 
-		return (rule == null) ? token.toString(contents) : rule.getLeftHandSide(); 
+		return (rule == null) ? token.getValue(contents) : rule.getLeftHandSide(); 
 	}
 	public String toString() {
-		new IllegalArgumentException("Unimplemented Method").printStackTrace();
-		throw new IllegalArgumentException("Unimplemented Method");
+		if (token != null) return token.getValue(contents);
+
+		StringBuffer buf= new StringBuffer();
+
+		for(int i=0; i < children.size(); i++) {
+			Ast child = children.get(i);
+			buf.append(child.toString());
+		}
+		return buf.toString();
 	}
 	public String toString(char contents[]) {
 		if (ruleName != null) return ruleName;
 		return rule != null ? rule.getLeftHandSide() : 
-			token != null ? token.getTokenKindName()+"(\""+token.toString(contents)+"\")" 
+			token != null ? token.getKind()+"(\""+token.getValue(contents)+"\")" 
 					: "<epsilon production>";
 	}
 			
-	public void addChild(IParser parser, Ast child, IToken token) {
-		if (child == null) {
-			child = new Ast("");
-			child.token = token;
-			token.setAst(child);
-		}
-		if (child != EMPTY) {
-			if (parser.shouldFlatten() && (child.hasOneChild() || 
-					parser.shouldIgnoreNode(child.ruleName))) {
-				flattenChild(child);
-			}
-			else {
-				child.parent = this;
-				if (children == null) 
-					children = new List();
-				children.add(child);
-			}
-		}
+	public void addChild(Ast child) {
+		child.parent = this;
+		if (children == null) 
+			children = new List();
+		children.add(child);
+	}
+	
+	public void addChild(IToken token) {
+		Ast child = new Ast("");
+		child.parent = this;
+		child.setToken(token);
+		if (children == null) 
+			children = new List();
+		children.add(child);
 	}
 	
 	private void flattenChild(Ast child) {
