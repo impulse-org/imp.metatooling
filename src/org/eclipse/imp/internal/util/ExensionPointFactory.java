@@ -45,8 +45,8 @@ public class ExensionPointFactory {
 		catch (Throwable ee) {
 			ErrorHandler.reportError("Universal Editor Error", ee);
 		}
-        if (service != null)
-            service.setLanguage(language.getName());
+//        if (service != null)
+//            service.setLanguage(language.getName());
         return service;
 	}
 
