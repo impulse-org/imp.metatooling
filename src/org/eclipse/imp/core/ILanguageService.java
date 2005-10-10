@@ -20,5 +20,5 @@ public interface ILanguageService {
      * 
      * @param language the canonical name of the language this service is meant for
      */
-	public void setLanguage(String language);
+	//public void setLanguage(String language);
 }
