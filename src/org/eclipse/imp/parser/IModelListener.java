@@ -16,9 +16,9 @@ public interface IModelListener {
     
     /**
      * Notify the listener that the document has been updated and a new AST has been computed
-     * @param model	the new parse result containing the AST
+     * @param parseController	the new parse result containing the AST
      * @param monitor the progress monitor; listener should cancel when monitor.isCanceled() is true
      */
-    public void update(IModel model, IProgressMonitor monitor);
+    public void update(IParseController parseController, IProgressMonitor monitor);
     
 }
