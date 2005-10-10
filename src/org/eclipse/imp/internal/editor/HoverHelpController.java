@@ -9,8 +9,8 @@ import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.core.Language;
 import org.eclipse.uide.editor.IHoverHelper;
 import org.eclipse.uide.internal.util.ExensionPointFactory;
-import org.eclipse.uide.parser.IModel;
 import org.eclipse.uide.parser.IModelListener;
+import org.eclipse.uide.parser.IParseController;
 
 /*
  * Licensed Materials - Property of IBM,
@@ -22,7 +22,7 @@ import org.eclipse.uide.parser.IModelListener;
  *
  */
 public class HoverHelpController implements ITextHover, IModelListener {
-    private IModel parseResult;
+    private IParseController parseResult;
     private IHoverHelper hoverHelper;
     public HoverHelpController() {
     }
@@ -40,7 +40,7 @@ public class HoverHelpController implements ITextHover, IModelListener {
 		}
 		return null; 
 	}
-    public void update(IModel parseResult, IProgressMonitor monitor) {
+    public void update(IParseController parseResult, IProgressMonitor monitor) {
         this.parseResult = parseResult;
     }
     public void setLanguage(Language language) {

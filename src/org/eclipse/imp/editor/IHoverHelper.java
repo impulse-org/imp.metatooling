@@ -1,7 +1,7 @@
 package org.eclipse.uide.editor;
 
 import org.eclipse.uide.core.ILanguageService;
-import org.eclipse.uide.parser.IModel;
+import org.eclipse.uide.parser.IParseController;
 
 /*
  * Licensed Materials - Property of IBM,
@@ -27,6 +27,5 @@ public interface IHoverHelper extends ILanguageService {
      * @param offset		the offset in the original input stream
      * @return a human-readable text string describing what the element at the given offset
      */
-	public String getHoverHelpAt(IModel model, int offset);
-
+	public String getHoverHelpAt(IParseController parseController, int offset);
 }

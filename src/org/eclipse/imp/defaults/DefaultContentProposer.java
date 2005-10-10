@@ -9,7 +9,7 @@ import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.editor.IContentProposer;
-import org.eclipse.uide.parser.IModel;
+import org.eclipse.uide.parser.IParseController;
 
 
 
@@ -25,8 +25,8 @@ public class DefaultContentProposer implements IContentProposer {
         this.language = language;
     }
 
-    public ICompletionProposal[] getContentProposals(IModel model, int offset) {
-		char keywords[][] = model.getKeywords();
+    public ICompletionProposal[] getContentProposals(IParseController controller, int offset) {
+		char keywords[][] = controller.getKeywords();
         String msg = "This is the default content proposer.";
         String info = "You can add your own using the UIDE wizard.\n" +
                 "See class 'org.eclipse.uide.defaults.DefaultContentProposer'.";

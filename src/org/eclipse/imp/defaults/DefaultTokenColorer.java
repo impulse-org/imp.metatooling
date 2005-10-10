@@ -6,8 +6,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.editor.ITokenColorer;
-import org.eclipse.uide.parser.IModel;
-import org.eclipse.uide.parser.IToken;
+import org.eclipse.uide.parser.IParseController;
+
+import com.ibm.lpg.IToken;
 
 /**
  * @author CLaffra
@@ -16,8 +17,8 @@ public class DefaultTokenColorer implements ITokenColorer {
 
     TextAttribute boldYellowRed;
         
-	public TextAttribute getColoring(IModel model, IToken token) {
-        if (model.isKeyword(token))
+	public TextAttribute getColoring(IParseController controller, IToken token) {
+        if (controller.isKeyword(token.getKind()))
             return boldYellowRed;
         return null;
     }

@@ -2,7 +2,7 @@ package org.eclipse.uide.editor;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.uide.core.ILanguageService;
-import org.eclipse.uide.parser.IModel;
+import org.eclipse.uide.parser.IParseController;
 
 /*
  * Licensed Materials - Property of IBM,
@@ -22,6 +22,6 @@ import org.eclipse.uide.parser.IModel;
  */
 public interface IContentProposer extends ILanguageService {
 
-    public ICompletionProposal[] getContentProposals(IModel model, int offset);
+    public ICompletionProposal[] getContentProposals(IParseController controller, int offset);
 
 }

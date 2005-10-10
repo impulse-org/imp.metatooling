@@ -19,10 +19,11 @@ import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.core.Language;
 import org.eclipse.uide.editor.ITokenColorer;
 import org.eclipse.uide.internal.util.ExensionPointFactory;
-import org.eclipse.uide.parser.IModel;
 import org.eclipse.uide.parser.IModelListener;
-import org.eclipse.uide.parser.IToken;
+import org.eclipse.uide.parser.IParseController;
 import org.eclipse.uide.parser.ParseError;
+
+import com.ibm.lpg.IToken;
 
 /*
  * Licensed Materials - Property of IBM,
@@ -50,8 +51,8 @@ public class PresentationController implements IModelListener {
 //		parser = (IParser) ExensionPointFactory.createExtensionPoint(language, "org.eclipse.uide", "parser");
     }
  
-	protected void generateErrorAnnotations(IModel model) {
-	    List errors = model.getErrors();
+	protected void generateErrorAnnotations(IParseController controller) {
+	    List errors = controller.getErrors();
 		if (errors == null) // no errors?
 		    return;
 	    IAnnotationModel annotationModel = sourceViewer.getAnnotationModel();
@@ -80,19 +81,20 @@ public class PresentationController implements IModelListener {
 		}
 	}
 
-    public void changeTextPresentation(IModel model, IProgressMonitor monitor, Region damage) {
-        if (model == null) {
+    public void changeTextPresentation(IParseController controller, IProgressMonitor monitor, Region damage) {
+        if (controller == null) {
             return;
         }
-        int startIndex = model.getTokenIndexAtCharacter(damage.getOffset());
-		int endIndex = model.getTokenIndexAtCharacter(damage.getOffset()+damage.getLength());
+        int startIndex = controller.getParser().getParseStream().getTokenIndexAtCharacter(damage.getOffset());
+		int endIndex = controller.getParser().getParseStream().getTokenIndexAtCharacter(damage.getOffset()+damage.getLength());
         startIndex = Math.max(1,startIndex-1);
-        endIndex = Math.min(model.getTokenCount()-2,endIndex+1);
+        if (endIndex < 0) endIndex= -endIndex;
+//        endIndex = Math.min(controller.getParser().getParseStream().getSize()-2,endIndex+1);
         final TextPresentation presentation = new TextPresentation();
         for (int n = startIndex; !monitor.isCanceled() && n <= endIndex; n++) {
-			IToken token = model.getTokenAt(n);
+			IToken token = controller.getParser().getParseStream().getTokenAt(n);
 			if (token != null)
-			    changeTokenPresentation(model, presentation, token);
+			    changeTokenPresentation(controller, presentation, token);
 		}
 		if (!monitor.isCanceled()) {
 			Display.getDefault().asyncExec(new Runnable() {
@@ -103,14 +105,14 @@ public class PresentationController implements IModelListener {
 		}
 	}
     
-    private TextAttribute getColoring(IModel model, IToken token) {
+    private TextAttribute getColoring(IParseController controller, IToken token) {
         if (colorer != null) 
-            return colorer.getColoring(model, token);
+            return colorer.getColoring(controller, token);
         return null;
     }
  
-	private void changeTokenPresentation(IModel model, TextPresentation presentation, IToken token) {
-        TextAttribute attribute = getColoring(model, token);
+	private void changeTokenPresentation(IParseController controller, TextPresentation presentation, IToken token) {
+        TextAttribute attribute = getColoring(controller, token);
         StyleRange styleRange = new StyleRange(token.getStartOffset(), 
                 token.getEndOffset() - token.getStartOffset() + 1, 
                 attribute == null ? null : attribute.getForeground(), 
@@ -119,18 +121,18 @@ public class PresentationController implements IModelListener {
 	    presentation.addStyleRange(styleRange);
 	}
 
-	public void update(IModel model, IProgressMonitor monitor) {
+	public void update(IParseController controller, IProgressMonitor monitor) {
         if (!monitor.isCanceled()) {
 	        synchronized (workItems) {
 	            for (int n=workItems.size()-1; !monitor.isCanceled() && n>=0; n--) {
 	                Region damage = (Region)workItems.get(n);
-	                changeTextPresentation(model, monitor, damage);
+	                changeTextPresentation(controller, monitor, damage);
 	            }
 	            if (!monitor.isCanceled())
 	                workItems.removeAllElements();
 	        }
         }
-        generateErrorAnnotations(model);
+        generateErrorAnnotations(controller);
     }
     
     Stack workItems = new Stack();

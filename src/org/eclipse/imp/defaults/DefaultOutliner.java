@@ -11,20 +11,21 @@ import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.editor.IOutliner;
 import org.eclipse.uide.editor.UniversalEditor;
 import org.eclipse.uide.parser.Ast;
-import org.eclipse.uide.parser.IModel;
-import org.eclipse.uide.parser.IToken;
+import org.eclipse.uide.parser.IParseController;
 import org.eclipse.uide.parser.ParseError;
+
+import com.ibm.lpg.IToken;
+import com.ibm.lpg.PrsStream;
 
 /**
  * @author CLaffra
  */
 public class DefaultOutliner implements IOutliner {
-
 	protected Tree tree;
 	protected UniversalEditor editor;
 	protected static String message;
     private static final String MESSAGE = "This is the default outliner. Add your own using the UIDE wizard and see class 'org.eclipse.uide.defaults.DefaultOutliner'";
-	
+
     public void setLanguage(String language) {
         ErrorHandler.reportError("No Outliner defined for \""+language+"\"");
     }
@@ -37,25 +38,29 @@ public class DefaultOutliner implements IOutliner {
 	    this.tree = tree;
 	}
 
-	public void createOutlinePresentation(IModel model, int offset) {
+	public void createOutlinePresentation(IParseController controller, int offset) {
 	    try {
-			if (model != null && tree != null) {
-			    if (model.hasErrors()) {
+			if (controller != null && tree != null) {
+			    if (controller.hasErrors()) {
+			    	PrsStream parser = controller.getParser().getParseStream();
 				    tree.setRedraw(false);
 				    tree.removeAll();
 					new TreeItem(tree, SWT.NONE).setText(MESSAGE);
-                    List errors = model.getErrors();
+                    List errors = controller.getErrors();
                     new TreeItem(tree, SWT.NONE).setText("Found "+errors.size()+" syntax error(s) in input: ");
 					for (Iterator error = errors.iterator(); error.hasNext();) {
                         ParseError pe = (ParseError) error.next();
                         new TreeItem(tree, SWT.NONE).setText("  "+pe.description);
                     }
-					int count = model.getTokenCount();
+					int count = controller.getParser().getParseStream().getSize();
 					if (count >1) {
 						new TreeItem(tree, SWT.NONE).setText("Tokens:");
 						for (int n=1; n<100 && n<count; n++) {
-						    IToken token = model.getTokenAt(n);
-						    String label = n + ": " +token.getTokenKindName()+" = " +model.getString(token);
+						    IToken token = controller.getParser().getParseStream().getTokenAt(n);
+						    String label = n + ": " 
+						                     +controller.getParser().getParseStream().orderedTerminalSymbols()[token.getKind()]
+						                     +" = "
+						                     +token.getValue(controller.getLexer().getLexStream().getInputChars());
 						    new TreeItem(tree, SWT.NONE).setText(label);
 						}
 						if (count >= 100)
@@ -66,11 +71,11 @@ public class DefaultOutliner implements IOutliner {
 				else {
 					tree.setRedraw(false);
 					tree.removeAll();
-					Ast program = model.getAst();
+					Ast program = controller.getCurrentAst();
                     new TreeItem(tree, SWT.NONE).setText(MESSAGE);
                     for (int n=0; n<program.children.size(); n++) {
 						Ast node = program.getChild(n);
-						addToOutlineView(node, model, tree, null);
+						addToOutlineView(node, controller, tree, null);
 					}
 				}
 				tree.setSelection(new TreeItem[] { tree.getItem(new Point(0,0)) });
@@ -109,8 +114,8 @@ public class DefaultOutliner implements IOutliner {
 	 * @param tree the tree to add the item to
 	 * @param item the treeitem to add the item to, if it is not null
 	 */
-	protected void addToOutlineView(Ast node, IModel model, Tree tree, TreeItem item) {
-		createOutlineItem(node, tree, item, model.getString(node));
+	protected void addToOutlineView(Ast node, IParseController controller, Tree tree, TreeItem item) {
+		createOutlineItem(node, tree, item, /* REPLACE controller.getString(node) by: */ node.getRuleName());
 	}
 	
 	/**

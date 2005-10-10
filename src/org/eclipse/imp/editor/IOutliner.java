@@ -2,7 +2,7 @@ package org.eclipse.uide.editor;
 
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.uide.core.ILanguageService;
-import org.eclipse.uide.parser.IModel;
+import org.eclipse.uide.parser.IParseController;
 
 /*
  * Licensed Materials - Property of IBM,
@@ -27,20 +27,18 @@ public interface IOutliner extends ILanguageService {
      * @param model	the result from the parser (contains an Ast)
      * @param offset		current offset of the caret in the editor
      */
-	public void createOutlinePresentation(IModel model, int offset);
+	void createOutlinePresentation(IParseController controller, int offset);
 	
 	/** 
 	 * Set the editor that currently controls the outline view
 	 * @param editor
 	 */
-	public abstract void setEditor(UniversalEditor editor);
+	void setEditor(UniversalEditor editor);
 
     
 	/**
 	 * Set the tree widget that contains the outline view. The tree is fully managed by this IOutliner instance.
 	 * @param tree
 	 */
-	public abstract void setTree(Tree tree);
-
-	
+	void setTree(Tree tree);
 }

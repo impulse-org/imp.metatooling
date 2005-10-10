@@ -14,17 +14,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.text.IAutoEditStrategy;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IInformationControlCreator;
-import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextDoubleClickStrategy;
-import org.eclipse.jface.text.ITextHover;
-import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.ITypedRegion;
-import org.eclipse.jface.text.IUndoManager;
-import org.eclipse.jface.text.Region;
-import org.eclipse.jface.text.TextPresentation;
+import org.eclipse.jface.text.*;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
@@ -52,9 +42,9 @@ import org.eclipse.uide.core.LanguageRegistry;
 import org.eclipse.uide.internal.editor.OutlineController;
 import org.eclipse.uide.internal.editor.PresentationController;
 import org.eclipse.uide.internal.util.ExensionPointFactory;
-import org.eclipse.uide.parser.IModel;
+import org.eclipse.uide.parser.Ast;
 import org.eclipse.uide.parser.IModelListener;
-import org.eclipse.uide.parser.IParser;
+import org.eclipse.uide.parser.IParseController;
 
 
 /**
@@ -215,7 +205,7 @@ public class UniversalEditor extends TextEditor {
 	class CompletionProcessor implements IContentAssistProcessor, IModelListener { 
 		private final IContextInformation[] NO_CONTEXTS = new IContextInformation[0];
 		private ICompletionProposal[] NO_COMPLETIONS = new ICompletionProposal[0];
-        private IModel parseResult;
+        private IParseController parseResult;
         private IContentProposer contentProposer;
     	
         public CompletionProcessor() {
@@ -250,7 +240,7 @@ public class UniversalEditor extends TextEditor {
 		public String getErrorMessage() {
 			return null;
 		}
-		public void update(IModel parseResult, IProgressMonitor monitor) {
+		public void update(IParseController parseResult, IProgressMonitor monitor) {
             this.parseResult = parseResult;
         }
 	}
@@ -260,21 +250,21 @@ public class UniversalEditor extends TextEditor {
      *  Therefore, we create a job that is executed in a background thread by the platform's job service.
      */
 	class ParserScheduler extends Job {
-	    protected IParser parser;
+	    protected IParseController parseController;
 	    protected List astListeners = new ArrayList();
-	    protected IModel oldModel;
+	    protected Ast oldAST;
 	    
 		ParserScheduler(String name) {
 	        super(name);
 	        setSystem(true); // do not show this job in the Progress view
-			parser = (IParser) createExtensionPoint("parser");
+			parseController = (IParseController) createExtensionPoint("parser");
 	    }
 	    protected IStatus run(IProgressMonitor monitor) {
 	        try {
 	            IDocument document = getDocumentProvider().getDocument(getEditorInput());
-		        IModel newModel = parser.parse(document.get(), false, monitor);
-			    notifyAstListeners(newModel, monitor);
-			    oldModel = newModel;
+	            Ast newAST = parseController.parse(document.get(), false, monitor);
+			    notifyAstListeners(parseController, monitor);
+			    oldAST = newAST;
 	        }
 	        catch (Exception e) {
 	            ErrorHandler.reportError("Error running parser for "+language, e);
@@ -284,15 +274,15 @@ public class UniversalEditor extends TextEditor {
 	    public void addModelListener(IModelListener listener) {
 	        astListeners.add(listener);
 	    }
-	    public void notifyAstListeners(IModel model, IProgressMonitor monitor) {
-	        if (model != null)
+	    public void notifyAstListeners(IParseController parseController, IProgressMonitor monitor) {
+	        if (parseController != null)
 	            for (int n=astListeners.size()-1; n>=0; n--)
-	                ((IModelListener)astListeners.get(n)).update(model, monitor);
+	                ((IModelListener)astListeners.get(n)).update(parseController, monitor);
 	    }	
 	};
 
 	class HoverHelpController implements ITextHover, IModelListener {
-	    private IModel model;
+	    private IParseController controller;
 	    private IHoverHelper hoverHelper;
 	    
 	    public IRegion getHoverRegion(ITextViewer textViewer, int offset) {
@@ -301,8 +291,8 @@ public class UniversalEditor extends TextEditor {
 	    
 		public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
 			try {
-				if (model != null && hoverHelper != null)
-				    return hoverHelper.getHoverHelpAt(model, hoverRegion.getOffset());
+				if (controller != null && hoverHelper != null)
+				    return hoverHelper.getHoverHelpAt(controller, hoverRegion.getOffset());
 			}
 			catch (Throwable e) {
 			    ErrorHandler.reportError("Universal Editor Error", e); 
@@ -310,8 +300,8 @@ public class UniversalEditor extends TextEditor {
 			return null; 
 		}
 		
-	    public void update(IModel model, IProgressMonitor monitor) {
-	        this.model = model;
+	    public void update(IParseController controller, IProgressMonitor monitor) {
+	        this.controller = controller;
 	    }
 	    
 	    public void setLanguage(Language language) {

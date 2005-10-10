@@ -21,8 +21,8 @@ import org.eclipse.uide.editor.IOutliner;
 import org.eclipse.uide.editor.UniversalEditor;
 import org.eclipse.uide.internal.util.ExensionPointFactory;
 import org.eclipse.uide.parser.Ast;
-import org.eclipse.uide.parser.IModel;
 import org.eclipse.uide.parser.IModelListener;
+import org.eclipse.uide.parser.IParseController;
 
 /*
  * Licensed Materials - Property of IBM,
@@ -36,7 +36,7 @@ import org.eclipse.uide.parser.IModelListener;
  */
 public class OutlineController implements IContentOutlinePage, IModelListener {
     protected Tree tree;
-    private IModel model;
+    private IParseController controller;
     private UniversalEditor editor;
     private IOutliner outliner;
     private UIJob job;
@@ -48,7 +48,7 @@ public class OutlineController implements IContentOutlinePage, IModelListener {
     }
     public void setLanguage(Language language) {
         outliner = (IOutliner) ExensionPointFactory.createExtensionPoint(language, 
-                "org.eclipse.uide", "outliner");        
+                "org.eclipse.uide", "outliner");
     }
    	public void createControl(Composite parent) {
 		tree = new Tree(parent, SWT.NONE);
@@ -90,8 +90,8 @@ public class OutlineController implements IContentOutlinePage, IModelListener {
     }
     public void setSelection(ISelection selection) {
     }
-    public void update(IModel result, IProgressMonitor monitor) {
-        this.model = result;
+    public void update(IParseController result, IProgressMonitor monitor) {
+        this.controller = result;
         if (job != null)
             job.cancel();
         else
@@ -100,7 +100,7 @@ public class OutlineController implements IContentOutlinePage, IModelListener {
 	                int offset = 0;
                     try {
                         if (outliner != null)
-                            outliner.createOutlinePresentation(model, offset);
+                            outliner.createOutlinePresentation(controller, offset);
                     }
                     catch (Throwable e) {
                         ErrorHandler.reportError("Outline View Controller", e);

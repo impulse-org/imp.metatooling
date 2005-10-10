@@ -3,8 +3,11 @@ package org.eclipse.uide.defaults;
 import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.editor.IHoverHelper;
 import org.eclipse.uide.parser.Ast;
-import org.eclipse.uide.parser.IModel;
-import org.eclipse.uide.parser.IToken;
+import org.eclipse.uide.parser.IASTNodeLocator;
+import org.eclipse.uide.parser.IParseController;
+
+import com.ibm.lpg.IToken;
+import com.ibm.lpg.PrsStream;
 
 /*
  * Licensed Materials - Property of IBM,
@@ -16,35 +19,37 @@ import org.eclipse.uide.parser.IToken;
  *  @author Chris Laffra
  */
 public class DefaultHoverHelper implements IHoverHelper {
-	
-    public void setLanguage(String language) {
+	public void setLanguage(String language) {
         ErrorHandler.reportError("No Hoverhelper defined for \""+language+"\"");
     }
     
-	public String getHoverHelpAt(IModel model, int offset) {
+	public String getHoverHelpAt(IParseController controller, int offset) {
 		try {
-//			Ast ast = model.getAst();
-			IToken token = model.getTokenAtCharacter(offset);
+			Ast ast = controller.getCurrentAst();
+			IToken token = controller.getParser().getParseStream().getTokenAtCharacter(offset); 
+			PrsStream parser = controller.getParser().getParseStream();
+			IASTNodeLocator nodeLocator = controller.getNodeLocator();
+			Ast node = nodeLocator.findNode(ast, offset);
 			if (token == null)
 				return null;
-			Ast node = token.getAst();
+//			Ast node = token.getAst();
 		    String answer = 
                 "This is the default hover helper. Add your own using the UIDE wizard" +
                 "\nSee class 'org.eclipse.uide.defaults.DefaultContentProposer'." +
-                "\nNow, what can I say about: "+model.getString(token)+"?"+
-		    	"\nIt is a token of kind "+token.getTokenKindName()+
+                "\nNow, what can I say about: "+token.getValue(controller.getLexer().getLexStream().getInputChars())+"?"+
+		    	"\nIt is a token of kind "+parser.orderedTerminalSymbols()[token.getKind()]+
 		    	"\nAST tree: ";
 		    while (node != null) {
-				answer += "> "+model.getString(node);
+				answer += "> "+ /* replace: controller.getString(node); by */ node.getRuleName();
 		    	node = node.parent;
 		    }
-		    answer += "\nDuring parsing, "+model.getTokenCount()+" tokens were created.";
-		    IToken lastErrorToken = model.getLastErrorToken();
+		    answer += "\nDuring parsing, "+controller.getParser().getParseStream().getSize()+" tokens were created.";
+		    IToken lastErrorToken = /* controller.getLastErrorToken(); */ null; /* temp patch */
 			if (lastErrorToken != null) {
 				int startOffset = lastErrorToken.getStartOffset();
-//				int endOffset = lastErrorToken.getEndOffset();
+				int endOffset = lastErrorToken.getEndOffset();
 //				String tokenKindName = lastErrorToken.getTokenKindName();
-				String value = model.getString(lastErrorToken);
+				String value = String.copyValueOf(controller.getLexer().getLexStream().getInputChars(), startOffset, endOffset - startOffset);
 				answer += "\n\nSyntax error at \""+value+"\" at offset "+startOffset;
 		    }
 		    return answer;
@@ -55,4 +60,3 @@ public class DefaultHoverHelper implements IHoverHelper {
 	}
 
 }
-

@@ -2,8 +2,9 @@ package org.eclipse.uide.editor;
 
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.uide.core.ILanguageService;
-import org.eclipse.uide.parser.IModel;
-import org.eclipse.uide.parser.IToken;
+import org.eclipse.uide.parser.IParseController;
+
+import com.ibm.lpg.IToken;
 
 /*
  * Licensed Materials - Property of IBM,
@@ -21,5 +22,5 @@ public interface ITokenColorer extends ILanguageService {
      * @param token The token to be colored
      * @return a TextAttribute
      */
-    public TextAttribute getColoring(IModel model, IToken token);
+    public TextAttribute getColoring(IParseController controller, IToken token);
 }
