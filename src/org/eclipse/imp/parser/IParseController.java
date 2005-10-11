@@ -12,6 +12,7 @@ public interface IParseController extends ILanguageService
     Ast getCurrentAst();
     boolean isKeyword(int kind);
     char [][] getKeywords();
+    public int getTokenIndexAtCharacter(int offset);
     IASTNodeLocator getNodeLocator();
     boolean hasErrors();
     List getErrors();
