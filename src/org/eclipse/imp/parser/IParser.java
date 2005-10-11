@@ -34,6 +34,11 @@ public interface IParser extends ILanguageService {
 	//public abstract LexStream getLexStream();
 
 	public abstract PrsStream getParseStream();
+
+	/**
+	 * @return the token kind for the EOF token
+	 */
+	public int getEOFTokenKind();
 	
 //	/**
 //	 * Minimize the size of the generated AST. Flatten nodes with no siblings into their parent nodes.
