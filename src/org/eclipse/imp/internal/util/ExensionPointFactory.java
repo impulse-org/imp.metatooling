@@ -41,8 +41,9 @@ public class ExensionPointFactory {
     		    String defaultClass = pluginID + ".defaults." + className;
                 service = (ILanguageService) Class.forName(defaultClass).newInstance();
             }
-	    }
-		catch (Throwable ee) {
+		} catch (ClassNotFoundException e) {
+			ErrorHandler.reportError("No default implementation found for service " + extentionPointId + " and language " + language.getName(), false, true);
+	    } catch (Throwable ee) {
 			ErrorHandler.reportError("Universal Editor Error", ee);
 		}
 //        if (service != null)
