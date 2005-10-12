@@ -42,9 +42,13 @@ public class ErrorHandler {
     }
 
     public static void reportError(String message, boolean showDialog) {
+    	reportError(message, showDialog, DUMP);
+    }
+
+    public static void reportError(String message, boolean showDialog, boolean noDump) {
         if (PRINT)
             System.err.println(message);
-        if (DUMP)
+        if (!noDump)
             new Error(message).printStackTrace();
         if (LOG)
             logError(message, new Error(message));
