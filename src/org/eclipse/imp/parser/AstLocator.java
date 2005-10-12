@@ -6,7 +6,11 @@ public class AstLocator implements IASTNodeLocator {
 		if (ast.token != null) {
 			if (offset >= ast.token.getStartOffset() && offset <= ast.token.getEndOffset())
 				return ast;
+			else
+				return null;
 		}
+		if (ast.children == null)
+			return null;
 		for(int i=0; i < ast.children.size(); i++) {
 			Ast maybe= findNode(ast.children.get(i), offset);
 			if (maybe != null)
