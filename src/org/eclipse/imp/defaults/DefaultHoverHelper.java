@@ -26,7 +26,7 @@ public class DefaultHoverHelper implements IHoverHelper {
 	public String getHoverHelpAt(IParseController controller, int offset) {
 		try {
 			Ast ast = controller.getCurrentAst();
-			IToken token = controller.getParser().getParseStream().getTokenAtCharacter(offset); 
+			IToken token = controller.getTokenAtCharacter(offset);
 			PrsStream parser = controller.getParser().getParseStream();
 			IASTNodeLocator nodeLocator = controller.getNodeLocator();
 			Ast node = nodeLocator.findNode(ast, offset);
