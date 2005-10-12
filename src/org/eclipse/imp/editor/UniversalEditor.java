@@ -88,13 +88,13 @@ public class UniversalEditor extends TextEditor {
 	}
 		
 	public void createPartControl(Composite parent) {
+		language = LanguageRegistry.findLanguage(getEditorInput());
 		super.createPartControl(parent);
 		try {
 			outlineController = new OutlineController(this);
 			presentationController = new PresentationController(getSourceViewer());
 	        presentationController.damage(0, getSourceViewer().getDocument().getLength());
 			
-			language = LanguageRegistry.findLanguage(getEditorInput());
 	        outlineController.setLanguage(language);
 	        presentationController.setLanguage(language);
 	        completionProcessor.setLanguage(language);	        
@@ -205,7 +205,7 @@ public class UniversalEditor extends TextEditor {
 	class CompletionProcessor implements IContentAssistProcessor, IModelListener { 
 		private final IContextInformation[] NO_CONTEXTS = new IContextInformation[0];
 		private ICompletionProposal[] NO_COMPLETIONS = new ICompletionProposal[0];
-        private IParseController parseResult;
+        private IParseController parseController;
         private IContentProposer contentProposer;
     	
         public CompletionProcessor() {
@@ -216,8 +216,8 @@ public class UniversalEditor extends TextEditor {
         }
 		public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
 			try {
-			    if (parseResult != null) {
-					return contentProposer.getContentProposals(parseResult, offset);
+			    if (parseController != null) {
+					return contentProposer.getContentProposals(parseController, offset);
 			    }
 			}
 			catch (Throwable e) {
@@ -241,7 +241,7 @@ public class UniversalEditor extends TextEditor {
 			return null;
 		}
 		public void update(IParseController parseResult, IProgressMonitor monitor) {
-            this.parseResult = parseResult;
+            this.parseController = parseResult;
         }
 	}
 
@@ -252,7 +252,6 @@ public class UniversalEditor extends TextEditor {
 	class ParserScheduler extends Job {
 	    protected IParseController parseController;
 	    protected List astListeners = new ArrayList();
-	    protected Ast oldAST;
 	    
 		ParserScheduler(String name) {
 	        super(name);
@@ -262,9 +261,10 @@ public class UniversalEditor extends TextEditor {
 	    protected IStatus run(IProgressMonitor monitor) {
 	        try {
 	            IDocument document = getDocumentProvider().getDocument(getEditorInput());
-	            Ast newAST = parseController.parse(document.get(), false, monitor);
+	            // Don't need to retrieve the AST; we don't need it.
+	            // Just make sure the document contents gets parsed once (and only once).
+	            parseController.parse(document.get(), false, monitor);
 			    notifyAstListeners(parseController, monitor);
-			    oldAST = newAST;
 	        }
 	        catch (Exception e) {
 	            ErrorHandler.reportError("Error running parser for "+language, e);
