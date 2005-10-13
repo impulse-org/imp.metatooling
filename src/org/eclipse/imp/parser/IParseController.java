@@ -10,14 +10,24 @@ import com.ibm.lpg.IToken;
 public interface IParseController extends ILanguageService
 {
     IParser getParser();
+
     ILexer getLexer();
-    Ast getCurrentAst();
+
+    Object getCurrentAst();
+
     boolean isKeyword(int kind);
+
     char [][] getKeywords();
+
     public int getTokenIndexAtCharacter(int offset);
+
     public IToken getTokenAtCharacter(int offset);
+
     IASTNodeLocator getNodeLocator();
+
     boolean hasErrors();
+
     List getErrors();
-    Ast parse (String input, boolean scanOnly, IProgressMonitor monitor);
+
+    Object parse(String input, boolean scanOnly, IProgressMonitor monitor);
 }
