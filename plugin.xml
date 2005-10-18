@@ -2,10 +2,10 @@
 <?eclipse version="3.0"?>
 <plugin
    id="org.eclipse.uide"
-   name="org.eclipse.uide"
+   name="UIDE Language Support Meta-Tooling"
    version="1.0.1"
-   provider-name="IBM Watson Research Center"
-   class="org.eclipse.uide.core.Plugin">
+   provider-name="rfuhrer@watson.ibm.com"
+   class="org.eclipse.uide.WizardPlugin">
 
    <runtime>
       <library name="uide.jar">
@@ -29,17 +29,8 @@
       <import plugin="org.eclipse.ui.views"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="lpg" export="true"/>
+      <import plugin="org.eclipse.uide.runtime"/>
    </requires>
-   
-   
-   <extension-point id="contentProposer" name="Universal IDE Content Proposer" schema="schema/contentProposer.exsd"/>
-   <extension-point id="hoverHelper" name="Universal IDE Hover Helper" schema="schema/hoverHelper.exsd"/>
-   <extension-point id="outliner" name="Universal IDE Outliner" schema="schema/outliner.exsd"/>
-   <extension-point id="tokenColorer" name="Universal IDE Token Colorer" schema="schema/tokenColorer.exsd"/>
-   <extension-point id="languageDescription" name="Description of a programming language" schema="schema/languageDescription.exsd"/>
-   <extension-point id="index" name="Shared index of language-specific items, such as types" schema="schema/index.exsd"/>
-   <extension-point id="parser" name="Language-specific parser" schema="schema/parser.exsd"/>
-   <extension-point id="modelListener" name="Listener for model changes" schema="schema/modelListener.exsd"/>
    
    <extension
          point="org.eclipse.help.toc">
@@ -47,17 +38,7 @@
             primary="true"
             file="doc/toc.xml"/>
    </extension>
-   <extension
-         point="org.eclipse.ui.editors">
-      <editor
-            name="Universal IDE Editor"
-            icon="icons/uide.gif"
-            extensions="txt"
-            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
-            class="org.eclipse.uide.editor.UniversalEditor"
-            id="org.eclipse.ui.DefaultTextEditor">
-      </editor>
-   </extension>
+
    <extension
          point="org.eclipse.ui.newWizards">
       <primaryWizard id="org.eclipse.uide.wizards.NewLanguageWizard"/>
@@ -74,6 +55,12 @@
             id="org.eclipse.uide.wizards.core"
             name="Core Services"
             parentCategory="org.eclipse.uide.wizards"/>
+      <wizard
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
+            class="org.eclipse.uide.wizards.Wizards$NewBuilder"
+            icon="icons/sample.gif"
+            id="org.eclipse.uide.newBuilder"
+            name="Incremental Builder"/>
       <wizard
             class="org.eclipse.uide.wizards.Wizards$NewIndex"
             icon="icons/sample.gif"
