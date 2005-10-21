@@ -14,10 +14,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -172,7 +170,7 @@ public class ExtensionPointWizardPage extends WizardPage {
     public void createControl(Composite parent) {
 	try {
 	    Composite container= new Composite(parent, SWT.NULL | SWT.BORDER);
-	    container.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+//	    container.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 
 	    GridLayout layout= new GridLayout();
 	    container.setLayout(layout);
@@ -222,6 +220,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 	    }
 	    dialogChanged();
 	    setControl(container);
+	    projectText.setFocus();
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
