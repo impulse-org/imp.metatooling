@@ -1,4 +1,5 @@
 package org.eclipse.uide.wizards;
+
 /*
  * Licensed Materials - Property of IBM,
  * (c) Copyright IBM Corp. 2005  All Rights Reserved
@@ -22,94 +23,90 @@ import org.eclipse.uide.core.ErrorHandler;
  * This wizard creates a new file resource in the provided container. 
  * The wizard creates one file with the extension "g". 
  */
-
 public class ExtensionPointWizard extends Wizard implements INewWizard {
-	
-	protected int currentPage;
-	protected ExtensionPointWizardPage pages[];
-	protected int NPAGES;
-	
-	public ExtensionPointWizard() {
-		super();
-		setNeedsProgressMonitor(true);
-	}	
-	
-	public int getPageCount() {
-		return NPAGES;
-	}
-		
-	protected void addPages(ExtensionPointWizardPage[] pages) {
-		this.pages = pages;
-		NPAGES = pages.length;
-		for (int n=0; n<pages.length; n++) {
-			addPage(pages[n]);
-		}
-	}
+    protected int currentPage;
 
-	public IWizardPage getPreviousPage(IWizardPage page) {
-		if (currentPage == 0)
-			return null;
-		return pages[currentPage];
-	}
-	
-	public IWizardPage getNextPage(IWizardPage page) {
-		if (currentPage == pages.length-1)
-			return null;
-		return pages[++currentPage];
-	}
-	
-	public boolean canFinish() {
-		return pages[currentPage].canFlipToNextPage() && 
-                (pages.length == 1 || currentPage > 0);
-	}
+    protected ExtensionPointWizardPage pages[];
 
-	/**
-	 * This method is called when 'Finish' button is pressed in
-	 * the wizard. We will create an operation and run it
-	 * using wizard as execution context.
-	 */
-	public boolean performFinish() {
-		IRunnableWithProgress op = new IRunnableWithProgress() {
-			public void run(IProgressMonitor monitor) throws InvocationTargetException {
-				IWorkspaceRunnable wsop = new IWorkspaceRunnable() {
-					public void run(IProgressMonitor monitor) throws CoreException {
-						try {
-							for (int n = 0; n < pages.length; n++) {
-								ExtensionPointWizardPage page = pages[n];
-								if (!page.hasBeenSkipped())
-									ExtensionPointEnabler.enable(page, monitor);
-							}
-						} catch (Exception e) {
-							ErrorHandler.reportError("Could not add extension points", e);
-						} finally {
-							monitor.done();
-						}
-					}
-				};
-				try {
-					ResourcesPlugin.getWorkspace().run(wsop, monitor);
-				} catch (Exception e) {
-					ErrorHandler.reportError("Could not add extension points", e);
-				}
+    protected int NPAGES;
+
+    public ExtensionPointWizard() {
+	super();
+	setNeedsProgressMonitor(true);
+    }
+
+    public int getPageCount() {
+	return NPAGES;
+    }
+
+    protected void addPages(ExtensionPointWizardPage[] pages) {
+	this.pages= pages;
+	NPAGES= pages.length;
+	for(int n= 0; n < pages.length; n++) {
+	    addPage(pages[n]);
+	}
+    }
+
+    public IWizardPage getPreviousPage(IWizardPage page) {
+	if (currentPage == 0)
+	    return null;
+	return pages[currentPage];
+    }
+
+    public IWizardPage getNextPage(IWizardPage page) {
+	if (currentPage == pages.length - 1)
+	    return null;
+	return pages[++currentPage];
+    }
+
+    public boolean canFinish() {
+	return super.canFinish();// pages[currentPage].isPageComplete() && (currentPage >= pages.length - 1);
+    }
+
+    /**
+     * This method is called when 'Finish' button is pressed in the wizard.
+     * We will create an operation and run it using wizard as execution context.
+     */
+    public boolean performFinish() {
+	IRunnableWithProgress op= new IRunnableWithProgress() {
+	    public void run(IProgressMonitor monitor) throws InvocationTargetException {
+		IWorkspaceRunnable wsop= new IWorkspaceRunnable() {
+		    public void run(IProgressMonitor monitor) throws CoreException {
+			try {
+			    for(int n= 0; n < pages.length; n++) {
+				ExtensionPointWizardPage page= pages[n];
+				if (!page.hasBeenSkipped())
+				    ExtensionPointEnabler.enable(page, monitor);
+			    }
+			} catch (Exception e) {
+			    ErrorHandler.reportError("Could not add extension points", e);
+			} finally {
+			    monitor.done();
 			}
+		    }
 		};
 		try {
-			getContainer().run(true, false, op);
-		} catch (InvocationTargetException e) {
-			Throwable realException = e.getTargetException();
-			ErrorHandler.reportError("Error", realException);
-			return false;
-		} catch (InterruptedException e) {
-			return false;
+		    ResourcesPlugin.getWorkspace().run(wsop, monitor);
+		} catch (Exception e) {
+		    ErrorHandler.reportError("Could not add extension points", e);
 		}
-		return true;
+	    }
+	};
+	try {
+	    getContainer().run(true, false, op);
+	} catch (InvocationTargetException e) {
+	    Throwable realException= e.getTargetException();
+	    ErrorHandler.reportError("Error", realException);
+	    return false;
+	} catch (InterruptedException e) {
+	    return false;
 	}
-	
-	public void setPage(int page) {
-		currentPage = page;
-	}
+	return true;
+    }
 
-	public void init(IWorkbench workbench, IStructuredSelection selection) {
-	}
+    public void setPage(int page) {
+	currentPage= page;
+    }
 
+    public void init(IWorkbench workbench, IStructuredSelection selection) {}
 }
