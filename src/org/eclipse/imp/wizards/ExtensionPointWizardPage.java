@@ -93,47 +93,8 @@ public class ExtensionPointWizardPage extends WizardPage {
     protected List requires= new ArrayList();
     protected int totalPages;
 
-    static public class Field {
-	public String name;
-	public String label;
-	public int kind;
-	public boolean required;
-	public String value;
-	public String description;
-	public Text text;
-	public String schemaName;
-	public Button button;
-	public Hyperlink link;
-
-	Field(String schemaName, String name, String label, String value, int kind, boolean required, String description) {
-	    this.name= name;
-	    this.label= label;
-	    this.value= value;
-	    this.kind= kind;
-	    this.required= required;
-	    this.description= description;
-	    this.schemaName= schemaName;
-	}
-
-	public void setEnabled(boolean enabled) {
-	    text.setEnabled(enabled);
-	    if (button != null)
-		button.setEnabled(enabled);
-	    if (link != null)
-		link.setEnabled(enabled);
-	}
-
-	public void setText(String string) {
-	    text.setText(string);
-	}
-
-	public String getText() {
-	    return text.getText();
-	}
-    }
-
     public boolean canFlipToNextPage() {
-	return pageNumber < totalPages && (skip || getUncompletedField() == null);
+	return super.canFlipToNextPage();
     }
 
     public ExtensionPointWizardPage(ExtensionPointWizard owner, String pluginID, String pointID) {
@@ -162,6 +123,10 @@ public class ExtensionPointWizardPage extends WizardPage {
 	    setTitle("Extension point: " + pluginID + "." + pointID);
 	    setDescription("Cannot create wizard page: " + e);
 	}
+    }
+
+    protected void createAdditionalControls(Composite parent) {
+	// Noop here; optionally overridden in derived classes
     }
 
     /**
@@ -206,6 +171,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 			createSchemaAttributeTextField(container, element.getName(), attribute);
 		    }
 		}
+		createAdditionalControls(container);
 		descriptionText= new Text(container, SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
 		descriptionText.setBackground(container.getBackground());
 		GridData gd= new GridData(GridData.FILL_BOTH);
@@ -235,7 +201,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 	String value= valueObject == null ? "" : valueObject.toString();
 	boolean required= attribute.getUse() == ISchemaAttribute.REQUIRED;
 	String upName= Character.toUpperCase(name.charAt(0)) + name.substring(1);
-	Field field= new Field(schemaName, name, upName, value, kind, required, description);
+	WizardPageField field= new WizardPageField(schemaName, name, upName, value, kind, required, description);
 	Text text= createLabelText(container, upName, description, basedOn, value, required, field);
 	if (name.equals("language"))
 	    languageText= text;
@@ -244,7 +210,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 	text.addModifyListener(new ModifyListener() {
 	    public void modifyText(ModifyEvent e) {
 		Text text= (Text) e.widget;
-		Field field= (Field) text.getData();
+		WizardPageField field= (WizardPageField) text.getData();
 		field.value= text.getText();
 		if (field.name.equals("language")) {
 		    language= field.value;
@@ -255,7 +221,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 	text.addFocusListener(new FocusAdapter() {
 	    public void focusGained(FocusEvent e) {
 		Text text= (Text) e.widget;
-		Field field= (Field) text.getData();
+		WizardPageField field= (WizardPageField) text.getData();
 		descriptionText.setText(field.description);
 	    }
 	});
@@ -397,7 +363,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 	}
     }
 
-    protected Text createLabelText(Composite container, String name, String description, final String basedOn, String value, boolean required, Field field) {
+    protected Text createLabelText(Composite container, String name, String description, final String basedOn, String value, boolean required, WizardPageField field) {
 	Widget labelWidget= null;
 	if (required)
 	    name+= "*";
@@ -564,7 +530,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 		setPageComplete(false);
 		return;
 	    }
-	    Field field= getUncompletedField();
+	    WizardPageField field= getUncompletedField();
 	    if (field != null) {
 		setErrorMessage("Please provide a value for the required attribute \"" + field.label + "\"");
 		setPageComplete(false);
@@ -574,9 +540,9 @@ public class ExtensionPointWizardPage extends WizardPage {
 	}
     }
 
-    Field getUncompletedField() {
+    WizardPageField getUncompletedField() {
 	for(int n= 0; n < fields.size(); n++) {
-	    Field field= (Field) fields.get(n);
+	    WizardPageField field= (WizardPageField) fields.get(n);
 	    if (field.required && field.value.length() == 0) {
 		return field;
 	    }
@@ -590,7 +556,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     public String getValue(String name) {
 	for(int n= 0; n < fields.size(); n++) {
-	    Field field= (Field) fields.get(n);
+	    WizardPageField field= (WizardPageField) fields.get(n);
 	    if (field.name.toLowerCase().equals(name)) {
 		return field.value;
 	    }
@@ -598,9 +564,9 @@ public class ExtensionPointWizardPage extends WizardPage {
 	return "No such field: " + name;
     }
 
-    public Field getField(String name) {
+    public WizardPageField getField(String name) {
 	for(int n= 0; n < fields.size(); n++) {
-	    Field field= (Field) fields.get(n);
+	    WizardPageField field= (WizardPageField) fields.get(n);
 	    if (field.name.toLowerCase().equals(name)) {
 		return field;
 	    }
