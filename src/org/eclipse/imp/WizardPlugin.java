@@ -7,9 +7,7 @@ package org.eclipse.uide;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.uide.core.LanguageRegistry;
 import org.osgi.framework.BundleContext;
 
 /**

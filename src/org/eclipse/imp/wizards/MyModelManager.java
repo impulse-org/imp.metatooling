@@ -38,7 +38,7 @@ class MyModelManager {
         return project.exists(new Path("feature.xml")); //$NON-NLS-1$
     }
 
-    private IPluginModelBase createPluginModel(IProject project) {
+    IPluginModelBase createPluginModel(IProject project) {
         if (hasBundleManifest(project))
     	return createWorkspaceBundleModel(project.getFile("META-INF/MANIFEST.MF")); //$NON-NLS-1$
 
