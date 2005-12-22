@@ -1,0 +1,81 @@
+package org.eclipse.uide.java.views;
+
+class Java extends Language {
+    icon staticIcon    = "icons/static.gif";
+    icon finalIcon     = "icons/final.gif";
+    icon publicIcon    = "icons/public.gif";
+    icon privateIcon   = "icons/private.gif";
+    icon protectedIcon = "icons/protected.gif";
+    icon packageIcon   = "icons/package.gif";
+
+    set modifierIcons(decl) = {
+        decl.modifiers().isStatic()    => staticIcon +
+        decl.modifiers().isFinal()     => finalIcon +
+
+        decl.modifiers().isPublic()    => publicIcon +
+        decl.modifiers().isPrivate()   => privateIcon +
+        decl.modifiers().isProtected() => protectedIcon +
+        decl.modifiers().isPackage()   => packageIcon
+    }
+
+    TreePresentation DeclPresentation { // generates ILabelProvider and IImageProvider implementations
+        node type = {
+            label = type.name();
+            icons = modifierIcons(type);
+        }
+        node method = {
+            label = method.name() + method.signature();
+            icons = modifierIcons(method);
+        }
+        node field = {
+            label = field.name();
+            icons = modifierIcons(field);
+        }
+    }
+
+    Outline extends Language.Outline { // no implicit derivation; default is override
+        use DeclPresentation;
+        node type;
+        node method;
+        node field;
+    }
+
+    TextPresentation KeywordPresentation { // generates IOutliner implementation
+        font normal = "courier"
+        token keyword = {
+            color = "blue";
+            font  = normal;
+            style = { bold };
+        }
+        token comment = {
+            color = "green";
+            font  = normal;
+            style = { italic };
+        }
+        token string = {
+            color = "red";
+            font  = normal;
+            style = { italic };
+        }
+    }
+
+    Editor extends Language.Editor {
+        use KeywordPresentation;
+    }
+}
+
+package x10.uide.views;
+
+class X10 extends Java {
+    icon nullableIcon = "icons/nullable.gif";
+    icon valueIcon    = "icons/value.gif";
+
+    set modifierIcons(decl) = Java.modifierIcons(decl) + {
+        decl.modifiers().isNullable() => nullableIcon,
+        decl.modifiers().isValue()    => valueIcon
+    }
+
+    Outline extends Java.Outline {
+        node async; // N.B.: presentation is inherited declPresentation, using override of modifierIcons()
+    }
+}
