@@ -16,7 +16,7 @@
             id="org.eclipse.uide.wizards"
             name="Universal IDE"/>
       <wizard
-            class="org.org.eclipse.uideeclipse.uide.wizards.Wizards$NewLanguage"
+            class="org.eclipse.uide.wizards.Wizards$NewLanguage"
             icon="icons/sample.gif"
             category="org.eclipse.uide.wizards"
             name="Programming language"
