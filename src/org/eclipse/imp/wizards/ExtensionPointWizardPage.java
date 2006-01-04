@@ -5,7 +5,9 @@ package org.eclipse.uide.wizards;
  * (c) Copyright IBM Corp. 2005  All Rights Reserved
  */
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,9 +15,11 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -111,10 +115,27 @@ public class ExtensionPointWizardPage extends WizardPage {
 	this.owner= owner;
 	try {
 	    IExtensionPoint ep= (IExtensionPoint) Platform.getExtensionRegistry().getExtensionPoint(pluginID, pointID);
-	    Bundle core= Platform.getBundle(pluginID);
-	    String location= core.getLocation();
-	    String schemaLoc= location.substring(location.indexOf('@') + 1) + ep.getSchemaReference();
-	    // File file = new File(location);
+	    String schemaLoc;
+
+	    if (ep.getUniqueIdentifier().startsWith("org.eclipse.") && !ep.getUniqueIdentifier().startsWith("org.eclipse.uide")) {
+		// RMF 1/5/2006 - Horrible hack to get schema for extension points residing
+		//                within Eclipse platform plugins.
+		Bundle platSrcPlugin= Platform.getBundle("org.eclipse.platform.source");
+		String platSrcPluginLoc= platSrcPlugin.getLocation();
+		// FIXME Assumes extension point plugin has same version as org.eclipse.platform.source
+		// How to find out which version of the extension point plugin is installed?
+		String extPluginVersion= platSrcPluginLoc.substring(platSrcPluginLoc.lastIndexOf('_'));
+		Path schemaPath= new Path("src/" + ep.getNamespace() + extPluginVersion + ep.getSchemaReference());
+		URL schemaURL= Platform.find(platSrcPlugin, schemaPath);
+		URL localSchemaURL= Platform.asLocalURL(schemaURL);
+
+		schemaLoc= localSchemaURL.getPath();
+	    } else {
+		Bundle core= Platform.getBundle(pluginID);
+		String location= core.getLocation();
+		schemaLoc= location.substring(location.indexOf('@') + 1) + ep.getSchemaReference();
+
+	    }
 	    schema= new Schema(pluginID, pointID, "", false);
 	    schema.load(new FileInputStream(schemaLoc));
 	    setDescription(schema.getDescription());
