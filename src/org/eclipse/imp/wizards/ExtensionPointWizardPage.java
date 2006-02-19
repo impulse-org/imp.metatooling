@@ -118,14 +118,12 @@ public class ExtensionPointWizardPage extends WizardPage {
 	    String schemaLoc;
 
 	    if (ep.getUniqueIdentifier().startsWith("org.eclipse.") && !ep.getUniqueIdentifier().startsWith("org.eclipse.uide")) {
-		// RMF 1/5/2006 - Horrible hack to get schema for extension points residing
-		//                within Eclipse platform plugins.
+		// RMF 1/5/2006 - Hack to get schema for extension points defined by Eclipse
+                // platform plugins: attempts to find them in org.eclipse.platform.source.
 		Bundle platSrcPlugin= Platform.getBundle("org.eclipse.platform.source");
-		String platSrcPluginLoc= platSrcPlugin.getLocation();
-		// FIXME Assumes extension point plugin has same version as org.eclipse.platform.source
-		// How to find out which version of the extension point plugin is installed?
-		String extPluginVersion= platSrcPluginLoc.substring(platSrcPluginLoc.lastIndexOf('_'));
-		Path schemaPath= new Path("src/" + ep.getNamespace() + extPluginVersion + ep.getSchemaReference());
+                Bundle extProviderPlugin= Platform.getBundle(ep.getNamespace());
+		String extPluginVersion= (String) extProviderPlugin.getHeaders().get("Bundle-Version");
+		Path schemaPath= new Path("src/" + ep.getNamespace() + "_" + extPluginVersion + "/" + ep.getSchemaReference());
 		URL schemaURL= Platform.find(platSrcPlugin, schemaPath);
 		URL localSchemaURL= Platform.asLocalURL(schemaURL);
 
