@@ -14,7 +14,7 @@
       <primaryWizard id="org.eclipse.uide.wizards.NewLanguageWizard"/>
       <category
             id="org.eclipse.uide.wizards"
-            name="Universal IDE"/>
+            name="IDE Language Support"/>
       <wizard
             class="org.eclipse.uide.wizards.Wizards$NewLanguage"
             icon="icons/sample.gif"
@@ -32,11 +32,11 @@
             id="org.eclipse.uide.newBuilder"
             name="Incremental Builder"/>
       <wizard
-            class="org.eclipse.uide.wizards.Wizards$NewIndex"
+            class="org.eclipse.uide.wizards.Wizards$NewIndexer"
             icon="icons/sample.gif"
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
-            name="Index"
-            id="org.eclipse.uide.wizards.NewIndex"/>
+            name="Indexer"
+            id="org.eclipse.uide.wizards.NewIndexer"/>
       <category
             id="org.eclipse.uide.wizards.parser"
             name="Parser Services"
@@ -45,14 +45,15 @@
             class="org.eclipse.uide.wizards.Wizards$NewParser"
             icon="icons/sample.gif"
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.parser"
-            name="Parser written by hand"
+            name="Hand-written Parser"
             id="org.eclipse.uide.wizards.NewParser"/>
-      <wizard
+<!--  <wizard
             class="org.eclipse.uide.wizards.Wizards$NewModelListener"
             icon="icons/sample.gif"
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.parser"
             name="Model Listener"
             id="org.eclipse.uide.wizards.NewModelListener"/>
+ -->
       <category
             id="org.eclipse.uide.wizards.editor"
             name="Editor Services"
@@ -73,7 +74,7 @@
             class="org.eclipse.uide.wizards.Wizards$NewTokenColorer"
             icon="icons/sample.gif"
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
-            name="Token Colorer"
+            name="Token colorer"
             id="org.eclipse.uide.wizards.NewTokenColorer"/>
       <wizard
             class="org.eclipse.uide.wizards.Wizards$NewContentProposer"
@@ -81,7 +82,29 @@
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
             name="Content proposer"
             id="org.eclipse.uide.wizards.NewContentProposer"/>
+      <wizard
+            class="org.eclipse.uide.wizards.Wizards$NewAnnotationHover"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            name="Annotation hover"
+            id="org.eclipse.uide.wizards.NewAnnotationHover"/>
+      <wizard
+            class="org.eclipse.uide.wizards.Wizards$NewFoldingUpdater"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            name="Source folding updater"
+            id="org.eclipse.uide.wizards.NewFoldingUpdater"/>
+      <wizard
+            class="org.eclipse.uide.wizards.Wizards$NewHyperlinkDetector"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            name="Hyperlink Detector"
+            id="org.eclipse.uide.wizards.NewHyperlinkDetector"/>
+      <wizard
+            class="org.eclipse.uide.wizards.Wizards$NewAutoEditStrategy"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            name="Auto-Edit Strategy"
+            id="org.eclipse.uide.wizards.NewAutoEditStrategy"/>
    </extension>
-   
-   
 </plugin>
