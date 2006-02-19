@@ -80,4 +80,28 @@ public class Wizards {
 	    addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, UIDE_RUNTIME, "tokenColorer"), });
 	}
     }
+
+    public static class NewFoldingUpdater extends GenericServiceWizard {
+        public void addPages() {
+            addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, UIDE_RUNTIME, "foldingUpdater"), });
+        }
+    }
+
+    public static class NewAutoEditStrategy extends GenericServiceWizard {
+        public void addPages() {
+            addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, UIDE_RUNTIME, "autoEditStrategy"), });
+        }
+    }
+
+    public static class NewHyperlinkDetector extends GenericServiceWizard {
+        public void addPages() {
+            addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, UIDE_RUNTIME, "hyperLink"), });
+        }
+    }
+
+    public static class NewAnnotationHover extends GenericServiceWizard {
+        public void addPages() {
+            addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, UIDE_RUNTIME, "annotationHover"), });
+        }
+    }
 }
