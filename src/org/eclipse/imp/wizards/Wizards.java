@@ -2,7 +2,6 @@ package org.eclipse.uide.wizards;
 
 import java.util.List;
 
-import org.eclipse.ui.INewWizard;
 import org.eclipse.uide.runtime.RuntimePlugin;
 
 public class Wizards {
@@ -27,19 +26,19 @@ public class Wizards {
 	}
     }
 
-    public static class NewLanguage extends GenericServiceWizard implements INewWizard {
+    public static class NewLanguage extends GenericServiceWizard {
 	public void addPages() {
 	    addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, UIDE_RUNTIME, "languageDescription") });
 	}
     }
 
-    public static class NewBuilder extends GenericServiceWizard implements INewWizard {
+    public static class NewBuilder extends GenericServiceWizard {
 	public void addPages() {
 	    addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, "org.eclipse.core.resources", "builders") });
 	}
     }
 
-    public static class NewIndex extends GenericServiceWizard {
+    public static class NewIndexer extends GenericServiceWizard {
 	public void addPages() {
 	    addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, UIDE_RUNTIME, "index"), });
 	}
