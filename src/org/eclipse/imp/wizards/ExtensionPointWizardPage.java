@@ -5,7 +5,6 @@ package org.eclipse.uide.wizards;
  * (c) Copyright IBM Corp. 2005  All Rights Reserved
  */
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -15,11 +14,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -267,8 +264,9 @@ public class ExtensionPointWizardPage extends WizardPage {
 		    public String isValid(Object selection) {
 			try {
 			    IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(selection.toString());
-			    if (project.exists() && project.hasNature("org.eclipse.pde.PluginNature"))
+			    if (project.exists() && project.hasNature("org.eclipse.pde.PluginNature")) {
 				return null;
+                            }
 			} catch (Exception e) {
 			}
 			return "The selected element \"" + selection + "\" is not a plug-in project";
@@ -276,8 +274,10 @@ public class ExtensionPointWizardPage extends WizardPage {
 		});
 		if (dialog.open() == ContainerSelectionDialog.OK) {
 		    Object[] result= dialog.getResult();
+                    IProject selectedProject= ResourcesPlugin.getWorkspace().getRoot().getProject(result[0].toString());
 		    if (result.length == 1) {
-			projectText.setText(((Path) result[0]).toOSString());
+//			projectText.setText(((Path) result[0]).toOSString());
+                        projectText.setText(selectedProject.getName());
 		    }
 		}
 	    }
