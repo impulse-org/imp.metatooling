@@ -6,12 +6,17 @@ package org.eclipse.uide.wizards;
  */
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringBufferInputStream;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.pde.core.IEditableModel;
+import org.eclipse.pde.core.plugin.IExtensions;
 import org.eclipse.pde.core.plugin.IPluginBase;
 import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginImport;
@@ -40,14 +45,30 @@ public class ExtensionPointEnabler {
 	}
     }
 
+    private static final String pluginXMLSkeleton= "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+        "<?eclipse version=\"3.0\"?>\n" +
+        "<plugin>\n" +
+        "</plugin>";
+
     public static IPluginModel getPlugin(final ExtensionPointWizardPage page) {
 	try {
 	    final IProject project= page.getProject();
 	    if (project == null) return null;
+            IFile pluginXML= project.getFile("plugin.xml"); 
+            if (!pluginXML.exists())
+                pluginXML.create(new StringBufferInputStream(pluginXMLSkeleton), false, new NullProgressMonitor());
 	    PluginModelManager pmm = PDECore.getDefault().getModelManager();
-	    IPluginModelBase thePluginModel= pmm.findModel(project);
+            IPluginModelBase[] wsPlugins= pmm.getState().getWorkspaceModels();
 
-	    return (IPluginModel) thePluginModel;
+            for(int i= 0; i < wsPlugins.length; i++) {
+                IPluginModelBase wsPlugin= wsPlugins[i];
+                if (wsPlugin.getBundleDescription().getName().equals(project.getName())) {
+                    return (IPluginModel) wsPlugin;
+                }
+            }
+//	    IPluginModelBase thePluginModel= pmm.findModel(project);
+//
+//	    return (IPluginModel) thePluginModel;
 	} catch (Exception e) {
 	    ErrorHandler.reportError("Could not find plugin for " + page, e);
 	}
