@@ -26,6 +26,7 @@ import org.eclipse.pde.core.plugin.IPluginModelFactory;
 import org.eclipse.pde.core.plugin.ISharedExtensionsModel;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
+import org.eclipse.pde.internal.core.WorkspaceModelManager;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModel;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
 import org.eclipse.uide.core.ErrorHandler;
@@ -57,7 +58,9 @@ public class ExtensionPointEnabler {
             IFile pluginXML= project.getFile("plugin.xml"); 
             if (!pluginXML.exists())
                 pluginXML.create(new StringBufferInputStream(pluginXMLSkeleton), false, new NullProgressMonitor());
-	    PluginModelManager pmm = PDECore.getDefault().getModelManager();
+//            WorkspaceModelManager wmm = PDECore.getDefault().getWorkspaceModelManager();
+//            IPluginModelBase[] wsPlugins= wmm.getFeatureModel(project).getWorkspaceModels();
+            PluginModelManager pmm = PDECore.getDefault().getModelManager();
             IPluginModelBase[] wsPlugins= pmm.getState().getWorkspaceModels();
 
             for(int i= 0; i < wsPlugins.length; i++) {
