@@ -14,6 +14,8 @@ import org.osgi.framework.BundleContext;
  * The main plugin class to be used in the desktop.
  */
 public class WizardPlugin extends AbstractUIPlugin {
+    public static final String kPluginID= "org.eclipse.uide";
+
     // The singleton instance.
     private static WizardPlugin sPlugin;
     // Resource bundle.
