@@ -101,8 +101,8 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
 
 				if (!page.hasBeenSkipped())
 				    ExtensionPointEnabler.enable(page, monitor);
-				generateCodeStubs(monitor);
 			    }
+			    generateCodeStubs(monitor);
 			} catch (Exception e) {
 			    ErrorHandler.reportError("Could not add extension points", e);
 			} finally {

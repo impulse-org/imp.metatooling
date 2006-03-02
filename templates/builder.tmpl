@@ -1,0 +1,78 @@
+package org.$LANG$.builder;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.uide.core.UIDEBuilderBase;
+import org.eclipse.uide.runtime.UIDEPluginBase;
+import org.osgi.framework.Bundle;
+
+/**
+ * @author
+ */
+public class $LANG$Builder extends UIDEBuilderBase {
+    /**
+     * Extension ID of the $LANG$ builder. Must match the ID in the corresponding
+     * extension definition in plugin.xml.
+     */
+    public static final String BUILDER_ID= $LANG$Plugin.kPluginID + ".jikesPGBuilder";
+
+    public static final String PROBLEM_MARKER_ID= $LANG$Plugin.kPluginID + ".problem";
+
+    protected UIDEPluginBase getPlugin() {
+	return $LANG$Plugin.getInstance();
+    }
+
+    protected String getErrorMarkerID() {
+	return PROBLEM_MARKER_ID;
+    }
+
+    protected String getWarningMarkerID() {
+	return PROBLEM_MARKER_ID;
+    }
+
+    protected String getInfoMarkerID() {
+	return PROBLEM_MARKER_ID;
+    }
+
+    protected boolean isSourceFile(IFile file) {
+	IPath path= file.getRawLocation();
+
+	if (path == null) return false;
+
+	String fileName= path.toString();
+
+	return (fileName.indexOf("/bin/") == -1 && $EXTEN$.equals(path.getFileExtension()));
+    }
+
+    protected boolean isOutputFolder(IResource resource) {
+	return resource.getFullPath().lastSegment().equals("bin");
+    }
+
+    protected void compile(final IFile file) {
+	String fileName= file.getLocation().toOSString();
+
+	try {
+	    File parentDir= new File(fileName).getParentFile();
+	    String cmd[]= new String[] { "echo", "hello" };
+	    Process process= Runtime.getRuntime().exec(cmd, new String[0], parentDir);
+
+	    doRefresh(file);
+	} catch (Exception e) {
+	    JikesPGPlugin.getInstance().writeErrorMsg(e.getMessage());
+	    e.printStackTrace();
+	}
+    }
+}

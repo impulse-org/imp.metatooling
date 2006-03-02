@@ -1,6 +1,5 @@
 package org.eclipse.uide.wizards;
 
-import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.net.URL;
@@ -8,7 +7,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -109,9 +107,14 @@ public class Wizards {
 		    "org.eclipse.uide.runtime" });
 	}
 
-	public void generateCodeStubs(IProgressMonitor mon) {
-	// TODO Auto-generated method stub
+	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
+            ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
+            IProject project= page.getProject();
+            String langName= getLanguage();
+            String[][] subs= new String[][] { { "$LANG_NAME$", langName } };
 
+            createFileFromTemplate(langName + "Builder.java", "builder.tmpl", subs, project, mon);
+            createFileFromTemplate(langName + "Nature.java", "nature.tmpl", subs, project, mon);
 	}
     }
 
@@ -161,30 +164,10 @@ public class Wizards {
 	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
 	    ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
 	    IProject project= page.getProject();
+            String langName= getLanguage();
+	    String[][] subs= new String[][] { { "$LANG_NAME$", langName } };
 
-	    createStubBuilderImpl(mon, project, getLanguage());
-	}
-
-	private IFile createStubBuilderImpl(IProgressMonitor monitor, IProject project, String langName) throws CoreException {
-	    final String fileName= langName= "Builder.java";
-	    monitor.beginTask("Creating " + fileName, 2);
-
-	    final IFile file= project.getFile(new Path(fileName));
-	    StringBuffer buffer= new StringBuffer(new String(getBuilderStub()));
-
-	    replace(buffer, "$LANG_NAME$", langName);
-
-	    if (file.exists()) {
-		file.setContents(new ByteArrayInputStream(buffer.toString().getBytes()), true, true, monitor);
-	    } else {
-		file.create(new ByteArrayInputStream(buffer.toString().getBytes()), true, monitor);
-	    }
-	    monitor.worked(1);
-	    return file;
-	}
-
-	private byte[] getBuilderStub() {
-	    return getSampleFile("builder.tmpl");
+            createFileFromTemplate(langName + "Outliner.java", "outliner.tmpl", subs, project, mon);
 	}
     }
 
@@ -228,8 +211,13 @@ public class Wizards {
 		    "org.eclipse.uide.runtime" });
 	}
 
-	public void generateCodeStubs(IProgressMonitor mon) {
-	// TODO Auto-generated method stub
+	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
+            ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
+            IProject project= page.getProject();
+            String langName= getLanguage();
+            String[][] subs= new String[][] { { "$LANG_NAME$", langName } };
+
+            createFileFromTemplate(langName + "Colorer.java", "colorer.tmpl", subs, project, mon);
 	}
     }
 
@@ -243,8 +231,8 @@ public class Wizards {
 		    "org.eclipse.uide.runtime" });
 	}
 
-	public void generateCodeStubs(IProgressMonitor mon) {
-	// TODO Auto-generated method stub
+	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
+	    // TODO Auto-generated method stub
 	}
     }
 
@@ -258,8 +246,8 @@ public class Wizards {
 		    "org.eclipse.uide.runtime" });
 	}
 
-	public void generateCodeStubs(IProgressMonitor mon) {
-	// TODO Auto-generated method stub
+	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
+	    // TODO Auto-generated method stub
 	}
     }
 
@@ -273,8 +261,8 @@ public class Wizards {
 		    "org.eclipse.uide.runtime" });
 	}
 
-	public void generateCodeStubs(IProgressMonitor mon) {
-	// TODO Auto-generated method stub
+	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
+	    // TODO Auto-generated method stub
 	}
     }
 
@@ -288,8 +276,8 @@ public class Wizards {
 		    "org.eclipse.uide.runtime" });
 	}
 
-	public void generateCodeStubs(IProgressMonitor mon) {
-	// TODO Auto-generated method stub
+	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
+	    // TODO Auto-generated method stub
 	}
     }
 }

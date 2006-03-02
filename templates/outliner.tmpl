@@ -1,0 +1,130 @@
+package org.$LANG$.editor;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Stack;
+import lpg.lpgjavaruntime.IToken;
+import org.eclipse.jdt.internal.ui.JavaPluginImages;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.texteditor.AbstractTextEditor;
+import org.eclipse.uide.core.ErrorHandler;
+import org.eclipse.uide.defaults.DefaultOutliner;
+import org.eclipse.uide.editor.UniversalEditor;
+import org.eclipse.uide.parser.IParseController;
+import org.eclipse.uide.parser.ParseError;
+
+public class Outliner extends DefaultOutliner {
+    Stack fItemStack= new Stack();
+
+    private final class OutlineVisitor extends $LANG$Parser.AbstractVisitor {
+
+	public void unimplementedVisitor(String s) {
+	    System.out.println(s);
+	}
+
+    public boolean visit(JikesPG n) {
+        fItemStack.push(createTopItem("Options", n));
+        return true;
+    }
+    public void endVisit(JikesPG n) {
+        fItemStack.pop();
+    }
+	public boolean visit(option n) {
+	    Ioption_value value= n.getoption_value();
+
+            if (value != null) {
+                if (value instanceof option_value0)
+                    createSubItem(symbolImage(n.getSYMBOL()) + " = " + symbolImage(((option_value0) value).getSYMBOL()), n);
+                else if (value instanceof option_value1)
+                    createSubItem(symbolImage(n.getSYMBOL()) + " = " + symbolListImage(((option_value1) value).getsymbol_list()), n);
+            } else
+		createSubItem(symbolImage(n.getSYMBOL()), n);
+            return true;
+	}
+    }
+
+    public TreeItem createTopItem(String label) {
+	return createTopItem(label, null);
+    }
+
+    public TreeItem createTopItem(String label, ASTNode n) {
+	TreeItem treeItem= new TreeItem(tree, SWT.NONE);
+	treeItem.setText(label);
+	treeItem.setImage(JavaPluginImages.DESC_MISC_PUBLIC.createImage());
+	if (n != null)
+	    treeItem.setData(n);
+	return treeItem;
+    }
+
+    public TreeItem createSubItem(String label) {
+        return createSubItem(label, null);
+    }
+
+    public TreeItem createSubItem(String label, ASTNode n) {
+	TreeItem treeItem= new TreeItem((TreeItem) fItemStack.peek(), SWT.NONE);
+	treeItem.setText(label);
+        if (n != null)
+            treeItem.setData(n);
+	treeItem.setImage(JavaPluginImages.DESC_MISC_PUBLIC.createImage());
+	return treeItem;
+    }
+
+    public void createOutlinePresentation(IParseController controller, int offset) {
+//	fController= controller;
+	try {
+	    if (controller != null && tree != null) {
+		if (controller.hasErrors() && false) {
+		    createDebugContents(controller);
+		} else {
+		    JikesPG jpg= (JikesPG) controller.getCurrentAst();
+
+		    if (jpg != null) {
+			tree.setRedraw(false);
+			tree.removeAll();
+			fItemStack.clear();
+			jpg.accept(new OutlineVisitor());
+		    }
+		}
+//		tree.setSelection(new TreeItem[] { tree.getItem(new Point(0, 0)) });
+	    }
+	    //selectTreeItemAtTextOffset(offset);
+	} catch (Throwable e) {
+	    ErrorHandler.reportError("Could not generate outline", e);
+	} finally {
+	    if (tree != null)
+		tree.setRedraw(true);
+	}
+    }
+
+    public void setEditor(UniversalEditor editor) {
+        System.out.println(editor.getTitle());
+    }
+
+    public void setTree(Tree tree) {
+        super.setTree(tree);
+	this.tree.addSelectionListener(new SelectionListener() {
+	    public void widgetSelected(SelectionEvent e) {
+		TreeItem ti= (TreeItem) e.item;
+		Object data= ti.getData();
+
+		if (data instanceof ASTNode) {
+		    ASTNode node= (ASTNode) ti.getData();
+		    IToken token= node.getLeftIToken();
+
+		    IEditorPart activeEditor= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+		    AbstractTextEditor textEditor= (AbstractTextEditor) activeEditor;
+
+		    textEditor.selectAndReveal(token.getStartOffset(), token.getEndOffset()-token.getStartOffset()+1);
+//		    textEditor.setFocus();
+		}
+	    }
+	    public void widgetDefaultSelected(SelectionEvent e) { }
+	});
+    }
+}
