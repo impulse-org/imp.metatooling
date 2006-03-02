@@ -1,4 +1,4 @@
-package x10.uide.editor;
+package $PKG_NAME$;
 
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
@@ -7,11 +7,11 @@ import org.eclipse.uide.defaults.DefaultTokenColorer;
 import org.eclipse.uide.editor.ITokenColorer;
 import org.eclipse.uide.parser.IParseController;
  
-import x10.parser.X10Parsersym;
+import $PARSER_PKG$.$LANG_NAME$Parsersym;
 
 import lpg.lpgjavaruntime.IToken;
 
-public class MyTokenColorer extends DefaultTokenColorer implements X10Parsersym, ITokenColorer {
+public class $LANG_NAME$TokenColorer extends DefaultTokenColorer implements $LANG_NAME$Parsersym, ITokenColorer {
 
 	TextAttribute commentAttribute, keywordAttribute, characterAttribute, numberAttribute, identifierAttribute;
 	
@@ -37,7 +37,7 @@ public class MyTokenColorer extends DefaultTokenColorer implements X10Parsersym,
 		}
 	}
 
-	public MyTokenColorer() {
+	public $LANG_NAME$TokenColorer() {
 		super();
         Display display = Display.getDefault();
 		commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.ITALIC); 		
