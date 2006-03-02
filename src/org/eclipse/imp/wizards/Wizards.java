@@ -1,6 +1,7 @@
 package org.eclipse.uide.wizards;
 
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.util.Arrays;
@@ -52,6 +53,7 @@ public class Wizards {
 	 */
 	protected abstract List/*<String>*/getPluginDependencies();
 
+        
 	static public void replace(StringBuffer sb, String target, String substitute) {
 	    for(int index= sb.indexOf(target); index != -1; index= sb.indexOf(target))
 		sb.replace(index, index + target.length(), substitute);
@@ -75,10 +77,6 @@ public class Wizards {
 		return ("// missing template file: " + fileName).getBytes();
 	    }
 	}
-
-	public String getLanguage() {
-	    return pages[0].languageText.getText();
-	}
     }
 
     public static abstract class NoCodeServiceWizard extends GenericServiceWizard {
@@ -96,7 +94,31 @@ public class Wizards {
 	}
     }
 
-    public static class NewBuilder extends GenericServiceWizard {
+    public static abstract class CodeServiceWizard extends GenericServiceWizard {
+        protected String fLanguageName;
+        protected String fPackageName;
+        protected String fPackageFolder;
+        protected String fParserPackage;
+        protected String fClassName;
+
+        protected void collectCodeParms() {
+            fLanguageName= pages[0].languageText.getText();
+            fPackageName= pages[0].fPackageName;
+            fPackageName= Character.toLowerCase(fPackageName.charAt(0)) + fPackageName.substring(1);
+            fPackageFolder= fPackageName.replace('.', File.separatorChar);
+            String[] subPkgs= fPackageName.split("\\.");
+            StringBuffer buff= new StringBuffer();
+            for(int i= 0; i < subPkgs.length-1; i++) {
+                if (i > 0) buff.append('.');
+                buff.append(subPkgs[i]);
+            }
+            buff.append(".parser");
+            fParserPackage= buff.toString();
+            fClassName= Character.toUpperCase(fLanguageName.charAt(0)) + fLanguageName.substring(1);
+        }
+    }
+
+    public static class NewBuilder extends CodeServiceWizard {
 	public void addPages() {
 	    addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, "org.eclipse.core.resources",
 		    "builders") });
@@ -110,11 +132,10 @@ public class Wizards {
 	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
             ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
             IProject project= page.getProject();
-            String langName= getLanguage();
-            String[][] subs= new String[][] { { "$LANG_NAME$", langName } };
+            String[][] subs= new String[][] { { "$LANG_NAME$", fLanguageName } };
 
-            createFileFromTemplate(langName + "Builder.java", "builder.tmpl", subs, project, mon);
-            createFileFromTemplate(langName + "Nature.java", "nature.tmpl", subs, project, mon);
+            createFileFromTemplate(fLanguageName + "Builder.java", "builder.tmpl", fPackageFolder, subs, project, mon);
+            createFileFromTemplate(fLanguageName + "Nature.java", "nature.tmpl", fPackageFolder, subs, project, mon);
 	}
     }
 
@@ -151,23 +172,22 @@ public class Wizards {
 	}
     }
 
-    public static class NewOutliner extends GenericServiceWizard {
+    public static class NewOutliner extends CodeServiceWizard {
 	public void addPages() {
 	    addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, UIDE_RUNTIME, "outliner"), });
 	}
 
 	protected List getPluginDependencies() {
 	    return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
-		    "org.eclipse.uide.runtime" });
+		    "org.eclipse.uide.runtime", "org.eclipse.ui" });
 	}
 
 	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
 	    ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
 	    IProject project= page.getProject();
-            String langName= getLanguage();
-	    String[][] subs= new String[][] { { "$LANG_NAME$", langName } };
+	    String[][] subs= new String[][] { { "$LANG_NAME$", fLanguageName } };
 
-            createFileFromTemplate(langName + "Outliner.java", "outliner.tmpl", subs, project, mon);
+            createFileFromTemplate(fLanguageName + "Outliner.java", "outliner.tmpl", fPackageFolder, subs, project, mon);
 	}
     }
 
@@ -201,23 +221,26 @@ public class Wizards {
 	}
     }
 
-    public static class NewTokenColorer extends GenericServiceWizard {
+    public static class NewTokenColorer extends CodeServiceWizard {
 	public void addPages() {
 	    addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, UIDE_RUNTIME, "tokenColorer"), });
 	}
 
 	protected List getPluginDependencies() {
 	    return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
-		    "org.eclipse.uide.runtime" });
+		    "org.eclipse.uide.runtime", "org.eclipse.ui", "org.eclipse.jface.text", "lpg" });
 	}
 
 	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
             ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
             IProject project= page.getProject();
-            String langName= getLanguage();
-            String[][] subs= new String[][] { { "$LANG_NAME$", langName } };
+            String[][] subs= new String[][] {
+                { "$LANG_NAME$", fLanguageName },
+                { "$PKG_NAME$", fPackageName },
+                { "$PARSER_PKG$", fParserPackage }
+            };
 
-            createFileFromTemplate(langName + "Colorer.java", "colorer.tmpl", subs, project, mon);
+            createFileFromTemplate(fLanguageName + "TokenColorer.java", "colorer.tmpl", fPackageFolder, subs, project, mon);
 	}
     }
 
