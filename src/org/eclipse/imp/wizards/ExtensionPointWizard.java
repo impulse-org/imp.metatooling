@@ -84,13 +84,36 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
 	return super.canFinish();// pages[currentPage].isPageComplete() && (currentPage >= pages.length - 1);
     }
 
-    protected abstract void generateCodeStubs(IProgressMonitor m) throws CoreException;
+    /**
+     * Generate any necessary code for this extension from template files in the
+     * templates directory.<br>
+     * Implementations can use <code>getTemplateFile(String)</code> to access the
+     * necessary template files.<br>
+     * Implementations must be careful not to access the fields of the wizard page,
+     * as this code will probably be called from a thread other than the UI thread.
+     * I.e., don't write something like:<br>
+     * <code>pages[0].languageText.getText()</code><br>
+     * Instead, in the wizard class, override <code>collectCodeParams()</code>,
+     * which gets called earlier from the UI thread, and save any necessary data
+     * in fields in the wizard class.
+     * @param monitor
+     * @throws CoreException
+     */
+    protected abstract void generateCodeStubs(IProgressMonitor mon) throws CoreException;
+
+    /**
+     * Implementers of generateCodeStubs() should override this to collect any
+     * necessary information from the fields in the various wizard pages needed
+     * to generate code.
+     */
+    protected void collectCodeParms() { }
 
     /**
      * This method is called when 'Finish' button is pressed in the wizard.
      * We will create an operation and run it using wizard as execution context.
      */
     public boolean performFinish() {
+        collectCodeParms(); // Do this in the UI thread while the wizard fields are still accessible
 	IRunnableWithProgress op= new IRunnableWithProgress() {
 	    public void run(IProgressMonitor monitor) throws InvocationTargetException {
 		IWorkspaceRunnable wsop= new IWorkspaceRunnable() {
@@ -187,10 +210,10 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
         monitor.worked(1);
     }
 
-    protected IFile createFileFromTemplate(String fileName, String templateName, String[][] replacements, IProject project, IProgressMonitor monitor) throws CoreException {
+    protected IFile createFileFromTemplate(String fileName, String templateName, String folder, String[][] replacements, IProject project, IProgressMonitor monitor) throws CoreException {
         monitor.beginTask("Creating " + fileName, 2);
     
-        final IFile file= project.getFile(new Path(fileName));
+        final IFile file= project.getFile(new Path("src/" + folder + "/" + fileName));
         StringBuffer buffer= new StringBuffer(new String(getTemplateFile(templateName)));
     
         for(int i= 0; i < replacements.length; i++) {
