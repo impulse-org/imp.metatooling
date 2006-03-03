@@ -78,42 +78,44 @@ import org.osgi.framework.Bundle;
  * accept file name without the extension OR with the extension that matches the expected one (g).
  */
 public class ExtensionPointWizardPage extends WizardPage {
-    protected Text projectText;
+    protected Text fProjectText;
 
-    protected String pluginID;
+    protected String fExtPluginID;
 
-    protected String pointID;
+    protected String fExtPointID;
 
-    protected Schema schema;
+    protected Schema fSchema;
 
-    protected boolean done= true;
+    protected boolean fDone= true;
 
-    protected Text descriptionText;
+    protected Text fDescriptionText;
 
-    protected Text languageText;
+    protected Text fLanguageText;
+
+    protected Text fQualClassText;
 
     protected String fPackageName;
 
-    protected List fields= new ArrayList(); // a list of Field instances
+    protected List fFields= new ArrayList(); // a list of Field instances
 
-    protected Button addThisExtensionPointButton;
+    protected Button fAddThisExtensionPointButton;
 
-    protected boolean skip= false;
+    protected boolean fSkip= false;
 
-    protected boolean isOptional;
+    protected boolean fIsOptional;
 
-    protected ExtensionPointWizard owner;
+    protected ExtensionPointWizard fOwningWizard;
 
-    protected int pageNumber;
+    protected int fThisPageNumber;
 
     // shared between wizard pages
-    protected static String language= "";
+    protected static String sLanguage= "";
 
-    protected static String projectName= "";
+    protected static String sProjectName= "";
 
-    protected List requires= new ArrayList();
+    protected List fRequiredPlugins= new ArrayList();
 
-    protected int totalPages;
+    protected int fTotalPages;
 
     public boolean canFlipToNextPage() {
         return super.canFlipToNextPage();
@@ -125,12 +127,12 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     public ExtensionPointWizardPage(ExtensionPointWizard owner, int pageNumber, int totalPages, String pluginID, String pointID, boolean isOptional) {
         super("wizardPage");
-        this.pluginID= pluginID;
-        this.pointID= pointID;
-        this.isOptional= isOptional;
-        this.pageNumber= pageNumber;
-        this.totalPages= totalPages;
-        this.owner= owner;
+        this.fExtPluginID= pluginID;
+        this.fExtPointID= pointID;
+        this.fIsOptional= isOptional;
+        this.fThisPageNumber= pageNumber;
+        this.fTotalPages= totalPages;
+        this.fOwningWizard= owner;
         try {
             IExtensionPoint ep= (IExtensionPoint) Platform.getExtensionRegistry().getExtensionPoint(pluginID, pointID);
             String schemaLoc;
@@ -152,9 +154,9 @@ public class ExtensionPointWizardPage extends WizardPage {
                 schemaLoc= location.substring(location.indexOf('@') + 1) + ep.getSchemaReference();
 
             }
-            schema= new Schema(pluginID, pointID, "", false);
-            schema.load(new FileInputStream(schemaLoc));
-            setDescription(schema.getDescription());
+            fSchema= new Schema(pluginID, pointID, "", false);
+            fSchema.load(new FileInputStream(schemaLoc));
+            setDescription(fSchema.getDescription());
         } catch (Exception e) {
             ErrorHandler.reportError("Cannot create wizard page for " + pluginID + "." + pointID, e);
             setTitle("Extension point: " + pluginID + "." + pointID);
@@ -178,79 +180,105 @@ public class ExtensionPointWizardPage extends WizardPage {
             container.setLayout(layout);
             layout.numColumns= 3;
             layout.verticalSpacing= 9;
-            if (totalPages > 1 && isOptional) {
-                Label label= new Label(container, SWT.NONE);
-                label.setText("Add this service:");
-                // label.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-                addThisExtensionPointButton= new Button(container, SWT.CHECK);
-                addThisExtensionPointButton.addSelectionListener(new SelectionAdapter() {
-                    public void widgetSelected(SelectionEvent e) {
-                        skip= !addThisExtensionPointButton.getSelection();
-                        dialogChanged();
-                    }
-                });
-                // addThisExtensionPointButton.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-                addThisExtensionPointButton.setSelection(true);
-                GridData gd= new GridData(GridData.FILL_HORIZONTAL);
-                gd.horizontalSpan= 2;
-                addThisExtensionPointButton.setLayoutData(gd);
+            if (fTotalPages > 1 && fIsOptional) {
+                addServiceEnablerCheckbox(container);
             }
             createProjectLabelText(container);
             try {
-                ISchemaElement[] elements= schema.getElements();
+                ISchemaElement[] elements= fSchema.getElements();
                 for(int n= 0; n < elements.length; n++) {
                     ISchemaElement element= elements[n];
+
                     if (element.getName().equals("extension"))
                         continue;
+
                     ISchemaAttribute[] attributes= element.getAttributes();
+
                     for(int k= 0; k < attributes.length; k++) {
                         ISchemaAttribute attribute= attributes[k];
+
                         createSchemaAttributeTextField(container, element.getName(), attribute);
                     }
                 }
                 createAdditionalControls(container);
-                descriptionText= new Text(container, SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
-                descriptionText.setBackground(container.getBackground());
-                GridData gd= new GridData(GridData.FILL_BOTH);
-                gd.horizontalSpan= 3;
-                gd.widthHint= 450;
-                descriptionText.setLayoutData(gd);
-                descriptionText.setEditable(false);
-                descriptionText.setText(schema.getDescription());
+                createDescriptionText(container);
+                addLanguageListener();
             } catch (Exception e) {
                 new Label(container, SWT.NULL).setText("Could not create wizard page");
                 ErrorHandler.reportError("Could not create wizard page", e);
             }
             dialogChanged();
             setControl(container);
-            projectText.setFocus();
+            fProjectText.setFocus();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    private void addLanguageListener() {
+        fLanguageText.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                setIDIfEmpty();
+                setClassIfEmpty();
+                setNameIfEmpty();
+            }
+        });
+    }
+
+    private void createDescriptionText(Composite container) {
+        fDescriptionText= new Text(container, SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
+        fDescriptionText.setBackground(container.getBackground());
+        GridData gd= new GridData(GridData.FILL_BOTH);
+        gd.horizontalSpan= 3;
+        gd.widthHint= 450;
+        fDescriptionText.setLayoutData(gd);
+        fDescriptionText.setEditable(false);
+        fDescriptionText.setText(fSchema.getDescription());
+    }
+
+    private void addServiceEnablerCheckbox(Composite container) {
+        Label label= new Label(container, SWT.NONE);
+        label.setText("Add this service:");
+        // label.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+        fAddThisExtensionPointButton= new Button(container, SWT.CHECK);
+        fAddThisExtensionPointButton.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                fSkip= !fAddThisExtensionPointButton.getSelection();
+                dialogChanged();
+            }
+        });
+        // fAddThisExtensionPointButton.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+        fAddThisExtensionPointButton.setSelection(true);
+        GridData gd= new GridData(GridData.FILL_HORIZONTAL);
+        gd.horizontalSpan= 2;
+        fAddThisExtensionPointButton.setLayoutData(gd);
+    }
+
     private void createSchemaAttributeTextField(Composite container, String schemaName, ISchemaAttribute attribute) {
         String name= attribute.getName();
-        int kind= attribute.getKind();
         String basedOn= attribute.getBasedOn();
         String description= stripHTML(attribute.getDescription());
-        Object valueObject= attribute.getValue();
-        String value= valueObject == null ? "" : valueObject.toString();
-        boolean required= attribute.getUse() == ISchemaAttribute.REQUIRED;
+        Object value= attribute.getValue();
+        String valueStr= (value == null) ? "" : value.toString();
+        boolean isRequired= (attribute.getUse() == ISchemaAttribute.REQUIRED);
         String upName= Character.toUpperCase(name.charAt(0)) + name.substring(1);
-        WizardPageField field= new WizardPageField(schemaName, name, upName, value, kind, required, description);
-        Text text= createLabelTextBrowse(container, upName, description, basedOn, value, required, field);
+
+        WizardPageField field= new WizardPageField(schemaName, name, upName, valueStr, attribute.getKind(), isRequired, description);
+        Text text= createLabelTextBrowse(container, upName, description, basedOn, valueStr, isRequired, field);
+
         if (name.equals("language"))
-            languageText= text;
+            fLanguageText= text;
+
         text.setData(field);
-        fields.add(field);
+        fFields.add(field);
+
         text.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
                 Text text= (Text) e.widget;
                 WizardPageField field= (WizardPageField) text.getData();
                 field.value= text.getText();
                 if (field.name.equals("language")) {
-                    language= field.value;
+                    sLanguage= field.value;
                 }
                 dialogChanged();
             }
@@ -259,7 +287,7 @@ public class ExtensionPointWizardPage extends WizardPage {
             public void focusGained(FocusEvent e) {
                 Text text= (Text) e.widget;
                 WizardPageField field= (WizardPageField) text.getData();
-                descriptionText.setText(field.description);
+                fDescriptionText.setText(field.description);
             }
         });
     }
@@ -269,11 +297,11 @@ public class ExtensionPointWizardPage extends WizardPage {
         label.setText("Project*:");
         label.setBackground(container.getBackground());
         label.setToolTipText("Select the plug-in project");
-        projectText= new Text(container, SWT.BORDER | SWT.SINGLE);
-        projectText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        fProjectText= new Text(container, SWT.BORDER | SWT.SINGLE);
+        fProjectText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         IProject project= getProject();
         if (project != null)
-            projectText.setText(project.getName());
+            fProjectText.setText(project.getName());
         discoverSelectedProject();
         Button button= new Button(container, SWT.PUSH);
         button.setText("Browse...");
@@ -297,14 +325,14 @@ public class ExtensionPointWizardPage extends WizardPage {
                     Object[] result= dialog.getResult();
                     IProject selectedProject= ResourcesPlugin.getWorkspace().getRoot().getProject(result[0].toString());
                     if (result.length == 1) {
-                        // projectText.setText(((Path) result[0]).toOSString());
-                        projectText.setText(selectedProject.getName());
+                        // fProjectText.setText(((Path) result[0]).toOSString());
+                        fProjectText.setText(selectedProject.getName());
                     }
                 }
             }
 
         });
-        projectText.addModifyListener(new ModifyListener() {
+        fProjectText.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
                 Text text= (Text) e.widget;
                 setProjectName(text.getText());
@@ -312,10 +340,10 @@ public class ExtensionPointWizardPage extends WizardPage {
                 dialogChanged();
             }
         });
-        projectText.addFocusListener(new FocusAdapter() {
+        fProjectText.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) {
                 // Text text = (Text)e.widget;
-                descriptionText.setText("Select the plug-in project to add this extension point to");
+                fDescriptionText.setText("Select the plug-in project to add this extension point to");
             }
         });
     }
@@ -325,8 +353,8 @@ public class ExtensionPointWizardPage extends WizardPage {
         ISelection selection= service.getSelection();
         IProject project= getProject(selection);
         if (project != null) {
-            projectName= project.getName();
-            projectText.setText(projectName);
+            sProjectName= project.getName();
+            fProjectText.setText(sProjectName);
         }
     }
 
@@ -350,16 +378,16 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     private void setProjectName(String newProjectName) {
         if (newProjectName.startsWith("P\\"))
-            projectName= newProjectName.substring(1);
+            sProjectName= newProjectName.substring(1);
         else if (newProjectName.startsWith("\\"))
-            projectName= newProjectName;
+            sProjectName= newProjectName;
         else
-            projectName= "\\" + newProjectName;
+            sProjectName= "\\" + newProjectName;
     }
 
     public IProject getProject() {
         try {
-            IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+            IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(sProjectName);
             if (project.exists())
                 return project;
         } catch (Exception e) {
@@ -369,13 +397,13 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     public void setVisible(boolean visible) {
         if (visible) {
-            setTitle(schema.getName() + " (Step " + (pageNumber + 1) + " of " + owner.getPageCount() + ")");
-            owner.setPage(pageNumber);
-            if (languageText != null) {
-                languageText.setText(language);
+            setTitle(fSchema.getName() + " (Step " + (fThisPageNumber + 1) + " of " + fOwningWizard.getPageCount() + ")");
+            fOwningWizard.setPage(fThisPageNumber);
+            if (fLanguageText != null) {
+                fLanguageText.setText(sLanguage);
             }
-            if (pageNumber > 0 && projectText.getCharCount() == 0) {
-                projectText.setText(projectName);
+            if (fThisPageNumber > 0 && fProjectText.getCharCount() == 0) {
+                fProjectText.setText(sProjectName);
             }
         }
         super.setVisible(visible);
@@ -383,7 +411,7 @@ public class ExtensionPointWizardPage extends WizardPage {
     }
 
     public boolean hasBeenSkipped() {
-        return skip;
+        return fSkip;
     }
 
     String stripHTML(String description) {
@@ -518,14 +546,14 @@ public class ExtensionPointWizardPage extends WizardPage {
             WizardDialog dialog= new WizardDialog(null, wizard);
             dialog.create();
             NewClassWizardPage page= (NewClassWizardPage) wizard.getPages()[0];
-            String langName= languageText.getText();
+            String langName= fLanguageText.getText();
             String langPkg= Character.toLowerCase(langName.charAt(0)) + langName.substring(1);
             page.setSuperClass(superClassName, true);
             ArrayList interfaces= new ArrayList();
             interfaces.add(interfaceQualName);
             page.setSuperInterfaces(interfaces, true);
             IFolder srcFolder= getProject().getFolder("src/");
-            String servicePackage= langPkg + ".safari." + pointID.substring(pointID.lastIndexOf('.')+1); // pkg the service belongs in
+            String servicePackage= langPkg + ".safari." + fExtPointID.substring(fExtPointID.lastIndexOf('.')+1); // pkg the service belongs in
             String[] pkgNames= servicePackage.split("\\.");
             IFolder folder= srcFolder;
             for(int i= 0; i < pkgNames.length; i++) {
@@ -557,6 +585,51 @@ public class ExtensionPointWizardPage extends WizardPage {
         }
     }
 
+    protected void setNameIfEmpty() {
+        try {
+            WizardPageField langField= getField("language");
+            String language= langField.getText();
+
+            if (language.length() == 0)
+                return;
+            getField("name").setText(language + " " + fSchema.getPointId());
+        } catch (Exception e) {
+            ErrorHandler.reportError("Cannot set name", e);
+        }
+    }
+
+    protected void setIDIfEmpty() {
+        try {
+            WizardPageField langField= getField("language");
+            String language= langField.getText();
+
+            if (language.length() == 0)
+                return;
+            String langID= lowerCaseFirst(language);
+            getField("id").setText(langID + ".safari." + lowerCaseFirst(fSchema.getPointId()));
+        } catch (Exception e) {
+            ErrorHandler.reportError("Cannot set ID", e);
+        }
+    }
+
+    protected void setClassIfEmpty() {
+        try {
+            WizardPageField langField= getField("language");
+            String language= langField.getText();
+
+            if (language.length() == 0)
+                return;
+            String langPkg= lowerCaseFirst(language);
+            getField("class").setText(langPkg + ".safari." + lowerCaseFirst(fSchema.getPointId()) + "." + language + fSchema.getPointId());
+        } catch (Exception e) {
+            ErrorHandler.reportError("Cannot set class", e);
+        }
+    }
+
+    private String lowerCaseFirst(String s) {
+        return Character.toLowerCase(s.charAt(0)) + s.substring(1);
+    }
+
     IPluginModelBase getPluginModel() {
         try {
             PluginModelManager pmm= PDECore.getDefault().getModelManager();
@@ -577,7 +650,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     void dialogChanged() {
         setErrorMessage(null);
-        if (skip)
+        if (fSkip)
             setPageComplete(true);
         else {
             IProject project= getProject();
@@ -592,7 +665,7 @@ public class ExtensionPointWizardPage extends WizardPage {
             } catch (CoreException e) {
             }
             if (!isPlugin) {
-                setErrorMessage("\"" + projectName + "\" is not a plug-in project. Please select a plug-in project to add this extension point to");
+                setErrorMessage("\"" + sProjectName + "\" is not a plug-in project. Please select a plug-in project to add this extension point to");
                 setPageComplete(false);
                 return;
             }
@@ -607,8 +680,8 @@ public class ExtensionPointWizardPage extends WizardPage {
     }
 
     WizardPageField getUncompletedField() {
-        for(int n= 0; n < fields.size(); n++) {
-            WizardPageField field= (WizardPageField) fields.get(n);
+        for(int n= 0; n < fFields.size(); n++) {
+            WizardPageField field= (WizardPageField) fFields.get(n);
             if (field.required && field.value.length() == 0) {
                 return field;
             }
@@ -617,12 +690,12 @@ public class ExtensionPointWizardPage extends WizardPage {
     }
 
     public List getValues() {
-        return fields;
+        return fFields;
     }
 
     public String getValue(String name) {
-        for(int n= 0; n < fields.size(); n++) {
-            WizardPageField field= (WizardPageField) fields.get(n);
+        for(int n= 0; n < fFields.size(); n++) {
+            WizardPageField field= (WizardPageField) fFields.get(n);
             if (field.name.toLowerCase().equals(name)) {
                 return field.value;
             }
@@ -631,8 +704,8 @@ public class ExtensionPointWizardPage extends WizardPage {
     }
 
     public WizardPageField getField(String name) {
-        for(int n= 0; n < fields.size(); n++) {
-            WizardPageField field= (WizardPageField) fields.get(n);
+        for(int n= 0; n < fFields.size(); n++) {
+            WizardPageField field= (WizardPageField) fFields.get(n);
             if (field.name.toLowerCase().equals(name)) {
                 return field;
             }
@@ -641,6 +714,6 @@ public class ExtensionPointWizardPage extends WizardPage {
     }
 
     public List getRequires() {
-        return requires;
+        return fRequiredPlugins;
     }
 }
