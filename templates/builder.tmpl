@@ -1,4 +1,4 @@
-package org.$LANG$.builder;
+package $PACKAGE$;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,17 +22,17 @@ import org.osgi.framework.Bundle;
 /**
  * @author
  */
-public class $LANG$Builder extends UIDEBuilderBase {
+public class $LANG_NAME$IncrementalProjectBuilder extends UIDEBuilderBase {
     /**
-     * Extension ID of the $LANG$ builder. Must match the ID in the corresponding
+     * Extension ID of the $LANG_NAME$ builder. Must match the ID in the corresponding
      * extension definition in plugin.xml.
      */
-    public static final String BUILDER_ID= $LANG$Plugin.kPluginID + ".jikesPGBuilder";
+    public static final String BUILDER_ID= $LANG_NAME$Plugin.kPluginID + ".$LANG_NAME$Builder";
 
-    public static final String PROBLEM_MARKER_ID= $LANG$Plugin.kPluginID + ".problem";
+    public static final String PROBLEM_MARKER_ID= $LANG_NAME$Plugin.kPluginID + ".problem";
 
     protected UIDEPluginBase getPlugin() {
-	return $LANG$Plugin.getInstance();
+	return $LANG_NAME$Plugin.getInstance();
     }
 
     protected String getErrorMarkerID() {
@@ -54,7 +54,7 @@ public class $LANG$Builder extends UIDEBuilderBase {
 
 	String fileName= path.toString();
 
-	return (fileName.indexOf("/bin/") == -1 && $EXTEN$.equals(path.getFileExtension()));
+	return (fileName.indexOf("/bin/") == -1 && "$FILE_EXTEN$".equals(path.getFileExtension()));
     }
 
     protected boolean isOutputFolder(IResource resource) {
@@ -66,12 +66,13 @@ public class $LANG$Builder extends UIDEBuilderBase {
 
 	try {
 	    File parentDir= new File(fileName).getParentFile();
+	    // TODO Write your code to actually compile the given source file
 	    String cmd[]= new String[] { "echo", "hello" };
 	    Process process= Runtime.getRuntime().exec(cmd, new String[0], parentDir);
 
 	    doRefresh(file);
 	} catch (Exception e) {
-	    JikesPGPlugin.getInstance().writeErrorMsg(e.getMessage());
+	    $LANG_NAME$Plugin.getInstance().writeErrorMsg(e.getMessage());
 	    e.printStackTrace();
 	}
     }
