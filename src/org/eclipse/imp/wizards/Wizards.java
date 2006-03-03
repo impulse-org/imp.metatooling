@@ -30,24 +30,11 @@ public class Wizards {
 		    pageRequires.add(requiredPlugin);
 		}
 	    }
-	    //	    for(int n= 0; n < pages.length; n++) {
-	    //		List requires= pages[n].getRequires();
-	    //		requires.add(UIDE_RUNTIME);
-	    //		// TODO RMF 10/18/2005 -- This dependency info belongs in the extension point wizard page.
-	    //		requires.add("org.eclipse.core.runtime");
-	    //		requires.add("org.eclipse.core.resources");
-	    //		requires.add("org.eclipse.jface.text");
-	    //		requires.add("org.eclipse.ui");
-	    //		requires.add("org.eclipse.ui.ide");
-	    //		requires.add("org.eclipse.ui.editors");
-	    //		requires.add("org.eclipse.ui.views");
-	    //		requires.add("org.eclipse.ui.workbench.texteditor");
-	    //	    }
 	}
 
 	/**
 	 * @return the list of plugin dependencies for this wizard.<br>
-	 * Really, this information is specific to the stubs generated for a given language
+	 * Really, this information is specific to the stubs generated for a given sLanguage
 	 * service extension. So, at least it really belongs to a wizard page, not a wizard.
 	 * <br><b>Where to put it???</b>
 	 */
@@ -83,14 +70,20 @@ public class Wizards {
 	public void generateCodeStubs(IProgressMonitor m) {}
     }
 
+    // HACK: These must be in sync with the corresponding definitions in NewUIDEParserWizard.
+    static final String astDirectory= "Ast";
+
+    static final String astNode= "ASTNode";
+
     public static class NewLanguage extends NoCodeServiceWizard {
 	public void addPages() {
 	    addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, UIDE_RUNTIME, "languageDescription") });
 	}
 
 	protected List getPluginDependencies() {
-	    return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
-		    "org.eclipse.uide.runtime" });
+	    return Arrays.asList(new String[] {
+                    "org.eclipse.core.runtime", "org.eclipse.core.resources",
+		    "org.eclipse.uide.runtime", "org.eclipse.ui" });
 	}
     }
 
@@ -102,7 +95,7 @@ public class Wizards {
         protected String fClassName;
 
         protected void collectCodeParms() {
-            fLanguageName= pages[0].languageText.getText();
+            fLanguageName= pages[0].fLanguageText.getText();
             fPackageName= pages[0].fPackageName;
             fPackageName= Character.toLowerCase(fPackageName.charAt(0)) + fPackageName.substring(1);
             fPackageFolder= fPackageName.replace('.', File.separatorChar);
@@ -125,14 +118,18 @@ public class Wizards {
 	}
 
 	protected List getPluginDependencies() {
-	    return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
+	    return Arrays.asList(new String[] {
+                    "org.eclipse.core.runtime", "org.eclipse.core.resources",
 		    "org.eclipse.uide.runtime" });
 	}
 
 	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
             ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
             IProject project= page.getProject();
-            String[][] subs= new String[][] { { "$LANG_NAME$", fLanguageName } };
+            String[][] subs= new String[][] {
+                    { "$LANG_NAME$", fLanguageName },
+                    { "$PACKAGE$", fPackageName },
+            };
 
             createFileFromTemplate(fLanguageName + "Builder.java", "builder.tmpl", fPackageFolder, subs, project, mon);
             createFileFromTemplate(fLanguageName + "Nature.java", "nature.tmpl", fPackageFolder, subs, project, mon);
@@ -178,14 +175,22 @@ public class Wizards {
 	}
 
 	protected List getPluginDependencies() {
-	    return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
-		    "org.eclipse.uide.runtime", "org.eclipse.ui" });
+	    return Arrays.asList(new String[] {
+                    "org.eclipse.core.runtime", "org.eclipse.core.resources",
+		    "org.eclipse.uide.runtime", "org.eclipse.ui", "org.eclipse.jface.text", 
+                    "org.eclipse.ui.editors", "org.eclipse.ui.workbench.texteditor", "lpg" });
 	}
 
 	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
 	    ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
 	    IProject project= page.getProject();
-	    String[][] subs= new String[][] { { "$LANG_NAME$", fLanguageName } };
+	    String[][] subs= new String[][] {
+	        { "$LANG_NAME$", fLanguageName },
+                { "$PACKAGE$", fPackageName },
+                { "$PARSER_PKG$", fParserPackage },
+                { "$AST_PKG$", fParserPackage + "." + astDirectory },
+                { "$AST_NODE$", astNode }
+	    };
 
             createFileFromTemplate(fLanguageName + "Outliner.java", "outliner.tmpl", fPackageFolder, subs, project, mon);
 	}
