@@ -33,14 +33,13 @@ public class Wizards {
 	}
 
 	/**
-	 * @return the list of plugin dependencies for this wizard.<br>
-	 * Really, this information is specific to the stubs generated for a given sLanguage
-	 * service extension. So, at least it really belongs to a wizard page, not a wizard.
-	 * <br><b>Where to put it???</b>
+	 * @return the list of plugin dependencies for this language service.
 	 */
+	// This information is specific to the stubs generated for a given language
+	// service extension. So, it really belongs to a wizard page, not a wizard.
+	// Where to put it???
 	protected abstract List/*<String>*/getPluginDependencies();
 
-        
 	static public void replace(StringBuffer sb, String target, String substitute) {
 	    for(int index= sb.indexOf(target); index != -1; index= sb.indexOf(target))
 		sb.replace(index, index + target.length(), substitute);
