@@ -113,8 +113,7 @@ public class Wizards {
 
     public static class NewBuilder extends CodeServiceWizard {
 	public void addPages() {
-	    addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, "org.eclipse.core.resources",
-		    "builders") });
+	    addPages(new ExtensionPointWizardPage[] { new BuilderWizardPage(this) });
 	}
 
 	protected List getPluginDependencies() {
@@ -129,9 +128,11 @@ public class Wizards {
             String[][] subs= new String[][] {
                     { "$LANG_NAME$", fLanguageName },
                     { "$PACKAGE$", fPackageName },
+                    // TODO Should pull the source file-name extension from the language description
+                    { "$EXTEN$", "XXX" }
             };
 
-            createFileFromTemplate(fLanguageName + "Builder.java", "builder.tmpl", fPackageFolder, subs, project, mon);
+            createFileFromTemplate(fLanguageName + "IncrementalProjectBuilder.java", "builder.tmpl", fPackageFolder, subs, project, mon);
             createFileFromTemplate(fLanguageName + "Nature.java", "nature.tmpl", fPackageFolder, subs, project, mon);
 	}
     }
