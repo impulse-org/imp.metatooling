@@ -81,7 +81,7 @@ public class ExtensionPointEnabler {
     static void addExtensionPoint(IPluginModel pluginModel, ExtensionPointWizardPage page) throws CoreException, IOException {
 	IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
 
-	extension.setPoint(page.pluginID + "." + page.pointID);
+	extension.setPoint(page.fExtPluginID + "." + page.fExtPointID);
 	setElementAttributes(pluginModel, page, extension);
 	// N.B. BundlePluginBase.add(IPluginExtension) has logic to add the "singleton directive" if needed.
 	//      As a result, we call getPluginBase().add() below rather than getExtensions().add()...
