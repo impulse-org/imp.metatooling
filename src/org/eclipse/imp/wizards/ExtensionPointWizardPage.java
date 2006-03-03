@@ -592,7 +592,11 @@ public class ExtensionPointWizardPage extends WizardPage {
 
             if (language.length() == 0)
                 return;
-            getField("name").setText(language + " " + fSchema.getPointId());
+
+            WizardPageField nameField= getField("name");
+
+            if (nameField != null)
+                nameField.setText(language + " " + fSchema.getPointId());
         } catch (Exception e) {
             ErrorHandler.reportError("Cannot set name", e);
         }
@@ -605,8 +609,12 @@ public class ExtensionPointWizardPage extends WizardPage {
 
             if (language.length() == 0)
                 return;
+
             String langID= lowerCaseFirst(language);
-            getField("id").setText(langID + ".safari." + lowerCaseFirst(fSchema.getPointId()));
+            WizardPageField idField= getField("id");
+
+            if (idField != null)
+                idField.setText(langID + ".safari." + lowerCaseFirst(fSchema.getPointId()));
         } catch (Exception e) {
             ErrorHandler.reportError("Cannot set ID", e);
         }
@@ -620,7 +628,10 @@ public class ExtensionPointWizardPage extends WizardPage {
             if (language.length() == 0)
                 return;
             String langPkg= lowerCaseFirst(language);
-            getField("class").setText(langPkg + ".safari." + lowerCaseFirst(fSchema.getPointId()) + "." + language + fSchema.getPointId());
+            WizardPageField classField= getField("class");
+
+            if (classField != null)
+                classField.setText(langPkg + ".safari." + lowerCaseFirst(fSchema.getPointId()) + "." + language + fSchema.getPointId());
         } catch (Exception e) {
             ErrorHandler.reportError("Cannot set class", e);
         }
