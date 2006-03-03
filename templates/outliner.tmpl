@@ -1,4 +1,4 @@
-package org.$LANG$.editor;
+package $PACKAGE$;
 
 import java.util.Iterator;
 import java.util.List;
@@ -19,10 +19,13 @@ import org.eclipse.uide.editor.UniversalEditor;
 import org.eclipse.uide.parser.IParseController;
 import org.eclipse.uide.parser.ParseError;
 
-public class Outliner extends DefaultOutliner {
+import $PARSER_PKG$.$LANG_NAME$Parser;
+import $AST_PKG$.*;
+
+public class $LANG_NAME$Outliner extends DefaultOutliner {
     Stack fItemStack= new Stack();
 
-    private final class OutlineVisitor extends $LANG$Parser.AbstractVisitor {
+    private final class OutlineVisitor extends AbstractVisitor {
 
 	public void unimplementedVisitor(String s) {
 	    System.out.println(s);
@@ -53,7 +56,7 @@ public class Outliner extends DefaultOutliner {
 	return createTopItem(label, null);
     }
 
-    public TreeItem createTopItem(String label, ASTNode n) {
+    public TreeItem createTopItem(String label, $AST_NODE$ n) {
 	TreeItem treeItem= new TreeItem(tree, SWT.NONE);
 	treeItem.setText(label);
 	treeItem.setImage(JavaPluginImages.DESC_MISC_PUBLIC.createImage());
@@ -66,7 +69,7 @@ public class Outliner extends DefaultOutliner {
         return createSubItem(label, null);
     }
 
-    public TreeItem createSubItem(String label, ASTNode n) {
+    public TreeItem createSubItem(String label, $AST_NODE$ n) {
 	TreeItem treeItem= new TreeItem((TreeItem) fItemStack.peek(), SWT.NONE);
 	treeItem.setText(label);
         if (n != null)
@@ -79,9 +82,7 @@ public class Outliner extends DefaultOutliner {
 //	fController= controller;
 	try {
 	    if (controller != null && tree != null) {
-		if (controller.hasErrors() && false) {
-		    createDebugContents(controller);
-		} else {
+		if (!controller.hasErrors()) {
 		    JikesPG jpg= (JikesPG) controller.getCurrentAst();
 
 		    if (jpg != null) {
@@ -113,8 +114,8 @@ public class Outliner extends DefaultOutliner {
 		TreeItem ti= (TreeItem) e.item;
 		Object data= ti.getData();
 
-		if (data instanceof ASTNode) {
-		    ASTNode node= (ASTNode) ti.getData();
+		if (data instanceof $AST_NODE$) {
+		    $AST_NODE$ node= ($AST_NODE$) ti.getData();
 		    IToken token= node.getLeftIToken();
 
 		    IEditorPart activeEditor= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
