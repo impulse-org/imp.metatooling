@@ -35,6 +35,7 @@ import org.eclipse.jdt.ui.wizards.NewClassWizardPage;
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableContext;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -61,6 +62,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
@@ -373,6 +377,16 @@ public class ExtensionPointWizardPage extends WizardPage {
             }
             if (obj instanceof JavaProject) {
                 return ((JavaProject) obj).getProject();
+            }
+        }
+        if (selection instanceof ITextSelection) {
+            IEditorPart editorPart= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+            IEditorInput editorInput= editorPart.getEditorInput();
+
+            if (editorInput instanceof IFileEditorInput) {
+        	IFileEditorInput fileInput= (IFileEditorInput) editorInput;
+
+        	return fileInput.getFile().getProject();
             }
         }
         return null;
