@@ -150,9 +150,11 @@ public class ExtensionPointWizardPage extends WizardPage {
                 schemaLoc= localSchemaURL.getPath();
             } else {
                 Bundle core= Platform.getBundle(pluginID);
-                String location= core.getLocation();
-                schemaLoc= location.substring(location.indexOf('@') + 1) + ep.getSchemaReference();
+//              String location= core.getLocation();
+                URL localSchemaURL= Platform.asLocalURL(Platform.find(core, new Path("schema/" + ep.getSimpleIdentifier() + ".exsd")));
 
+//              schemaLoc= location.substring(location.indexOf('@') + 1) + ep.getSchemaReference();
+                schemaLoc= localSchemaURL.getPath();
             }
             fSchema= new Schema(pluginID, pointID, "", false);
             fSchema.load(new FileInputStream(schemaLoc));
@@ -261,7 +263,7 @@ public class ExtensionPointWizardPage extends WizardPage {
         Object value= attribute.getValue();
         String valueStr= (value == null) ? "" : value.toString();
         boolean isRequired= (attribute.getUse() == ISchemaAttribute.REQUIRED);
-        String upName= Character.toUpperCase(name.charAt(0)) + name.substring(1);
+        String upName= upperCaseFirst(name);
 
         WizardPageField field= new WizardPageField(schemaName, name, upName, valueStr, attribute.getKind(), isRequired, description);
         Text text= createLabelTextBrowse(container, upName, description, basedOn, valueStr, isRequired, field);
@@ -566,7 +568,7 @@ public class ExtensionPointWizardPage extends WizardPage {
             page.setPackageFragmentRoot(pkgFragRoot, true);
             page.setPackageFragment(pkgFrag, true);
 
-            String langClass= Character.toUpperCase(langName.charAt(0)) + langName.substring(1);
+            String langClass= upperCaseFirst(langName);
             if (intfName.charAt(0) == 'I' && Character.isUpperCase(intfName.charAt(1)))
                 page.setTypeName(langClass + intfName.substring(1), true);
             else
@@ -628,16 +630,21 @@ public class ExtensionPointWizardPage extends WizardPage {
             if (language.length() == 0)
                 return;
             String langPkg= lowerCaseFirst(language);
+            String langClass= upperCaseFirst(language);
             WizardPageField classField= getField("class");
 
             if (classField != null)
-                classField.setText(langPkg + ".safari." + lowerCaseFirst(fSchema.getPointId()) + "." + language + fSchema.getPointId());
+                classField.setText(langPkg + ".safari." + lowerCaseFirst(fSchema.getPointId()) + "." + langClass + upperCaseFirst(fSchema.getPointId()));
         } catch (Exception e) {
             ErrorHandler.reportError("Cannot set class", e);
         }
     }
 
-    private String lowerCaseFirst(String s) {
+    protected String upperCaseFirst(String language) {
+	return Character.toUpperCase(language.charAt(0)) + language.substring(1);
+    }
+
+    protected String lowerCaseFirst(String s) {
         return Character.toLowerCase(s.charAt(0)) + s.substring(1);
     }
 
