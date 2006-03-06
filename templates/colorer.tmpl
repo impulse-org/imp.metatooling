@@ -13,23 +13,19 @@ import lpg.lpgjavaruntime.IToken;
 
 public class $LANG_NAME$TokenColorer extends DefaultTokenColorer implements $LANG_NAME$Parsersym, ITokenColorer {
 
-	TextAttribute commentAttribute, keywordAttribute, characterAttribute, numberAttribute, identifierAttribute;
+	TextAttribute commentAttribute, keywordAttribute, stringAttribute, numberAttribute, identifierAttribute;
 	
 	public TextAttribute getColoring(IParseController controller, IToken token) {
 		switch (token.getKind())
 		{
-            case TK_DocComment: case TK_SlComment: case TK_MlComment:
+            case TK_SINGLE_LINE_COMMENT: // case TK_MULTI_LINE_COMMENT:
                  return commentAttribute;
             case TK_IDENTIFIER:
                  return identifierAttribute;
-            case TK_DoubleLiteral:
-            case TK_FloatingPointLiteral:
-            case TK_IntegerLiteral:
-            case TK_LongLiteral:
+            case TK_NUMBER:
                  return numberAttribute;
-            case TK_CharacterLiteral:
-            case TK_StringLiteral:
-                 return characterAttribute;
+//          case TK_StringLiteral:
+//               return stringAttribute;
             default:
                 if (controller.isKeyword(token.getKind()))
                      return keywordAttribute;
@@ -41,7 +37,7 @@ public class $LANG_NAME$TokenColorer extends DefaultTokenColorer implements $LAN
 		super();
         Display display = Display.getDefault();
 		commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.ITALIC); 		
-		characterAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_BLUE), null, SWT.BOLD); 		
+		stringAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_BLUE), null, SWT.BOLD); 		
 		identifierAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLACK), null, SWT.NORMAL); 		
 		numberAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_YELLOW), null, SWT.BOLD); 		
         keywordAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_MAGENTA), null, SWT.BOLD); 		
