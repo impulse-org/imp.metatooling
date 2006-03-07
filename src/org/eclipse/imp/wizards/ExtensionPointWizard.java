@@ -13,6 +13,7 @@ import java.net.URL;
 
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -21,6 +22,7 @@ import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
@@ -223,10 +225,24 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
         if (file.exists()) {
             file.setContents(new ByteArrayInputStream(buffer.toString().getBytes()), true, true, monitor);
         } else {
+            createSubFolders(folder, project, monitor);
             file.create(new ByteArrayInputStream(buffer.toString().getBytes()), true, monitor);
         }
         monitor.worked(1);
         return file;
+    }
+
+    private void createSubFolders(String folder, IProject project, IProgressMonitor monitor) throws CoreException {
+        String[] subFolderNames= folder.split("\\\\");
+        String subFolderStr= "src";
+        for(int i= 0; i < subFolderNames.length; i++) {
+            String childPath= subFolderStr + "/" + subFolderNames[i];
+            Path subFolderPath= new Path(childPath);
+            IFolder subFolder= project.getFolder(subFolderPath);
+            if (!subFolder.exists())
+                subFolder.create(true, true, monitor);
+            subFolderStr= childPath;
+        }
     }
 
     protected byte[] getTemplateFile(String fileName) {
