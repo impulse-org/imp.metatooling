@@ -646,9 +646,12 @@ public class ExtensionPointWizardPage extends WizardPage {
             String langPkg= lowerCaseFirst(language);
             String langClass= upperCaseFirst(language);
             WizardPageField classField= getField("class");
+            String pkgName= langPkg + ".safari." + lowerCaseFirst(fSchema.getPointId());
 
-            if (classField != null)
-                classField.setText(langPkg + ".safari." + lowerCaseFirst(fSchema.getPointId()) + "." + langClass + upperCaseFirst(fSchema.getPointId()));
+            if (classField != null) {
+                classField.setText(pkgName + "." + langClass + upperCaseFirst(fSchema.getPointId()));
+                fPackageName= pkgName;
+            }
         } catch (Exception e) {
             ErrorHandler.reportError("Cannot set class", e);
         }
