@@ -131,8 +131,8 @@ public class Wizards {
                     { "$EXTEN$", "XXX" }
             };
 
-            createFileFromTemplate(fLanguageName + "IncrementalProjectBuilder.java", "builder.tmpl", fPackageFolder, subs, project, mon);
-            createFileFromTemplate(fLanguageName + "Nature.java", "nature.tmpl", fPackageFolder, subs, project, mon);
+            createFileFromTemplate(pages[0].upperCaseFirst(fLanguageName) + "IncrementalProjectBuilder.java", "builder.tmpl", fPackageFolder, subs, project, mon);
+            createFileFromTemplate(pages[0].upperCaseFirst(fLanguageName) + "Nature.java", "nature.tmpl", fPackageFolder, subs, project, mon);
 	}
     }
 
@@ -192,7 +192,7 @@ public class Wizards {
                 { "$AST_NODE$", astNode }
 	    };
 
-            createFileFromTemplate(fLanguageName + "Outliner.java", "outliner.tmpl", fPackageFolder, subs, project, mon);
+            createFileFromTemplate(pages[0].upperCaseFirst(fLanguageName) + "Outliner.java", "outliner.tmpl", fPackageFolder, subs, project, mon);
 	}
     }
 
@@ -245,7 +245,7 @@ public class Wizards {
                 { "$PARSER_PKG$", fParserPackage }
             };
 
-            createFileFromTemplate(fLanguageName + "TokenColorer.java", "colorer.tmpl", fPackageFolder, subs, project, mon);
+            createFileFromTemplate(pages[0].upperCaseFirst(fLanguageName) + "TokenColorer.java", "colorer.tmpl", fPackageFolder, subs, project, mon);
 	}
     }
 
