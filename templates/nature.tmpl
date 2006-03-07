@@ -1,17 +1,17 @@
-package $PACKAGE$;
+package $PACKAGE_NAME$;
 
 import org.eclipse.uide.core.ProjectNatureBase;
 import org.eclipse.uide.runtime.IPluginLog;
 
-public class $LANG_NAME$Nature extends ProjectNatureBase {
-    public static final String k_natureID = $LANG_NAME$Plugin.kPluginID + ".$LANG_NAME$Nature";
+public class $CLASS_NAME_PREFIX$Nature extends ProjectNatureBase {
+    public static final String k_natureID = $CLASS_NAME_PREFIX$Plugin.kPluginID + ".$CLASS_NAME_PREFIX$Nature";
 
     public String getNatureID() {
 	return k_natureID;
     }
 
     public String getBuilderID() {
-	return $LANG_NAME$IncrementalProjectBuilder.BUILDER_ID;
+	return $CLASS_NAME_PREFIX$IncrementalProjectBuilder.BUILDER_ID;
     }
 
     protected void refreshPrefs() {
@@ -19,7 +19,7 @@ public class $LANG_NAME$Nature extends ProjectNatureBase {
     }
 
     public IPluginLog getLog() {
-	return $LANG_NAME$Plugin.getInstance();
+	return $CLASS_NAME_PREFIX$Plugin.getInstance();
     }
 
     protected String getDownstreamBuilderID() {

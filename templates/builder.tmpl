@@ -1,4 +1,4 @@
-package $PACKAGE$;
+package $PACKAGE_NAME$;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,17 +22,17 @@ import org.osgi.framework.Bundle;
 /**
  * @author
  */
-public class $LANG_NAME$IncrementalProjectBuilder extends UIDEBuilderBase {
+public class $CLASS_NAME_PREFIX$IncrementalProjectBuilder extends UIDEBuilderBase {
     /**
-     * Extension ID of the $LANG_NAME$ builder. Must match the ID in the corresponding
+     * Extension ID of the $CLASS_NAME_PREFIX$ builder. Must match the ID in the corresponding
      * extension definition in plugin.xml.
      */
-    public static final String BUILDER_ID= $LANG_NAME$Plugin.kPluginID + ".$LANG_NAME$Builder";
+    public static final String BUILDER_ID= $CLASS_NAME_PREFIX$Plugin.kPluginID + ".$CLASS_NAME_PREFIX$Builder";
 
-    public static final String PROBLEM_MARKER_ID= $LANG_NAME$Plugin.kPluginID + ".problem";
+    public static final String PROBLEM_MARKER_ID= $CLASS_NAME_PREFIX$Plugin.kPluginID + ".problem";
 
     protected UIDEPluginBase getPlugin() {
-	return $LANG_NAME$Plugin.getInstance();
+	return $CLASS_NAME_PREFIX$Plugin.getInstance();
     }
 
     protected String getErrorMarkerID() {
@@ -72,7 +72,7 @@ public class $LANG_NAME$IncrementalProjectBuilder extends UIDEBuilderBase {
 
 	    doRefresh(file);
 	} catch (Exception e) {
-	    $LANG_NAME$Plugin.getInstance().writeErrorMsg(e.getMessage());
+	    $CLASS_NAME_PREFIX$Plugin.getInstance().writeErrorMsg(e.getMessage());
 	    e.printStackTrace();
 	}
     }

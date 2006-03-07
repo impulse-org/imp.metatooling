@@ -1,4 +1,4 @@
-package $PKG_NAME$;
+package $PACKAGE_NAME$;
 
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
@@ -7,11 +7,11 @@ import org.eclipse.uide.defaults.DefaultTokenColorer;
 import org.eclipse.uide.editor.ITokenColorer;
 import org.eclipse.uide.parser.IParseController;
  
-import $PARSER_PKG$.$LANG_NAME$Parsersym;
+import $PARSER_PKG$.$CLASS_NAME_PREFIX$Parsersym;
 
 import lpg.lpgjavaruntime.IToken;
 
-public class $LANG_NAME$TokenColorer extends DefaultTokenColorer implements $LANG_NAME$Parsersym, ITokenColorer {
+public class $CLASS_NAME_PREFIX$TokenColorer extends DefaultTokenColorer implements $CLASS_NAME_PREFIX$Parsersym, ITokenColorer {
 
 	TextAttribute commentAttribute, keywordAttribute, stringAttribute, numberAttribute, identifierAttribute;
 	
@@ -33,7 +33,7 @@ public class $LANG_NAME$TokenColorer extends DefaultTokenColorer implements $LAN
 		}
 	}
 
-	public $LANG_NAME$TokenColorer() {
+	public $CLASS_NAME_PREFIX$TokenColorer() {
 		super();
         Display display = Display.getDefault();
 		commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.ITALIC); 		

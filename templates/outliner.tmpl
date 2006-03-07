@@ -1,4 +1,4 @@
-package $PACKAGE$;
+package $PACKAGE_NAME$;
 
 import java.util.Iterator;
 import java.util.List;
@@ -19,10 +19,10 @@ import org.eclipse.uide.editor.UniversalEditor;
 import org.eclipse.uide.parser.IParseController;
 import org.eclipse.uide.parser.ParseError;
 
-import $PARSER_PKG$.$LANG_NAME$Parser;
+import $PARSER_PKG$.$CLASS_NAME_PREFIX$Parser;
 import $AST_PKG$.*;
 
-public class $LANG_NAME$Outliner extends DefaultOutliner {
+public class $CLASS_NAME_PREFIX$Outliner extends DefaultOutliner {
     Stack fItemStack= new Stack();
 
     private final class OutlineVisitor extends AbstractVisitor {
