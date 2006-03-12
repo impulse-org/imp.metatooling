@@ -16,13 +16,15 @@ public class BuilderWizardPage extends ExtensionPointWizardPage {
     }
 
     protected void createAdditionalControls(Composite parent) {
-        WizardPageField wizardPageField= new WizardPageField("builders", "language", "Language", "", 0, true, "Language for which to create a builder");
+        WizardPageField languageField= new WizardPageField("builders", "language", "Language", "", 0, true, "Language for which to create a builder");
 
-        fLanguageText= createLabelTextBrowse(parent, "Language", "Language for which to create a builder",
-                "IncrementalProjectBuilder", "", true, wizardPageField);
+        fLanguageText= createLabelTextBrowse(parent, languageField, "IncrementalProjectBuilder");
 
-        fFields.add(wizardPageField);
-        fLanguageText.setData(wizardPageField);
+        fFields.add(languageField);
+//      // The "value" field for a builder can be empty(?)
+//      getField("value").required= false;
+//      getField("value").label= "Value:";
+        fLanguageText.setData(languageField);
         fLanguageText.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
                 Text text= (Text) e.widget;
