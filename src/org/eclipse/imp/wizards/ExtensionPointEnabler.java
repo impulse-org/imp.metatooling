@@ -63,6 +63,10 @@ public class ExtensionPointEnabler {
             PluginModelManager pmm = PDECore.getDefault().getModelManager();
             IPluginModelBase[] wsPlugins= pmm.getState().getWorkspaceModels();
 
+            if (wsPlugins.length == 0) {
+                ErrorHandler.reportError("Project " + page.getProject().getName() + " is not a plugin project?", true);
+                return null;
+            }
             for(int i= 0; i < wsPlugins.length; i++) {
                 IPluginModelBase wsPlugin= wsPlugins[i];
                 if (wsPlugin.getBundleDescription().getName().equals(project.getName())) {
@@ -72,8 +76,9 @@ public class ExtensionPointEnabler {
 //	    IPluginModelBase thePluginModel= pmm.findModel(project);
 //
 //	    return (IPluginModel) thePluginModel;
+            ErrorHandler.reportError("Could not find plugin for project " + page.getProject().getName(), true);
 	} catch (Exception e) {
-	    ErrorHandler.reportError("Could not find plugin for " + page, e);
+	    ErrorHandler.reportError("Could not find plugin for project " + page.getProject().getName(), true, e);
 	}
 	return null;
     }
