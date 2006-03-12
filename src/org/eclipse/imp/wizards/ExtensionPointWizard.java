@@ -267,7 +267,12 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
     protected byte[] getTemplateFile(String fileName) {
 	try {
 	    Bundle bundle= Platform.getBundle(getTemplateBundleID());
-	    URL url= Platform.asLocalURL(Platform.find(bundle, new Path("/templates/" + fileName)));
+	    URL templateURL= Platform.find(bundle, new Path("/templates/" + fileName));
+            if (templateURL == null) {
+                ErrorHandler.reportError("Unable to find template file: " + fileName, true);
+                return new byte[0];
+            }
+            URL url= Platform.asLocalURL(templateURL);
 	    String path= url.getPath();
 	    FileInputStream fis= new FileInputStream(path);
 	    DataInputStream is= new DataInputStream(fis);
