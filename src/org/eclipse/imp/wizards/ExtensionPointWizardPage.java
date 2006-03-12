@@ -270,10 +270,12 @@ public class ExtensionPointWizardPage extends WizardPage {
         String upName= upperCaseFirst(name);
 
         WizardPageField field= new WizardPageField(schemaName, name, upName, valueStr, attribute.getKind(), isRequired, description);
-        Text text= createLabelTextBrowse(container, upName, description, basedOn, valueStr, isRequired, field);
+        Text text= createLabelTextBrowse(container, field, basedOn);
 
         if (name.equals("language"))
             fLanguageText= text;
+        else if (name.equals("class"))
+            fQualClassText= text;
 
         text.setData(field);
         fFields.add(field);
@@ -447,14 +449,18 @@ public class ExtensionPointWizardPage extends WizardPage {
         }
     }
 
-    protected Text createLabelTextBrowse(Composite container, String name, String description, final String basedOn, String value, boolean required,
-            WizardPageField field) {
+    protected Text createLabelTextBrowse(Composite container, WizardPageField field, final String basedOn) {
         Widget labelWidget= null;
+        String name= field.name;
+        String description= field.description;
+        String value= field.value;
+        boolean required= field.required;
+
         if (required)
             name+= "*";
         name+= ":";
         if (basedOn != null) {
-            labelWidget= createNewClassHyperlink(name, description, basedOn, field, container);
+            labelWidget= createNewClassHyperlink(field, name, basedOn, container);
         } else {
             Label label= new Label(container, SWT.NULL);
             label.setText(name);
@@ -478,7 +484,7 @@ public class ExtensionPointWizardPage extends WizardPage {
         return text;
     }
 
-    private Widget createNewClassHyperlink(String name, String description, final String basedOn, WizardPageField field, Composite container) {
+    private Widget createNewClassHyperlink(WizardPageField field, String name, final String basedOn, Composite container) {
         Widget labelWidget;
         FormToolkit toolkit= new FormToolkit(Display.getDefault());
         Hyperlink link= toolkit.createHyperlink(container, name, SWT.NULL);
@@ -503,7 +509,7 @@ public class ExtensionPointWizardPage extends WizardPage {
                 }
             }
         });
-        link.setToolTipText(description);
+        link.setToolTipText(field.description);
         labelWidget= link;
         if (field != null)
             field.link= link;
@@ -538,47 +544,43 @@ public class ExtensionPointWizardPage extends WizardPage {
         try {
             String intfName= interfaceQualName.substring(interfaceQualName.lastIndexOf('.') + 1);
             IJavaProject javaProject= JavaCore.create(getProject());
-            // RMF 7/5/2005 - If the project doesn't yet have the necessary plug-in dependency
-            // on org.eclipse.uide.runtime for this reference to be satisfiable, an error ensues.
-            // I don't see any code that would augment the project's build-path appropriately.
-            // Even if there were, it would have to be undoable if the user cancelled the wizard.
+            // RMF 7/5/2005 - If the project doesn't yet have the necessary plug-in
+            // dependency for this reference to be satisfiable, an error ensues.
             IType basedOnClass= javaProject.findType(interfaceQualName);
+
             if (basedOnClass == null) {
-                // IClasspathEntry[] cp= javaProject.getRawClasspath();
-                // List/*<IClasspathEntry>*/ newCP= new ArrayList();
-                // for(int i= 0; i < cp.length; i++) {
-                //    if (cp[i] != null) // sometimes there are null entries in the classpath array???
-                //       newCP.add(cp[i]);
-                // }
-                // newCP.add(JavaCore.newContainerEntry(new Path("org.eclipse.uide")));
-                // javaProject.setRawClasspath((IClasspathEntry[])
-                //     newCP.toArray(new IClasspathEntry[newCP.size()]), new NullProgressMonitor());
                 ErrorHandler.reportError("Base interface '" + interfaceQualName
-                        + "' does not exist in project's build path; be sure to add org.eclipse.uide.runtime to the plug-in dependecies.", true);
-                // return;
+                        + "' does not exist in project's build path; be sure to add the appropriate plugin to the dependencies.", true);
             }
+
             NewClassCreationWizard wizard= new NewClassCreationWizard();
+
             wizard.init(Workbench.getInstance(), null);
+
             WizardDialog dialog= new WizardDialog(null, wizard);
+
             dialog.create();
+
             NewClassWizardPage page= (NewClassWizardPage) wizard.getPages()[0];
             String langName= fLanguageText.getText();
-            String langPkg= Character.toLowerCase(langName.charAt(0)) + langName.substring(1);
+            // TODO RMF Should either fix and use fPackageName (sometimes null at this point) or get rid of it altogether.
+            String langPkg= fQualClassText.getText().substring(0, fQualClassText.getText().indexOf('.'));// fPackageName; // Character.toLowerCase(langName.charAt(0)) + langName.substring(1);
+
             page.setSuperClass(superClassName, true);
+
             ArrayList interfaces= new ArrayList();
+
             interfaces.add(interfaceQualName);
             page.setSuperInterfaces(interfaces, true);
+
             IFolder srcFolder= getProject().getFolder("src/");
             String servicePackage= langPkg + ".safari." + fExtPointID.substring(fExtPointID.lastIndexOf('.')+1); // pkg the service belongs in
-            String[] pkgNames= servicePackage.split("\\.");
-            IFolder folder= srcFolder;
-            for(int i= 0; i < pkgNames.length; i++) {
-                IFolder subFolder= folder.getFolder(pkgNames[i]);
-                if (!subFolder.exists()) subFolder.create(true, true, new NullProgressMonitor());
-                folder= subFolder;
-            }
+
+            fOwningWizard.createSubFolders(servicePackage.replace('.', '\\'), getProject(), new NullProgressMonitor());
+
             IPackageFragmentRoot pkgFragRoot= javaProject.getPackageFragmentRoot(srcFolder);
             IPackageFragment pkgFrag= pkgFragRoot.getPackageFragment(servicePackage);
+
             page.setPackageFragmentRoot(pkgFragRoot, true);
             page.setPackageFragment(pkgFrag, true);
 
