@@ -307,16 +307,20 @@ public class ExtensionPointWizardPage extends WizardPage {
         label.setToolTipText("Select the plug-in project");
         fProjectText= new Text(container, SWT.BORDER | SWT.SINGLE);
         fProjectText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        IProject project= getProject();
+        final IProject project= getProject();
         if (project != null)
             fProjectText.setText(project.getName());
-        discoverSelectedProject();
+//        project= discoverSelectedProject();
         Button button= new Button(container, SWT.PUSH);
         button.setText("Browse...");
         button.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                ContainerSelectionDialog dialog= new ContainerSelectionDialog(getShell(), ResourcesPlugin.getWorkspace().getRoot(), false,
+                ContainerSelectionDialog dialog= new ContainerSelectionDialog(getShell(), project, false,
                         "Select a plug-in Project");
+                // RMF Would have thought the following would set the initial selection,
+                // but passing project as the initialRoot arg above seems to work...
+                if (project != null)
+                    dialog.setInitialSelections(new Object[] { project.getFullPath() });
                 dialog.setValidator(new ISelectionValidator() {
                     public String isValid(Object selection) {
                         try {
@@ -335,6 +339,7 @@ public class ExtensionPointWizardPage extends WizardPage {
                     if (result.length == 1) {
                         // fProjectText.setText(((Path) result[0]).toOSString());
                         fProjectText.setText(selectedProject.getName());
+                        sProjectName= selectedProject.getName();
                     }
                 }
             }
@@ -344,6 +349,7 @@ public class ExtensionPointWizardPage extends WizardPage {
             public void modifyText(ModifyEvent e) {
                 Text text= (Text) e.widget;
                 setProjectName(text.getText());
+                // RMF Don't add imports yet; wait for user to press "Finish"
                 ExtensionPointEnabler.addImports(ExtensionPointWizardPage.this);
                 dialogChanged();
             }
@@ -356,14 +362,16 @@ public class ExtensionPointWizardPage extends WizardPage {
         });
     }
 
-    private void discoverSelectedProject() {
+    private IProject discoverSelectedProject() {
         ISelectionService service= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
         ISelection selection= service.getSelection();
         IProject project= getProject(selection);
+
         if (project != null) {
             sProjectName= project.getName();
             fProjectText.setText(sProjectName);
         }
+        return project;
     }
 
     private IProject getProject(ISelection selection) {
@@ -381,7 +389,7 @@ public class ExtensionPointWizardPage extends WizardPage {
                 return ((JavaProject) obj).getProject();
             }
         }
-        if (selection instanceof ITextSelection) {
+        if (selection instanceof ITextSelection || selection == null) {
             IEditorPart editorPart= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
             IEditorInput editorInput= editorPart.getEditorInput();
 
@@ -405,8 +413,15 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     public IProject getProject() {
         try {
-            IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(sProjectName);
-            if (project.exists())
+            IProject project= null;
+
+            if (sProjectName != null && sProjectName.length() > 0)
+        	project= ResourcesPlugin.getWorkspace().getRoot().getProject(sProjectName);
+
+            if (project == null)
+        	project= discoverSelectedProject();
+
+            if (project != null && project.exists())
                 return project;
         } catch (Exception e) {
         }
