@@ -508,8 +508,9 @@ public class ExtensionPointWizardPage extends WizardPage {
                 Text text= (Text) e.widget.getData();
                 try {
                     if (getProject() == null)
-                        MessageDialog.openError(null, "Universal IDE Wizard", "Please select a project first");
+                        MessageDialog.openError(null, "SAFARI Wizard", "Please select a project first");
                     else {
+                	// BUG Should pick up info from wizard page, rather than using defaults.
                         ExtensionPointEnabler.addImports(ExtensionPointWizardPage.this);
                         String basedOnQualName= basedOn;
                         String basedOnTypeName= basedOn.substring(basedOnQualName.lastIndexOf('.') + 1);
@@ -614,7 +615,7 @@ public class ExtensionPointWizardPage extends WizardPage {
                 fPackageName= pkg;
             }
         } catch (Exception e) {
-            ErrorHandler.reportError("Could not create type for " + superClassName, true, e);
+            ErrorHandler.reportError("Could not create class implementing " + interfaceQualName, true, e);
         }
     }
 
