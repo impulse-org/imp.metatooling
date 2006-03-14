@@ -149,6 +149,8 @@ public class Wizards {
             subs.put("$AST_NODE$", astNode);
 
             createFileFromTemplate(fClassName + "Outliner.java", "outliner.tmpl", fPackageFolder, subs, project, mon);
+            createFileFromTemplate(fClassName + "Images.java", "images.tmpl", fPackageFolder, subs, project, mon);
+            copyLiteralFile("outline_item.gif", "icons", project, mon);
 	}
     }
 
