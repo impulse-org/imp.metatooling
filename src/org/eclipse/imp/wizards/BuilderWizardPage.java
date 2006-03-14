@@ -18,7 +18,7 @@ public class BuilderWizardPage extends ExtensionPointWizardPage {
     protected void createAdditionalControls(Composite parent) {
         WizardPageField languageField= new WizardPageField("builders", "language", "Language", "", 0, true, "Language for which to create a builder");
 
-        fLanguageText= createLabelTextBrowse(parent, languageField, "IncrementalProjectBuilder");
+        fLanguageText= createLabelTextBrowse(parent, languageField, null/*"IncrementalProjectBuilder"*/);
 
         fFields.add(languageField);
 //      // The "value" field for a builder can be empty(?)
