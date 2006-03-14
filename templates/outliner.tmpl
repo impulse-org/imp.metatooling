@@ -27,21 +27,26 @@ public class $CLASS_NAME_PREFIX$Outliner extends DefaultOutliner {
     private final class OutlineVisitor extends AbstractVisitor {
 
 	public void unimplementedVisitor(String s) {
+		// Sometimes useful for debugging
 //	    System.out.println(s);
 	}
 
-	public boolean visit(block n) {
-		fItemStack.push(createTopItem("Block", n));
+//	public boolean visit(block n) {
+//		fItemStack.push(createTopItem("Block", n));
+//		return true;
+//	}
+//
+//	public void endVisit(block n) {
+//		fItemStack.pop();
+//	}
+
+	public boolean visit(declaration0 n) {
+		fItemStack.push(createSubItem(n.getIDENTIFIER().getIToken().toString(), n));
 		return true;
 	}
 
-	public void endVisit(block n) {
-		fItemStack.pop();
-	}
-
-	public boolean visit(declaration0 n) {
-		fItemStack.push(createSubItem(n.getIDENTIFIER().getIToken()
-				.toString(), n));
+	public boolean visit(assignment n) {
+		fItemStack.push(createSubItem(n.getIDENTIFIER().getIToken().toString() + "=" + n.getexpression().toString(), n));
 		return true;
 	}
     }
