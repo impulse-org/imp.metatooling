@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 import lpg.lpgjavaruntime.IToken;
-import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -28,27 +27,22 @@ public class $CLASS_NAME_PREFIX$Outliner extends DefaultOutliner {
     private final class OutlineVisitor extends AbstractVisitor {
 
 	public void unimplementedVisitor(String s) {
-	    System.out.println(s);
+//	    System.out.println(s);
 	}
 
-    public boolean visit(JikesPG n) {
-        fItemStack.push(createTopItem("Options", n));
-        return true;
-    }
-    public void endVisit(JikesPG n) {
-        fItemStack.pop();
-    }
-	public boolean visit(option n) {
-	    Ioption_value value= n.getoption_value();
+	public boolean visit(block n) {
+		fItemStack.push(createTopItem("Block", n));
+		return true;
+	}
 
-            if (value != null) {
-                if (value instanceof option_value0)
-                    createSubItem(symbolImage(n.getSYMBOL()) + " = " + symbolImage(((option_value0) value).getSYMBOL()), n);
-                else if (value instanceof option_value1)
-                    createSubItem(symbolImage(n.getSYMBOL()) + " = " + symbolListImage(((option_value1) value).getsymbol_list()), n);
-            } else
-		createSubItem(symbolImage(n.getSYMBOL()), n);
-            return true;
+	public void endVisit(block n) {
+		fItemStack.pop();
+	}
+
+	public boolean visit(declaration0 n) {
+		fItemStack.push(createSubItem(n.getIDENTIFIER().getIToken()
+				.toString(), n));
+		return true;
 	}
     }
 
@@ -59,7 +53,7 @@ public class $CLASS_NAME_PREFIX$Outliner extends DefaultOutliner {
     public TreeItem createTopItem(String label, $AST_NODE$ n) {
 	TreeItem treeItem= new TreeItem(tree, SWT.NONE);
 	treeItem.setText(label);
-	treeItem.setImage(JavaPluginImages.DESC_MISC_PUBLIC.createImage());
+	treeItem.setImage($CLASS_NAME_PREFIX$Images.OUTLINE_ITEM_IMAGE);
 	if (n != null)
 	    treeItem.setData(n);
 	return treeItem;
@@ -74,7 +68,7 @@ public class $CLASS_NAME_PREFIX$Outliner extends DefaultOutliner {
 	treeItem.setText(label);
         if (n != null)
             treeItem.setData(n);
-	treeItem.setImage(JavaPluginImages.DESC_MISC_PUBLIC.createImage());
+	treeItem.setImage($CLASS_NAME_PREFIX$Images.OUTLINE_ITEM_IMAGE);
 	return treeItem;
     }
 
@@ -83,13 +77,13 @@ public class $CLASS_NAME_PREFIX$Outliner extends DefaultOutliner {
 	try {
 	    if (controller != null && tree != null) {
 		if (!controller.hasErrors()) {
-		    JikesPG jpg= (JikesPG) controller.getCurrentAst();
+		    $AST_NODE$ root= ($AST_NODE$) controller.getCurrentAst();
 
-		    if (jpg != null) {
+		    if (root != null) {
 			tree.setRedraw(false);
 			tree.removeAll();
 			fItemStack.clear();
-			jpg.accept(new OutlineVisitor());
+			root.accept(new OutlineVisitor());
 		    }
 		}
 //		tree.setSelection(new TreeItem[] { tree.getItem(new Point(0, 0)) });
