@@ -104,8 +104,13 @@ public class Wizards {
             Map subs= getStandardSubstitutions();
 
             // TODO Should pull the source file-name extension from the language description
-            subs.put("$EXTEN$", "XXX");
+            subs.put("$FILE_EXTEN$", fLanguageName);
 
+            ExtensionPointEnabler.enable(project, "org.eclipse.core.resources", "natures", new String[][] {
+        	    { "runtime", "" },
+        	    { "class", fClassName + ".safari." + fLanguageName + "nature" },
+        	    { "builder", fLanguageName + ".safari.builder" },
+            }, mon);
             createFileFromTemplate(fClassName + "IncrementalProjectBuilder.java", "builder.tmpl", fPackageFolder, subs, project, mon);
             createFileFromTemplate(fClassName + "Nature.java", "nature.tmpl", fPackageFolder, subs, project, mon);
 	}
