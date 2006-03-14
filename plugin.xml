@@ -43,7 +43,7 @@
             parentCategory="org.eclipse.uide.wizards"/>
       <wizard
             class="org.eclipse.uide.wizards.Wizards$NewParser"
-            icon="icons/sample.gif"
+            icon="icons/newgrammarfile.gif"
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.parser"
             name="Hand-written Parser"
             id="org.eclipse.uide.wizards.NewParser"/>
