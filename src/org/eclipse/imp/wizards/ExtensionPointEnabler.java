@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.pde.core.IEditableModel;
 import org.eclipse.pde.core.plugin.IExtensions;
 import org.eclipse.pde.core.plugin.IPluginBase;
@@ -104,9 +105,11 @@ public class ExtensionPointEnabler {
 
     private static void setElementAttributes(IPluginModel plugin, ExtensionPointWizardPage page, IPluginExtension extension) throws CoreException {
 	PluginElement schema= null;
-	List values= page.getValues();
-	for(int n= 0; n < values.size(); n++) {
-	    WizardPageField field= (WizardPageField) values.get(n);
+	List fields= page.getFields();
+
+	for(int n= 0; n < fields.size(); n++) {
+	    WizardPageField field= (WizardPageField) fields.get(n);
+
 	    if (schema == null || !field.schemaName.equals(schema.getName())) {
 		schema= new PluginElement();
 		schema.setModel(plugin);
@@ -121,13 +124,17 @@ public class ExtensionPointEnabler {
     private static void addRequiredPluginImports(IPluginModel pluginModel, ExtensionPointWizardPage page) throws CoreException {
 	IPluginBase base= pluginModel.getPluginBase();
 	List requires= page.getRequires();
-	IPluginImport[] imports= base.getImports();
+	// RMF Ask the model's associated bundle description for the list
+	// of required bundles; I've seen this list be out of sync wrt the
+	// list of imports in the IPluginBase (e.g. the latter is empty).
+//	IPluginImport[] imports= base.getImports();
+	BundleDescription[] reqBundles= pluginModel.getBundleDescription().getResolvedRequires();
 	IPluginModelFactory pluginFactory= pluginModel.getPluginFactory();
 
 	for(int n= 0; n < requires.size(); n++) {
 	    String pluginID= (String) requires.get(n);
 
-	    if (!containsImport(imports, pluginID)) {
+	    if (!containsImport(reqBundles /* imports */, pluginID)) {
 		IPluginImport importNode= pluginFactory.createImport();
 		importNode.setId(pluginID);
 		base.add(importNode);
@@ -135,12 +142,10 @@ public class ExtensionPointEnabler {
 	}
     }
 
-    private static boolean containsImport(IPluginImport[] imports, String pluginID) {
+    private static boolean containsImport(BundleDescription/*IPluginImport*/[] imports, String pluginID) {
 	boolean found= false;
 	for(int i= 0; i < imports.length; i++) {
-	    IPluginImport imprt= imports[i];
-
-	    if (imprt.getId().equals(pluginID)) {
+	    if (imports[i].getSymbolicName().equals(pluginID)) {
 		found= true;
 		break;
 	    }
