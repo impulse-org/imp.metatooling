@@ -229,7 +229,7 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
 
     protected IFile createFileFromTemplate(String fileName, String templateName, String folder, Map replacements,
 	    IProject project, IProgressMonitor monitor) throws CoreException {
-	monitor.beginTask("Creating " + fileName, 2);
+	monitor.setTaskName("Creating " + fileName);
 
 	final IFile file= project.getFile(new Path("src/" + folder + "/" + fileName));
 	String templateContents= new String(getTemplateFile(templateName));
@@ -241,7 +241,23 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
             createSubFolders(folder, project, monitor);
 	    file.create(new ByteArrayInputStream(contents.getBytes()), true, monitor);
 	}
-	monitor.worked(1);
+//	monitor.worked(1);
+	return file;
+    }
+
+    protected IFile copyLiteralFile(String fileName, String folder, IProject project, IProgressMonitor monitor) throws CoreException {
+	monitor.setTaskName("Creating " + fileName);
+
+	final IFile file= project.getFile(new Path(folder + "/" + fileName));
+	byte[] fileContents= getTemplateFile(fileName);
+
+	if (file.exists()) {
+	    file.setContents(new ByteArrayInputStream(fileContents), true, true, monitor);
+	} else {
+            createSubFolders(folder, project, monitor);
+	    file.create(new ByteArrayInputStream(fileContents), true, monitor);
+	}
+//	monitor.worked(1);
 	return file;
     }
 
