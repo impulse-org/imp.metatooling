@@ -350,7 +350,7 @@ public class ExtensionPointWizardPage extends WizardPage {
                 Text text= (Text) e.widget;
                 setProjectName(text.getText());
                 // RMF Don't add imports yet; wait for user to press "Finish"
-                ExtensionPointEnabler.addImports(ExtensionPointWizardPage.this);
+//                ExtensionPointEnabler.addImports(ExtensionPointWizardPage.this);
                 dialogChanged();
             }
         });
@@ -739,7 +739,7 @@ public class ExtensionPointWizardPage extends WizardPage {
         return null;
     }
 
-    public List getValues() {
+    public List getFields() {
         return fFields;
     }
 
