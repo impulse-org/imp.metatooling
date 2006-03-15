@@ -8,16 +8,16 @@ package org.eclipse.uide.wizards;
 import java.io.IOException;
 import java.io.StringBufferInputStream;
 import java.util.List;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.osgi.service.resolver.BundleSpecification;
 import org.eclipse.pde.core.IEditableModel;
 import org.eclipse.pde.core.plugin.IPluginBase;
 import org.eclipse.pde.core.plugin.IPluginExtension;
-import org.eclipse.pde.core.plugin.IPluginImport;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.IPluginModelFactory;
@@ -26,6 +26,7 @@ import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModel;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
+import org.eclipse.pde.internal.core.plugin.PluginImport;
 import org.eclipse.uide.core.ErrorHandler;
 
 /**
@@ -85,10 +86,10 @@ public class ExtensionPointEnabler {
 //      WorkspaceModelManager wmm = PDECore.getDefault().getWorkspaceModelManager();
 //      IPluginModelBase[] wsPlugins= wmm.getFeatureModel(project).getWorkspaceModels();
 	PluginModelManager pmm = PDECore.getDefault().getModelManager();
-	IPluginModelBase[] wsPlugins= pmm.getState().getWorkspaceModels();
+	IPluginModelBase[] wsPlugins= pmm.getWorkspaceModels();
 
 	if (wsPlugins.length == 0) {
-	    ErrorHandler.reportError("Project " + project.getName() + " is not a plugin project?", true);
+	    ErrorHandler.reportError("Project " + project.getName() + " is not a plugin project (no plugin projects)?", true);
 	    return null;
 	}
 	for(int i= 0; i < wsPlugins.length; i++) {
@@ -182,24 +183,28 @@ public class ExtensionPointEnabler {
 	// of required bundles; I've seen this list be out of sync wrt the
 	// list of imports in the IPluginBase (e.g. the latter is empty).
 //	IPluginImport[] imports= base.getImports();
-	BundleDescription[] reqBundles= pluginModel.getBundleDescription().getResolvedRequires();
+	BundleSpecification[] reqBundles= pluginModel.getBundleDescription().getRequiredBundles();
 	IPluginModelFactory pluginFactory= pluginModel.getPluginFactory();
+	/*IPluginImport[] curImports=*/ base.getImports(); // make sure the 'base.imports' field is non-null; otherwise, subsequent calls to base.add() are a noop!
 
-	for(int n= 0; n < requires.size(); n++) {
+        for(int n= 0; n < requires.size(); n++) {
 	    String pluginID= (String) requires.get(n);
 
-	    if (!containsImport(reqBundles /* imports */, pluginID)) {
-		IPluginImport importNode= pluginFactory.createImport();
-		importNode.setId(pluginID);
+	    if (!containsImport(reqBundles, pluginID)) {
+		PluginImport importNode= new PluginImport(); // pluginFactory.createImport();
+                importNode.setModel(pluginModel);
+                importNode.setId(pluginID);
+                importNode.setInTheModel(true);
+                importNode.setParent(base);
 		base.add(importNode);
 	    }
 	}
     }
 
-    private static boolean containsImport(BundleDescription/*IPluginImport*/[] imports, String pluginID) {
+    private static boolean containsImport(BundleSpecification[] imports, String pluginID) {
 	boolean found= false;
 	for(int i= 0; i < imports.length; i++) {
-	    if (imports[i].getSymbolicName().equals(pluginID)) {
+	    if (imports[i].getBundle().getSymbolicName().equals(pluginID)) {
 		found= true;
 		break;
 	    }
