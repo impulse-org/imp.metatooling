@@ -7,18 +7,15 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.uide.core.SAFARIBuilderBase;
 import org.eclipse.uide.runtime.SAFARIPluginBase;
-import org.osgi.framework.Bundle;
 
-import $LANG_NAME$.safari.$CLASS_NAME_PREFIX$Plugin;
+import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
 
 /**
  * @author
  */
-public class $CLASS_NAME_PREFIX$IncrementalProjectBuilder extends SAFARIBuilderBase {
+public class $CLASS_NAME_PREFIX$Builder extends SAFARIBuilderBase {
     /**
      * Extension ID of the $CLASS_NAME_PREFIX$ builder. Must match the ID in the corresponding
      * extension definition in plugin.xml.
@@ -70,6 +67,7 @@ public class $CLASS_NAME_PREFIX$IncrementalProjectBuilder extends SAFARIBuilderB
 
 	    while ((ch = is.read()) > 0)
 	    	System.out.append((char) ch);
+//	    createMarker(file, 2, 8, 13, "Oops!", IMarker.SEVERITY_WARNING);
 	    doRefresh(file);
 	} catch (Exception e) {
 	    $CLASS_NAME_PREFIX$Plugin.getInstance().writeErrorMsg(e.getMessage());

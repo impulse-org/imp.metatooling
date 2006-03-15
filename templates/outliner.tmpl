@@ -1,7 +1,5 @@
 package $PACKAGE_NAME$;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.Stack;
 import lpg.lpgjavaruntime.IToken;
 import org.eclipse.swt.SWT;
@@ -16,7 +14,6 @@ import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.defaults.DefaultOutliner;
 import org.eclipse.uide.editor.UniversalEditor;
 import org.eclipse.uide.parser.IParseController;
-import org.eclipse.uide.parser.ParseError;
 
 import $PARSER_PKG$.$CLASS_NAME_PREFIX$Parser;
 import $AST_PKG$.*;
@@ -41,12 +38,12 @@ public class $CLASS_NAME_PREFIX$Outliner extends DefaultOutliner {
 //	}
 
 	public boolean visit(declaration0 n) {
-		fItemStack.push(createSubItem(n.getIDENTIFIER().getIToken().toString(), n));
+		fItemStack.push(createTopItem(n.getIDENTIFIER().getIToken().toString(), n));
 		return true;
 	}
 
 	public boolean visit(assignment n) {
-		fItemStack.push(createSubItem(n.getIDENTIFIER().getIToken().toString() + "=" + n.getexpression().toString(), n));
+		fItemStack.push(createTopItem(n.getIDENTIFIER().getIToken().toString() + "=" + n.getexpression().toString(), n));
 		return true;
 	}
     }

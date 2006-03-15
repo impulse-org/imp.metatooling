@@ -3,17 +3,17 @@ package $PACKAGE_NAME$;
 import org.eclipse.uide.core.ProjectNatureBase;
 import org.eclipse.uide.runtime.IPluginLog;
 
-import $LANG_NAME$.safari.$CLASS_NAME_PREFIX$Plugin;
+import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
 
 public class $CLASS_NAME_PREFIX$Nature extends ProjectNatureBase {
-    public static final String k_natureID = $CLASS_NAME_PREFIX$Plugin.kPluginID + ".$CLASS_NAME_PREFIX$Nature";
+    public static final String k_natureID = $CLASS_NAME_PREFIX$Plugin.kPluginID + ".nature";
 
     public String getNatureID() {
 	return k_natureID;
     }
 
     public String getBuilderID() {
-	return $CLASS_NAME_PREFIX$IncrementalProjectBuilder.BUILDER_ID;
+	return $CLASS_NAME_PREFIX$Builder.BUILDER_ID;
     }
 
     protected void refreshPrefs() {
