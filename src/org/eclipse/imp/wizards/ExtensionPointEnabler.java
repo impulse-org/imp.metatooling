@@ -5,6 +5,7 @@ package org.eclipse.uide.wizards;
  * (c) Copyright IBM Corp. 2005  All Rights Reserved
  */
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringBufferInputStream;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.eclipse.osgi.service.resolver.BundleSpecification;
 import org.eclipse.pde.core.IEditableModel;
 import org.eclipse.pde.core.plugin.IPluginBase;
 import org.eclipse.pde.core.plugin.IPluginExtension;
+import org.eclipse.pde.core.plugin.IPluginImport;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.IPluginModelFactory;
@@ -25,8 +27,10 @@ import org.eclipse.pde.core.plugin.ISharedExtensionsModel;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModel;
+import org.eclipse.pde.internal.core.ibundle.IBundlePluginModelBase;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
 import org.eclipse.pde.internal.core.plugin.PluginImport;
+import org.eclipse.pde.internal.core.plugin.WorkspaceExtensionsModel;
 import org.eclipse.uide.core.ErrorHandler;
 
 /**
@@ -94,7 +98,8 @@ public class ExtensionPointEnabler {
 	}
 	for(int i= 0; i < wsPlugins.length; i++) {
 	    IPluginModelBase wsPlugin= wsPlugins[i];
-	    if (wsPlugin.getBundleDescription().getName().equals(project.getName())) {
+//	    if (wsPlugin.getBundleDescription().getName().equals(project.getName())) {
+	    if (wsPlugin.getPluginBase().getId().equals(project.getName())) {
 	        return (IPluginModel) wsPlugin;
 	    }
 	}
@@ -109,7 +114,20 @@ public class ExtensionPointEnabler {
 	IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
 
         if (extension == null) {
-            ErrorHandler.reportError("Unable to create extension " + page.fExtPointID + " in plugin " + pluginModel.getBundleDescription().getName(), true);
+            String filename= "plugin.xml";
+            IBundlePluginModelBase bundleModel= (IBundlePluginModelBase) pluginModel;
+            IFile file= page.getProject().getFile(filename);
+            WorkspaceExtensionsModel extensions= new WorkspaceExtensionsModel(file);
+
+            extensions.load(file.getContents(), true);
+            extensions.setBundleModel(bundleModel);
+            bundleModel.setExtensionsModel(extensions);
+            extension= pluginModel.getPluginFactory().createExtension();
+
+            if (extension == null) {
+        	ErrorHandler.reportError("Unable to create extension " + page.fExtPointID + " in plugin " + pluginModel.getBundleDescription().getName(), true);
+        	return;
+            }
         }
 	extension.setPoint(page.fExtPluginID + "." + page.fExtPointID);
 	setElementAttributes(pluginModel, page, extension);
@@ -182,15 +200,22 @@ public class ExtensionPointEnabler {
 	// RMF Ask the model's associated bundle description for the list
 	// of required bundles; I've seen this list be out of sync wrt the
 	// list of imports in the IPluginBase (e.g. the latter is empty).
-//	IPluginImport[] imports= base.getImports();
-	BundleSpecification[] reqBundles= pluginModel.getBundleDescription().getRequiredBundles();
-	IPluginModelFactory pluginFactory= pluginModel.getPluginFactory();
-	/*IPluginImport[] curImports=*/ base.getImports(); // make sure the 'base.imports' field is non-null; otherwise, subsequent calls to base.add() are a noop!
+	IPluginImport[] imports= base.getImports();
+//	BundleSpecification[] reqBundles= pluginModel.getBundleDescription().getRequiredBundles();
+//	IPluginModelFactory pluginFactory= pluginModel.getPluginFactory();
+//	/*IPluginImport[] curImports=*/ base.getImports(); // make sure the 'base.imports' field is non-null; otherwise, subsequent calls to base.add() are a noop!
 
         for(int n= 0; n < requires.size(); n++) {
 	    String pluginID= (String) requires.get(n);
 
-	    if (!containsImport(reqBundles, pluginID)) {
+		boolean found= false;
+		for(int i= 0; i < imports.length; i++) {
+		    if (imports[i].getId().equals(pluginID)) {
+			found= true;
+			break;
+		    }
+		}
+	    if (!found /*!containsImport(reqBundles, pluginID*/) {
 		PluginImport importNode= new PluginImport(); // pluginFactory.createImport();
                 importNode.setModel(pluginModel);
                 importNode.setId(pluginID);
