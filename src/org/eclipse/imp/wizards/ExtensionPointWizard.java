@@ -238,7 +238,7 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
 	if (file.exists()) {
 	    file.setContents(new ByteArrayInputStream(contents.getBytes()), true, true, monitor);
 	} else {
-            createSubFolders(folder, project, monitor);
+            createSubFolders("src/" + folder, project, monitor);
 	    file.create(new ByteArrayInputStream(contents.getBytes()), true, monitor);
 	}
 //	monitor.worked(1);
@@ -263,7 +263,7 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
 
     protected void createSubFolders(String folder, IProject project, IProgressMonitor monitor) throws CoreException {
         String[] subFolderNames= folder.split("[\\" + File.separator + "\\/]");
-        String subFolderStr= "src";
+        String subFolderStr= "";
 
         for(int i= 0; i < subFolderNames.length; i++) {
             String childPath= subFolderStr + "/" + subFolderNames[i];
