@@ -73,7 +73,7 @@ public class Wizards {
             ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
             IProject project= page.getProject();
             Map subs= getStandardSubstitutions();
-            String pluginPackage= fLanguageName + ".safari";
+            String pluginPackage= fLanguageName; // + ".safari";
             String pluginClassFolder= pluginPackage.replace('.', File.separatorChar);
             String prefsPackage= pluginPackage + ".preferences";
             String prefsFolder= prefsPackage.replace('.', File.separatorChar);
@@ -107,11 +107,18 @@ public class Wizards {
             subs.put("$FILE_EXTEN$", fLanguageName);
 
             ExtensionPointEnabler.enable(project, "org.eclipse.core.resources", "natures", new String[][] {
+//        	    "nature",
         	    { "runtime", "" },
         	    { "class", fClassName + ".safari." + fLanguageName + "nature" },
         	    { "builder", fLanguageName + ".safari.builder" },
             }, mon);
-            createFileFromTemplate(fClassName + "IncrementalProjectBuilder.java", "builder.tmpl", fPackageFolder, subs, project, mon);
+            ExtensionPointEnabler.enable(project, "org.eclipse.core.resources", "markers",
+//        	    "problem", // ID
+        	    new String[][] {
+        	    	{ "super", "org.eclipse.core.resources.problemmarker" },
+            	    },
+            	    mon);
+            createFileFromTemplate(fClassName + "Builder.java", "builder.tmpl", fPackageFolder, subs, project, mon);
             createFileFromTemplate(fClassName + "Nature.java", "nature.tmpl", fPackageFolder, subs, project, mon);
 	}
     }
