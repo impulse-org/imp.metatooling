@@ -43,9 +43,16 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
+import org.eclipse.pde.internal.core.ischema.ISchema;
 import org.eclipse.pde.internal.core.ischema.ISchemaAttribute;
+import org.eclipse.pde.internal.core.ischema.ISchemaComplexType;
+import org.eclipse.pde.internal.core.ischema.ISchemaCompositor;
 import org.eclipse.pde.internal.core.ischema.ISchemaElement;
+import org.eclipse.pde.internal.core.ischema.ISchemaObject;
+import org.eclipse.pde.internal.core.ischema.ISchemaSimpleType;
+import org.eclipse.pde.internal.core.ischema.ISchemaType;
 import org.eclipse.pde.internal.core.schema.Schema;
+import org.eclipse.pde.internal.core.schema.SchemaComplexType;
 import org.eclipse.pde.internal.ui.util.SWTUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
@@ -140,24 +147,25 @@ public class ExtensionPointWizardPage extends WizardPage {
         try {
             IExtensionPoint ep= (IExtensionPoint) Platform.getExtensionRegistry().getExtensionPoint(pluginID, pointID);
             String schemaLoc;
+            URL localSchemaURL;
 
             if (ep.getUniqueIdentifier().startsWith("org.eclipse.") && !ep.getUniqueIdentifier().startsWith("org.eclipse.uide")) {
                 // RMF 1/5/2006 - Hack to get schema for extension points defined by Eclipse
-                // platform plugins: attempts to find them in org.eclipse.platform.source.
-                Bundle platSrcPlugin= Platform.getBundle("org.eclipse.platform.source");
-                Bundle extProviderPlugin= Platform.getBundle(ep.getNamespace());
-                String extPluginVersion= (String) extProviderPlugin.getHeaders().get("Bundle-Version");
-                Path schemaPath= new Path("src/" + ep.getNamespace() + "_" + extPluginVersion + "/" + ep.getSchemaReference());
-                URL schemaURL= Platform.find(platSrcPlugin, schemaPath);
-                URL localSchemaURL= Platform.asLocalURL(schemaURL);
+                // platform plugins: attempts to find them in org.eclipse.platform.source,
+        	// or, failing that, org.eclipse.rcp.source
+                URL schemaURL= locateSchema(ep, "org.eclipse.platform.source");
 
+                if (schemaURL == null)
+                    schemaURL= locateSchema(ep, "org.eclipse.rcp.source");
+                if (schemaURL == null)
+                    throw new Exception("Cannot find schema source for " + ep.getSchemaReference());
+
+                localSchemaURL= Platform.asLocalURL(schemaURL);
                 schemaLoc= localSchemaURL.getPath();
             } else {
                 Bundle core= Platform.getBundle(pluginID);
-//              String location= core.getLocation();
-                URL localSchemaURL= Platform.asLocalURL(Platform.find(core, new Path("schema/" + ep.getSimpleIdentifier() + ".exsd")));
 
-//              schemaLoc= location.substring(location.indexOf('@') + 1) + ep.getSchemaReference();
+                localSchemaURL= Platform.asLocalURL(Platform.find(core, new Path("schema/" + ep.getSimpleIdentifier() + ".exsd")));
                 schemaLoc= localSchemaURL.getPath();
             }
             fSchema= new Schema(pluginID, pointID, "", false);
@@ -170,6 +178,30 @@ public class ExtensionPointWizardPage extends WizardPage {
         }
     }
 
+    private URL locateSchema(IExtensionPoint ep, String srcBundle) {
+	Bundle platSrcPlugin= Platform.getBundle(srcBundle);
+	Bundle extProviderPlugin= Platform.getBundle(ep.getNamespace());
+	String extPluginVersion= (String) extProviderPlugin.getHeaders().get("Bundle-Version");
+	Path schemaPath= new Path("src/" + ep.getNamespace() + "_" + extPluginVersion + "/" + ep.getSchemaReference());
+	URL schemaURL= Platform.find(platSrcPlugin, schemaPath);
+
+	return schemaURL;
+    }
+
+    /**
+     * Creates controls that are to appear above the schema attributes
+     * on the wizard page. Derived classes may override.
+     * @param parent
+     */
+    protected void createFirstControls(Composite parent) {
+        // Noop here; optionally overridden in derived classes
+    }
+
+    /**
+     * Creates additional controls that are to appear below the schema
+     * attributes on the wizard page. Derived classes may override.
+     * @param parent
+     */
     protected void createAdditionalControls(Composite parent) {
         // Noop here; optionally overridden in derived classes
     }
@@ -191,21 +223,8 @@ public class ExtensionPointWizardPage extends WizardPage {
             }
             createProjectLabelText(container);
             try {
-                ISchemaElement[] elements= fSchema.getElements();
-                for(int n= 0; n < elements.length; n++) {
-                    ISchemaElement element= elements[n];
-
-                    if (element.getName().equals("extension"))
-                        continue;
-
-                    ISchemaAttribute[] attributes= element.getAttributes();
-
-                    for(int k= 0; k < attributes.length; k++) {
-                        ISchemaAttribute attribute= attributes[k];
-
-                        createSchemaAttributeTextField(container, element.getName(), attribute);
-                    }
-                }
+        	createFirstControls(container);
+        	createControlsForSchema(fSchema, container);
                 createAdditionalControls(container);
                 createDescriptionText(container);
                 addLanguageListener();
@@ -219,6 +238,57 @@ public class ExtensionPointWizardPage extends WizardPage {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void createControlsForSchema(ISchema schema, Composite container) {
+	createControlsForSchemaElement(findSchemaElement("extension", schema), schema, container);
+    }
+
+    private ISchemaElement findSchemaElement(String elementName, ISchema schema) {
+        ISchemaElement[] elements= schema.getElements();
+
+        for(int n= 0; n < elements.length; n++) {
+            ISchemaElement element= elements[n];
+
+            if (element.getName().equals(elementName)) {
+        	return element;
+            }
+        }
+        ErrorHandler.reportError("Unable to find 'extension' element in schema for extension point " + schema.getPluginId() + "." + schema.getPointId(), true);
+        return null;
+    }
+
+    private void createControlsForSchemaElement(ISchemaElement element, ISchema schema, Composite container) {
+	ISchemaType eltType= element.getType();
+
+	createControlsForElementAttributes(element, container);
+//	if (eltType instanceof ISchemaSimpleType) {
+//	} else
+	    if (eltType instanceof ISchemaComplexType) {
+	    SchemaComplexType complexType= (SchemaComplexType) eltType;
+	    ISchemaCompositor comp= complexType.getCompositor();
+
+	    if (comp != null) {
+		ISchemaObject[] children= comp.getChildren();
+
+		for(int i= 0; i < children.length; i++) {
+		    ISchemaElement child= (ISchemaElement) children[i];
+
+		    createControlsForSchemaElement(findSchemaElement(child.getName(), schema), schema, container);
+		}
+	    }
+	}
+    }
+
+    private void createControlsForElementAttributes(ISchemaElement element, Composite container) {
+	ISchemaAttribute[] attributes= element.getAttributes();
+
+	for(int k= 0; k < attributes.length; k++) {
+	    ISchemaAttribute attribute= attributes[k];
+
+	    if (!attribute.getName().equals("point"))
+		createSchemaAttributeTextField(container, element.getName(), attribute);
+	}
     }
 
     private void addLanguageListener() {
@@ -766,5 +836,24 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     public List getRequires() {
         return fRequiredPlugins;
+    }
+
+    protected void createLanguageFieldForPlatformSchema(Composite parent) {
+        WizardPageField languageField= new WizardPageField(fExtPointID, "language", "Language", "", 0, true, "Language for which to create a " + fExtPointID);
+    
+        fLanguageText= createLabelTextBrowse(parent, languageField, null);
+    
+        fFields.add(languageField);
+    
+        fLanguageText.setData(languageField);
+        fLanguageText.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                Text text= (Text) e.widget;
+                WizardPageField field= (WizardPageField) text.getData();
+                field.value= text.getText();
+                sLanguage= field.value;
+                dialogChanged();
+            }
+        });
     }
 }
