@@ -27,6 +27,12 @@
             parentCategory="org.eclipse.uide.wizards"/>
       <wizard
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
+            name="New Project Wizard"
+            icon="icons/sample.gif"
+            class="org.eclipse.uide.wizards.Wizards$NewProject"
+            id="org.eclipse.uide.wizards.NewProjectWizard"/>
+      <wizard
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
             class="org.eclipse.uide.wizards.Wizards$NewBuilder"
             icon="icons/sample.gif"
             id="org.eclipse.uide.newBuilder"
