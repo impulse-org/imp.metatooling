@@ -162,6 +162,9 @@ public class ExtensionPointEnabler {
 	PluginElement schema= null;
 	List fields= page.getFields();
 
+	// BUG RMF 3/24/2006 - The following is completely bogus - it ignores nested schema elements, and flattens everything out.
+	// Need to store information about element nesting in each WizardePageField
+	// and use that to drive creation of the elements.
 	for(int n= 0; n < fields.size(); n++) {
 	    WizardPageField field= (WizardPageField) fields.get(n);
 
