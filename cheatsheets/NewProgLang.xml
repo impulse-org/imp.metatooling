@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Creating a New SAFARI Programming Language">
+<intro>
+<description>
+
+</description>
+</intro>
+<item title="Create a language description">
+<action pluginId="org.eclipse.uide"
+        class="org.eclipse.uide.cheatsheets.actions.NewLanguageAction"/>
+<description>
+Invoke "File" -&gt; "New" -&gt; "IDE Language Support" -&gt; "Programming Language".<br/>
+
+Fill out the "language" field with a unique name. Each language service implementation
+is associated with the language for which it is intended by means of this unique name.<br/>
+
+Enter any user-readable text you like in the "description" field. Enter a comma-separated
+list of file name extensions in the "extensions" field.<br/>
+
+A file whose name has any of these extensions will be assumed to contain source code in the
+given programming language, and the language services defined for this language will
+become available to the developer while editing such files.<br/>
+
+Hit "Finish" when done editing the various fields.<br/>
+
+A SAFARI language description extension will be created using the above information.<br/>
+</description>
+</item>
+<item title="Create a grammar and lexer specification">
+<action pluginId="org.eclipse.uide"
+        class="org.eclipse.uide.cheatsheets.actions.NewParserAction"/>
+<description>
+Invoke "File" -&gt; "New" -&gt; "IDE Language Support" -&gt; "Parser Services" -&gt;
+"JikesPG Grammar and Parser for SAFARI".<br/>
+
+Enter the name of your language (as entered above in the "New Programming Language"
+step) into the "language" field. As you type, reasonable default values will be
+entered into other fields, e.g., the "id", "name" and "class" fields.<br/>
+
+If you wish, edit the "id" field to specify a non-default extension ID for the
+parsing service.<br/>
+
+If you wish, edit the "name" field to specify a non-default name for the
+parsing service. This parameter is not presently used, but is intended to be
+the user-visible name for the parser.<br/>
+
+If you wish, edit the "class" field to specify a non-default fully-qualified
+name for the parse controller. This class is used to give access to the token
+stream, AST, and so on, to the various higher-level language services.<br/>
+
+Hit "Finish" when done editing. The grammar file for your language will be
+open in the editor. You should see the structure of the grammar file in the
+"Outline" view.<br/>
+</description>
+</item>
+<item title="Create a token colorer">
+<action pluginId="org.eclipse.uide"
+        class="org.eclipse.uide.cheatsheets.actions.NewTokenColorerAction"/>
+<description>
+Invoke "File" -&gt; "New" -&gt; "IDE Language Support" -&gt; "Editor Services" -&gt;
+"Token Colorer".<br/>
+
+As before, enter the name of your language in the "language" field, and if
+desired, edit the remaining fields. Hit "Finish".<br/>
+
+You should see that the editor opens up the token colorer implementation.
+The token colorer class has two important methods: the constructor, in which
+a set of TextAttribute's are created (which are later used to specify the
+text presentation for the various token kinds), and the getColoring() method,
+which returns the TextAttribute to be used for the given token.<br/>
+
+As you can see, getColoring() calls IToken.getKind() to determine the token
+kind (represented by an integer), and uses that to compute the correct text
+attributes. The set of valid token kinds is defined by the lexical analyzer;
+they are typically located in the generated interface xxxParsersym, and
+generally start with a prefix like "TK_".
+</description>
+</item>
+<item title="Create an outliner">
+<action pluginId="org.eclipse.uide"
+        class="org.eclipse.uide.cheatsheets.actions.NewOutlinerAction"/>
+<description>
+Invoke "File" -&gt; "New" -&gt; "IDE Language Support" -&gt; "Editor Services" -&gt;
+"Outliner".<br/>
+
+As before, enter the name of your language in the "language" field, and if
+desired, edit the remaining fields. Hit "Finish".<br/>
+
+You should see that the editor opens up the outliner implementation.
+The outliner class only has one important method: the createOutlinePresentation(),
+which typically retrieves the current AST from the IParseController, and visits
+it to populate the outline tree with various TreeItems. To add a program entity
+to the outline, simply override the method corresponding to that type of AST node
+and have it call createSubItem() with an appropriate label.<br/>
+</description>
+</item>
+<item title="Create a builder">
+<action pluginId="org.eclipse.uide"
+        class="org.eclipse.uide.cheatsheets.actions.NewBuilderAction"/>
+<description>
+Invoke "File" -&gt; "New" -&gt; "IDE Language Support" -&gt; "Core Services" -&gt;
+"Incremental Builder".<br/>
+
+As before, enter the name of your language in the "language" field, and if
+desired, edit the remaining fields. Hit "Finish".<br/>
+
+You should see that the editor opens up the IncrementalProjectBuilder implementation.
+
+The skeleton builder overrides/implements several methods:<br/>
+ - getErrorMarker()<br/>
+ - getInfoMarker()<br/>
+ - getWarningMarker()<br/>
+ - getPlugin()<br/>
+ - isSourceFile()<br/>
+ - isOutputFolder()<br/>
+ - compile()<br/>
+
+These will all do reasonable things "out of the box". You will undoubtedly need to
+edit compile() to actually call out to your compiler in some fashion, retrieve the
+diagnostic messages and turn them into markers in the "Problems" view. If your
+compiler runs in an external process, or uses java.io to create output files, you'll
+also need to call IResource.refresh() on the folder that contains all the generated
+output files (in the worst case, this could be the root of the project).
+</description>
+</item>
+</cheatsheet>
