@@ -123,6 +123,29 @@ public class Wizards {
 	}
     }
 
+    public static class NewProject extends CodeServiceWizard {
+	public void addPages() {
+	    addPages(new ExtensionPointWizardPage[] { new NewProjectWizardPage(this) });
+	}
+
+	protected List getPluginDependencies() {
+	    return Arrays.asList(new String[] {
+                    "org.eclipse.core.runtime", "org.eclipse.core.resources",
+		    "org.eclipse.uide.runtime", "org.eclipse.ui" });
+	}
+
+	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
+            ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
+            IProject project= page.getProject();
+            Map subs= getStandardSubstitutions();
+
+            subs.put("$NATURE_ID", fLanguageName + ".nature");
+
+            createFileFromTemplate(fClassName + "ProjectWizard.java", "newProjectWizard.tmpl", fPackageFolder, subs, project, mon);
+            createFileFromTemplate(fClassName + "ProjectPage.java", "newProjectWizardPage.tmpl", fPackageFolder, subs, project, mon);
+	}
+    }
+
     public static class NewIndexer extends NoCodeServiceWizard {
 	public void addPages() {
 	    addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "index"), });
