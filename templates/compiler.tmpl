@@ -49,7 +49,7 @@ public class $CLASS_NAME_PREFIX$Translator {
         public void endVisit(assignment n) {
             String rhs= (String) fTranslationStack.pop();
             String lhs= (String) fTranslationStack.pop();
-            fTranslationStack.push("\t\t" + lhs + " = " + rhs + ";");
+            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + lhs + " = " + rhs + ";");
         }
         public void endVisit(expression0 n) {
             fTranslationStack.push(fTranslationStack.pop() + "+" + fTranslationStack.pop());
@@ -58,7 +58,7 @@ public class $CLASS_NAME_PREFIX$Translator {
             fTranslationStack.push(fTranslationStack.pop() + "-" + fTranslationStack.pop());
         }
         public boolean visit(declaration0 n) {
-            fTranslationStack.push("\t\t" + "int " + n.getident() + ";");
+            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + "int " + n.getident() + ";");
             return false;
         }
         public boolean visit(declaration1 n) {
