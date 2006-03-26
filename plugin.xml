@@ -38,6 +38,12 @@
             id="org.eclipse.uide.newBuilder"
             name="Incremental Builder"/>
       <wizard
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
+            class="org.eclipse.uide.wizards.Wizards$NewCompiler"
+            icon="icons/sample.gif"
+            id="org.eclipse.uide.newCompiler"
+            name="Poor Man's Compiler"/>
+      <wizard
             class="org.eclipse.uide.wizards.Wizards$NewIndexer"
             icon="icons/sample.gif"
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"

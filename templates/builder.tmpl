@@ -55,22 +55,13 @@ public class $CLASS_NAME_PREFIX$Builder extends SAFARIBuilderBase {
     }
 
     protected void compile(final IFile file) {
-	String fileName= file.getLocation().toOSString();
-
 	try {
-	    File parentDir= new File(fileName).getParentFile();
-	    // TODO Write your code to actually compile the given source file
-	    String cmd[]= new String[] { "echo", "* Compiling: ", file.getName() };
-	    Process process= Runtime.getRuntime().exec(cmd, new String[0], parentDir);
-	    InputStream is= process.getInputStream();
-	    int ch;
-
-	    while ((ch = is.read()) > 0)
-	    	System.out.append((char) ch);
 //	    createMarker(file, 2, 8, 13, "Oops!", IMarker.SEVERITY_WARNING);
-	    doRefresh(file);
+	    Translator trans= new Translator();
+            trans.compile(file, new NullProgressMonitor());
+	    doRefresh(file.getParent());
 	} catch (Exception e) {
-	    $CLASS_NAME_PREFIX$Plugin.getInstance().writeErrorMsg(e.getMessage());
+	    LegPlugin.getInstance().writeErrorMsg(e.getMessage());
 	    e.printStackTrace();
 	}
     }
