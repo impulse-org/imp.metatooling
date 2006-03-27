@@ -119,23 +119,4 @@
             name="Auto-Edit Strategy"
             id="org.eclipse.uide.wizards.NewAutoEditStrategy"/>
    </extension>
-
-   <extension
-         id="com.ibm.safari.cheatSheets"
-         name="SAFARI Cheat Sheets"
-         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
-      <category
-         name="SAFARI"
-         id="com.ibm.safari">
-      </category>
-      <cheatsheet
-         name="New Programming Language"
-         category="com.ibm.safari"
-         id="com.ibm.safari.cheatSheet.language"
-         contentFile="cheatsheets/NewProgLang.xml">
-         <description>
-           Create IDE support for a new programming language.
-         </description>
-      </cheatsheet>
-   </extension>
 </plugin>
