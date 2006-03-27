@@ -5,10 +5,11 @@ package org.eclipse.uide.wizards;
  * (c) Copyright IBM Corp. 2005  All Rights Reserved
  */
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringBufferInputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -22,7 +23,7 @@ import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginImport;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
-import org.eclipse.pde.core.plugin.IPluginModelFactory;
+import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.core.plugin.ISharedExtensionsModel;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
@@ -37,6 +38,7 @@ import org.eclipse.uide.core.ErrorHandler;
  * @author Claffra
  */
 public class ExtensionPointEnabler {
+    // BUG Should accept an extension ID, or is that already in the page?
     public static void enable(ExtensionPointWizardPage page, IProgressMonitor monitor) {
 	try {
 	    IPluginModel pluginModel= getPluginModel(page);
@@ -49,6 +51,7 @@ public class ExtensionPointEnabler {
 	}
     }
 
+    // BUG Should accept an extension ID, or is that already in attrNamesValues?
     public static void enable(IProject project, String pluginID, String pointID, String[][] attrNamesValues, IProgressMonitor monitor) {
 	try {
 	    IPluginModel pluginModel= getPluginModelForProject(project);
@@ -159,23 +162,33 @@ public class ExtensionPointEnabler {
     }
 
     private static void setElementAttributes(IPluginModel pluginModel, ExtensionPointWizardPage page, IPluginExtension extension) throws CoreException {
-	PluginElement schema= null;
 	List fields= page.getFields();
 
 	// BUG RMF 3/24/2006 - The following is completely bogus - it ignores nested schema elements, and flattens everything out.
 	// Need to store information about element nesting in each WizardePageField
 	// and use that to drive creation of the elements.
+
+	Map/*<String qualElemName, PluginElement>*/ elementMap= new HashMap();
+
 	for(int n= 0; n < fields.size(); n++) {
 	    WizardPageField field= (WizardPageField) fields.get(n);
+	    PluginElement elt= (PluginElement) elementMap.get(field.fSchemaElementName);
 
-	    if (schema == null || !field.schemaName.equals(schema.getName())) {
-		schema= new PluginElement();
-		schema.setModel(pluginModel);
-		schema.setName(field.schemaName);
-		extension.add(schema);
-		schema.setParent(extension);
+	    System.out.println(field);
+	    if (elt == null) {
+		int lastDotIdx= field.fSchemaElementName.indexOf('.');
+
+		elt= new PluginElement();
+		elt.setModel(pluginModel);
+		elt.setName(field.fSchemaElementName.substring(lastDotIdx+1));
+		extension.add(elt);
+		IPluginObject parent= extension;
+		if (lastDotIdx > 0)
+		    parent= (IPluginObject) elementMap.get(field.fSchemaElementName.substring(0, lastDotIdx));
+		elt.setParent(parent);
+		elementMap.put(field.fSchemaElementName, elt);
 	    }
-	    schema.setAttribute(field.name, field.value);
+	    elt.setAttribute(field.fName, field.fValue);
 	}
     }
 
