@@ -139,6 +139,7 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
 			    for(int n= 0; n < pages.length; n++) {
 				ExtensionPointWizardPage page= pages[n];
 
+				// BUG Make sure the extension ID is correctly set
 				if (!page.hasBeenSkipped())
 				    ExtensionPointEnabler.enable(page, monitor);
 			    }
