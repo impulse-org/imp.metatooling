@@ -8,40 +8,47 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 
 public class WizardPageField {
-    public String name;
-    public String label;
-    public int kind;
-    public boolean required;
-    public String value;
-    public String description;
-    public Text text;
-    public String schemaName;
-    public Button button;
-    public Hyperlink link;
+    public String fName;
+    public String fLabel;
+    public int fKind;
+    public boolean fRequired;
+    public String fValue;
+    public String fDescription;
+    public Text fText;
+    /**
+     * Possibly "qualified schema element" name, indicating the element nesting.
+     */
+    public String fSchemaElementName;
+    public Button fButton;
+    public Hyperlink fLink;
 
     WizardPageField(String schemaName, String name, String label, String value, int kind, boolean required, String description) {
-        this.name= name;
-        this.label= label;
-        this.value= value;
-        this.kind= kind;
-        this.required= required;
-        this.description= description;
-        this.schemaName= schemaName;
+        fName= name;
+        fLabel= label;
+        fValue= value;
+        fKind= kind;
+        fRequired= required;
+        fDescription= description;
+        fSchemaElementName= schemaName;
     }
 
     public void setEnabled(boolean enabled) {
-        text.setEnabled(enabled);
-        if (button != null)
-    	button.setEnabled(enabled);
-        if (link != null)
-    	link.setEnabled(enabled);
+        fText.setEnabled(enabled);
+        if (fButton != null)
+    	fButton.setEnabled(enabled);
+        if (fLink != null)
+    	fLink.setEnabled(enabled);
     }
 
     public void setText(String string) {
-        text.setText(string);
+        fText.setText(string);
     }
 
     public String getText() {
-        return text.getText();
+        return fText.getText();
+    }
+
+    public String toString() {
+	return "<" + fSchemaElementName + ":" + fName + "=" + fValue + ">";
     }
 }
