@@ -1,0 +1,55 @@
+package $PACKAGE_NAME$;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.source.Annotation;
+import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
+import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
+import org.eclipse.uide.editor.IFoldingUpdater;
+import org.eclipse.uide.parser.IParseController;
+
+import $PARSER_CLASS$;
+import $AST_PACKAGE$.*;
+
+public class $CLASS_NAME_PREFIX$FoldingUpdater implements IFoldingUpdater {
+    private Annotation[] fOldAnnotations;
+
+    public void updateFoldingStructure(IParseController parseController, ProjectionAnnotationModel annotationModel) {
+	final List/*Annotation*/ annotations= new ArrayList();
+	final HashMap newAnnotations= new HashMap();
+	$AST_CLASS$ ast= ($AST_CLASS$) parseController.getCurrentAst();
+
+	ast.accept(new AbstractVisitor() {
+	    public void unimplementedVisitor(String s) { }
+	    private void makeAnnotation($AST_CLASS$ n) {
+		ProjectionAnnotation annotation= new ProjectionAnnotation();
+		int start= n.getLeftIToken().getStartOffset();
+		int len= n.getRightIToken().getEndOffset() - start;
+
+		newAnnotations.put(annotation, new Position(start, len));
+		annotations.add(annotation);
+	    }
+	    public boolean visit(block n) {
+		makeAnnotation(n);
+		return false;
+	    }
+	});
+
+	dumpAnnotations(annotations, newAnnotations);
+
+	annotationModel.modifyAnnotations(fOldAnnotations, newAnnotations, null);
+	fOldAnnotations= (Annotation[]) annotations.toArray(new Annotation[annotations.size()]);
+    }
+
+    private void dumpAnnotations(final List annotations, final HashMap newAnnotations) {
+	for(int i= 0; i < annotations.size(); i++) {
+	    Annotation a= (Annotation) annotations.get(i);
+	    Position p= (Position) newAnnotations.get(a);
+
+	    System.out.println("Annotation @ " + p.offset + ":" + p.length);
+	}
+    }
+}
