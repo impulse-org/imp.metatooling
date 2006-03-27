@@ -269,7 +269,14 @@ public class Wizards {
 	}
 
 	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
-	    // TODO Auto-generated method stub
+            ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
+            IProject project= page.getProject();
+            Map subs= getStandardSubstitutions();
+
+//          { "$PKG_NAME$", fPackageName },
+            subs.put("$PARSER_PKG$", fParserPackage);
+
+            createFileFromTemplate(fClassName + "FoldingUpdater.java", "folder.tmpl", fPackageFolder, subs, project, mon);
 	}
     }
 
