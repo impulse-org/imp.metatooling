@@ -118,5 +118,11 @@
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
             name="Auto-Edit Strategy"
             id="org.eclipse.uide.wizards.NewAutoEditStrategy"/>
+      <wizard
+            class="org.eclipse.uide.wizards.Wizards$NewFormatter"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            name="Source Formatter"
+            id="org.eclipse.uide.wizards.NewFormatter"/>
    </extension>
 </plugin>
