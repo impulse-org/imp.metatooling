@@ -24,6 +24,7 @@ import org.eclipse.pde.core.plugin.IPluginImport;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.IPluginObject;
+import org.eclipse.pde.core.plugin.IPluginParent;
 import org.eclipse.pde.core.plugin.ISharedExtensionsModel;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
@@ -163,32 +164,47 @@ public class ExtensionPointEnabler {
 
     private static void setElementAttributes(IPluginModel pluginModel, ExtensionPointWizardPage page, IPluginExtension extension) throws CoreException {
 	List fields= page.getFields();
+	Map/*<String qualElemName, PluginElement>*/ elementMap= new HashMap(); // so we can find nested/parent elements after they've been created, somewhat regardless of the field ordering
 
-	// BUG RMF 3/24/2006 - The following is completely bogus - it ignores nested schema elements, and flattens everything out.
-	// Need to store information about element nesting in each WizardePageField
-	// and use that to drive creation of the elements.
-
-	Map/*<String qualElemName, PluginElement>*/ elementMap= new HashMap();
+	elementMap.put("extension", extension); // Let nested elements find the extension object itself by name
 
 	for(int n= 0; n < fields.size(); n++) {
 	    WizardPageField field= (WizardPageField) fields.get(n);
-	    PluginElement elt= (PluginElement) elementMap.get(field.fSchemaElementName);
 
 	    System.out.println(field);
-	    if (elt == null) {
-		int lastDotIdx= field.fSchemaElementName.indexOf('.');
+	    if (field.fSchemaElementName.equals("extension")) {
+		// Handle the top-level element (the extension that was passed in)
+		if (field.fName.equals("id"))
+		    extension.setId(field.fValue);
+		else if (field.fName.equals("name"))
+		    extension.setName(field.fValue);
+		else
+		    System.err.println("Unknown 'extension' attribute: '" + field.fName + "'.");
+	    } else {
+		// Handle all other elements - create on first reference
+		PluginElement elt= (PluginElement) elementMap.get(field.fSchemaElementName);
 
-		elt= new PluginElement();
-		elt.setModel(pluginModel);
-		elt.setName(field.fSchemaElementName.substring(lastDotIdx+1));
-		extension.add(elt);
-		IPluginObject parent= extension;
-		if (lastDotIdx > 0)
-		    parent= (IPluginObject) elementMap.get(field.fSchemaElementName.substring(0, lastDotIdx));
-		elt.setParent(parent);
-		elementMap.put(field.fSchemaElementName, elt);
+		if (elt == null) {
+		    int lastDotIdx= field.fSchemaElementName.lastIndexOf('.');
+		    String elemName= field.fSchemaElementName.substring(lastDotIdx+1);
+		    IPluginParent parent;
+
+		    elt= new PluginElement();
+		    elt.setModel(pluginModel);
+		    elt.setName(elemName);
+		    if (lastDotIdx > 0) {
+			String parentElemName= field.fSchemaElementName.substring(0, lastDotIdx);
+
+			parent= (IPluginParent) elementMap.get(parentElemName);
+		    } else
+			parent= extension;
+		    elt.setParent(parent);
+		    parent.add(elt);
+		    elementMap.put(field.fSchemaElementName, elt); // use "fully-qualified" name here
+		}
+		// Ok, we've found the right element; set the attribute
+		elt.setAttribute(field.fName, field.fValue);
 	    }
-	    elt.setAttribute(field.fName, field.fValue);
 	}
     }
 
