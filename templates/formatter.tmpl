@@ -29,6 +29,7 @@ public class $CLASS_NAME_PREFIX$Formatter implements ILanguageService, ISourceFo
             public void unimplementedVisitor(String s) {
                 System.out.println("Unhandled node type: " + s);
             }
+			// START_HERE
             public boolean visit(assignment n) {
             	buff.append(fIndentString);
             	return true;

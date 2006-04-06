@@ -18,6 +18,7 @@ public class $CLASS_NAME_PREFIX$TokenColorer extends DefaultTokenColorer impleme
 	public TextAttribute getColoring(IParseController controller, IToken token) {
 		switch (token.getKind())
 		{
+			// START_HERE
             case TK_SINGLE_LINE_COMMENT: // case TK_MULTI_LINE_COMMENT:
                  return commentAttribute;
             case TK_IDENTIFIER:

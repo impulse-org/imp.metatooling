@@ -32,6 +32,7 @@ public class $CLASS_NAME_PREFIX$FoldingUpdater implements IFoldingUpdater {
 		newAnnotations.put(annotation, new Position(start, len));
 		annotations.add(annotation);
 	    }
+		// START_HERE
 	    public boolean visit(block n) {
 		makeAnnotation(n);
 		return false;
