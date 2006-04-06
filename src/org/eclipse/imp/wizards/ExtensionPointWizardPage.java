@@ -8,6 +8,7 @@ package org.eclipse.uide.wizards;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IFolder;
@@ -193,7 +194,24 @@ public class ExtensionPointWizardPage extends WizardPage {
      * @param parent
      */
     protected void createFirstControls(Composite parent) {
-        // Noop here; optionally overridden in derived classes
+	// Attempt to locate the "language" element attribute, so that we can
+	// create that field first, since it's got a listener that populates
+	// several other fields with reasonable values based on the language
+	// name. As a result, it's nicer to have the language field near the
+	// top, so that it's easier to get at than if it were at the bottom.
+	ISchemaElement elt= fSchema.findElement(fExtPointID);
+
+	if (elt == null) {
+	    ISchemaElement[] elements= fSchema.getElements();
+	    for(int i= 0; i < elements.length; i++) {
+		if (elements[i].getAttribute("language") != null) {
+		    elt= elements[i];
+		    break;
+		}
+	    }
+	}
+	if (elt != null)
+	    createElementAttributeTextField(parent, "extension." + fExtPointID, elt.getAttribute("language"));
     }
 
     /**
@@ -240,21 +258,11 @@ public class ExtensionPointWizardPage extends WizardPage {
     }
 
     private void createControlsForSchema(ISchema schema, Composite container) {
-	createControlsForSchemaElement(findSchemaElement("extension", schema), schema, "", container);
-    }
-
-    private ISchemaElement findSchemaElement(String elementName, ISchema schema) {
-        ISchemaElement[] elements= schema.getElements();
-
-        for(int n= 0; n < elements.length; n++) {
-            ISchemaElement element= elements[n];
-
-            if (element.getName().equals(elementName)) {
-        	return element;
-            }
-        }
-        ErrorHandler.reportError("Unable to find 'extension' element in schema for extension point " + schema.getPluginId() + "." + schema.getPointId(), true);
-        return null;
+	createControlsForSchemaElement(schema.findElement("extension"), schema, "extension", container);
+//	for(Iterator iter= fFields.iterator(); iter.hasNext(); ) {
+//	    WizardPageField field= (WizardPageField) iter.next();
+//	    System.out.println(field);
+//	}
     }
 
     private void createControlsForSchemaElement(ISchemaElement element, ISchema schema, String prefix, Composite container) {
@@ -273,7 +281,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 		    ISchemaElement child= (ISchemaElement) children[i];
 		    String subPrefix= ((prefix.length() > 0) ? (prefix + ".") : prefix) + child.getName();
 
-		    createControlsForSchemaElement(findSchemaElement(child.getName(), schema), schema, subPrefix, container);
+		    createControlsForSchemaElement(schema.findElement(child.getName()), schema, subPrefix, container);
 		}
 	    }
 	}
@@ -290,47 +298,14 @@ public class ExtensionPointWizardPage extends WizardPage {
 	}
     }
 
-    private void addLanguageListener() {
-        fLanguageText.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent e) {
-                setIDIfEmpty();
-                setClassIfEmpty();
-                setNameIfEmpty();
-            }
-        });
-    }
-
-    private void createDescriptionText(Composite container) {
-        fDescriptionText= new Text(container, SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
-        fDescriptionText.setBackground(container.getBackground());
-        GridData gd= new GridData(GridData.FILL_BOTH);
-        gd.horizontalSpan= 3;
-        gd.widthHint= 450;
-        fDescriptionText.setLayoutData(gd);
-        fDescriptionText.setEditable(false);
-        fDescriptionText.setText(fSchema.getDescription());
-    }
-
-    private void addServiceEnablerCheckbox(Composite container) {
-        Label label= new Label(container, SWT.NONE);
-        label.setText("Add this service:");
-        // label.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-        fAddThisExtensionPointButton= new Button(container, SWT.CHECK);
-        fAddThisExtensionPointButton.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                fSkip= !fAddThisExtensionPointButton.getSelection();
-                dialogChanged();
-            }
-        });
-        // fAddThisExtensionPointButton.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-        fAddThisExtensionPointButton.setSelection(true);
-        GridData gd= new GridData(GridData.FILL_HORIZONTAL);
-        gd.horizontalSpan= 2;
-        fAddThisExtensionPointButton.setLayoutData(gd);
-    }
-
     private void createElementAttributeTextField(Composite container, String schemaElementPrefix, ISchemaAttribute attribute) {
         String name= attribute.getName();
+
+        // We manually create the language field first, for the user's
+        // convenience, so check to see whether we already created it.
+        if (name.equals("language") && fLanguageText != null)
+            return;
+
         String basedOn= attribute.getBasedOn();
         String description= stripHTML(attribute.getDescription());
         Object value= attribute.getValue();
@@ -367,6 +342,166 @@ public class ExtensionPointWizardPage extends WizardPage {
                 fDescriptionText.setText(field.fDescription);
             }
         });
+    }
+
+    protected Text createLabelTextBrowse(Composite container, WizardPageField field, final String basedOn) {
+        Widget labelWidget= null;
+        String name= field.fName;
+        String description= field.fDescription;
+        String value= field.fValue;
+	// BUG Prevents clicking "Finish" if an element is optional but one of its attributes isn't
+        boolean required= field.fRequired;
+
+        if (required)
+            name+= "*";
+        name+= ":";
+        if (basedOn != null) {
+            labelWidget= createNewClassHyperlink(field, name, basedOn, container);
+        } else {
+            Label label= new Label(container, SWT.NULL);
+            label.setText(name);
+            label.setToolTipText(description);
+            labelWidget= label;
+            label.setBackground(container.getBackground());
+        }
+        Text text= new Text(container, SWT.BORDER | SWT.SINGLE);
+        labelWidget.setData(text);
+        GridData gd= new GridData(GridData.FILL_HORIZONTAL);
+        if (basedOn == null)
+            gd.horizontalSpan= 2;
+        else
+            gd.horizontalSpan= 1;
+        text.setLayoutData(gd);
+        text.setText(value);
+        if (basedOn != null)
+            createClassBrowseButton(container, field, text);
+        if (field != null)
+            field.fText= text;
+        return text;
+    }
+
+    private Widget createNewClassHyperlink(WizardPageField field, String name, final String basedOn, Composite container) {
+        Widget labelWidget;
+        FormToolkit toolkit= new FormToolkit(Display.getDefault());
+        Hyperlink link= toolkit.createHyperlink(container, name, SWT.NULL);
+
+        link.addHyperlinkListener(new HyperlinkAdapter() {
+            public void linkActivated(HyperlinkEvent e) {
+                Text text= (Text) e.widget.getData();
+                try {
+                    if (getProject() == null)
+                        MessageDialog.openError(null, "SAFARI Wizard", "Please select a project first");
+                    else {
+                	// BUG Should pick up info from wizard page, rather than using defaults.
+                        ExtensionPointEnabler.addImports(ExtensionPointWizardPage.this);
+                        String basedOnQualName= basedOn;
+                        String basedOnTypeName= basedOn.substring(basedOnQualName.lastIndexOf('.') + 1);
+                        String superClassName= "";
+
+                        if (basedOnTypeName.charAt(0) == 'I' && Character.isUpperCase(basedOnTypeName.charAt(1))) {
+                            superClassName= "org.eclipse.uide.defaults.Default" + basedOnTypeName.substring(1);
+                        }
+                        openClassDialog(basedOnQualName, superClassName, text);
+                    }
+                } catch (Exception ee) {
+                    ErrorHandler.reportError("Could not open dialog to find type", true, ee);
+                }
+            }
+        });
+        link.setToolTipText(field.fDescription);
+        labelWidget= link;
+        if (field != null)
+            field.fLink= link;
+        return labelWidget;
+    }
+
+    private void createClassBrowseButton(Composite container, WizardPageField field, Text text) {
+        Button button= new Button(container, SWT.PUSH);
+
+        button.setText("Browse...");
+        button.setData(text);
+        button.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                try {
+                    IRunnableContext context= PlatformUI.getWorkbench().getProgressService();
+                    IJavaSearchScope scope= new JavaWorkspaceScope();
+                    TypeSelectionDialog2 dialog= new TypeSelectionDialog2(null, false, context, scope, IJavaSearchConstants.CLASS);
+
+                    if (dialog.open() == TypeSelectionDialog2.OK) {
+                        Text text= (Text) e.widget.getData();
+                        BinaryType type= (BinaryType) dialog.getFirstResult();
+                        text.setText(type.getFullyQualifiedName());
+                    }
+                } catch (Exception ee) {
+                    ErrorHandler.reportError("Could not browse type", ee);
+                }
+            }
+        });
+        if (field != null)
+            field.fButton= button;
+    }
+
+    protected void openClassDialog(String interfaceQualName, String superClassName, Text text) {
+        try {
+            String intfName= interfaceQualName.substring(interfaceQualName.lastIndexOf('.') + 1);
+            IJavaProject javaProject= JavaCore.create(getProject());
+            // RMF 7/5/2005 - If the project doesn't yet have the necessary plug-in
+            // dependency for this reference to be satisfiable, an error ensues.
+            IType basedOnClass= javaProject.findType(interfaceQualName);
+
+            if (basedOnClass == null) {
+                ErrorHandler.reportError("Base interface '" + interfaceQualName
+                        + "' does not exist in project's build path; be sure to add the appropriate plugin to the dependencies.", true);
+            }
+
+            NewClassCreationWizard wizard= new NewClassCreationWizard();
+
+            wizard.init(Workbench.getInstance(), null);
+
+            WizardDialog dialog= new WizardDialog(null, wizard);
+
+            dialog.create();
+
+            NewClassWizardPage page= (NewClassWizardPage) wizard.getPages()[0];
+            String langName= fLanguageText.getText();
+            // TODO RMF Should either fix and use fPackageName (sometimes null at this point) or get rid of it altogether.
+            String langPkg= fQualClassText.getText().substring(0, fQualClassText.getText().indexOf('.'));// fPackageName; // Character.toLowerCase(langName.charAt(0)) + langName.substring(1);
+
+            page.setSuperClass(superClassName, true);
+
+            ArrayList interfaces= new ArrayList();
+
+            interfaces.add(interfaceQualName);
+            page.setSuperInterfaces(interfaces, true);
+
+            IFolder srcFolder= getProject().getFolder("src/");
+            String servicePackage= langPkg + ".safari." + fExtPointID.substring(fExtPointID.lastIndexOf('.')+1); // pkg the service belongs in
+
+            fOwningWizard.createSubFolders(servicePackage.replace('.', '\\'), getProject(), new NullProgressMonitor());
+
+            IPackageFragmentRoot pkgFragRoot= javaProject.getPackageFragmentRoot(srcFolder);
+            IPackageFragment pkgFrag= pkgFragRoot.getPackageFragment(servicePackage);
+
+            page.setPackageFragmentRoot(pkgFragRoot, true);
+            page.setPackageFragment(pkgFrag, true);
+
+            String langClass= upperCaseFirst(langName);
+            if (intfName.charAt(0) == 'I' && Character.isUpperCase(intfName.charAt(1)))
+                page.setTypeName(langClass + intfName.substring(1), true);
+            else
+                page.setTypeName(langClass + intfName, true);
+            SWTUtil.setDialogSize(dialog, 400, 500);
+            if (dialog.open() == WizardDialog.OK) {
+                String name= page.getTypeName();
+                String pkg= page.getPackageText();
+                if (pkg.length() > 0)
+                    name= pkg + '.' + name;
+                text.setText(name);
+                fPackageName= pkg;
+            }
+        } catch (Exception e) {
+            ErrorHandler.reportError("Could not create class implementing " + interfaceQualName, true, e);
+        }
     }
 
     private void createProjectLabelText(Composite container) {
@@ -429,6 +564,45 @@ public class ExtensionPointWizardPage extends WizardPage {
                 fDescriptionText.setText("Select the plug-in project to add this extension point to");
             }
         });
+    }
+
+    private void addLanguageListener() {
+        fLanguageText.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                setIDIfEmpty();
+                setClassIfEmpty();
+                setNameIfEmpty();
+            }
+        });
+    }
+
+    private void createDescriptionText(Composite container) {
+        fDescriptionText= new Text(container, SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
+        fDescriptionText.setBackground(container.getBackground());
+        GridData gd= new GridData(GridData.FILL_BOTH);
+        gd.horizontalSpan= 3;
+        gd.widthHint= 450;
+        fDescriptionText.setLayoutData(gd);
+        fDescriptionText.setEditable(false);
+        fDescriptionText.setText(fSchema.getDescription());
+    }
+
+    private void addServiceEnablerCheckbox(Composite container) {
+        Label label= new Label(container, SWT.NONE);
+        label.setText("Add this service:");
+        // label.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+        fAddThisExtensionPointButton= new Button(container, SWT.CHECK);
+        fAddThisExtensionPointButton.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                fSkip= !fAddThisExtensionPointButton.getSelection();
+                dialogChanged();
+            }
+        });
+        // fAddThisExtensionPointButton.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+        fAddThisExtensionPointButton.setSelection(true);
+        GridData gd= new GridData(GridData.FILL_HORIZONTAL);
+        gd.horizontalSpan= 2;
+        fAddThisExtensionPointButton.setLayoutData(gd);
     }
 
     private IProject discoverSelectedProject() {
@@ -530,162 +704,6 @@ public class ExtensionPointWizardPage extends WizardPage {
         while (index != -1) {
             buffer.replace(index, index + s1.length(), s2);
             index= buffer.indexOf(s1);
-        }
-    }
-
-    protected Text createLabelTextBrowse(Composite container, WizardPageField field, final String basedOn) {
-        Widget labelWidget= null;
-        String name= field.fName;
-        String description= field.fDescription;
-        String value= field.fValue;
-	// BUG Prevents clicking "Finish" if an element is optional but one of its attributes isn't
-        boolean required= field.fRequired;
-
-        if (required)
-            name+= "*";
-        name+= ":";
-        if (basedOn != null) {
-            labelWidget= createNewClassHyperlink(field, name, basedOn, container);
-        } else {
-            Label label= new Label(container, SWT.NULL);
-            label.setText(name);
-            label.setToolTipText(description);
-            labelWidget= label;
-            label.setBackground(container.getBackground());
-        }
-        Text text= new Text(container, SWT.BORDER | SWT.SINGLE);
-        labelWidget.setData(text);
-        GridData gd= new GridData(GridData.FILL_HORIZONTAL);
-        if (basedOn == null)
-            gd.horizontalSpan= 2;
-        else
-            gd.horizontalSpan= 1;
-        text.setLayoutData(gd);
-        text.setText(value);
-        if (basedOn != null)
-            createClassBrowseButton(container, field, text);
-        if (field != null)
-            field.fText= text;
-        return text;
-    }
-
-    private Widget createNewClassHyperlink(WizardPageField field, String name, final String basedOn, Composite container) {
-        Widget labelWidget;
-        FormToolkit toolkit= new FormToolkit(Display.getDefault());
-        Hyperlink link= toolkit.createHyperlink(container, name, SWT.NULL);
-        link.addHyperlinkListener(new HyperlinkAdapter() {
-            public void linkActivated(HyperlinkEvent e) {
-                Text text= (Text) e.widget.getData();
-                try {
-                    if (getProject() == null)
-                        MessageDialog.openError(null, "SAFARI Wizard", "Please select a project first");
-                    else {
-                	// BUG Should pick up info from wizard page, rather than using defaults.
-                        ExtensionPointEnabler.addImports(ExtensionPointWizardPage.this);
-                        String basedOnQualName= basedOn;
-                        String basedOnTypeName= basedOn.substring(basedOnQualName.lastIndexOf('.') + 1);
-                        String superClassName= "";
-                        if (basedOnTypeName.charAt(0) == 'I' && Character.isUpperCase(basedOnTypeName.charAt(1))) {
-                            superClassName= "org.eclipse.uide.defaults.Default" + basedOnTypeName.substring(1);
-                        }
-                        openClassDialog(basedOnQualName, superClassName, text);
-                    }
-                } catch (Exception ee) {
-                    ErrorHandler.reportError("Could not open dialog to find type", true, ee);
-                }
-            }
-        });
-        link.setToolTipText(field.fDescription);
-        labelWidget= link;
-        if (field != null)
-            field.fLink= link;
-        return labelWidget;
-    }
-
-    private void createClassBrowseButton(Composite container, WizardPageField field, Text text) {
-        Button button= new Button(container, SWT.PUSH);
-        button.setText("Browse...");
-        button.setData(text);
-        button.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                try {
-                    IRunnableContext context= PlatformUI.getWorkbench().getProgressService();
-                    IJavaSearchScope scope= new JavaWorkspaceScope();
-                    TypeSelectionDialog2 dialog= new TypeSelectionDialog2(null, false, context, scope, IJavaSearchConstants.CLASS);
-                    if (dialog.open() == TypeSelectionDialog2.OK) {
-                        Text text= (Text) e.widget.getData();
-                        BinaryType type= (BinaryType) dialog.getFirstResult();
-                        text.setText(type.getFullyQualifiedName());
-                    }
-                } catch (Exception ee) {
-                    ErrorHandler.reportError("Could not browse type", ee);
-                }
-            }
-        });
-        if (field != null)
-            field.fButton= button;
-    }
-
-    protected void openClassDialog(String interfaceQualName, String superClassName, Text text) {
-        try {
-            String intfName= interfaceQualName.substring(interfaceQualName.lastIndexOf('.') + 1);
-            IJavaProject javaProject= JavaCore.create(getProject());
-            // RMF 7/5/2005 - If the project doesn't yet have the necessary plug-in
-            // dependency for this reference to be satisfiable, an error ensues.
-            IType basedOnClass= javaProject.findType(interfaceQualName);
-
-            if (basedOnClass == null) {
-                ErrorHandler.reportError("Base interface '" + interfaceQualName
-                        + "' does not exist in project's build path; be sure to add the appropriate plugin to the dependencies.", true);
-            }
-
-            NewClassCreationWizard wizard= new NewClassCreationWizard();
-
-            wizard.init(Workbench.getInstance(), null);
-
-            WizardDialog dialog= new WizardDialog(null, wizard);
-
-            dialog.create();
-
-            NewClassWizardPage page= (NewClassWizardPage) wizard.getPages()[0];
-            String langName= fLanguageText.getText();
-            // TODO RMF Should either fix and use fPackageName (sometimes null at this point) or get rid of it altogether.
-            String langPkg= fQualClassText.getText().substring(0, fQualClassText.getText().indexOf('.'));// fPackageName; // Character.toLowerCase(langName.charAt(0)) + langName.substring(1);
-
-            page.setSuperClass(superClassName, true);
-
-            ArrayList interfaces= new ArrayList();
-
-            interfaces.add(interfaceQualName);
-            page.setSuperInterfaces(interfaces, true);
-
-            IFolder srcFolder= getProject().getFolder("src/");
-            String servicePackage= langPkg + ".safari." + fExtPointID.substring(fExtPointID.lastIndexOf('.')+1); // pkg the service belongs in
-
-            fOwningWizard.createSubFolders(servicePackage.replace('.', '\\'), getProject(), new NullProgressMonitor());
-
-            IPackageFragmentRoot pkgFragRoot= javaProject.getPackageFragmentRoot(srcFolder);
-            IPackageFragment pkgFrag= pkgFragRoot.getPackageFragment(servicePackage);
-
-            page.setPackageFragmentRoot(pkgFragRoot, true);
-            page.setPackageFragment(pkgFrag, true);
-
-            String langClass= upperCaseFirst(langName);
-            if (intfName.charAt(0) == 'I' && Character.isUpperCase(intfName.charAt(1)))
-                page.setTypeName(langClass + intfName.substring(1), true);
-            else
-                page.setTypeName(langClass + intfName, true);
-            SWTUtil.setDialogSize(dialog, 400, 500);
-            if (dialog.open() == WizardDialog.OK) {
-                String name= page.getTypeName();
-                String pkg= page.getPackageText();
-                if (pkg.length() > 0)
-                    name= pkg + '.' + name;
-                text.setText(name);
-                fPackageName= pkg;
-            }
-        } catch (Exception e) {
-            ErrorHandler.reportError("Could not create class implementing " + interfaceQualName, true, e);
         }
     }
 
