@@ -14,7 +14,6 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -31,17 +30,22 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.uide.WizardPlugin;
 import org.eclipse.uide.core.ErrorHandler;
+import org.eclipse.uide.utils.StreamUtils;
 import org.osgi.framework.Bundle;
 
 /**
@@ -49,6 +53,8 @@ import org.osgi.framework.Bundle;
  * The wizard creates one file with the extension "g". 
  */
 public abstract class ExtensionPointWizard extends Wizard implements INewWizard {
+    private static final String START_HERE= "// START_HERE";
+
     protected int currentPage;
 
     protected ExtensionPointWizardPage pages[];
@@ -211,6 +217,9 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
     }
 
     /**
+     * Opens the given file in the appropriate editor for editing.<br>
+     * If the file contains a comment "// START_HERE", the cursor will
+     * be positioned just after that.
      * @param monitor
      * @param file
      */
@@ -220,8 +229,20 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
 	    public void run() {
 		IWorkbenchPage page= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
-		    IDE.openEditor(page, file, true);
+		    IEditorPart editorPart= IDE.openEditor(page, file, true);
+		    AbstractTextEditor editor= (AbstractTextEditor) editorPart;
+		    IFileEditorInput fileInput= (IFileEditorInput) editorPart.getEditorInput();
+		    String contents= StreamUtils.readStreamContents(file.getContents(), file.getCharset());
+		    int cursor= contents.indexOf(START_HERE);
+
+		    if (cursor >= 0) {
+			TextSelection textSel= new TextSelection(editor.getDocumentProvider().getDocument(fileInput), cursor, START_HERE.length());
+			editor.getEditorSite().getSelectionProvider().setSelection(textSel);
+		    }
 		} catch (PartInitException e) {
+		} catch (CoreException e) {
+		    // TODO Auto-generated catch block
+		    e.printStackTrace();
 		}
 	    }
 	});
