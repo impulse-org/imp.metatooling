@@ -152,7 +152,7 @@ public class Wizards {
 
     public static class NewIndexer extends NoCodeServiceWizard {
 	public void addPages() {
-	    addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "index"), });
+	    addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "indexContributor"), });
 	}
 
 	protected List getPluginDependencies() {
