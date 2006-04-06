@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -118,8 +118,10 @@ public class Wizards {
         	    	{ "super", "org.eclipse.core.resources.problemmarker" },
             	    },
             	    mon);
-            createFileFromTemplate(fClassName + "Builder.java", "builder.tmpl", fPackageFolder, subs, project, mon);
+            IFile builderSrc= createFileFromTemplate(fClassName + "Builder.java", "builder.tmpl", fPackageFolder, subs, project, mon);
             createFileFromTemplate(fClassName + "Nature.java", "nature.tmpl", fPackageFolder, subs, project, mon);
+
+            editFile(mon, builderSrc);
 	}
     }
 
@@ -142,7 +144,9 @@ public class Wizards {
             subs.put("$NATURE_ID", fLanguageName + ".nature");
 
             createFileFromTemplate(fClassName + "ProjectWizard.java", "newProjectWizard.tmpl", fPackageFolder, subs, project, mon);
-            createFileFromTemplate(fClassName + "ProjectPage.java", "newProjectWizardPage.tmpl", fPackageFolder, subs, project, mon);
+            IFile projectPageSrc= createFileFromTemplate(fClassName + "ProjectPage.java", "newProjectWizardPage.tmpl", fPackageFolder, subs, project, mon);
+
+            editFile(mon, projectPageSrc);
 	}
     }
 
@@ -200,9 +204,11 @@ public class Wizards {
             subs.put("$AST_PKG$", fParserPackage + "." + astDirectory);
             subs.put("$AST_NODE$", astNode);
 
-            createFileFromTemplate(fClassName + "Outliner.java", "outliner.tmpl", fPackageFolder, subs, project, mon);
+            IFile outlinerSrc= createFileFromTemplate(fClassName + "Outliner.java", "outliner.tmpl", fPackageFolder, subs, project, mon);
             createFileFromTemplate(fClassName + "Images.java", "images.tmpl", fPackageFolder, subs, project, mon);
             copyLiteralFile("outline_item.gif", "icons", project, mon);
+
+            editFile(mon, outlinerSrc);
 	}
     }
 
@@ -254,7 +260,9 @@ public class Wizards {
 //          { "$PKG_NAME$", fPackageName },
             subs.put("$PARSER_PKG$", fParserPackage);
 
-            createFileFromTemplate(fClassName + "TokenColorer.java", "colorer.tmpl", fPackageFolder, subs, project, mon);
+            IFile colorerSrc= createFileFromTemplate(fClassName + "TokenColorer.java", "colorer.tmpl", fPackageFolder, subs, project, mon);
+
+            editFile(mon, colorerSrc);
 	}
     }
 
@@ -276,7 +284,9 @@ public class Wizards {
 //          { "$PKG_NAME$", fPackageName },
             subs.put("$PARSER_PKG$", fParserPackage);
 
-            createFileFromTemplate(fClassName + "FoldingUpdater.java", "folder.tmpl", fPackageFolder, subs, project, mon);
+            IFile folderSrc= createFileFromTemplate(fClassName + "FoldingUpdater.java", "folder.tmpl", fPackageFolder, subs, project, mon);
+
+            editFile(mon, folderSrc);
 	}
     }
 
@@ -344,7 +354,9 @@ public class Wizards {
             subs.put("$PARSER_PACKAGE$", fParserPackage); // These should be in the standard substitutions...
             subs.put("$AST_PACKAGE$", fParserPackage);
 
-            createFileFromTemplate(fClassName + "Compiler.java", "compiler.tmpl", fPackageFolder, subs, project, mon);
+            IFile compilerSrc= createFileFromTemplate(fClassName + "Compiler.java", "compiler.tmpl", fPackageFolder, subs, project, mon);
+
+            editFile(mon, compilerSrc);
         }
     }
 
@@ -366,7 +378,9 @@ public class Wizards {
             subs.put("$PARSER_PACKAGE$", fParserPackage); // These should be in the standard substitutions...
             subs.put("$AST_PACKAGE$", fParserPackage);
 
-            createFileFromTemplate(fClassName + "Formatter.java", "formatter.tmpl", fPackageFolder, subs, project, mon);
+            IFile formatterSrc= createFileFromTemplate(fClassName + "Formatter.java", "formatter.tmpl", fPackageFolder, subs, project, mon);
+
+            editFile(mon, formatterSrc);
         }
     }
 }
