@@ -178,6 +178,8 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     protected Button fAddThisExtensionPointButton;
 
+    protected boolean fOmitExtensionIDName= true;
+
     protected String fPackageName;
 
     protected List fRequiredPlugins= new ArrayList();
@@ -194,7 +196,12 @@ public class ExtensionPointWizardPage extends WizardPage {
     }
 
     public ExtensionPointWizardPage(ExtensionPointWizard owner, String pluginID, String pointID) {
+	this(owner, pluginID, pointID, true);
+    }
+
+    public ExtensionPointWizardPage(ExtensionPointWizard owner, String pluginID, String pointID, boolean omitIDName) {
         this(owner, 0, 1, pluginID, pointID, false);
+	fOmitExtensionIDName= omitIDName;
     }
 
     public ExtensionPointWizardPage(ExtensionPointWizard owner, int pageNumber, int totalPages, String pluginID, String pointID, boolean isOptional) {
@@ -358,8 +365,14 @@ public class ExtensionPointWizardPage extends WizardPage {
 	for(int k= 0; k < attributes.length; k++) {
 	    ISchemaAttribute attribute= attributes[k];
 
-	    if (!attribute.getName().equals("point"))
-		createElementAttributeTextField(container, prefix, attribute);
+	    if (attribute.getName().equals("point"))
+		continue;
+
+	    if (fOmitExtensionIDName && element.getName().equals("extension") &&
+		    (attribute.getName().equals("id") || attribute.getName().equals("name")))
+		continue;
+
+	    createElementAttributeTextField(container, prefix, attribute);
 	}
     }
 
