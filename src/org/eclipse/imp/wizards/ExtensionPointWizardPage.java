@@ -329,7 +329,7 @@ public class ExtensionPointWizardPage extends WizardPage {
                 Text text= (Text) e.widget;
                 WizardPageField field= (WizardPageField) text.getData();
                 field.fValue= text.getText();
-                if (field.fName.equals("language")) {
+                if (field.fAttributeName.equals("language")) {
                     sLanguage= field.fValue;
                 }
                 dialogChanged();
@@ -346,7 +346,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     protected Text createLabelTextBrowse(Composite container, WizardPageField field, final String basedOn) {
         Widget labelWidget= null;
-        String name= field.fName;
+        String name= field.fAttributeName;
         String description= field.fDescription;
         String value= field.fValue;
 	// BUG Prevents clicking "Finish" if an element is optional but one of its attributes isn't
@@ -836,7 +836,7 @@ public class ExtensionPointWizardPage extends WizardPage {
     public String getValue(String name) {
         for(int n= 0; n < fFields.size(); n++) {
             WizardPageField field= (WizardPageField) fFields.get(n);
-            if (field.fName.toLowerCase().equals(name)) {
+            if (field.fAttributeName.toLowerCase().equals(name)) {
                 return field.fValue;
             }
         }
@@ -846,7 +846,7 @@ public class ExtensionPointWizardPage extends WizardPage {
     public WizardPageField getField(String name) {
         for(int n= 0; n < fFields.size(); n++) {
             WizardPageField field= (WizardPageField) fFields.get(n);
-            if (field.fName.toLowerCase().equals(name)) {
+            if (field.fAttributeName.toLowerCase().equals(name)) {
                 return field;
             }
         }
