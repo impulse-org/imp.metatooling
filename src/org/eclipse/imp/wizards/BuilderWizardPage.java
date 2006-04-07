@@ -9,7 +9,7 @@ import org.eclipse.swt.widgets.Composite;
  */
 public class BuilderWizardPage extends ExtensionPointWizardPage {
     public BuilderWizardPage(ExtensionPointWizard owner) {
-        super(owner, "org.eclipse.core.resources", "builders");
+        super(owner, "org.eclipse.core.resources", "builders", false);
     }
 
     protected void createFirstControls(Composite parent) {
