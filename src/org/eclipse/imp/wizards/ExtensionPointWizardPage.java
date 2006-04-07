@@ -83,7 +83,6 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.internal.Workbench;
 import org.eclipse.uide.core.ErrorHandler;
-import org.eclipse.uide.core.Language;
 import org.osgi.framework.Bundle;
 
 /**

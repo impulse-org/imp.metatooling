@@ -10,13 +10,11 @@ import java.io.StringBufferInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.osgi.service.resolver.BundleSpecification;
 import org.eclipse.pde.core.IEditableModel;
 import org.eclipse.pde.core.plugin.IPluginBase;
 import org.eclipse.pde.core.plugin.IPluginExtension;
@@ -255,14 +253,8 @@ public class ExtensionPointEnabler {
 
         for(int n= 0; n < requires.size(); n++) {
 	    String pluginID= (String) requires.get(n);
+	    boolean found= containsImports(imports, pluginID);
 
-		boolean found= false;
-		for(int i= 0; i < imports.length; i++) {
-		    if (imports[i].getId().equals(pluginID)) {
-			found= true;
-			break;
-		    }
-		}
 	    if (!found /*!containsImport(reqBundles, pluginID*/) {
 		PluginImport importNode= new PluginImport(); // pluginFactory.createImport();
                 importNode.setModel(pluginModel);
@@ -274,16 +266,27 @@ public class ExtensionPointEnabler {
 	}
     }
 
-    private static boolean containsImport(BundleSpecification[] imports, String pluginID) {
+    private static boolean containsImports(IPluginImport[] imports, String pluginID) {
 	boolean found= false;
 	for(int i= 0; i < imports.length; i++) {
-	    if (imports[i].getBundle().getSymbolicName().equals(pluginID)) {
+	    if (imports[i].getId().equals(pluginID)) {
 		found= true;
 		break;
 	    }
 	}
 	return found;
     }
+
+//    private static boolean containsImport(BundleSpecification[] imports, String pluginID) {
+//	boolean found= false;
+//	for(int i= 0; i < imports.length; i++) {
+//	    if (imports[i].getBundle().getSymbolicName().equals(pluginID)) {
+//		found= true;
+//		break;
+//	    }
+//	}
+//	return found;
+//    }
 
     static public void addImports(ExtensionPointWizardPage page) {
 	try {
