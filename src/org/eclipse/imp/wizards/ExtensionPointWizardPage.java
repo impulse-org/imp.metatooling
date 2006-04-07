@@ -8,9 +8,7 @@ package org.eclipse.uide.wizards;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -41,7 +39,10 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.pde.core.plugin.IPluginElement;
+import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
+import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.ischema.ISchema;
@@ -82,6 +83,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.internal.Workbench;
 import org.eclipse.uide.core.ErrorHandler;
+import org.eclipse.uide.core.Language;
 import org.osgi.framework.Bundle;
 
 /**
@@ -89,7 +91,64 @@ import org.osgi.framework.Bundle;
  * accept file name without the extension OR with the extension that matches the expected one (g).
  */
 public class ExtensionPointWizardPage extends WizardPage {
-    protected Text fProjectText;
+    private final class FocusDescriptionListener extends FocusAdapter {
+	public void focusGained(FocusEvent e) {
+	    Text text= (Text) e.widget;
+	    WizardPageField field= (WizardPageField) text.getData();
+	    fDescriptionText.setText(field.fDescription);
+	}
+    }
+
+    private final class ProjectTextModifyListener implements ModifyListener {
+	public void modifyText(ModifyEvent e) {
+	    Text text= (Text) e.widget;
+
+	    setProjectName(text.getText());
+	    discoverProjectLanguage();
+	    // RMF Don't add imports yet; wait for user to press "Finish"
+	    // ExtensionPointEnabler.addImports(ExtensionPointWizardPage.this);
+	    dialogChanged();
+	}
+    }
+
+    private final class ProjectBrowseSelectionListener extends SelectionAdapter {
+	private final IProject project;
+
+	private ProjectBrowseSelectionListener(IProject project) {
+	    super();
+	    this.project= project;
+	}
+
+	public void widgetSelected(SelectionEvent e) {
+	    ContainerSelectionDialog dialog= new ContainerSelectionDialog(getShell(), project, false,
+	            "Select a plug-in Project");
+	    // RMF Would have thought the following would set the initial selection,
+	    // but passing project as the initialRoot arg above seems to work...
+	    if (project != null)
+	        dialog.setInitialSelections(new Object[] { project.getFullPath() });
+	    dialog.setValidator(new ISelectionValidator() {
+	        public String isValid(Object selection) {
+	            try {
+	                IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(selection.toString());
+	                if (project.exists() && project.hasNature("org.eclipse.pde.PluginNature")) {
+	                    return null;
+	                }
+	            } catch (Exception e) {
+	            }
+	            return "The selected element \"" + selection + "\" is not a plug-in project";
+	        }
+	    });
+	    if (dialog.open() == ContainerSelectionDialog.OK) {
+	        Object[] result= dialog.getResult();
+	        IProject selectedProject= ResourcesPlugin.getWorkspace().getRoot().getProject(result[0].toString());
+	        if (result.length == 1) {
+	            // fProjectText.setText(((Path) result[0]).toOSString());
+	            fProjectText.setText(selectedProject.getName());
+	            sProjectName= selectedProject.getName();
+	        }
+	    }
+	}
+    }
 
     protected String fExtPluginID;
 
@@ -97,7 +156,19 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     protected Schema fSchema;
 
-    protected boolean fDone= true;
+    protected ExtensionPointWizard fOwningWizard;
+
+    protected int fThisPageNumber;
+
+    protected int fTotalPages;
+
+    protected boolean fSkip= false;
+
+    protected boolean fIsOptional;
+
+    protected List/*<WizardPageField>*/ fFields= new ArrayList();
+
+    protected Text fProjectText;
 
     protected Text fDescriptionText;
 
@@ -105,28 +176,18 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     protected Text fQualClassText;
 
-    protected String fPackageName;
-
-    protected List fFields= new ArrayList(); // a list of Field instances
-
     protected Button fAddThisExtensionPointButton;
 
-    protected boolean fSkip= false;
+    protected String fPackageName;
 
-    protected boolean fIsOptional;
+    protected List fRequiredPlugins= new ArrayList();
 
-    protected ExtensionPointWizard fOwningWizard;
-
-    protected int fThisPageNumber;
+    protected boolean fDone= true;
 
     // shared between wizard pages
     protected static String sLanguage= "";
 
     protected static String sProjectName= "";
-
-    protected List fRequiredPlugins= new ArrayList();
-
-    protected int fTotalPages;
 
     public boolean canFlipToNextPage() {
         return super.canFlipToNextPage();
@@ -148,6 +209,9 @@ public class ExtensionPointWizardPage extends WizardPage {
             IExtensionPoint ep= (IExtensionPoint) Platform.getExtensionRegistry().getExtensionPoint(pluginID, pointID);
             String schemaLoc;
             URL localSchemaURL;
+
+            if (ep == null)
+        	throw new IllegalArgumentException("Unknown extension point: " + pluginID + "." + pointID);
 
             if (ep.getUniqueIdentifier().startsWith("org.eclipse.") && !ep.getUniqueIdentifier().startsWith("org.eclipse.uide")) {
                 // RMF 1/5/2006 - Hack to get schema for extension points defined by Eclipse
@@ -244,6 +308,7 @@ public class ExtensionPointWizardPage extends WizardPage {
         	createControlsForSchema(fSchema, container);
                 createAdditionalControls(container);
                 createDescriptionText(container);
+                discoverProjectLanguage();
                 addLanguageListener();
             } catch (Exception e) {
                 new Label(container, SWT.NULL).setText("Could not create wizard page");
@@ -323,25 +388,6 @@ public class ExtensionPointWizardPage extends WizardPage {
 
         text.setData(field);
         fFields.add(field);
-
-        text.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent e) {
-                Text text= (Text) e.widget;
-                WizardPageField field= (WizardPageField) text.getData();
-                field.fValue= text.getText();
-                if (field.fAttributeName.equals("language")) {
-                    sLanguage= field.fValue;
-                }
-                dialogChanged();
-            }
-        });
-        text.addFocusListener(new FocusAdapter() {
-            public void focusGained(FocusEvent e) {
-                Text text= (Text) e.widget;
-                WizardPageField field= (WizardPageField) text.getData();
-                fDescriptionText.setText(field.fDescription);
-            }
-        });
     }
 
     protected Text createLabelTextBrowse(Composite container, WizardPageField field, final String basedOn) {
@@ -377,6 +423,20 @@ public class ExtensionPointWizardPage extends WizardPage {
             createClassBrowseButton(container, field, text);
         if (field != null)
             field.fText= text;
+
+        text.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                Text text= (Text) e.widget;
+                WizardPageField field= (WizardPageField) text.getData();
+                field.fValue= text.getText();
+                if (field.fAttributeName.equals("language")) {
+                    sLanguage= field.fValue;
+                }
+                dialogChanged();
+            }
+        });
+        text.addFocusListener(new FocusDescriptionListener());
+
         return text;
     }
 
@@ -506,58 +566,23 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     private void createProjectLabelText(Composite container) {
         Label label= new Label(container, SWT.NULL);
+
         label.setText("Project*:");
         label.setBackground(container.getBackground());
         label.setToolTipText("Select the plug-in project");
         fProjectText= new Text(container, SWT.BORDER | SWT.SINGLE);
         fProjectText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
         final IProject project= getProject();
+
         if (project != null)
             fProjectText.setText(project.getName());
-//        project= discoverSelectedProject();
-        Button button= new Button(container, SWT.PUSH);
-        button.setText("Browse...");
-        button.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                ContainerSelectionDialog dialog= new ContainerSelectionDialog(getShell(), project, false,
-                        "Select a plug-in Project");
-                // RMF Would have thought the following would set the initial selection,
-                // but passing project as the initialRoot arg above seems to work...
-                if (project != null)
-                    dialog.setInitialSelections(new Object[] { project.getFullPath() });
-                dialog.setValidator(new ISelectionValidator() {
-                    public String isValid(Object selection) {
-                        try {
-                            IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(selection.toString());
-                            if (project.exists() && project.hasNature("org.eclipse.pde.PluginNature")) {
-                                return null;
-                            }
-                        } catch (Exception e) {
-                        }
-                        return "The selected element \"" + selection + "\" is not a plug-in project";
-                    }
-                });
-                if (dialog.open() == ContainerSelectionDialog.OK) {
-                    Object[] result= dialog.getResult();
-                    IProject selectedProject= ResourcesPlugin.getWorkspace().getRoot().getProject(result[0].toString());
-                    if (result.length == 1) {
-                        // fProjectText.setText(((Path) result[0]).toOSString());
-                        fProjectText.setText(selectedProject.getName());
-                        sProjectName= selectedProject.getName();
-                    }
-                }
-            }
 
-        });
-        fProjectText.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent e) {
-                Text text= (Text) e.widget;
-                setProjectName(text.getText());
-                // RMF Don't add imports yet; wait for user to press "Finish"
-//                ExtensionPointEnabler.addImports(ExtensionPointWizardPage.this);
-                dialogChanged();
-            }
-        });
+        Button browseButton= new Button(container, SWT.PUSH);
+
+        browseButton.setText("Browse...");
+        browseButton.addSelectionListener(new ProjectBrowseSelectionListener(project));
+        fProjectText.addModifyListener(new ProjectTextModifyListener());
         fProjectText.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) {
                 // Text text = (Text)e.widget;
@@ -615,6 +640,35 @@ public class ExtensionPointWizardPage extends WizardPage {
             fProjectText.setText(sProjectName);
         }
         return project;
+    }
+
+    /**
+     * Attempt to find the languageDescription extension for the specified project
+     * (if any), and use the language name from that extension to populate the
+     * language name field in the dialog.
+     */
+    private void discoverProjectLanguage() {
+	if (fProjectText.getText().length() == 0)
+	    return;
+
+	IPluginModelBase pluginModel= getPluginModel();
+
+	if (pluginModel != null) {
+	    IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
+
+	    for(int i= 0; i < extensions.length; i++) {
+		if (extensions[i].getPoint().endsWith(".languageDescription")) {
+		    IPluginObject[] children= extensions[i].getChildren();
+
+		    for(int j= 0; j < children.length; j++) {
+			if (children[j].getName().equals("language")) {
+			    fLanguageText.setText(((IPluginElement) children[j]).getAttribute("language").getValue());
+			    return;
+			}
+		    }
+		}
+	    }
+	}
     }
 
     private IProject getProject(ISelection selection) {
@@ -774,6 +828,9 @@ public class ExtensionPointWizardPage extends WizardPage {
             PluginModelManager pmm= PDECore.getDefault().getModelManager();
             IPluginModelBase[] plugins= pmm.getAllPlugins();
             IProject project= getProject();
+
+            if (project == null)
+        	return null;
             for(int n= 0; n < plugins.length; n++) {
                 IPluginModelBase plugin= plugins[n];
                 IResource resource= plugin.getUnderlyingResource();
