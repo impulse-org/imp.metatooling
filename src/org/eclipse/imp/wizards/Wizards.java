@@ -107,15 +107,17 @@ public class Wizards {
             subs.put("$FILE_EXTEN$", fLanguageName);
 
             ExtensionPointEnabler.enable(project, "org.eclipse.core.resources", "natures", new String[][] {
-//        	    "nature",
-        	    { "runtime", "" },
-        	    { "class", fClassName + ".safari." + fLanguageName + "nature" },
-        	    { "builder", fLanguageName + ".safari.builder" },
+                    { "extension:id",   fLanguageName + ".safari.nature" },
+                    { "extension:name", fLanguageName + " Nature" },
+                    { "builder:id", fLanguageName + ".safari.builder" },
+        	    { "runtime:", "" },
+                    { "runtime.run:class", fLanguageName + ".safari." + fLanguageName + "Nature" },
             }, mon);
             ExtensionPointEnabler.enable(project, "org.eclipse.core.resources", "markers",
-//        	    "problem", // ID
         	    new String[][] {
-        	    	{ "super", "org.eclipse.core.resources.problemmarker" },
+                        { "extension:id",   "problem" },
+                        { "extension:name", fLanguageName + " Error" },
+        	    	{ "super:type", "org.eclipse.core.resources.problemmarker" },
             	    },
             	    mon);
             IFile builderSrc= createFileFromTemplate(fClassName + "Builder.java", "builder.tmpl", fPackageFolder, subs, project, mon);
