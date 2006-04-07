@@ -23,7 +23,6 @@ import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginImport;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
-import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.core.plugin.IPluginParent;
 import org.eclipse.pde.core.plugin.ISharedExtensionsModel;
 import org.eclipse.pde.internal.core.PDECore;
@@ -160,6 +159,7 @@ public class ExtensionPointEnabler {
 
 	if (!extension.isInTheModel())
 	    pluginBase.add(extension);
+        saveAndRefresh(pluginModel);
     }
 
     private static void setElementAttributes(IPluginModel pluginModel, ExtensionPointWizardPage page, IPluginExtension extension) throws CoreException {
@@ -170,59 +170,75 @@ public class ExtensionPointEnabler {
 
 	for(int n= 0; n < fields.size(); n++) {
 	    WizardPageField field= (WizardPageField) fields.get(n);
+            String schemaElementName= field.fSchemaElementName;
+            String attributeName= field.fAttributeName;
+            String attributeValue= field.fValue;
 
 	    System.out.println(field);
-	    if (field.fSchemaElementName.equals("extension")) {
-		// Handle the top-level element (the extension that was passed in)
-		if (field.fName.equals("id"))
-		    extension.setId(field.fValue);
-		else if (field.fName.equals("name"))
-		    extension.setName(field.fValue);
-		else
-		    System.err.println("Unknown 'extension' attribute: '" + field.fName + "'.");
-	    } else {
-		// Handle all other elements - create on first reference
-		PluginElement elt= (PluginElement) elementMap.get(field.fSchemaElementName);
 
-		if (elt == null) {
-		    int lastDotIdx= field.fSchemaElementName.lastIndexOf('.');
-		    String elemName= field.fSchemaElementName.substring(lastDotIdx+1);
-		    IPluginParent parent;
-
-		    elt= new PluginElement();
-		    elt.setModel(pluginModel);
-		    elt.setName(elemName);
-		    if (lastDotIdx > 0) {
-			String parentElemName= field.fSchemaElementName.substring(0, lastDotIdx);
-
-			parent= (IPluginParent) elementMap.get(parentElemName);
-		    } else
-			parent= extension;
-		    elt.setParent(parent);
-		    parent.add(elt);
-		    elementMap.put(field.fSchemaElementName, elt); // use "fully-qualified" name here
-		}
-		// Ok, we've found the right element; set the attribute
-		elt.setAttribute(field.fName, field.fValue);
-	    }
+            setElementAttribute(schemaElementName, attributeName, attributeValue, extension, elementMap, pluginModel);
 	}
     }
 
+    private static void setElementAttribute(String schemaElementName, String attributeName, String attributeValue, IPluginExtension extension, Map elementMap, IPluginModel pluginModel) throws CoreException {
+        if (schemaElementName.equals("extension")) {
+            // Handle the top-level element (the extension that was passed in)
+            if (attributeName.equals("id"))
+                extension.setId(attributeValue);
+            else if (attributeName.equals("name"))
+                extension.setName(attributeValue);
+            else
+                System.err.println("Unknown 'extension' attribute: '" + attributeName + "'.");
+        } else {
+            // Handle all other elements - create on first reference
+            PluginElement elt= (PluginElement) elementMap.get(schemaElementName);
+
+            if (elt == null) {
+                int lastDotIdx= schemaElementName.lastIndexOf('.');
+                String elemName= schemaElementName.substring(lastDotIdx+1);
+                IPluginParent parent;
+
+                elt= new PluginElement();
+                elt.setModel(pluginModel);
+                elt.setName(elemName);
+                if (lastDotIdx > 0) {
+                    String parentElemName= schemaElementName.substring(0, lastDotIdx);
+
+                    parent= (IPluginParent) elementMap.get(parentElemName);
+                } else
+                    parent= extension;
+                elt.setParent(parent);
+                parent.add(elt);
+                elementMap.put(schemaElementName, elt); // use "fully-qualified" name here
+            }
+            // Ok, we've found the right element; set the attribute
+            if (attributeName.length() > 0) // Can happen if a nested element has no attributes
+                elt.setAttribute(attributeName, attributeValue);
+        }
+    }
+
+    /**
+     * Like the above flavor of setElementAttributes(), but takes its name/value pairs from
+     * an explicit array, rather than the WizardPageFields in an ExtensionPointWizardPage.
+     * @param pluginModel
+     * @param extension
+     * @param attrNamesValues
+     * @throws CoreException
+     */
     public static void setElementAttributes(IPluginModel pluginModel, IPluginExtension extension, String[][] attrNamesValues) throws CoreException {
-	PluginElement elt= null;
+        Map/*<String qualElemName, PluginElement>*/ elementMap= new HashMap(); // so we can find nested/parent elements after they've been created, somewhat regardless of the field ordering
+
+        elementMap.put("extension", extension); // Let nested elements find the extension object itself by name
 
 	for(int i= 0; i < attrNamesValues.length; i++) {
-	    String attrName= attrNamesValues[i][0];
-	    String attrValue= attrNamesValues[i][1];
+	    String elementAttrName= attrNamesValues[i][0];
+            String elementName= elementAttrName.substring(0, elementAttrName.indexOf(':'));
+            String attrName= elementAttrName.substring(elementAttrName.indexOf(':') + 1);
+            String attrValue= attrNamesValues[i][1];
 
-	    if (elt == null || !attrName.equals(elt.getName())) {
-		elt= new PluginElement();
-		elt.setModel(pluginModel);
-		elt.setName(attrName);
-		extension.add(elt);
-		elt.setParent(extension);
-	    }
-	    elt.setAttribute(attrName, attrValue);
+            System.out.println("Creating attribute " + elementAttrName + " => " + attrValue);
+
+            setElementAttribute(elementName, attrName, attrValue, extension, elementMap, pluginModel);
 	}
     }
 
