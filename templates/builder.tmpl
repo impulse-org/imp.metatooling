@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uide.core.SAFARIBuilderBase;
 import org.eclipse.uide.runtime.SAFARIPluginBase;
 
@@ -26,45 +27,45 @@ public class $CLASS_NAME_PREFIX$Builder extends SAFARIBuilderBase {
     public static final String PROBLEM_MARKER_ID= $CLASS_NAME_PREFIX$Plugin.kPluginID + ".problem";
 
     protected SAFARIPluginBase getPlugin() {
-	return $CLASS_NAME_PREFIX$Plugin.getInstance();
+        return $CLASS_NAME_PREFIX$Plugin.getInstance();
     }
 
     protected String getErrorMarkerID() {
-	return PROBLEM_MARKER_ID;
+        return PROBLEM_MARKER_ID;
     }
 
     protected String getWarningMarkerID() {
-	return PROBLEM_MARKER_ID;
+        return PROBLEM_MARKER_ID;
     }
 
     protected String getInfoMarkerID() {
-	return PROBLEM_MARKER_ID;
+        return PROBLEM_MARKER_ID;
     }
 
     protected boolean isSourceFile(IFile file) {
-	IPath path= file.getRawLocation();
+        IPath path= file.getRawLocation();
 
-	if (path == null) return false;
+        if (path == null) return false;
 
-	String fileName= path.toString();
+        String fileName= path.toString();
 
-	return (fileName.indexOf("/bin/") == -1 && "$FILE_EXTEN$".equals(path.getFileExtension()));
+        return (fileName.indexOf("/bin/") == -1 && "$FILE_EXTEN$".equals(path.getFileExtension()));
     }
 
     protected boolean isOutputFolder(IResource resource) {
-	return resource.getFullPath().lastSegment().equals("bin");
+        return resource.getFullPath().lastSegment().equals("bin");
     }
 
-    protected void compile(final IFile file) {
-	try {
-		// START_HERE
-//	    createMarker(file, 2, 8, 13, "Oops!", IMarker.SEVERITY_WARNING);
-	    Translator trans= new Translator();
-            trans.compile(file, new NullProgressMonitor());
-	    doRefresh(file.getParent());
-	} catch (Exception e) {
-	    LegPlugin.getInstance().writeErrorMsg(e.getMessage());
-	    e.printStackTrace();
-	}
+    protected void compile(final IFile file, IProgressMonitor monitor) {
+        try {
+            // START_HERE
+//          createMarker(file, 2, 8, 13, "Oops!", IMarker.SEVERITY_WARNING);
+            Translator trans= new Translator();
+            trans.compile(file, monitor);
+            doRefresh(file.getParent());
+        } catch (Exception e) {
+            LegPlugin.getInstance().writeErrorMsg(e.getMessage());
+            e.printStackTrace();
+        }
     }
 }
