@@ -8,6 +8,7 @@ package org.eclipse.uide.wizards;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -281,7 +282,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 	    }
 	}
 	if (elt != null)
-	    createElementAttributeTextField(parent, "extension." + fExtPointID, elt.getAttribute("language"));
+	    createElementAttributeTextField(parent, "extension." + elt.getName(), elt.getAttribute("language"));
     }
 
     /**
