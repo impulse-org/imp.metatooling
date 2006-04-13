@@ -59,9 +59,9 @@ public class $CLASS_NAME_PREFIX$Builder extends SAFARIBuilderBase {
     protected void compile(final IFile file, IProgressMonitor monitor) {
         try {
             // START_HERE
-//          createMarker(file, 2, 8, 13, "Oops!", IMarker.SEVERITY_WARNING);
-            Translator trans= new Translator();
-            trans.compile(file, monitor);
+            createMarker(file, 2, 8, 13, "Oops!", IMarker.SEVERITY_WARNING);
+//          Translator trans= new Translator();
+//          trans.compile(file, monitor);
             doRefresh(file.getParent());
         } catch (Exception e) {
             LegPlugin.getInstance().writeErrorMsg(e.getMessage());
