@@ -125,4 +125,25 @@
             name="Source Formatter"
             id="org.eclipse.uide.wizards.NewFormatter"/>
    </extension>
+   <extension
+         point="org.eclipse.uide.runtime.languageDescription">
+      <language
+            description="SAFARI Presentation Specification"
+            extensions="spec"
+            language="spec"/>
+   </extension>
+   <extension
+         point="org.eclipse.uide.runtime.parser">
+      <parser
+            class="org.eclipse.uide.presentation.SpecParseController"
+            id="org.eclipse.uide.parser"
+            language="spec"
+            name="Presentation Specification Parser"/>
+   </extension>
+   <extension
+         point="org.eclipse.uide.runtime.tokenColorer">
+      <tokenColorer
+            class="org.eclipse.uide.presentation.editor.SpecTokenColorer"
+            language="spec"/>
+   </extension>
 </plugin>
