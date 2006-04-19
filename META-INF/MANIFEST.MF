@@ -4,6 +4,8 @@ Bundle-Version: 1.0.19
 Bundle-Vendor: rfuhrer@watson.ibm.com
 Bundle-Activator: org.eclipse.uide.WizardPlugin
 Provide-Package: org.eclipse.uide,
+ org.eclipse.uide.presentation,
+ org.eclipse.uide.presentation.ast,
  org.eclipse.uide.wizards
 Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.runtime,
