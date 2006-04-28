@@ -64,7 +64,7 @@ public class $CLASS_NAME_PREFIX$Builder extends SAFARIBuilderBase {
 //          trans.compile(file, monitor);
             doRefresh(file.getParent());
         } catch (Exception e) {
-            LegPlugin.getInstance().writeErrorMsg(e.getMessage());
+            $LANG_NAME$Plugin.getInstance().writeErrorMsg(e.getMessage());
             e.printStackTrace();
         }
     }
