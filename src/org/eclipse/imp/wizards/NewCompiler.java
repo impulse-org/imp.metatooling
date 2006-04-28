@@ -46,7 +46,8 @@ public class NewCompiler extends CodeServiceWizard {
         Map subs= getStandardSubstitutions();
 
         subs.put("$PARSER_PACKAGE$", fParserPackage); // These should be in the standard substitutions...
-        subs.put("$AST_PACKAGE$", fParserPackage);
+        subs.put("$AST_PACKAGE$", fParserPackage + ".Ast");
+        subs.put("$AST_NODE$", "ASTNode");
 
         IFile compilerSrc= createFileFromTemplate(fClassName + "Compiler.java", "compiler.tmpl", fPackageFolder, subs, project, mon);
 
