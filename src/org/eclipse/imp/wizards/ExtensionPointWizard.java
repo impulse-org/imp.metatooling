@@ -146,7 +146,7 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
 				ExtensionPointWizardPage page= pages[n];
 
 				// BUG Make sure the extension ID is correctly set
-				if (!page.hasBeenSkipped())
+				if (!page.hasBeenSkipped() && page.fSchema != null)
 				    ExtensionPointEnabler.enable(page, monitor);
 			    }
 			    generateCodeStubs(monitor);
