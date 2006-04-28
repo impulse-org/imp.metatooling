@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.StringBufferInputStream;
 import java.util.Stack;
 
-import $PARSER_PACKAGE$.LegParseController;
+import $PARSER_PACKAGE$.*;
 import $AST_PACKAGE$.*;
 
 import org.eclipse.core.resources.IFile;
@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uide.parser.IParseController;
 
-public class $CLASS_NAME_PREFIX$Translator {
+public class $CLASS_NAME_PREFIX$Compiler {
     private static final String sClassNameMacro= "$FILE$";
 
     private static final String sTemplateHeader= "public class " + sClassNameMacro + " {\n" +
@@ -59,24 +59,24 @@ public class $CLASS_NAME_PREFIX$Translator {
             fTranslationStack.push(fTranslationStack.pop() + "-" + fTranslationStack.pop());
         }
         public boolean visit(declaration0 n) {
-            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + "int " + n.getident() + ";");
+            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + "int " + n.getIDENTIFIER() + ";");
             return false;
         }
         public boolean visit(declaration1 n) {
-            fTranslationStack.push("\t\t" + "short " + n.getident() + ";");
+            fTranslationStack.push("\t\t" + "short " + n.getIDENTIFIER() + ";");
             return false;
         }
-        public boolean visit(term n) {
+        public boolean visit(term0 n) {
+            fTranslationStack.push(n.getIDENTIFIER().toString());
+            return true;
+        }
+        public boolean visit(term1 n) {
             fTranslationStack.push(n.getNUMBER().toString());
             return true;
         }
-        public boolean visit(ident n) {
-            fTranslationStack.push(n.getIDENTIFIER().toString());
-            return false;
-        }
     }
 
-    public $CLASS_NAME_PREFIX$Translator() {
+    public $CLASS_NAME_PREFIX$Compiler() {
         super();
     }
 
