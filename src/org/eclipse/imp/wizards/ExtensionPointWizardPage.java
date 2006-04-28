@@ -218,7 +218,8 @@ public class ExtensionPointWizardPage extends WizardPage {
             URL localSchemaURL;
 
             if (ep == null)
-        	throw new IllegalArgumentException("Unknown extension point: " + pluginID + "." + pointID);
+        	return;
+//        	throw new IllegalArgumentException("Unknown extension point: " + pluginID + "." + pointID);
 
             if (ep.getUniqueIdentifier().startsWith("org.eclipse.") && !ep.getUniqueIdentifier().startsWith("org.eclipse.uide")) {
                 // RMF 1/5/2006 - Hack to get schema for extension points defined by Eclipse
@@ -270,6 +271,9 @@ public class ExtensionPointWizardPage extends WizardPage {
 	// several other fields with reasonable values based on the language
 	// name. As a result, it's nicer to have the language field near the
 	// top, so that it's easier to get at than if it were at the bottom.
+	if (fSchema == null)
+	    return;
+
 	ISchemaElement elt= fSchema.findElement(fExtPointID);
 
 	if (elt == null) {
@@ -330,7 +334,8 @@ public class ExtensionPointWizardPage extends WizardPage {
     }
 
     private void createControlsForSchema(ISchema schema, Composite container) {
-	createControlsForSchemaElement(schema.findElement("extension"), schema, "extension", container);
+	if (schema != null)
+	    createControlsForSchemaElement(schema.findElement("extension"), schema, "extension", container);
 //	for(Iterator iter= fFields.iterator(); iter.hasNext(); ) {
 //	    WizardPageField field= (WizardPageField) iter.next();
 //	    System.out.println(field);
@@ -599,12 +604,14 @@ public class ExtensionPointWizardPage extends WizardPage {
         fProjectText.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) {
                 // Text text = (Text)e.widget;
-                fDescriptionText.setText("Select the plug-in project to add this extension point to");
+        	if (fDescriptionText != null)
+        	    fDescriptionText.setText("Select the plug-in project to add this extension point to");
             }
         });
     }
 
     private void addLanguageListener() {
+	if (fLanguageText != null)
         fLanguageText.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
                 setIDIfEmpty();
@@ -622,7 +629,8 @@ public class ExtensionPointWizardPage extends WizardPage {
         gd.widthHint= 450;
         fDescriptionText.setLayoutData(gd);
         fDescriptionText.setEditable(false);
-        fDescriptionText.setText(fSchema.getDescription());
+        if (fSchema != null)
+            fDescriptionText.setText(fSchema.getDescription());
     }
 
     private void addServiceEnablerCheckbox(Composite container) {
@@ -740,7 +748,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     public void setVisible(boolean visible) {
         if (visible) {
-            setTitle(fSchema.getName() + " (Step " + (fThisPageNumber + 1) + " of " + fOwningWizard.getPageCount() + ")");
+            setTitle((fSchema != null ? fSchema.getName() : "") + " (Step " + (fThisPageNumber + 1) + " of " + fOwningWizard.getPageCount() + ")");
             fOwningWizard.setPage(fThisPageNumber);
             if (fLanguageText != null) {
                 fLanguageText.setText(sLanguage);
@@ -812,17 +820,18 @@ public class ExtensionPointWizardPage extends WizardPage {
     protected void setClassIfEmpty() {
         try {
             WizardPageField langField= getField("language");
+            WizardPageField classField= getField("class");
             String language= langField.getText();
 
             if (language.length() == 0)
                 return;
             String langPkg= lowerCaseFirst(language);
             String langClass= upperCaseFirst(language);
-            WizardPageField classField= getField("class");
+            String pointID= fSchema != null ? fSchema.getPointId() : fExtPointID;
 
-            fPackageName= langPkg + ".safari." + lowerCaseFirst(fSchema.getPointId());
+            fPackageName= langPkg + ".safari." + lowerCaseFirst(pointID);
             if (classField != null)
-                classField.setText(fPackageName + "." + langClass + upperCaseFirst(fSchema.getPointId()));
+        	classField.setText(fPackageName + "." + langClass + upperCaseFirst(pointID));
         } catch (Exception e) {
             ErrorHandler.reportError("Cannot set class", e);
         }
