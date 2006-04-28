@@ -101,7 +101,7 @@ public class $CLASS_NAME_PREFIX$Compiler {
 
     public void compile(IFile file, IProgressMonitor mon) {
         IProject project= file.getProject();
-        IParseController parseController= new LegParseController();
+        IParseController parseController= new $CLASS_NAME_PREFIX$ParseController();
 
         parseController.initialize(file.getProjectRelativePath().toString(), project);
         parseController.parse(getFileContents(file), false, mon);
@@ -115,7 +115,7 @@ public class $CLASS_NAME_PREFIX$Compiler {
         currentAst.accept(new TranslatorVisitor());
 
         IFile javaFile= project.getFile(file.getProjectRelativePath().removeFileExtension().addFileExtension("java"));
-        String javaSource= sTemplateHeader.replaceAll(sClassNameMacro.replace("$", "\\$"), fileBase) + fTranslationStack.pop() + sTemplateFooter;
+        String javaSource= sTemplateHeader.replaceAll(sClassNameMacro.replaceAll("\\$", "\\\\$"), fileBase) + fTranslationStack.pop() + sTemplateFooter;
         StringBufferInputStream sbis= new StringBufferInputStream(javaSource);
 
         try {
