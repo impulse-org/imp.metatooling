@@ -792,15 +792,22 @@ public class ExtensionPointWizardPage extends WizardPage {
 
             WizardPageField nameField= getField("name");
 
-            if (nameField != null)
+            if (nameField != null) {
                 nameField.setText(language + " " + fSchema.getPointId());
+	            // SMS 10 May 2006:
+	            // Struggling with plural and singular for "builder" classes, ids, names, etc.
+	            if (fSchema.getPointId().endsWith("uilders")) {
+	            	nameField.setText(nameField.getText().substring(0, nameField.getText().length()-1));
+	            }
+	            // End SMS
+            }
         } catch (Exception e) {
             ErrorHandler.reportError("Cannot set name", e);
         }
     }
 
     protected void setIDIfEmpty() {
-        try {
+       try {
             WizardPageField langField= getField("language");
             String language= langField.getText();
 
@@ -810,15 +817,22 @@ public class ExtensionPointWizardPage extends WizardPage {
             String langID= lowerCaseFirst(language);
             WizardPageField idField= getField("id");
 
-            if (idField != null)
+            if (idField != null) {
                 idField.setText(langID + ".safari." + lowerCaseFirst(fSchema.getPointId()));
+	            // SMS 10 May 2006:
+	            // Struggling with plural and singular for "builder" classes, ids, names, etc.
+	            if (fSchema.getPointId().endsWith("uilders")) {
+	            	idField.setText(idField.getText().substring(0, idField.getText().length()-1));
+	            }
+	            // End SMS
+            }
         } catch (Exception e) {
             ErrorHandler.reportError("Cannot set ID", e);
         }
     }
 
     protected void setClassIfEmpty() {
-        try {
+   	try {
             WizardPageField langField= getField("language");
             WizardPageField classField= getField("class");
             String language= langField.getText();
@@ -829,9 +843,17 @@ public class ExtensionPointWizardPage extends WizardPage {
             String langClass= upperCaseFirst(language);
             String pointID= fSchema != null ? fSchema.getPointId() : fExtPointID;
 
-            fPackageName= langPkg + ".safari." + lowerCaseFirst(pointID);
-            if (classField != null)
-        	classField.setText(fPackageName + "." + langClass + upperCaseFirst(pointID));
+            fPackageName= langPkg + ".safari." + lowerCaseFirst(fSchema.getPointId());
+            if (classField != null) {
+                classField.setText(fPackageName + "." + langClass + upperCaseFirst(fSchema.getPointId()));
+	            // SMS 10 May 2006:
+	            // Struggling with plural and singular for "builder" classes, ids, names, etc.
+	            if (fSchema.getPointId().endsWith("uilders")) {
+	            	classField.setText(classField.getText().substring(0, classField.getText().length()-1));
+	            }
+	            // End SMS
+            }
+            
         } catch (Exception e) {
             ErrorHandler.reportError("Cannot set class", e);
         }
