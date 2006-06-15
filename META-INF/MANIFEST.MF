@@ -1,6 +1,6 @@
 Bundle-SymbolicName: org.eclipse.uide; singleton=true
 Bundle-Name: UIDE Language Support Meta-Tooling
-Bundle-Version: 1.0.20
+Bundle-Version: 1.0.21
 Bundle-Vendor: rfuhrer@watson.ibm.com
 Bundle-Activator: org.eclipse.uide.WizardPlugin
 Provide-Package: org.eclipse.uide,
