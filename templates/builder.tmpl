@@ -14,6 +14,9 @@ import org.eclipse.uide.runtime.SAFARIPluginBase;
 
 import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
 
+import org.eclipse.uide.core.Language;				// SMS 11 May 2006
+import org.eclipse.uide.core.LanguageRegistry;		// SMS 11 May 2006
+
 /**
  * @author
  */
@@ -25,6 +28,12 @@ public class $CLASS_NAME_PREFIX$Builder extends SAFARIBuilderBase {
     public static final String BUILDER_ID= $CLASS_NAME_PREFIX$Plugin.kPluginID + ".$CLASS_NAME_PREFIX$Builder";
 
     public static final String PROBLEM_MARKER_ID= $CLASS_NAME_PREFIX$Plugin.kPluginID + ".problem";
+
+    // SMS 11 May 2006
+    public static final String LANGUAGE_NAME = "$LANG_NAME$";
+    public static final Language LANGUAGE = LanguageRegistry.findLanguage(LANGUAGE_NAME);
+    public static final String[] EXTENSIONS = LANGUAGE.getFilenameExtensions();
+
 
     protected SAFARIPluginBase getPlugin() {
         return $CLASS_NAME_PREFIX$Plugin.getInstance();
@@ -42,15 +51,58 @@ public class $CLASS_NAME_PREFIX$Builder extends SAFARIBuilderBase {
         return PROBLEM_MARKER_ID;
     }
 
+
+    // SMS 11 May 2006
+    // Incorporated realisitic handling of filename extensions
+    // using information recorded in the language registry
     protected boolean isSourceFile(IFile file) {
         IPath path= file.getRawLocation();
-
         if (path == null) return false;
 
-        String fileName= path.toString();
-
-        return (fileName.indexOf("/bin/") == -1 && "$FILE_EXTEN$".equals(path.getFileExtension()));
+        String pathString = path.toString();
+        if (pathString.indexOf("/bin/") != -1) return false;
+        
+        for (int i = 0; i < EXTENSIONS.length; i++) {
+        	if (EXTENSIONS[i].equals(path.getFileExtension())) return true;
+        }
+	    return false;
     }
+
+
+	// SMS 22 May 2006
+	// Adding a stub for method recently added to SAFARIBuilderBase.
+	// "False" will not be the correct response in general, but without
+	// some further explicit information there is not a good way to
+	// compute this.  Until there is some good way, individual langauge
+	// definers can modify this as appropriate for their languages.
+	
+	/**
+     * @return true iff the given file is a source file that this builder should scan
+     * for dependencies, but not compile as a top-level compilation unit.<br>
+     * <code>isNonRootSourceFile()</code> and <code>isSourceFile()</code> should never
+     * return true for the same file.
+     */
+    protected boolean isNonRootSourceFile(IFile resource)
+    {
+    	System.err.println("$CLASS_NAME_PREFIX$Builder.isNonRootSourceFile(..) returning FALSE by default");
+    	return false;
+    }
+
+
+	// SMS 22 May 2006
+	// Adding a stub for method recently added to SAFARIBuilderBase.
+	// Don't know of a general way to compute this, so individual
+	// langauge definers must modify as appropriate for their languages.
+    /**
+     * Collects compilation-unit dependencies for the given file, and records
+     * them via calls to <code>fDependency.addDependency()</code>.
+     */
+    protected void collectDependencies(IFile file)
+    {   
+    	System.err.println("$CLASS_NAME_PREFIX$Builder.collectDependencies(..) doing nothing by default");
+    	return;
+    }
+
 
     protected boolean isOutputFolder(IResource resource) {
         return resource.getFullPath().lastSegment().equals("bin");
@@ -59,12 +111,14 @@ public class $CLASS_NAME_PREFIX$Builder extends SAFARIBuilderBase {
     protected void compile(final IFile file, IProgressMonitor monitor) {
         try {
             // START_HERE
+            System.out.println("Builder.compile with file = " + file.getName());
             createMarker(file, 2, 8, 13, "Oops!", IMarker.SEVERITY_WARNING);
 //          Translator trans= new Translator();
 //          trans.compile(file, monitor);
             doRefresh(file.getParent());
         } catch (Exception e) {
-            $LANG_NAME$Plugin.getInstance().writeErrorMsg(e.getMessage());
+			getPlugin().writeErrorMsg(e.getMessage());
+	        
             e.printStackTrace();
         }
     }
