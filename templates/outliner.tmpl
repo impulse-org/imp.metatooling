@@ -1,5 +1,6 @@
 package $PACKAGE_NAME$;
 
+import java.util.ArrayList;
 import java.util.Stack;
 import lpg.lpgjavaruntime.IToken;
 import org.eclipse.swt.SWT;
@@ -15,52 +16,60 @@ import org.eclipse.uide.defaults.DefaultOutliner;
 import org.eclipse.uide.editor.UniversalEditor;
 import org.eclipse.uide.parser.IParseController;
 
-import $PARSER_PKG$.$CLASS_NAME_PREFIX$Parser;
 import $AST_PKG$.*;
 
-public class $CLASS_NAME_PREFIX$Outliner extends DefaultOutliner {
-    Stack fItemStack= new Stack();
+public class $CLASS_NAME_PREFIX$Outliner extends DefaultOutliner
+{
+	// The stack of ancestor items at the current point in
+	// the traversal of the outline tree ("who's your daddy?")
+    private Stack fItemStack = new Stack();
 
+	/*
+	 * A visitor for ASTs.  Its purpose is to create outline-tree items
+	 * for AST node types that are to appear in the outline view.
+	 */
     private final class OutlineVisitor extends AbstractVisitor {
 
-	public void unimplementedVisitor(String s) {
-		// Sometimes useful for debugging
-//	    System.out.println(s);
-	}
+		public void unimplementedVisitor(String s) {
+			// Sometimes useful for debugging
+			//System.out.println(s);
+		}
+	
+		// START_HERE
+		//
+		// Include visit(..) and endVisit(..) methods for each AST node
+		// type that is to appear in the outline tree.  Typically, the
+		// visit(..) method is used to create an outline item and to
+		// push it onto a stack that contains the current ancestor items
+		// (the top member of which will be the parent of the current item).
+		// The  endVisit(..) method is used to pop items from the stack.
+		// To aid in the implementation of these methods, methods to create
+		// top-level and sub-level outline items are provided.	
+	
+		//public boolean visit(block n) {
+		//	fItemStack.push(createTopItem("Block", n));
+		//	return true;
+		//}
+		//
+		//public void endVisit(block n) {
+		//	fItemStack.pop();
+		//}
 
-	// START_HERE
 
-//	public boolean visit(block n) {
-//		fItemStack.push(createTopItem("Block", n));
-//		return true;
-//	}
-//
-//	public void endVisit(block n) {
-//		fItemStack.pop();
-//	}
+    }	// End OutlineVisitor
 
-	public boolean visit(declaration0 n) {
-		fItemStack.push(createTopItem(n.getIDENTIFIER().getIToken().toString(), n));
-		return true;
-	}
-
-	public boolean visit(assignment n) {
-		fItemStack.push(createTopItem(n.getIDENTIFIER().getIToken().toString() + "=" + n.getexpression().toString(), n));
-		return true;
-	}
-    }
 
     public TreeItem createTopItem(String label) {
-	return createTopItem(label, null);
+		return createTopItem(label, null);
     }
 
     public TreeItem createTopItem(String label, $AST_NODE$ n) {
-	TreeItem treeItem= new TreeItem(tree, SWT.NONE);
-	treeItem.setText(label);
-	treeItem.setImage($CLASS_NAME_PREFIX$Images.OUTLINE_ITEM_IMAGE);
-	if (n != null)
-	    treeItem.setData(n);
-	return treeItem;
+		TreeItem treeItem= new TreeItem(tree, SWT.NONE);
+		treeItem.setText(label);
+		treeItem.setImage($CLASS_NAME_PREFIX$Images.OUTLINE_ITEM_IMAGE);
+		if (n != null)
+		    treeItem.setData(n);
+		return treeItem;
     }
 
     public TreeItem createSubItem(String label) {
@@ -68,41 +77,218 @@ public class $CLASS_NAME_PREFIX$Outliner extends DefaultOutliner {
     }
 
     public TreeItem createSubItem(String label, $AST_NODE$ n) {
-	TreeItem treeItem= new TreeItem((TreeItem) fItemStack.peek(), SWT.NONE);
-	treeItem.setText(label);
-        if (n != null)
-            treeItem.setData(n);
-	treeItem.setImage($CLASS_NAME_PREFIX$Images.OUTLINE_ITEM_IMAGE);
-	return treeItem;
+		TreeItem treeItem= new TreeItem((TreeItem) fItemStack.peek(), SWT.NONE);
+		treeItem.setText(label);
+	        if (n != null)
+	            treeItem.setData(n);
+		treeItem.setImage($CLASS_NAME_PREFIX$Images.OUTLINE_ITEM_IMAGE);
+		return treeItem;
     }
 
-    public void createOutlinePresentation(IParseController controller, int offset) {
-//	fController= controller;
-	try {
-	    if (controller != null && tree != null) {
-		if (!controller.hasErrors()) {
-		    $AST_NODE$ root= ($AST_NODE$) controller.getCurrentAst();
 
-		    if (root != null) {
+   
+    /*
+     * To hold in a generic way any data that the method "significantChange(..)"
+     * may require from one invocation to the next.
+     */
+    private Object[] previous = null;
+    
+    /**
+     * Report whether there has been a significant change in the AST
+     * associated with the parse controller given in the current
+     * invocation compared to the AST associated with the parse
+     * controller given on the previous invocation (if any).
+     * 
+     * A significant change is considered to be one in which the AST
+     * is not logically the same from one invocation to the next,
+     * as indicated by a change in the parse controller (implying an
+     * entirely new tree), in the number of tokens in the tree, or in
+     * the text making up any individual token.
+     * 
+     * Replace or override this method if a different algorithm for
+     * detecting significant changes is desired.
+     * 
+     * @param controller	A parse controller that is to be compared to
+     * 						the previously given parse controller, especially
+     * 						for changes in their respective ASTs
+     * @return				True if the AST for the current controller is
+     * 						effectively the same as the AST for the previous
+     * 						controller or if both are null; false otherwise
+     */
+    public boolean significantChange(IParseController controller)
+    {
+    	boolean previousWasNull = previous == null;
+    	boolean result = false;
+    	
+    	// Check for previous values being null (as in uninitialized)
+    	if (previousWasNull) {
+    		// create and initialize previous
+    		previous = new Object[3];
+    		for (int i = 0; i < previous.length; i++) {
+    			previous[i] = null;
+    		}
+    		
+    		// check for current and previous controllers both null	
+    		if (controller == null) {
+    			return false;
+    		}
+    	}
+    	
+    	// If here then had some previous values (although these
+    	// could individually be null); is current controller null?
+    	if (controller == null) {
+    		for (int i = 0; i < previous.length; i++) {
+    			if (previous[i] == null) continue;	// not changed
+    			result = true;						// changed
+    			previous[i] = null;					// null now
+    		}
+    		return result;
+    	}
+    	
+    	// If here then had some previous values and have some current
+    	// values; these need to be compared
+    	// (for simplicity assume that current values are not null)
+    	
+    	// Get current values for comparison to previous
+    	ArrayList tokens = controller.getParser().getParseStream().getTokens();
+    	char[] chars = controller.getLexer().getLexStream().getInputChars();
+    	
+    	// Get previous values for comparison to current
+    	IParseController previousController = (IParseController) previous[0];
+    	ArrayList previousTokens = (ArrayList) previous[1];
+    	char[] previousChars = (char[]) previous[2];
+    	
+    	// Update previous values to current values in any case (now that
+    	// we've saved previous in local fields)
+		previous[0] = controller;	
+		previous[1] = tokens;
+		previous[2] = chars;
+    	
+    	// Compare current and previous values; return true if different
+		
+		// Are the whole trees different?  (Assume so if controllers differ)
+    	if (previousController != controller) return true;
+    	
+    	// Are the sizes of the trees different? 
+    	if (previousTokens.size() != tokens.size()) {
+    		return true;
+    	}
+    	
+    	// Are any of the individual tokens different?
+    	for (int i = 0; i < previousTokens.size()-1; i++) {
+    		IToken previousToken = (IToken)previousTokens.get(i);
+    		IToken token = (IToken)tokens.get(i);
+    		if (previousToken.getKind() != token.getKind()) {
+    			//System.out.println("Previous and current tokens differ at token # = " + i);
+    			return true;
+    		}
+    		int previousStart = previousToken.getStartOffset();
+    		int previousEnd = previousToken.getEndOffset();
+    		int start = token.getStartOffset();
+    		int end = token.getEndOffset();
+    		if ((previousEnd - previousStart) != (end - start)) {
+				System.out.println("Previous and current tokens have different extents at token # = " + i);
+				return true;
+    		}
+    		for (int j = 0; j < (previousEnd - previousStart + 1); j++) {
+    			if (previousChars[previousStart+j] != chars[start+j]) {
+    				System.out.println("Previous and current tokens have different characters at token # = " + i +
+    						", character # = " + j);
+    				return true;
+    			}
+    		}
+    	}
+    	
+    	// No significant differences found
+    	return false;
+    }
+    
+    
+    /**
+     * Create the outline tree representing the AST associated with a given
+     * parse controller.  There are two issues of particular concern in the
+     * design of this method:  observing the appropriate UI protocol for
+     * redrawing the tree, and filtering out unwanted invocations that
+     * reflect events that should probably not trigger a redrawing of the tree.
+     * 
+     * Regarding the protocol for redrawing the tree, it seems that calls to
+     * tree.setRedraw(true) must be balanced by calls to tree.setRedraw(false).
+     * This is because of logic in org.eclipse.swt.widgets.Control, the parent
+     * class of org.eclipse.swt.widgets.TreeItem.  If there are excessive calls
+     * to tree.setRedraw(true) then the outline view can become "stuck" on a
+     * particular file; that is, when a new editor is opened or brought to
+     * the foreground, the outline view continues to show the outline for a
+     * previous file.  The implementation provided here generally assures,
+     * insofar as possible, that the calls to tree.setRedraw(true) and to
+     * tree.setRedraw(false) are balanced, even in the face of exceptions.
+     * If the logic of this method is modified, care should be taken to assure
+     * that this balance is maintained.
+     * 
+     * Regarding unwanted invocations, this method may be called even when
+     * the AST represented has not changed and thus when redrawing of
+     * the outline may be unnecessary.  Unnecessary redrawing of the outline
+     * is probably a negligable inefficiency in most cases, but redrawing has
+     * the effect of collapsing an expanded outline, which can be annoying
+     * for users.  Folding of the source text in an editor is one case in which
+     * this method is called when there is no change to the underlying AST.
+     * The implementation provided here includes a test for "significantChange"
+     * and avoids redrawing the outline when no significant change has occurred.
+     * The provided version of significantChange(..) tracks changes to the
+     * whole tree, the number of tokens, and the text associated with individual
+     * tokens.  Users who want to use an alternative definition of "significant
+     * change" should rewrite or override the provided method.
+     * 
+     * @param	controller	A parse controller from which an AST can be obtained
+     * 						to serve as the basis of an outline presentation
+     * 	
+     * @param	offset		Currently ignored; kept for backward compatibility
+     * 
+     * @return	void		Has no return but has the effect of (re)drawing
+     * 						an outline tree based on the AST obtained from the
+     * 						given parse controller, if possible.
+     * 
+     * 						Has no effect under a variety of problematic
+     * 						conditions:  given parse controller is null, outline
+     * 						tree is null, parse controller has errors, or parse
+     * 						controller's current AST is null.  Also has no
+     * 						effect if there is no "significant change" from the
+     * 						the AST on the previous invocation to the AST on this
+     * 						invocation.
+     * 
+     * @exception			Throws none; traps all exceptions and reports an
+     * 						error.
+     */
+    public void createOutlinePresentation(IParseController controller, int offset)
+    {
+    	if (controller == null || tree == null) return;
+    	if (controller.hasErrors()) return;
+    	if (!significantChange(controller)) return;
+    	
+    	boolean redrawSetFalse = false;
+		try {
+			$AST_NODE$ root= ($AST_NODE$) controller.getCurrentAst();
+			if (root == null) return;
+						
 			tree.setRedraw(false);
+			redrawSetFalse = true;
 			tree.removeAll();
 			fItemStack.clear();
 			root.accept(new OutlineVisitor());
-		    }
+			
+		} catch (Throwable e) {
+		    ErrorHandler.reportError("Exception generating outlinel", e);
+		} finally {
+		    if (redrawSetFalse) {
+		    	tree.setRedraw(true);
+			}
 		}
-//		tree.setSelection(new TreeItem[] { tree.getItem(new Point(0, 0)) });
-	    }
-	    //selectTreeItemAtTextOffset(offset);
-	} catch (Throwable e) {
-	    ErrorHandler.reportError("Could not generate outline", e);
-	} finally {
-	    if (tree != null)
-		tree.setRedraw(true);
-	}
     }
+ 
+ 
 
     public void setEditor(UniversalEditor editor) {
         System.out.println(editor.getTitle());
+        super.setEditor(editor);
     }
 
     public void setTree(Tree tree) {
