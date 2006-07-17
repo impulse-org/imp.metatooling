@@ -33,9 +33,17 @@ public class NewBuilder extends CodeServiceWizard {
         ExtensionPointEnabler.enable(project, "org.eclipse.core.resources", "natures", new String[][] {
                 { "extension:id",   fLanguageName + ".safari.nature" },
                 { "extension:name", fLanguageName + " Nature" },
-                { "builder:id", fLanguageName + ".safari.builder" },
+                // SMS 9 May 2006:
+                // Added sProjectName to the following (makes this reference consistent with the
+                // builder id as specified)
+                { "builder:id", project.getName() + "." + fLanguageName + ".safari.builder" },
     	    { "runtime:", "" },
-                { "runtime.run:class", fLanguageName + ".safari." + fLanguageName + "Nature" },
+    	    	// SMS 9 May 2006:
+    	    	// Added "builders" after ".safari." and changed fLanguageName (where it occurred
+    	    	// before "Nature") to fClassName (as being more appropriate for a class)
+    	    	// Note:  fClassName isn't the whole class name; it's really more of a language-
+    	    	// specific prefix for naming various classes relating to the language
+                { "runtime.run:class", fLanguageName + ".safari.builders." + fClassName + "Nature" },
         }, mon);
         ExtensionPointEnabler.enable(project, "org.eclipse.core.resources", "markers",
     	    new String[][] {
@@ -45,6 +53,9 @@ public class NewBuilder extends CodeServiceWizard {
         	    },
         	    mon);
         IFile builderSrc= createFileFromTemplate(fClassName + "Builder.java", "builder.tmpl", fPackageFolder, subs, project, mon);
+        // SMS 18 May 2006:
+        // Note that we generate the Nature class and extension regardless of whether
+        // the user has indicated in the wizard that the builder has a nature.
         createFileFromTemplate(fClassName + "Nature.java", "nature.tmpl", fPackageFolder, subs, project, mon);
 
         editFile(mon, builderSrc);
