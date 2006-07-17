@@ -1,0 +1,47 @@
+package $PACKAGE_NAME$;
+
+import java.util.*;
+
+import org.eclipse.uide.editor.ReferenceResolver;
+import org.eclipse.uide.parser.IParseController;
+
+import lpg.lpgjavaruntime.*;
+
+import $PARSER_PKG$.Ast.*;
+
+
+public class $CLASS_NAME_PREFIX$ReferenceResolver extends ReferenceResolver {
+
+	public $CLASS_NAME_PREFIX$ReferenceResolver () {
+		super();
+
+		// If you want to stipulate at construction time the
+		// node types that are legal link source or target types,
+		// you can do that here ...
+
+	}
+	
+	
+	/**
+	 * Get the target for a given source node in the AST represented by a
+	 * given Parse Controller.
+	 */
+	public Object getLinkTarget(Object node, IParseController parseController)
+	{
+		// Replace the call to super.getLinkTarget(..) with an implementation
+		// suitable to you language and link types
+		return super.getLinkTarget(node, parseController);
+	}
+
+	/**
+	 * Get the text associated with a given node for use in a link
+	 * from (or to) that node
+	 */
+	public String getLinkText(Object node) {
+		// Replace the call to super.getLinkText(..) with an implementation
+		// suitable to you language and link types
+		return super.getLinkText(node);
+	}
+
+
+}
