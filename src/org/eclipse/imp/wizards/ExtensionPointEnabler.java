@@ -179,15 +179,25 @@ public class ExtensionPointEnabler {
     }
 
     private static void setElementAttribute(String schemaElementName, String attributeName, String attributeValue, IPluginExtension extension, Map elementMap, IPluginModel pluginModel) throws CoreException {
-        if (schemaElementName.equals("extension")) {
+	
+    	if (schemaElementName.equals("extension")) {
             // Handle the top-level element (the extension that was passed in)
-            if (attributeName.equals("id"))
+            if (attributeName.equals("id")) {
                 extension.setId(attributeValue);
-            else if (attributeName.equals("name"))
+            }
+            else if (attributeName.equals("name")) {
                 extension.setName(attributeValue);
+            }
             else
                 System.err.println("Unknown 'extension' attribute: '" + attributeName + "'.");
-        } else {
+        }
+        // SMS 10 May 2006
+        // Avoid irregular "builders" element
+        else if (schemaElementName.equals("builders")) {
+        	System.err.println("Irregular schema element name 'builders'; ignoring");
+        }
+        // End SMS
+    	else {
             // Handle all other elements - create on first reference
             PluginElement elt= (PluginElement) elementMap.get(schemaElementName);
 
@@ -210,8 +220,13 @@ public class ExtensionPointEnabler {
                 elementMap.put(schemaElementName, elt); // use "fully-qualified" name here
             }
             // Ok, we've found the right element; set the attribute
-            if (attributeName.length() > 0) // Can happen if a nested element has no attributes
+        	// attributeName can be empty if a nested element has no attributes;
+            // attributeValue can be empty if, well, an attribute has no value
+            // (e.g., if it's an optional attribute for which a wizard provides a field
+            // but which the user need not set)
+            if (attributeName.length() > 0 /* SMS 11 May 2006 */ && attributeValue.length() > 0) {
                 elt.setAttribute(attributeName, attributeValue);
+            }
         }
     }
 
