@@ -71,7 +71,7 @@ public class ExtensionPointEnabler {
             maybeCreatePluginXML(project);
             return getPluginModelForProject(project);
 	} catch (Exception e) {
-	    ErrorHandler.reportError("Could not find plugin for project " + page.getProject().getName(), true, e);
+		ErrorHandler.reportError("Could not find plugin for project " + page.getProject().getName(), true, e);
 	    return null;
 	}
     }
@@ -100,6 +100,22 @@ public class ExtensionPointEnabler {
 	for(int i= 0; i < wsPlugins.length; i++) {
 	    IPluginModelBase wsPlugin= wsPlugins[i];
 //	    if (wsPlugin.getBundleDescription().getName().equals(project.getName())) {
+	    
+	    // SMS 19 Jul 2006
+	    // It seems that at least sometimes one of these models
+	    // might be a workspace plugin model (as opposed to a project
+	    // plugin model), and at least some of those may have no ID
+	    // (perhaps for a runtime workbench?).
+	    // Anyway, it seems reasonable to skip over any model where
+	    // any element of interest is null, since that won't be what
+	    // we're looking for in any case
+	    IPluginBase pmBase = wsPlugin.getPluginBase();
+	    if (pmBase == null) continue;
+	    String id = pmBase.getId();
+	    if (id == null) continue;
+	    String projName = project.getName();
+	    if (projName == null) continue;
+	    
 	    if (wsPlugin.getPluginBase().getId().equals(project.getName())) {
 	        return (IPluginModel) wsPlugin;
 	    }
