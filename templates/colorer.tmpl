@@ -11,7 +11,7 @@ import $PARSER_PKG$.$CLASS_NAME_PREFIX$Parsersym;
 
 import lpg.lpgjavaruntime.IToken;
 
-public class $CLASS_NAME_PREFIX$TokenColorer extends DefaultTokenColorer implements $CLASS_NAME_PREFIX$Parsersym, ITokenColorer {
+public class $COLORER_CLASS_NAME$ extends DefaultTokenColorer implements $CLASS_NAME_PREFIX$Parsersym, ITokenColorer {
 
 	TextAttribute commentAttribute, keywordAttribute, stringAttribute, numberAttribute, identifierAttribute;
 	
@@ -19,8 +19,6 @@ public class $CLASS_NAME_PREFIX$TokenColorer extends DefaultTokenColorer impleme
 		switch (token.getKind())
 		{
 			// START_HERE
-            case TK_SINGLE_LINE_COMMENT: // case TK_MULTI_LINE_COMMENT:
-                 return commentAttribute;
             case TK_IDENTIFIER:
                  return identifierAttribute;
             case TK_NUMBER:
@@ -34,7 +32,7 @@ public class $CLASS_NAME_PREFIX$TokenColorer extends DefaultTokenColorer impleme
 		}
 	}
 
-	public $CLASS_NAME_PREFIX$TokenColorer() {
+	public $COLORER_CLASS_NAME$() {
 		super();
         Display display = Display.getDefault();
 		commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.ITALIC); 		

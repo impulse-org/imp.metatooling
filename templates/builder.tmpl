@@ -20,7 +20,7 @@ import org.eclipse.uide.core.LanguageRegistry;		// SMS 11 May 2006
 /**
  * @author
  */
-public class $CLASS_NAME_PREFIX$Builder extends SAFARIBuilderBase {
+public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
     /**
      * Extension ID of the $CLASS_NAME_PREFIX$ builder. Must match the ID in the corresponding
      * extension definition in plugin.xml.
@@ -84,7 +84,7 @@ public class $CLASS_NAME_PREFIX$Builder extends SAFARIBuilderBase {
      */
     protected boolean isNonRootSourceFile(IFile resource)
     {
-    	System.err.println("$CLASS_NAME_PREFIX$Builder.isNonRootSourceFile(..) returning FALSE by default");
+    	System.err.println("$BUILDER_CLASS_NAME$.isNonRootSourceFile(..) returning FALSE by default");
     	return false;
     }
 
@@ -99,7 +99,7 @@ public class $CLASS_NAME_PREFIX$Builder extends SAFARIBuilderBase {
      */
     protected void collectDependencies(IFile file)
     {   
-    	System.err.println("$CLASS_NAME_PREFIX$Builder.collectDependencies(..) doing nothing by default");
+    	System.err.println("$BUILDER_CLASS_NAME$.collectDependencies(..) doing nothing by default");
     	return;
     }
 
