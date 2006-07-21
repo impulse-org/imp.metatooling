@@ -614,9 +614,9 @@ public class ExtensionPointWizardPage extends WizardPage {
 	if (fLanguageText != null)
         fLanguageText.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                setIDIfEmpty();
-                setClassIfEmpty();
-                setNameIfEmpty();
+                setIDByLanguage();
+                setClassByLanguage();
+                setNameByLanguage();
             }
         });
     }
@@ -782,7 +782,7 @@ public class ExtensionPointWizardPage extends WizardPage {
         }
     }
 
-    protected void setNameIfEmpty() {
+    protected void setNameByLanguage() {
         try {
             WizardPageField langField= getField("language");
             String language= langField.getText();
@@ -793,20 +793,23 @@ public class ExtensionPointWizardPage extends WizardPage {
             WizardPageField nameField= getField("name");
 
             if (nameField != null) {
-                nameField.setText(language + " " + fSchema.getPointId());
+            	// SMS 21 Jul 2006
+            	// setClassIfEmpty() below had provision for fSchema == null
+            	// but this method did not; I've added it
+                String pointID= fSchema != null ? fSchema.getPointId() : fExtPointID;
+                nameField.setText(language + " " + pointID);
 	            // SMS 10 May 2006:
 	            // Struggling with plural and singular for "builder" classes, ids, names, etc.
-	            if (fSchema.getPointId().endsWith("uilders")) {
+	            if (pointID.endsWith("uilders")) {
 	            	nameField.setText(nameField.getText().substring(0, nameField.getText().length()-1));
 	            }
-	            // End SMS
-            }
+                 }
         } catch (Exception e) {
             ErrorHandler.reportError("Cannot set name", e);
         }
     }
 
-    protected void setIDIfEmpty() {
+    protected void setIDByLanguage() {
        try {
             WizardPageField langField= getField("language");
             String language= langField.getText();
@@ -818,20 +821,24 @@ public class ExtensionPointWizardPage extends WizardPage {
             WizardPageField idField= getField("id");
 
             if (idField != null) {
-                idField.setText(langID + ".safari." + lowerCaseFirst(fSchema.getPointId()));
+            	// SMS 21 Jul 2006
+            	// setClassIfEmpty() below had provision for fSchema == null
+            	// but this method did not; I've added it
+                String pointID= fSchema != null ? fSchema.getPointId() : fExtPointID;
+                
+                idField.setText(langID + ".safari." + lowerCaseFirst(pointID));
 	            // SMS 10 May 2006:
 	            // Struggling with plural and singular for "builder" classes, ids, names, etc.
-	            if (fSchema.getPointId().endsWith("uilders")) {
+	            if (pointID.endsWith("uilders")) {
 	            	idField.setText(idField.getText().substring(0, idField.getText().length()-1));
 	            }
-	            // End SMS
             }
         } catch (Exception e) {
             ErrorHandler.reportError("Cannot set ID", e);
         }
     }
 
-    protected void setClassIfEmpty() {
+    protected void setClassByLanguage() {
    	try {
             WizardPageField langField= getField("language");
             WizardPageField classField= getField("class");
@@ -843,15 +850,20 @@ public class ExtensionPointWizardPage extends WizardPage {
             String langClass= upperCaseFirst(language);
             String pointID= fSchema != null ? fSchema.getPointId() : fExtPointID;
 
-            fPackageName= langPkg + ".safari." + lowerCaseFirst(fSchema.getPointId());
+            // SMS 21 Jul 2006
+            // Above the field pointID is set in such a way as to accommodate fSchema being
+            // null, but fSchema was referenced three times below anyway.  I've substituted
+            // pointID for those references
+
+            fPackageName= langPkg + ".safari." + lowerCaseFirst(pointID);
+            
             if (classField != null) {
-                classField.setText(fPackageName + "." + langClass + upperCaseFirst(fSchema.getPointId()));
+                classField.setText(fPackageName + "." + langClass + upperCaseFirst(pointID));
 	            // SMS 10 May 2006:
 	            // Struggling with plural and singular for "builder" classes, ids, names, etc.
-	            if (fSchema.getPointId().endsWith("uilders")) {
+	            if (pointID.endsWith("uilders")) {
 	            	classField.setText(classField.getText().substring(0, classField.getText().length()-1));
 	            }
-	            // End SMS
             }
             
         } catch (Exception e) {
