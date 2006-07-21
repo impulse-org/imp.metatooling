@@ -21,6 +21,7 @@ import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginImport;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
+import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.core.plugin.IPluginParent;
 import org.eclipse.pde.core.plugin.ISharedExtensionsModel;
 import org.eclipse.pde.internal.core.PDECore;
@@ -32,6 +33,9 @@ import org.eclipse.pde.internal.core.plugin.PluginImport;
 import org.eclipse.pde.internal.core.plugin.WorkspaceExtensionsModel;
 import org.eclipse.uide.core.ErrorHandler;
 
+import org.eclipse.pde.core.plugin.IPluginModelFactory;		// SMS 20 Jul 2006
+import org.eclipse.pde.core.plugin.IExtensions;				// SMS 20 Jul 2006
+
 /**
  * @author Claffra
  */
@@ -42,7 +46,7 @@ public class ExtensionPointEnabler {
 	    IPluginModel pluginModel= getPluginModel(page);
 
 	    if (pluginModel != null) {
-		addExtensionPoint(pluginModel, page);
+		addExtension(pluginModel, page);
 	    }
 	} catch (Exception e) {
 	    ErrorHandler.reportError("Could not enable extension point for " + page, e);
@@ -55,7 +59,7 @@ public class ExtensionPointEnabler {
 	    IPluginModel pluginModel= getPluginModelForProject(project);
 
 	    if (pluginModel != null) {
-		addExtensionPoint(pluginModel, pluginID, pointID, attrNamesValues);
+		addExtension(pluginModel, pluginID, pointID, attrNamesValues);
 	    }
 	} catch (Exception e) {
 	    ErrorHandler.reportError("Could not enable extension point for " + project.getName(), e);
@@ -126,10 +130,37 @@ public class ExtensionPointEnabler {
 	ErrorHandler.reportError("Could not find plugin for project " + project.getName(), true);
 	return null;
     }
-
-    static void addExtensionPoint(IPluginModel pluginModel, ExtensionPointWizardPage page) throws CoreException, IOException {
-	IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
-
+    
+    
+    /**
+     * Adds an extension to a plugin, where the extension is represented by
+     * an ExtensionPointWizardPage.
+     * 
+     * NOTE:  As of 21 Jul 2006, the implementation of this method first removes the 
+     * extension from the plugin, if it exists there, on the assumption that the
+     * extension being added is intended to replace the existing one.  Without this,
+     * multiple copies of the same extension can accumulate in the plugin.xml file,
+     * and the superfluous ones would have to be removed explicitly by the user.
+     * This approach is probably safe for SAFARI so long as the number of languages
+     * per plugin is restricted to at most one, which seems to be the current practical
+     * limit.  If there may be multiple languages per plugin, then some additional
+     * care needs to be taken regarding the removal of existing extensions.
+     * 
+     * 
+     * @param pluginModel		Represents the plugin to which the extension is added
+     * @param page				Represents the extension added to the plugin
+     * @throws CoreException	If there's a problem working with the plugin or other models
+     * @throws IOException		If there's a problem working with the plugin file
+     */
+    static void addExtension(IPluginModel pluginModel, ExtensionPointWizardPage page) throws CoreException, IOException {
+    	
+    	// SMS 20 Jul 2006
+    	// Delete previous extension of this type, which is presumably
+    	// being replaced by the one being added here
+    	removeExtension(pluginModel, page);
+    	
+    	IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
+	
         if (extension == null) {
             String filename= "plugin.xml";
             IBundlePluginModelBase bundleModel= (IBundlePluginModelBase) pluginModel;
@@ -142,40 +173,116 @@ public class ExtensionPointEnabler {
             extension= pluginModel.getPluginFactory().createExtension();
 
             if (extension == null) {
-        	ErrorHandler.reportError("Unable to create extension " + page.fExtPointID + " in plugin " + pluginModel.getBundleDescription().getName(), true);
-        	return;
+            	ErrorHandler.reportError("Unable to create extension " + page.fExtPointID + " in plugin " + pluginModel.getBundleDescription().getName(), true);
+            	return;
             }
         }
-	extension.setPoint(page.fExtPluginID + "." + page.fExtPointID);
-	setElementAttributes(pluginModel, page, extension);
-	// N.B. BundlePluginBase.add(IPluginExtension) has logic to add the "singleton directive" if needed.
-	//      As a result, we call getPluginBase().add() below rather than getExtensions().add()...
-	IPluginBase pluginBase= pluginModel.getPluginBase();
+		extension.setPoint(page.fExtPluginID + "." + page.fExtPointID);
+		setElementAttributes(pluginModel, page, extension);
+		// N.B. BundlePluginBase.add(IPluginExtension) has logic to add the "singleton directive" if needed.
+		//      As a result, we call getPluginBase().add() below rather than getExtensions().add()...
+		IPluginBase pluginBase= pluginModel.getPluginBase();
+	
+		if (!extension.isInTheModel())
+		    pluginBase.add(extension);
+	
+		addRequiredPluginImports(pluginModel, page);
+		saveAndRefresh(pluginModel);
+	}
 
-	if (!extension.isInTheModel())
-	    pluginBase.add(extension);
-
-	addRequiredPluginImports(pluginModel, page);
-	saveAndRefresh(pluginModel);
+    
+    // SMS 20 Jul 2006
+    static void removeExtension(IPluginModel pluginModel, ExtensionPointWizardPage page)
+    	throws CoreException, IOException
+    {
+    	
+        //WizardPageField langField= page.getField("language");
+        //String language= langField.fValue;
+        //System.out.println("EPWP.removeExtension(1):  language = " + language);
+    	
+    	
+    	IPluginModelFactory pmFactory = pluginModel.getPluginFactory();
+    	IExtensions pmExtensions = pluginModel.getExtensions();
+    	IPluginExtension[] pluginExtensions = pmExtensions.getExtensions();
+    	for (int i = 0; i < pluginExtensions.length; i++) {
+    		IPluginExtension pluginExtension = pluginExtensions[i];
+    		if (pluginExtension == null) continue;
+    		if (pluginExtension.getPoint() == null) continue;
+    		String point = page.fExtPluginID + "." + page.fExtPointID;
+    		if (pluginExtension.getPoint().equals(point)) {
+				pmExtensions.remove(pluginExtension);
+    		}
+    	}
+    	saveAndRefresh(pluginModel);
     }
+    
+    
+    /**
+     * Adds an extension to a plugin, where the extension is represented by
+     * various given values.
+     * 
+     * NOTE:  As of 21 Jul 2006, the implementation of this method first removes the 
+     * extension from the plugin, if it exists there, on the assumption that the
+     * extension being added is intended to replace the existing one.  Without this,
+     * multiple copies of the same extension can accumulate in the plugin.xml file,
+     * and the superfluous ones would have to be removed explicitly by the user.
+     * This approach is probably safe for SAFARI so long as the number of languages
+     * per plugin is restricted to at most one, which seems to be the current practical
+     * limit.  If there may be multiple languages per plugin, then some additional
+     * care needs to be taken regarding the removal of existing extensions.	
+     * 
+     * @param pluginModel		Represents the plugin to which the extension is added
+     * @param pluginID			The id of the plugin offering the extension point
+     * @param pointID			The id of the specific extension point (without plugin)
+     * @param attrNamesValues	Name and values for attributes for the extension
+     * @throws CoreException	If there's a problem working with the plugin or other models
+     * @throws IOException		If there's a problem working with the plugin file
+     */
+    public static void addExtension(IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues) throws CoreException, IOException {
 
-    public static void addExtensionPoint(IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues) throws CoreException, IOException {
-	IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
+    	// SMS 20 Jul 2006
+    	// Delete previous extension of this type, which is presumably
+    	// being replaced by the one being added here
+    	removeExtension(pluginModel, pluginID, pointID, attrNamesValues);
+    	
+    	IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
 
         if (extension == null) {
             ErrorHandler.reportError("Unable to create extension " + pointID + " in plugin " + pluginModel.getBundleDescription().getName(), true);
         }
-	extension.setPoint(pluginID + "." + pointID);
-	setElementAttributes(pluginModel, extension, attrNamesValues);
-	// N.B. BundlePluginBase.add(IPluginExtension) has logic to add the "singleton directive" if needed.
-	//      As a result, we call getPluginBase().add() below rather than getExtensions().add()...
-	IPluginBase pluginBase= pluginModel.getPluginBase();
-
-	if (!extension.isInTheModel())
-	    pluginBase.add(extension);
+		extension.setPoint(pluginID + "." + pointID);
+		setElementAttributes(pluginModel, extension, attrNamesValues);
+		// N.B. BundlePluginBase.add(IPluginExtension) has logic to add the "singleton directive" if needed.
+		//      As a result, we call getPluginBase().add() below rather than getExtensions().add()...
+		IPluginBase pluginBase= pluginModel.getPluginBase();
+	
+		if (!extension.isInTheModel())
+		    pluginBase.add(extension);
         saveAndRefresh(pluginModel);
     }
 
+    
+    // SMS 20 Jul 2006
+    public static void removeExtension(IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues)
+    	throws CoreException, IOException
+    {
+    	
+    	IPluginModelFactory pmFactory = pluginModel.getPluginFactory();
+    	IExtensions pmExtensions = pluginModel.getExtensions();
+    	IPluginExtension[] pluginExtensions = pmExtensions.getExtensions();
+    	for (int i = 0; i < pluginExtensions.length; i++) {
+    		IPluginExtension pluginExtension = pluginExtensions[i];
+    		if (pluginExtension == null) continue;
+    		if (pluginExtension.getPoint() == null) continue;
+    		String point = pluginID + "." + pointID;
+    		if (pluginExtension.getPoint().equals(point)) {
+    				pmExtensions.remove(pluginExtension);
+    		}
+    	}
+    	saveAndRefresh(pluginModel);
+    }
+    
+    
     private static void setElementAttributes(IPluginModel pluginModel, ExtensionPointWizardPage page, IPluginExtension extension) throws CoreException {
 	List fields= page.getFields();
 	Map/*<String qualElemName, PluginElement>*/ elementMap= new HashMap(); // so we can find nested/parent elements after they've been created, somewhat regardless of the field ordering
