@@ -3,6 +3,7 @@
  */
 package org.eclipse.uide.wizards;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +30,30 @@ public class NewFormatter extends CodeServiceWizard {
 
         subs.put("$PARSER_PACKAGE$", fParserPackage); // These should be in the standard substitutions...
         subs.put("$AST_PACKAGE$", fParserPackage);
+        // SMS 21 Jul 2006
+        // Regarding the above, the parser package is set in the standard
+        // substitutions (at least insofar as being set by CodeServiceWiazrd.
+        // getStandardSubstitutions()) but the AST package is not--not sure
+        // whether it would be set anywhere else so as to be in effect here
 
-        IFile formatterSrc= createFileFromTemplate(fClassName + "Formatter.java", "formatter.tmpl", fPackageFolder, subs, project, mon);
+        // SMS 21 Jul 2006
+        // Added (or modified) following to accommodate
+        // values provided through wizard by user
+        
+        WizardPageField field = pages[0].getField("class");
+        String qualifiedClassName = field.fValue;
+        String className = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.')+1);
+        subs.remove("$FORMATTER_CLASS_NAME$");
+        subs.put("$FORMATTER_CLASS_NAME$", className);
+        
+        subs.remove("$PACKAGE_NAME$");
+        String packageName = qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
+        subs.put("$PACKAGE_NAME$", packageName);
+        
+        String packageFolder = packageName.replace('.', File.separatorChar);
+        
+        //IFile formatterSrc= createFileFromTemplate(fClassName + "Formatter.java", "formatter.tmpl", fPackageFolder, subs, project, mon);
+        IFile formatterSrc= createFileFromTemplate(className + ".java", "formatter.tmpl", packageFolder, subs, project, mon);
 
         editFile(mon, formatterSrc);
     }

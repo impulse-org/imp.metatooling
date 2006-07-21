@@ -33,18 +33,23 @@ public class NewHyperlinkDetector extends CodeServiceWizard {
         // (should check how parameter is used)
 //      { "$PKG_NAME$", fPackageName },
         subs.put("$PARSER_PKG$", fParserPackage);
-
         
         // SMS 14 Jul 2006
+        // Added (or modified) following to accommodate
+        // values provided through wizard by user
+        
         WizardPageField field = pages[0].getField("class");
         String qualifiedClassName = field.fValue;
-        String className = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.')+1) + ".java";
+        String className = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.')+1);
+        subs.remove("$HYPERLINK_DETECTOR_CLASS_NAME$");
+        subs.put("$HYPERLINK_DETECTOR_CLASS_NAME$", className);
+        
         subs.remove("$PACKAGE_NAME$");
         String packageName = qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
         subs.put("$PACKAGE_NAME$", packageName);
         String packageFolder = packageName.replace('.', File.separatorChar);
         
-        IFile detectorSrc= createFileFromTemplate(className, "hyperlink_detector.tmpl", packageFolder, subs, project, mon);
+        IFile detectorSrc= createFileFromTemplate(className + ".java", "hyperlink_detector.tmpl", packageFolder, subs, project, mon);
         //IFile resolverSrc = createFileFromTemplate(fClassName + "ReferenceResolver.java", "reference_resolver.tmpl", fPackageFolder, subs, project, mon);
         IFile resolverSrc = createFileFromTemplate(fClassName + "ReferenceResolver.java", "reference_resolver.tmpl", packageFolder, subs, project, mon);
         

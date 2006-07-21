@@ -3,6 +3,7 @@
  */
 package org.eclipse.uide.wizards;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +30,26 @@ public class NewFoldingUpdater extends CodeServiceWizard {
 
 //          { "$PKG_NAME$", fPackageName },
             subs.put("$PARSER_PKG$", fParserPackage);
-
-            IFile folderSrc= createFileFromTemplate(fClassName + "FoldingUpdater.java", "folder.tmpl", fPackageFolder, subs, project, mon);
-
+       
+            // SMS 18 Jul 2006
+            // Added (or modified) following to accommodate
+            // values provided through wizard by user
+            
+            WizardPageField field = pages[0].getField("class");
+            String qualifiedClassName = field.fValue;
+            String className = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.')+1);
+            subs.remove("$FOLDER_CLASS_NAME$");
+            subs.put("$FOLDER_CLASS_NAME$", className);
+            
+            subs.remove("$PACKAGE_NAME$");
+            String packageName = qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
+            subs.put("$PACKAGE_NAME$", packageName);
+            
+            String packageFolder = packageName.replace('.', File.separatorChar);
+            
+            //IFile folderSrc= createFileFromTemplate(fClassName + "FoldingUpdater.java", "folder.tmpl", fPackageFolder, subs, project, mon);
+            IFile folderSrc = createFileFromTemplate(className + ".java", "folder.tmpl", packageFolder, subs, project, mon);
+            
             editFile(mon, folderSrc);
 	}
     }

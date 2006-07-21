@@ -3,6 +3,7 @@
  */
 package org.eclipse.uide.wizards;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +34,26 @@ public class NewOutliner extends CodeServiceWizard {
         subs.put("$AST_PKG$", fParserPackage + "." + Wizards.astDirectory);
         subs.put("$AST_NODE$", Wizards.astNode);
 
-        IFile outlinerSrc= createFileFromTemplate(fClassName + "Outliner.java", "outliner.tmpl", fPackageFolder, subs, project, mon);
-        createFileFromTemplate(fClassName + "Images.java", "images.tmpl", fPackageFolder, subs, project, mon);
+        // SMS 19 Jul 2006
+        // Added (or modified) following so as to accommodate
+        // values provided through wizard by user
+        
+        WizardPageField field = pages[0].getField("class");
+        String qualifiedClassName = field.fValue;
+        String className = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.')+1);
+        subs.remove("$OUTLINER_CLASS_NAME$");
+        subs.put("$OUTLINER_CLASS_NAME$", className);
+        
+        subs.remove("$PACKAGE_NAME$");
+        String packageName = qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
+        subs.put("$PACKAGE_NAME$", packageName);
+        String packageFolder = packageName.replace('.', File.separatorChar);
+ 
+        
+        //IFile outlinerSrc= createFileFromTemplate(fClassName + "Outliner.java", "outliner.tmpl", fPackageFolder, subs, project, mon);
+        IFile outlinerSrc= createFileFromTemplate(className	 + ".java", "outliner.tmpl", packageFolder, subs, project, mon);
+        
+        createFileFromTemplate(fClassName + "Images.java", "images.tmpl", packageFolder, subs, project, mon);
         copyLiteralFile("outline_item.gif", "icons", project, mon);
 
         editFile(mon, outlinerSrc);
