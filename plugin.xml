@@ -136,9 +136,7 @@
          point="org.eclipse.uide.runtime.parser">
       <parser
             class="org.eclipse.uide.presentation.SpecParseController"
-            id="org.eclipse.uide.parser"
-            language="spec"
-            name="Presentation Specification Parser"/>
+            language="spec"/>
    </extension>
    <extension
          point="org.eclipse.uide.runtime.tokenColorer">
