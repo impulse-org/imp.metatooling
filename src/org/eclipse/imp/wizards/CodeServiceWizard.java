@@ -92,7 +92,12 @@ public abstract class CodeServiceWizard extends ExtensionPointWizard {
      * @return	A Map that contains two valuse:  the name of the package that
      * 			contains the AST class, and the name of the AST class.
      * 			These values keyed, respectively, by the symbols "$AST_PACKAGE$"
-     * 			and "$AST_CLASS$".
+     * 			and "$AST_NODE$".
+     * 
+     * Updates:  Stan Sutton, 9 Aug 2006
+     * 			Changed return from $AST_CLASS$ to $AST_NODE$ since the latter
+     * 			is the symbol more commonly used (and the one on which I will
+     * 			try to standardize)
      * 
      * @author	Stan Sutton
      * @since	17 May 2006
@@ -139,7 +144,7 @@ public abstract class CodeServiceWizard extends ExtensionPointWizard {
         
         // Save these values in the substitutions map
         result.put("$AST_PACKAGE$", astPackageName);
-        result.put("$AST_CLASS$", astClassName);
+        result.put("$AST_NODE$", astClassName);
         
         return result;
     }

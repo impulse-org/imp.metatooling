@@ -6,6 +6,7 @@ import org.eclipse.uide.parser.IParseController;
 
 import $AST_PACKAGE$.*;
 
+
 public class $FORMATTER_CLASS_NAME$ implements ILanguageService, ISourceFormatter {
     private int fIndentSize= 4;
     private String fIndentString;
@@ -23,7 +24,13 @@ public class $FORMATTER_CLASS_NAME$ implements ILanguageService, ISourceFormatte
         final StringBuffer buff= new StringBuffer();
         $AST_NODE$ root= ($AST_NODE$) parseController.getCurrentAst();
 
-        root.accept(new $CLASS_NAME_PREFIX$Parser.AbstractVisitor() {
+        // SMS 9 Aug 2006
+        // The original call to root.accept(..) assumes that the AST-related
+        // classes (including AbstractVisitor) are generated within the parser
+        // class, which (I don't think) is what happens by default now in the
+        // usual case (instead they're in the AST package)
+        //root.accept(new $CLASS_NAME_PREFIX$Parser.AbstractVisitor() {
+        root.accept(new AbstractVisitor() {
             private int prodCount;
             private int prodIndent;
             public void unimplementedVisitor(String s) {
