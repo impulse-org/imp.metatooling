@@ -28,8 +28,13 @@ public class NewFormatter extends CodeServiceWizard {
         IProject project= page.getProject();
         Map subs= getStandardSubstitutions();
 
+        // SMS 9 Aug 2006 (but see following note of 21 Jul 2006)
+        // $AST_PACKAGE$ is in the standard substitutions now, so I'm
+        // commenting out the setting of it here.
+        // $PARSER_PACKAGE$ seems to get the wrong value (i.e., the
+        // original default value, not the one specified by the user)
         subs.put("$PARSER_PACKAGE$", fParserPackage); // These should be in the standard substitutions...
-        subs.put("$AST_PACKAGE$", fParserPackage);
+        //	subs.put("$AST_PACKAGE$", fParserPackage);
         // SMS 21 Jul 2006
         // Regarding the above, the parser package is set in the standard
         // substitutions (at least insofar as being set by CodeServiceWiazrd.
