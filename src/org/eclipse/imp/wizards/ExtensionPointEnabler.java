@@ -5,8 +5,9 @@ package org.eclipse.uide.wizards;
  * (c) Copyright IBM Corp. 2005  All Rights Reserved
  */
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.StringBufferInputStream;
+//import java.io.StringBufferInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,6 @@ import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginImport;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
-import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.core.plugin.IPluginParent;
 import org.eclipse.pde.core.plugin.ISharedExtensionsModel;
 import org.eclipse.pde.internal.core.PDECore;
@@ -36,16 +36,19 @@ import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.pde.core.plugin.IPluginModelFactory;		// SMS 20 Jul 2006
 import org.eclipse.pde.core.plugin.IExtensions;				// SMS 20 Jul 2006
 
+
 /**
  * @author Claffra
  */
 public class ExtensionPointEnabler {
-    // BUG Should accept an extension ID, or is that already in the page?
+
     public static void enable(ExtensionPointWizardPage page, IProgressMonitor monitor) {
 	try {
 	    IPluginModel pluginModel= getPluginModel(page);
 
 	    if (pluginModel != null) {
+	    	// This call to addExtension takes care of adding
+	    	// the appropriate extension id
 		addExtension(pluginModel, page);
 	    }
 	} catch (Exception e) {
@@ -53,7 +56,7 @@ public class ExtensionPointEnabler {
 	}
     }
 
-    // BUG Should accept an extension ID, or is that already in attrNamesValues?
+
     public static void enable(IProject project, String pluginID, String pointID, String[][] attrNamesValues, IProgressMonitor monitor) {
 	try {
 	    IPluginModel pluginModel= getPluginModelForProject(project);
@@ -86,9 +89,13 @@ public class ExtensionPointEnabler {
     "</plugin>";
 
     private static void maybeCreatePluginXML(final IProject project) throws CoreException {
-	IFile pluginXML= project.getFile("plugin.xml"); 
-	if (!pluginXML.exists())
-	    pluginXML.create(new StringBufferInputStream(pluginXMLSkeleton), false, new NullProgressMonitor());
+    	IFile pluginXML= project.getFile("plugin.xml"); 
+    	if (!pluginXML.exists()) {
+    		// SMS 10 Aug 2006:  to remove use of deprecated type StringBufferInputStream
+    		//pluginXML.create(new StringBufferInputStream(pluginXMLSkeleton), false, new NullProgressMonitor());
+    		byte[] skeletonBytes = pluginXMLSkeleton.getBytes();
+    		pluginXML.create(new ByteArrayInputStream(skeletonBytes), false, new NullProgressMonitor());
+    	}
     }
 
     private static IPluginModel getPluginModelForProject(final IProject project) {
@@ -106,13 +113,11 @@ public class ExtensionPointEnabler {
 //	    if (wsPlugin.getBundleDescription().getName().equals(project.getName())) {
 	    
 	    // SMS 19 Jul 2006
-	    // It seems that at least sometimes one of these models
-	    // might be a workspace plugin model (as opposed to a project
-	    // plugin model), and at least some of those may have no ID
-	    // (perhaps for a runtime workbench?).
-	    // Anyway, it seems reasonable to skip over any model where
-	    // any element of interest is null, since that won't be what
-	    // we're looking for in any case
+	    // It seems that at least sometimes one of these models might be a workspace plugin model
+	    // (as opposed to a project plugin model), and at least some of those may have no ID
+	    // (perhaps those for a runtime workbench?).  Anyway, it seems reasonable to skip over any
+	    // model where any element of interest is null, since that won't be what we're looking for
+	    // in any case
 	    IPluginBase pmBase = wsPlugin.getPluginBase();
 	    if (pmBase == null) continue;
 	    String id = pmBase.getId();
@@ -178,6 +183,15 @@ public class ExtensionPointEnabler {
             }
         }
 		extension.setPoint(page.fExtPluginID + "." + page.fExtPointID);
+		// SMS 21 Jul 2006
+		// Note:  Above we set the point of the extension but nowhere
+		// do we set the name or id.  That has been accommodated by deleting
+		// the name and id attributes of the extensions we create (none of
+		// which really need those attributes).
+		// Logic used in ExtensionPointWizardPage can be adapted if it
+		// ever becomes necessary to determine name or id values for
+		// an extension.
+		
 		setElementAttributes(pluginModel, page, extension);
 		// N.B. BundlePluginBase.add(IPluginExtension) has logic to add the "singleton directive" if needed.
 		//      As a result, we call getPluginBase().add() below rather than getExtensions().add()...
@@ -190,17 +204,16 @@ public class ExtensionPointEnabler {
 		saveAndRefresh(pluginModel);
 	}
 
+
+    protected static String lowerCaseFirst(String s) {
+        return Character.toLowerCase(s.charAt(0)) + s.substring(1);
+    }	
+    
     
     // SMS 20 Jul 2006
     static void removeExtension(IPluginModel pluginModel, ExtensionPointWizardPage page)
     	throws CoreException, IOException
-    {
-    	
-        //WizardPageField langField= page.getField("language");
-        //String language= langField.fValue;
-        //System.out.println("EPWP.removeExtension(1):  language = " + language);
-    	
-    	
+    {	    	
     	IPluginModelFactory pmFactory = pluginModel.getPluginFactory();
     	IExtensions pmExtensions = pluginModel.getExtensions();
     	IPluginExtension[] pluginExtensions = pmExtensions.getExtensions();
