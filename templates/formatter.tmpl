@@ -1,4 +1,4 @@
-	package $PACKAGE_NAME$;
+    package $PACKAGE_NAME$;
 
 import org.eclipse.uide.core.ILanguageService;
 import org.eclipse.uide.editor.ISourceFormatter;
@@ -36,35 +36,35 @@ public class $FORMATTER_CLASS_NAME$ implements ILanguageService, ISourceFormatte
             public void unimplementedVisitor(String s) {
                 System.out.println("Unhandled node type: " + s);
             }
-			// START_HERE
-			// Put in some visit methods with node types
-			// appropriate to your AST
-			/*
+            // START_HERE
+            // Put in some visit methods with node types
+            // appropriate to your AST
+            /*
             public boolean visit(assignment n) {
-            	buff.append(fIndentString);
-            	return true;
+                buff.append(fIndentString);
+                return true;
             }
             public boolean visit(declaration0 n) {
-            	buff.append(fIndentString);
-            	buff.append(n.getint());
-            	buff.append(' ');
-            	buff.append(n.getIDENTIFIER());
-            	return true;
+                buff.append(fIndentString);
+                buff.append(n.getint());
+                buff.append(' ');
+                buff.append(n.getIDENTIFIER());
+                return true;
             }
             public boolean visit(declaration1 n) {
-            	buff.append(fIndentString);
-            	buff.append(n.getshort());
-            	buff.append(' ');
-            	buff.append(n.getIDENTIFIER());
-            	return true;
+                buff.append(fIndentString);
+                buff.append(n.getshort());
+                buff.append(' ');
+                buff.append(n.getIDENTIFIER());
+                return true;
             }
             */
         });
 
-	return buff.toString();
+    return buff.toString();
     }
 
     public void formatterStops() {
-	// TODO Auto-generated method stub
+    // TODO Auto-generated method stub
     }
 }
