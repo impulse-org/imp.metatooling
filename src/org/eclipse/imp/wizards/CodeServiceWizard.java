@@ -131,18 +131,30 @@ public abstract class CodeServiceWizard extends ExtensionPointWizard {
         }
         if (parserPluginElement == null) return result;
         
-        // Assume that the AST package name is the parser package name extended 
-        // with ".Ast" (this is the default when auto-generated)
+
+        /*
         IPluginAttribute astPackageAttribute = parserPluginElement.getAttribute("class");
         String astPackageName = astPackageAttribute.getValue();
         astPackageName = astPackageName.substring(0, astPackageName.lastIndexOf('.'));
         astPackageName += ".Ast";
         String astClassName = "ASTNode";
+        */
         
-        // Check whether this hypothetical AST class actually exists
-        // (maybe someday ...)
+        // Get the names of the parser package, AST package, and AST (node) class name
+        
+        IPluginAttribute parserClassAttribute = parserPluginElement.getAttribute("class");
+        String parserPackageName = parserClassAttribute.getValue();
+        parserPackageName = parserPackageName.substring(0, parserPackageName.lastIndexOf('.'));
+        // ASSUME that the AST package name is the parser package name extended 
+        // with ".Ast" (this is the default when auto-generated)
+        String astPackageName = parserPackageName + ".Ast";
+        // Just assume this is true
+        // TBD:  check whether this exists (or put the info somewhere from
+        // where it can be retrieved here)
+        String astClassName = "ASTNode";
         
         // Save these values in the substitutions map
+        result.put("$PARSER_PACKAGE$", parserPackageName);
         result.put("$AST_PACKAGE$", astPackageName);
         result.put("$AST_NODE$", astClassName);
         
