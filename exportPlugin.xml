@@ -31,11 +31,18 @@
 	<target name="plugin.jar" depends="init" unless="${plugin.jar.name}" description="Create jar: ${plugin.jar.name}.">
 		<delete dir="${temp.folder}/${plugin.jar.name}.bin"/>
 		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin"/>
+		<!-- run jikespg to generate the parser and lexer -->
+		<exec dir="src/org/eclipse/uide/presentation" executable="jikespg"
+		      failonerror="true" output="LangSpec.log">
+			<arg line="-include-directory=../../../../../../lpg/templates"/>
+			<arg line="LangSpec.g"/>
+		</exec>
 		<!-- compile the source code -->
 		<javac destdir="${temp.folder}/${plugin.jar.name}.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="${javacSource}" target="${javacTarget}"		>
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
-				<pathelement path="../org.eclipse.uide.runtime/bin"/>
+				<pathelement path="../org.eclipse.uide.runtime/org.eclipse.uide.runtime_${safari.version}.jar"/>
+				<pathelement path="../lpg/lpg_${safari.version}.jar"/>
 				<pathelement path="${eclipse.build.path}"/>
 			</classpath>
 			<src path="src/"/>
