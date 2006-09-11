@@ -124,6 +124,12 @@
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
             name="Source Formatter"
             id="org.eclipse.uide.wizards.NewFormatter"/>
+      <wizard
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            class="org.eclipse.uide.wizards.NewRefactoringWizard"
+            icon="icons/sample.gif"
+            id="org.eclipse.uide.newRefactoring"
+            name="New Refactoring"/>
    </extension>
    <extension
          point="org.eclipse.uide.runtime.languageDescription">
