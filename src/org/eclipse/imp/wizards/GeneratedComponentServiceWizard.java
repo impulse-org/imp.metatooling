@@ -43,9 +43,9 @@ public abstract class GeneratedComponentServiceWizard extends GeneratedComponent
         fClassName= Character.toUpperCase(fLanguageName.charAt(0)) + fLanguageName.substring(1);
     }
 
-    protected Map getStandardSubstitutions() {
-        Map result= new HashMap();
-        
+    protected Map<String,String> getStandardSubstitutions() {
+        Map<String,String> result= new HashMap<String,String>();
+
         // SMS 17 May 2006
         // Need to get a name for the AST package and AST node type for use in
         // the NewFoldingUpdater wizard
@@ -55,13 +55,12 @@ public abstract class GeneratedComponentServiceWizard extends GeneratedComponent
         // any case--specifically because substitutions for these parameters will
         // not have been made)
         result = getASTInformation();
-        
+
         // continuing with original:
         result.put("$LANG_NAME$", fLanguageName);
         result.put("$CLASS_NAME_PREFIX$", fClassName);
         result.put("$PACKAGE_NAME$", fPackageName);
 
-        
         return result;
     }
     
@@ -97,9 +96,9 @@ public abstract class GeneratedComponentServiceWizard extends GeneratedComponent
      * @author	Stan Sutton
      * @since	17 May 2006
      */
-    protected Map getASTInformation()
+    protected Map<String,String> getASTInformation()
     {
-    	Map result = new HashMap();
+    	Map<String,String> result = new HashMap<String,String>();
     	
         // Get the extension that represents the parser
         IPluginModelBase pluginModel = pages[0].getPluginModel();
@@ -145,5 +144,4 @@ public abstract class GeneratedComponentServiceWizard extends GeneratedComponent
         
         return result;
     }
-    
 }
