@@ -569,6 +569,36 @@ public class GeneratedComponentWizardPage extends WizardPage
         fDescriptionText.setText(fWizardDescription);
     }
 
+    protected Text createLabelText(Composite container, WizardPageField field) {
+        Widget labelWidget= null;
+        String name= field.fAttributeName;
+        String description= field.fDescription;
+        String value= field.fValue;
+
+        name += ":";
+
+        Label label= new Label(container, SWT.NULL);
+        label.setText(name);
+        label.setToolTipText(description);
+        labelWidget= label;
+        label.setBackground(container.getBackground());
+
+        Text text= new Text(container, SWT.BORDER | SWT.SINGLE);
+        labelWidget.setData(text);
+        GridData gd= new GridData(GridData.FILL_HORIZONTAL);
+        gd.horizontalSpan= 2;
+        text.setLayoutData(gd);
+        text.setText(value);
+
+        if (field != null)
+            field.fText= text;
+
+        text.addFocusListener(new FocusDescriptionListener());
+        text.setData(field);
+
+        return text;
+    }
+
     private void addServiceEnablerCheckbox(Composite container) {
         Label label= new Label(container, SWT.NONE);
         label.setText("Add this service:");
