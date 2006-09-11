@@ -39,6 +39,7 @@ import org.eclipse.pde.core.plugin.IExtensions;				// SMS 20 Jul 2006
 
 /**
  * @author Claffra
+ * @author rfuhrer@watson.ibm.com
  */
 public class ExtensionPointEnabler {
 
