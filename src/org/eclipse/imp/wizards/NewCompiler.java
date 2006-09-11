@@ -9,28 +9,24 @@ import java.util.List;
 import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.*;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.uide.runtime.RuntimePlugin;
-
-import org.eclipse.pde.core.plugin.IExtensions;
-import org.eclipse.pde.core.plugin.IPluginAttribute;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.pde.core.plugin.IPluginExtension;
-import org.eclipse.pde.core.plugin.IPluginModelBase;
-import org.eclipse.pde.core.plugin.IPluginObject;
-import org.eclipse.pde.internal.core.ischema.ISchemaAttribute;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.uide.runtime.RuntimePlugin;
+import org.eclipse.uide.utils.ExtensionPointUtils;
 
 public class NewCompiler extends GeneratedComponentServiceWizard {
     // Need a variant of CodeServiceWizard that doesn't actually create an extension, just generates code...
 	// SMS 27 Jul 2006:  This is it ...
 	
-    protected static String thisWizardName = "New Compiler Wizard";
-    protected static String thisWizardDescription = "Wizard for creating a simple compiler";
+    protected static final String thisWizardName = "New Compiler Wizard";
+    protected static final String thisWizardDescription = "Wizard for creating a simple compiler";
     
     GeneratedComponentAttribute[] compilerAttributes;
 	
@@ -62,7 +58,7 @@ public class NewCompiler extends GeneratedComponentServiceWizard {
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
     	GeneratedComponentWizardPage page= (GeneratedComponentWizardPage) pages[0];
         IProject project= page.getProject();
-        Map subs= getStandardSubstitutions();
+        Map<String,String> subs= getStandardSubstitutions();
 
         // SMS 10 Aug 2006
         // The following are all now part of the standard substitution
@@ -77,10 +73,8 @@ public class NewCompiler extends GeneratedComponentServiceWizard {
         WizardPageField field = pages[0].getField("class");
         String qualifiedClassName = field.fValue;
         String className = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.')+1);
-        subs.remove("$COMPILER_CLASS_NAME$");
         subs.put("$COMPILER_CLASS_NAME$", className);
         
-        subs.remove("$PACKAGE_NAME$");
         String packageName = qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
         subs.put("$PACKAGE_NAME$", packageName);
         
@@ -90,7 +84,6 @@ public class NewCompiler extends GeneratedComponentServiceWizard {
         // We also need to know the name of the ParseController class
         // because the user may have changed that from the default
         String parseControllerClassName = getParseControllerClassName(project);
-        subs.remove("$ParseControllerClassName$");
         subs.put("$ParseControllerClassName$", parseControllerClassName);
         
         // SMS 21 Jul 2006
@@ -113,7 +106,7 @@ public class NewCompiler extends GeneratedComponentServiceWizard {
     	// Warning:  Returning an array with empty elements may cause problems,
     	// so be sure to only allocate as many elements as there are actual	attributes
     	GeneratedComponentAttribute[] attributes = new GeneratedComponentAttribute[0];
-    	
+
     	// SMS 10 Aug 2006
     	// Ignore these--they're for testing the attribute mechanism.  The compiler
     	// doesn't have any attributes that are specific to it, but it's the only
@@ -128,7 +121,7 @@ public class NewCompiler extends GeneratedComponentServiceWizard {
 		languageAttr.setValue(null);
 		languageAttr.setUse(ISchemaAttribute.REQUIRED);
 		attributes[0] = languageAttr;
-		
+
 		GeneratedComponentAttribute classAttr = new GeneratedComponentAttribute();
 		classAttr.setName("quest");
 		classAttr.setBasedOn("");
@@ -136,7 +129,7 @@ public class NewCompiler extends GeneratedComponentServiceWizard {
 		classAttr.setValue(null);
 		classAttr.setUse(ISchemaAttribute.REQUIRED);
 		attributes[1] = classAttr;
-		
+
 		GeneratedComponentAttribute colorAttr = new GeneratedComponentAttribute();
 		colorAttr.setName("color");
 		colorAttr.setBasedOn("");
@@ -145,70 +138,38 @@ public class NewCompiler extends GeneratedComponentServiceWizard {
 		colorAttr.setUse(ISchemaAttribute.OPTIONAL);
 		attributes[2] = colorAttr;
 		*/
-		return attributes;
+    	return attributes;
     }
     
     
     public String getParseControllerClassName(IProject project)
     {
         // Get the extension that represents the parser
-        IPluginModelBase pluginModel = pages[0].getPluginModel();
-        IExtensions extensionsThing = pluginModel.getExtensions();
-        IPluginExtension[] extensions = extensionsThing.getExtensions();
-        IPluginExtension parserExtension = null;
-        for (int i = 0; i < extensions.length; i++) {
-        	if(extensions[i].getPoint().equals("org.eclipse.uide.runtime.parser")) {
-        		parserExtension = extensions[i];
-        		break;
-        	}
-        }
-    	
+        IPluginExtension parserExtension= ExtensionPointUtils.findExtensionByName("org.eclipse.uide.runtime.parser", pages[0].getPluginModel());
+
+        if (parserExtension == null) return null;
+
         // Get the plugin element that represents the class of the parser
-        PluginElement parserPluginElement = null;
-        if (parserExtension != null) {
-        	IPluginObject[] children = parserExtension.getChildren();
-        	for (int i = 0; i < children.length; i++) {
-        		if(children[i].getName().equals("parser")) {
-        			parserPluginElement = (PluginElement) children[i];
-        				break;
-        		}
-        	}
-        }
+        PluginElement parserPluginElement = ExtensionPointUtils.findElementByName("parser", parserExtension);
+
         if (parserPluginElement == null) return null;
  
         // Get the name of the parser package
-        IPluginAttribute parserClassAttribute = parserPluginElement.getAttribute("class");
-        String parserPackageName = parserClassAttribute.getValue();
-        parserPackageName = parserPackageName.substring(0, parserPackageName.lastIndexOf('.'));
-    	
+        String parserName = parserPluginElement.getAttribute("class").getValue();
+        String parserPackageName = parserName.substring(0, parserName.lastIndexOf('.'));
+
         // The ParseController class should be in that package, so look for it there
 
         // Get the package (fragment) that contains the parser
-        IWorkspace workspace = project.getWorkspace();
-        IJavaModel javaModel = JavaCore.create(workspace.getRoot());
-        IJavaProject javaProject = javaModel.getJavaProject(project.getName());
-    	IPackageFragment parserPackage = null;
-        try {
-        	IPackageFragment[] packageFragments = javaProject.getPackageFragments();
-        	for (int i = 0; i < packageFragments.length; i++) {
-        		if (packageFragments[i].getElementName().equals(parserPackageName)) {
-        			parserPackage = packageFragments[i];
-        		}
-        	}
-        } catch (JavaModelException e) {
-        	System.err.println("NewCompiler.getParseControllerClassName(IProject):  JavaModelException getting parser package:  " +
-        			"\n\t" + e.getMessage() +
-        			"\n\tReturning null");
-        	return null;
-        }
-        if (parserPackage == null) return null;
-        
-        
+    	IPackageFragment parserPackage = ExtensionPointUtils.findPackageByName(project, parserPackageName);
+
+    	if (parserPackage == null) return null;
+
         // Check the classes in the parser package for one that represents an IParseController
         // (assume there's just one)
         try {
             ICompilationUnit[] compilationUnits = parserPackage.getCompilationUnits();
-            typeSearch:  for (int i = 0; i < compilationUnits.length; i++) {
+            for (int i = 0; i < compilationUnits.length; i++) {
             	ICompilationUnit unit = compilationUnits[i];
             	// Get the type(s) declared by this compilation unit
             	IType[] unitTypes = unit.getTypes();
@@ -227,12 +188,9 @@ public class NewCompiler extends GeneratedComponentServiceWizard {
         	System.err.println("NewCompiler.getParseControllerClassName(IProject):  JavaModelException checking for IParseController:  " +
         			"\n\t" + e.getMessage() +
         			"\n\tReturning null");
-        	return null;
         }
         
         // Didn't find it :-(
         return null;
     }
-    
-    
 }
