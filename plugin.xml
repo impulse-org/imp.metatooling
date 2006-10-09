@@ -107,11 +107,11 @@
             name="Source folding updater"
             id="org.eclipse.uide.wizards.NewFoldingUpdater"/>
       <wizard
-            class="org.eclipse.uide.wizards.NewHyperlinkDetector"
+            class="org.eclipse.uide.wizards.NewReferenceResolver"
             icon="icons/sample.gif"
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
-            name="Hyperlink Detector"
-            id="org.eclipse.uide.wizards.NewHyperlinkDetector"/>
+            name="Reference Resolver"
+            id="org.eclipse.uide.wizards.NewReferenceResolver"/>
       <wizard
             class="org.eclipse.uide.wizards.NewAutoEditStrategy"
             icon="icons/sample.gif"
