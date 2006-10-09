@@ -2,35 +2,28 @@ package $PACKAGE_NAME$;
 
 import java.util.*;
 
-import org.eclipse.uide.editor.ReferenceResolver;
+import org.eclipse.uide.core.ILanguageService;
+import org.eclipse.uide.editor.IReferenceResolver;
 import org.eclipse.uide.parser.IParseController;
 
 import lpg.lpgjavaruntime.*;
 
 import $PARSER_PKG$.Ast.*;
 
-
-public class $CLASS_NAME_PREFIX$ReferenceResolver extends ReferenceResolver {
+public class $CLASS_NAME_PREFIX$ReferenceResolver implements IReferenceResolver, ILanguageService {
 
 	public $CLASS_NAME_PREFIX$ReferenceResolver () {
-		super();
-
-		// If you want to stipulate at construction time the
-		// node types that are legal link source or target types,
-		// you can do that here ...
-
 	}
 	
-	
 	/**
-	 * Get the target for a given source node in the AST represented by a
-	 * given Parse Controller.
+	 * Get the target for the given source node in the AST.
 	 */
-	public Object getLinkTarget(Object node, IParseController parseController)
-	{
-		// TODO:  Replace the call to super.getLinkTarget(..) with an implementation
-		// suitable to you language and link types
-		return super.getLinkTarget(node, parseController);
+	public Object getLinkTarget(Object node, IParseController parseController) {
+		// START_HERE
+		if (!(node instanceof IASTNodeToken))
+		    return null;
+		IASTNodeToken ident= (IASTNodeToken) node;
+		statementList stmts= (statementList) parseController.getCurrentAst();
 	}
 
 	/**
@@ -38,10 +31,6 @@ public class $CLASS_NAME_PREFIX$ReferenceResolver extends ReferenceResolver {
 	 * from (or to) that node
 	 */
 	public String getLinkText(Object node) {
-		// TODO:  Replace the call to super.getLinkText(..) with an implementation
-		// suitable to you language and link types
-		return super.getLinkText(node);
+		return node.toString();
 	}
-
-
 }
