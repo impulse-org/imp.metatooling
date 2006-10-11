@@ -197,13 +197,13 @@ public class $OUTLINER_CLASS_NAME$ extends DefaultOutliner
     		int start = token.getStartOffset();
     		int end = token.getEndOffset();
     		if ((previousEnd - previousStart) != (end - start)) {
-				System.out.println("Previous and current tokens have different extents at token # = " + i);
+				// System.out.println("Previous and current tokens have different extents at token # = " + i);
 				return true;
     		}
     		for (int j = 0; j < (previousEnd - previousStart + 1); j++) {
     			if (previousChars[previousStart+j] != chars[start+j]) {
-    				System.out.println("Previous and current tokens have different characters at token # = " + i +
-    						", character # = " + j);
+    				// System.out.println("Previous and current tokens have different characters at token # = " + i +
+    				//		", character # = " + j);
     				return true;
     			}
     		}
