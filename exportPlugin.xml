@@ -19,11 +19,12 @@
 		</condition>
 		<property name="build.result.folder" value="${basedir}"/>
 		<property name="temp.folder" value="${basedir}/temp.folder"/>
+		<property name="lpg.location" value="../lpg"/>
+		<property name="lpg.executable" location="${lpg.location}/bin/lpg-${baseos}_${os.arch}"/>
 	</target>
 
 	<target name="properties" if="eclipse.running">
 		<property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-
 	</target>
 
 	<!-- ================================================================================= -->
@@ -32,7 +33,8 @@
 		<delete dir="${temp.folder}/${plugin.jar.name}.bin"/>
 		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin"/>
 		<!-- run jikespg to generate the parser and lexer -->
-		<exec dir="src/org/eclipse/uide/presentation" executable="jikespg"
+		<echo message="Running JikesPG to generate parser and lexer"/>
+		<exec executable="${lpg.executable}" dir="src/org/eclipse/uide/presentation"
 		      failonerror="true" output="LangSpec.log">
 			<arg line="-include-directory=../../../../../../lpg/templates"/>
 			<arg line="LangSpec.g"/>
