@@ -1,4 +1,4 @@
-	/**
+/**
  * 
  */
 package org.eclipse.uide.wizards;
