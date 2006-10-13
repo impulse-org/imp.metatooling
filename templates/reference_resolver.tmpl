@@ -2,28 +2,44 @@ package $PACKAGE_NAME$;
 
 import java.util.*;
 
-import org.eclipse.uide.core.ILanguageService;
+import org.eclipse.uide.core.ILanguageService;	
 import org.eclipse.uide.editor.IReferenceResolver;
 import org.eclipse.uide.parser.IParseController;
 
 import lpg.lpgjavaruntime.*;
 
 import $PARSER_PKG$.Ast.*;
+//import $PARSER_PKG$.Ast.identifier;
+
+
 
 public class $CLASS_NAME_PREFIX$ReferenceResolver implements IReferenceResolver, ILanguageService {
 
 	public $CLASS_NAME_PREFIX$ReferenceResolver () {
 	}
 	
+	
 	/**
-	 * Get the target for the given source node in the AST.
+	 * Get the target for a given source node in the AST represented by a
+	 * given Parse Controller.
 	 */
-	public Object getLinkTarget(Object node, IParseController parseController) {
-		// START_HERE
-		if (!(node instanceof IASTNodeToken))
-		    return null;
-		IASTNodeToken ident= (IASTNodeToken) node;
-		statementList stmts= (statementList) parseController.getCurrentAst();
+	public Object getLinkTarget(Object node, IParseController parseController)
+	{
+		// TODO:  Replace the given implementation with an implementation
+		// that is suitable to you language and link types
+		
+		// NOTE:  The code shown in this method body works with the
+		// example grammar used in the SAFARI language-service templates.
+		// It may be adaptable for use with other languages.  HOWEVER,
+		// this particular code is not essential to reference resolvers
+		// in general, and the user should provide an implementation
+		// that is appropriate to the language and AST structure for
+		// which the service is being defined.
+		
+    	if (!(node instanceof Iidentifier)) return null;
+    	buildScopeAndDeclStructures(parseController);
+    	ASTNode bindingTarget = findDeclForIdentifier((Iidentifier)node, parseController);
+    	return bindingTarget;
 	}
 
 	/**
@@ -31,6 +47,752 @@ public class $CLASS_NAME_PREFIX$ReferenceResolver implements IReferenceResolver,
 	 * from (or to) that node
 	 */
 	public String getLinkText(Object node) {
+		// TODO:  Replace the call to super.getLinkText(..) with an implementation
+		// suitable to you language and link types
 		return node.toString();
 	}
+
+	//////////////////////////////////////////////////////////////////
+	// The code shown below this point is an example implementation of
+	// reference resolution for the example language used in the SAFARI
+	// language-service templates.  It may be adaptable for use with
+	// other languages.  HOWEVER, this particular code is not essential
+	// to reference resolvers in general, and the user should provide an
+	// implementation for reference resolution that is appropriate to
+	// the language for which the service is defined.  This is only an
+	// example.
+	//
+	// The semantics of reference resolution in this example represent
+	// a simple model of declared variables in possibly nested scopes:
+	// - A program in the example language (LEG) consists of a sequence
+	//   of statements, optionally with nested blocks
+	// - Scopes are defined by the top-level sequence of statements and
+	//   by each nested block, if any
+	// - Identifiers are used to denote variables; identifiers can be
+	//   declared, but the grammar allows variables to be referenced
+	//   before they are declared
+	// - Identifiers can be used on the lefthand and righthand sides
+	//   of assignments
+	// - The target of a hyperlink that originates at an identifier in
+	//   a declaration is the declaration itself
+	// - The target of a hyperlink that originates at an identifier that
+	//   is used in an assignment is either
+	//   - the nearest declaration of that identifier in a scope that
+	//     encloses the assignment, if such a declaration exists
+	//   - otherwise, the target is the first use of the identifier
+	//     in an enclosing scope
+	//
+	// The implementation of reference resolution that is used below
+	// depends on language-specific details of the AST in two main ways:
+	// 1.  A visitor is used to obtain information about scopes and
+	//     declarations from the particular types of AST nodes that
+	//     represent these constructs
+	// 2.  The details of the structure of these AST nodes must be
+	//     accessed to obtain necessary information
+	///////////////////////////////////////////////////////////////////
+
+	/**
+	 * Intended for the recording of entities and information relating
+	 * to the scopes in a program.  Each record represents the AST node
+	 * that defines the scope, the starting and ending offsets of the
+	 * scope within the source file and the immediate parent and children
+	 * of the node. Parents and children are represented as ASTNodes, not
+	 * ScopeRecords (so, given an ASTNode, any ScopeRecord to which it
+	 * belongs must be discovered by some other means).  The organization
+	 * of scopes is assumed to be hierarchical, so a given node may have
+	 * at most one parent and any number of children.
+	 * 
+	 * A structure such as this could be subject to many internal
+	 * consistency checks, but for now none of those are performed here.
+	 * (Users are assumed to be competent.)
+	 */
+	public class ScopeRecord
+	{
+		private ASTNode node = null;
+		private int startOffset = -1;
+		private int endOffset = -1;
+		private ASTNode parent = null;
+		private List children = new ArrayList();
+		
+		public ScopeRecord() {}
+		
+		public ScopeRecord(
+				ASTNode node,
+				int startOffset,
+				int endOffset,
+				ASTNode parent,
+				ASTNode[] children)
+		{
+			this.node = node;
+			this.startOffset = startOffset;
+			this.endOffset = endOffset;
+			this.parent = parent;
+			if (children != null) {
+				for (int i = 0; i < children.length; i++) {
+					this.children.add(children[i]);
+				}
+			}
+		}
+		
+		public void setNode(ASTNode node) { this.node = node; }
+		public ASTNode getNode() { return node; }
+		
+		public void setStartOffset(int offset) { this.startOffset = offset; }
+		public int getStartOffset() { return startOffset; }
+
+		public void setEndOffset(int offset) { this.endOffset = offset; }
+		public int getEndOffset() { return endOffset; }
+		
+		public void setParent(ASTNode parent) { this.parent = parent; }
+		public ASTNode getParent() { return parent; }
+		
+		
+		public void setChildren(ASTNode[] children) {
+			if (children != null) {
+				for (int i = 0; i < children.length; i++) {
+					this.children.add(children[i]);
+				}
+			}
+		}
+		
+		public ASTNode[] getChildren() {
+			ASTNode[] result = new ASTNode[children.size()];
+			for (int i = 0; i < children.size(); i++) {
+				result[i] = (ASTNode) children.get(i);
+			}
+			return result;
+		}
+		
+		public void addChild(ASTNode child) {
+			for (int i = 0; i < children.size(); i++) {
+				if (children.get(i).equals(child)) {
+					return;
+				}
+			}
+			children.add(child);
+		}
+		
+		public void removeChild(ASTNode child) {
+			for (int i = 0; i < children.size(); i++) {
+				if (children.get(i).equals(child)) {
+					children.remove(i);
+				}
+			}
+		}
+		
+		public boolean containsChild(ASTNode child) {
+			for (int i = 0; i < children.size(); i++) {
+				if (children.get(i).equals(child)) {
+					return true;
+				}
+			}
+			return false;
+		}	
+	}
+	
+	
+	// Utility method for use of ScopeRecords
+	public ScopeRecord getScopeRecordForNode(List records, ASTNode node) {
+		for (int i = 0; i < records.size(); i++) {
+			if (((ScopeRecord)records.get(i)).getNode().equals(node))
+				return ((ScopeRecord)records.get(i));
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * Intended for the recording of entities and information about
+	 * declarations in a program.  Each DeclRecord represents a
+	 * single declaration (as an ASTNode), the scope in which the
+	 * declaration occurs (also represented as an ASTNode), and the
+	 * offset of the declaration in its source file.
+	 * 
+	 * @author sutton
+	 *
+	 */
+	public class DeclRecord
+	{
+		private ASTNode scope = null;
+		private ASTNode decl = null;
+		//private String name = null;
+		
+		public DeclRecord() { }
+			
+		public DeclRecord(
+				ASTNode scope,
+				ASTNode decl)
+		{
+			this.scope = scope;
+			this.decl = decl;
+		}
+		
+		public void setScope(ASTNode scope) { this.scope = scope; }
+		public ASTNode getScope() { return scope; }
+		
+		public void setDecl(ASTNode decl) { this.decl = decl; }
+		public ASTNode getDecl() { return decl; }
+
+		public int getOffset() {
+			int offset = decl.getLeftIToken().getStartOffset();
+			return offset; }
+		
+		public String[] getNames() {
+			String[] names = getNamesDeclaredAtNode(decl);
+			return names;
+		}
+	}
+	
+	
+	/**
+	 * For a given ASTNode that represent a declaration of some sort,
+	 * get the identifiers that are declared.
+	 * 
+	 * This is where much of the (unattractive) type-specific processing of
+	 * AST nodes takes place, since there are several types of declaration,
+	 * each type of declaration has a (possibly unique) arrangement of
+	 * subelements, and specific subelements may have various concrete types,
+	 * each of which needs to be addressed individually.
+	 * 
+	 */
+	public String[] getNamesDeclaredAtNode(ASTNode decl)
+	{
+		List names = new ArrayList();
+
+		if (decl instanceof declaration0) {
+			declaration0 decl0 = (declaration0) decl;
+			names.add(decl0.getidentifier().getIDENTIFIER().toString());
+		} else if (decl instanceof declaration1) {
+			declaration1 decl1 = (declaration1) decl;
+			names.add(decl1.getidentifier().getIDENTIFIER().toString());
+		}
+
+		// Convert names list to array and return that
+		String[] namesArray = new String[names.size()];
+		for (int i = 0; i < names.size(); i++) {
+			namesArray[i] = (String) names.get(i);
+		}
+		return namesArray;
+	}
+	
+	
+	/**
+	 * Return the name associated with an Iidentifier
+	 * (which may be one of four concrete types).
+	 * 
+	 * @param identifier	an IIdentifer
+	 * @return				the name represented by this Iidentifier
+	 */
+	public String getIdentifierName(Iidentifier node)
+	{	
+		String name = null;
+		if (node instanceof identifier)
+			name = ((identifier)node).getIDENTIFIER().toString();
+		return name;
+	}
+	
+	
+	/*
+	 * To hold the results of visiting an AST, i.e., the information
+	 * about the AST that is useful in computing links
+	 */
+	private List allScopeRecords = new ArrayList();					// of ScopeRecords
+	private List allDeclRecords = new ArrayList();					// of DeclRecords
+	private HashMap globalVarFirstOccurrences = new HashMap();		// of Identifier nodes
+
+	
+	/**
+	 * A visitor for ASTs that records information about scopes and
+	 * declarations for purposes of defining hyperlinks between references
+	 * and declarations.
+	 * 
+	 * General sorts of declarations recognized must be tailored to the
+	 * particular language.
+	 * 
+	 * @author sutton
+	 *
+	 */
+	public class ScopeAndDeclVisitor extends AbstractVisitor
+	{
+       	ASTNode decl = null;
+
+       	ScopeRecord currentScopeRecord = null;
+       	ASTNode parent = null;
+       	List children = new ArrayList();
+       	int scopeStartOffset = -1;
+	  	int scopeEndOffset = -1;
+	  	int declOffset = -1;
+	  	
+       	List activeScopeNodes = new ArrayList();
+	  	List activeScopeRecords = new ArrayList();
+	  	int scopeDepth = 0;
+	  	
+       	ScopeAndDeclVisitor() {
+       	}
+   			
+       	
+       	// Some utility routines to do repetitive processing
+       	// for nodes that represent declarations and nested scopes.
+      	
+       	
+       	private void nestedScopeVisit(ASTNode node)
+       	{
+       		//System.out.println("nestedScopeVisit:  node type = " + node.getClass().getName() + "; depth = " + scopeDepth);
+       		ScopeRecord record = new ScopeRecord();
+       		record.setNode(node);
+       		record.setStartOffset(node.getLeftIToken().getStartOffset());
+       		record.setEndOffset(node.getRightIToken().getEndOffset());
+       		record.setParent((ASTNode)activeScopeNodes.get(scopeDepth));
+       		((ScopeRecord)activeScopeRecords.get(scopeDepth)).addChild(node);
+       		//System.out.println("\tdepth = " + scopeDepth + "; offset = " + record.getStartOffset() + ".." + record.getEndOffset());
+       		activeScopeNodes.add(node);
+       		activeScopeRecords.add(record);
+       		allScopeRecords.add(record);
+       		scopeDepth++;
+       	}
+       	
+       	private void nestedScopeEndVisit()
+       	{
+       		activeScopeNodes.remove(scopeDepth);
+       		activeScopeRecords.remove(scopeDepth);
+       		scopeDepth--;
+       	}
+ 
+       	
+       	private void declVisit(ASTNode node)
+       	{
+       		DeclRecord record = new DeclRecord();
+       		record.setDecl(node);
+       		record.setScope((ASTNode)activeScopeNodes.get(scopeDepth));
+       		allDeclRecords.add(record);
+       	}
+ 
+       	
+       	//
+       	// The visit methods
+       	//
+       	
+       	public void unimplementedVisitor(String s) {
+       	    //System.out.println("ScopeAndDeclVisitor:  Unimplemented visitor:  " + s);
+       	}
+       	
+       	
+       	public boolean visit(IProgram node) {
+       		// Initialize data structures for visitor
+       		// each time a program (the top level node)
+       		// is visited
+       		
+           	decl = null;
+           	currentScopeRecord = null;
+           	parent = null;
+           	children = new ArrayList();
+           	scopeStartOffset = -1;
+    	  	scopeEndOffset = -1;
+    	  	declOffset = -1;
+    	  	
+           	activeScopeNodes = new ArrayList();
+    	  	activeScopeRecords = new ArrayList();
+    	  	scopeDepth = 0;
+
+       		return true;
+       	}
+       	
+       	public void endVisit(IProgram node) {
+       		
+       	}
+ 
+       	
+       	public boolean visit(statementList node) {
+       		ScopeRecord record = new ScopeRecord();
+       		record.setNode(node);
+       		record.setStartOffset(node.getLeftIToken().getStartOffset());
+       		record.setEndOffset(node.getRightIToken().getEndOffset());
+       		record.setParent(null);
+       		activeScopeNodes.add(node);
+       		activeScopeRecords.add(record);
+       		allScopeRecords.add(record);
+       		return true;
+       	}
+       	
+       	public void endVisit(statementList node) {
+       		
+       	}
+ 
+       	
+       	public boolean visit(block node) {
+       		//System.out.println("block:  Visit " + node.getFunctionName());
+       		declVisit(node);
+       		nestedScopeVisit(node);
+       		return true;
+       	}
+       	
+       	public void endVisit(block node) {
+       		//System.out.println("block:  End visit " + node.getFunctionName());
+       		nestedScopeEndVisit();
+       	}
+
+   
+     	
+       	
+       	public boolean visit(declaration0 node)
+       	{
+       		declVisit(node);
+       		return true;	
+       	}
+
+
+       	public boolean visit(declaration1 node) {
+       		declVisit(node);
+       		return true;
+       	}
+
+      	
+       	
+       	public boolean visit(identifier node) {
+       		//System.out.println("visit(Identifier0:  " + getIdentifierName(node) + "; scope depth = " + scopeDepth);
+       		if (scopeDepth == 0) {
+       			identifierVisit(node);
+       		}
+       		return false;
+       	}
+       	
+     	
+       	
+       	private void identifierVisit(Iidentifier node)
+       	{
+       		String identifierName = getIdentifierName(node);
+       		if (!globalVarFirstOccurrences.containsKey(identifierName)) {
+       			globalVarFirstOccurrences.put(identifierName, node);
+       		} else {
+       			Iidentifier oldNode = (Iidentifier) globalVarFirstOccurrences.get(identifierName);
+       			if (node.getLeftIToken().getStartOffset() <
+       				oldNode.getLeftIToken().getStartOffset())
+       			{
+       				globalVarFirstOccurrences.remove(identifierName);
+       				globalVarFirstOccurrences.put(identifierName, node);
+       			}
+       		}
+       	}
+       	
+	}
+	
+
+	/**
+	 * Report the scopes obtained from previously visiting an AST
+	 * (these are listed to standard out).
+	 * Not part of the analysis; used for debugging, monitoring, etc.
+	 */
+	
+	public void reportScopes()
+	{
+		if (allScopeRecords.size() <= 0) {
+			System.out.println("No scopes recorded");
+			return;
+		}
+		for (int i = 0; i < allScopeRecords.size(); i++) {
+			ScopeRecord record = (ScopeRecord)allScopeRecords.get(i);
+			System.out.println("Scope record for " + record.getNode().getClass().toString() +
+				" at offsets " + record.getStartOffset() + ".." + record.getEndOffset());
+		}
+	}
+	
+	
+	/**
+	 * Report the declarations obtained from previously visiting an AST
+	 * (these are listed to standard out).
+	 * Not part of the analysis; used for debugging, monitoring, etc.
+	 */	
+	public void reportDecls()
+	{
+		if (allDeclRecords.size() <= 0) {
+			System.out.println("No declaration recorded");
+			return;
+		}
+		for (int i = 0; i < allDeclRecords.size(); i++) {
+			DeclRecord record = (DeclRecord)allDeclRecords.get(i);
+			System.out.println("Declaration record for " + record.getDecl().getClass().toString() +
+				" at offset " + record.getOffset());
+		}
+	}
+
+	
+	/**
+	 * Build the data structures representing information about declarations and
+	 * scopes in the AST associated with a given Parse Controller.
+	 * 
+	 * This is the main routine for gathering the information on which hyperlinks
+	 * are based.
+	 * 
+	 * @param parseController	The parse controller that contains the AST
+	 * 							for which the scope and decl structures are
+	 * 							to be built
+	 */
+	public void buildScopeAndDeclStructures(IParseController parseController)
+	{
+		allScopeRecords = new ArrayList();					// of ScopeRecords
+		allDeclRecords = new ArrayList();					// of DeclRecords
+		globalVarFirstOccurrences = new HashMap();			// of Identifier nodes
+		
+		ScopeAndDeclVisitor visitor = new ScopeAndDeclVisitor();
+		ASTNode ast = (ASTNode) parseController.getCurrentAst();
+		ast.accept(visitor);
+		
+		//reportScopes();
+		//reportDecls();
+		
+	}
+	
+	/**
+	 * Determine the offset at which the outermost scope in the program
+	 * begins.  This will only be 0 if the program text is preceded
+	 * by no white space.  Leading white space must be accounted
+	 * for in displaying link endpoints relative to the program text.
+	 * 
+	 * @param parseController	The parse controller that contains the AST
+	 * 							that represents the program for which the
+	 * 							beginning offset is to be returned	
+	 * @return					The beginning offset of the program represented
+	 * 							by the AST contained in the given parse
+	 * 							controller
+	 */
+	public int getOutermostStartingOffset(IParseController parseController)
+	{
+		int offset = 0;
+		
+		ASTNode ast = (ASTNode) parseController.getCurrentAst();
+		offset = ast.getLeftIToken().getStartOffset();
+		
+		return offset;
+	}
+	
+	
+
+	/*
+	 * Utility routines for gathering information and building hyperlinks
+	 */
+	
+	
+	public ASTNode findDeclForIdentifier(Iidentifier identifier, IParseController parseController)
+	{
+		if (!(identifier instanceof ASTNode)) return null;
+		
+		ASTNode declNode = null;
+		int identifierOffset = identifier.getLeftIToken().getStartOffset();
+
+		// for keeping track of when we've topped out
+		int outermostStartingOffset = getOutermostStartingOffset(parseController);
+		
+		int targetOffset = identifierOffset;
+		
+		while (true) {
+			//System.out.println("findDeclForIdentifier:  target offset = " + targetOffset);
+			
+			// Find the scope that encloses the current target offset
+			// (target offset is initially the offset of the given identifier;
+			// it may later be the starting offset of a scope that encloses
+			// the identifier)
+			ScopeRecord enclosingScope = findInnermostEnclosingScope(targetOffset);
+			if (enclosingScope == null) return null;	// should not happen
+			
+			// Find the last declaration for the identifier, if any, in the range
+			// extending from the beginning of the enclosing scope to current target
+			// offset
+			declNode = lastDeclInRange(
+					identifier, enclosingScope.getStartOffset(), targetOffset);
+			
+			// If we found a declaration in this range, then we're done
+			if (declNode != null) {
+				// found it
+				break;
+			}
+			if (declNode == null && enclosingScope.getStartOffset() > outermostStartingOffset) {
+				// Didn't find it but still have some enclosing scopes to check;
+				// reset target offset to be the beginning of the scope we just
+				// checked and try again
+				targetOffset = enclosingScope.getStartOffset();
+				continue;
+			}
+			if (declNode == null && enclosingScope.getStartOffset() <= outermostStartingOffset) {
+				// Didn't find it and don't have any enclosing scope to check;
+				// assume that identifier is "self-declaring" (introduced without
+				// declaration) and use the identifier itself as the declaration
+				declNode = firstGlobalUseOfIdentifier(identifier);
+				// Such implicit declarations are only allowed at the global level;
+				// if our identifier is not at the global level then (for now, anyway)
+				// still treat the identifier as if it is implicitly declared
+				if (declNode == null)
+					declNode = (ASTNode) identifier;
+				break;
+			}
+		}
+		return declNode;
+	}
+	
+	
+	/**
+	 * Find the record for the innermost scope that encloses the given
+	 * offset.
+	 * 
+	 * @param offset	The offset for which the record of the innermost
+	 * 					scope is to be found
+	 * @return			That record
+	 */
+	public ScopeRecord findInnermostEnclosingScope(int offset)
+	{
+		// Start by searching scope records linearlly
+		for (int i = 0; i < allScopeRecords.size(); i++) {
+			ScopeRecord record = (ScopeRecord)allScopeRecords.get(i);
+			
+			// When a record for some enclosing scope is found,
+			// search the records of nested scopes
+			if (record.getStartOffset() < offset
+				&& record.getEndOffset() > offset)
+			{
+				record = findInnermostUnderScope(record, offset);
+				return record;
+			}
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * Find the record for the innermost scope under the given scope
+	 * that contains the given offset.
+	 * 
+	 * @param scope		Record for scope under which to search
+	 * @param offset	Offset for which record of innermost scope
+	 * 					is to be returned
+	 * @return			Record of innermost scope that encloses
+	 * 					the given offest; null if the given offset
+	 * 					is outside the range of the given scope 
+	 * 					
+	 */
+	public ScopeRecord findInnermostUnderScope(ScopeRecord scope, int offset)
+	{
+		if (scope.getStartOffset() > offset || scope.getEndOffset() < offset) {
+			// offset not in range of scope!
+			return null;
+		}
+		
+		ASTNode[] children = scope.getChildren();
+		if (children == null) return scope;
+		
+		for (int i = 0; i < children.length; i++) {
+			ScopeRecord childRecord = getScopeRecordForNode(children[i]);
+			if (childRecord.getStartOffset() < offset
+				&& childRecord.getEndOffset() > offset)
+			{
+				ScopeRecord innermost = findInnermostUnderScope(childRecord, offset);
+				return innermost;
+			}
+		}
+		return scope;
+		
+	}
+	
+	/**
+	 * Retrns the last declaration of the given identifier in the range bounded
+	 * by the given starting and ending offsets (or null if none).  Excludes
+	 * nested scopes within the range.
+	 * 
+	 * @param identifier	The identifier for which the latest declaration is sought
+	 * @param startOffset	The starting offset of the range in which the declaration
+	 * 						is sought
+	 * @param endOffset		The ending offset of the range in which the declaration
+	 * 						is sought
+	 * @return				The declaration, if any, or null, if none
+	 */
+	public ASTNode lastDeclInRange(
+			Iidentifier identifier, int startOffset, int endOffset)
+	{
+		DeclRecord latestDeclRecord = null;
+		
+		for (int i = 0; i < allDeclRecords.size(); i++) {
+			DeclRecord nextDeclRecord = (DeclRecord) allDeclRecords.get(i);
+			// Is decl in the given range?
+			int declOffset = nextDeclRecord.getOffset();
+			boolean declInRange = declOffset >= startOffset && declOffset <= endOffset;
+			
+			// Does decl have the right name?
+			boolean declHasRightName = false;
+			if (declInRange) {
+				String identifierName = getIdentifierName(identifier);
+				String[] identifierNames = nextDeclRecord.getNames();
+				for (int j = 0; j < identifierNames.length; j++) {
+					if (identifierNames[j].equals(identifierName)) {
+						declHasRightName = true;
+						break;
+					}
+				}
+			}
+			
+			// Is decl in a containing scope?
+			boolean declInContainingScope = false;
+			if (declInRange && declHasRightName) {
+				ASTNode scopeNode = nextDeclRecord.getScope();
+				ScopeRecord scopeRecord = getScopeRecordForNode(allScopeRecords, scopeNode);
+				if (scopeRecord != null) {
+					declInContainingScope = identifier.getLeftIToken().getStartOffset() > scopeRecord.getStartOffset() &&
+						identifier.getRightIToken().getEndOffset() < scopeRecord.getEndOffset();
+				}
+			}
+			
+			// Is decl closer than any previously selected decl?
+			// (if so, then record it as the latest decl of the given identifier)
+			if (declInRange && declHasRightName && declInContainingScope) {
+				if (latestDeclRecord == null) {
+					latestDeclRecord = nextDeclRecord;
+				} else {
+					if (nextDeclRecord.getOffset() > latestDeclRecord.getOffset()) {
+						latestDeclRecord = nextDeclRecord;
+					}
+				}
+			}
+		}
+		
+		if (latestDeclRecord == null) return null;
+		return latestDeclRecord.getDecl();
+	}
+	
+	/**
+	 * Returns the first use of a given identifier at the global scope.
+	 * 
+	 * @param node	Should be an ASTNode that represents some sort
+	 * 				of identifier
+	 * @return		The ASTNode that represents the first use of
+	 * 				the identifier at the global scope (if any),
+	 * 				or null (if none)
+	 */
+	public ASTNode firstGlobalUseOfIdentifier(Iidentifier node)
+	{
+		if (node == null || !(node instanceof Iidentifier)) return null;
+		
+		String name = getIdentifierName((Iidentifier)node);
+		ASTNode result = (ASTNode) globalVarFirstOccurrences.get(name);
+		return result;
+	}
+	
+	
+	/*
+	 * Done the dumb way, by linear search; should probably
+	 * maintain a hash map from nodes to scopes in addition
+	 * to the list.  First just chec	g whether this whole
+	 * approach works.
+	 * (Note:  this is really dumb, since I've gone to the
+	 * trouble to maintain indirect parent-child relationships
+	 * between the records which should allow linear searching
+	 * to be avoided.)
+	 */
+	public ScopeRecord getScopeRecordForNode(ASTNode node)
+	{
+		for (int i = 0; i < allScopeRecords.size(); i++) {
+			ScopeRecord record = (ScopeRecord) allScopeRecords.get(i);
+			if (record.getNode().equals(node))
+				return record;
+		}
+		return null;
+	}
+	
+	
 }
