@@ -7,6 +7,7 @@ import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.uide.core.ILanguageService;
 import org.eclipse.uide.editor.IReferenceResolver;
 import org.eclipse.uide.editor.ISourceHyperlinkDetector;
+import org.eclipse.uide.editor.UniversalEditor;
 import org.eclipse.uide.parser.IASTNodeLocator;
 import org.eclipse.uide.parser.IParseController;
 
@@ -20,8 +21,12 @@ public class $HYPERLINK_DETECTOR_CLASS_NAME$ implements ISourceHyperlinkDetector
 	
     public $HYPERLINK_DETECTOR_CLASS_NAME$() { }
 
-    public IHyperlink[] detectHyperlinks(
-    		final ITextViewer textViewer, final IRegion region, IParseController parseController)
+	// The old interface:
+    //public IHyperlink[] detectHyperlinks(
+    //		final ITextViewer textViewer, final IRegion region, IParseController parseController)
+    // The new interface:
+	public 	IHyperlink[] detectHyperlinks(
+   			IRegion region, UniversalEditor editor, final ITextViewer textViewer, IParseController parseController)
     {
     	// This is the only language-specific bit ...
     	// Note:  $CLASS_NAME_PREFIX$ should be the name of the language
@@ -38,7 +43,7 @@ public class $HYPERLINK_DETECTOR_CLASS_NAME$ implements ISourceHyperlinkDetector
         Object source = nodeLocator.findNode(ast, offset);
         if (source == null) return null;
         //if (!(source instanceof IASTNodeToken)) return null;
-        if (!linkMapper.hasSuitableLinkSourceType(source)) return null;
+        //if (!linkMapper.hasSuitableLinkSourceType(source)) return null;
 
         // Got a suitable link source node; get link target node
        	final Object target = linkMapper.getLinkTarget(source, parseController);
