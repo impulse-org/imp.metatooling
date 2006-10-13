@@ -800,7 +800,7 @@ public class ExtensionPointWizardPage extends WizardPage {
                 nameField.setText(language + " " + pointID);
 	            // SMS 10 May 2006:
 	            // Struggling with plural and singular for "builder" classes, ids, names, etc.
-	            if (pointID.endsWith("uilders")) {
+	            if (pointID.endsWith("uilders") || pointID.endsWith("olvers")) {
 	            	nameField.setText(nameField.getText().substring(0, nameField.getText().length()-1));
 	            }
                  }
@@ -829,7 +829,7 @@ public class ExtensionPointWizardPage extends WizardPage {
                 idField.setText(langID + ".safari." + lowerCaseFirst(pointID));
 	            // SMS 10 May 2006:
 	            // Struggling with plural and singular for "builder" classes, ids, names, etc.
-	            if (pointID.endsWith("uilders")) {
+	            if (pointID.endsWith("uilders") || pointID.endsWith("olvers")) {
 	            	idField.setText(idField.getText().substring(0, idField.getText().length()-1));
 	            }
             }
@@ -861,7 +861,7 @@ public class ExtensionPointWizardPage extends WizardPage {
                 classField.setText(fPackageName + "." + langClass + upperCaseFirst(pointID));
 	            // SMS 10 May 2006:
 	            // Struggling with plural and singular for "builder" classes, ids, names, etc.
-	            if (pointID.endsWith("uilders")) {
+	            if (pointID.endsWith("uilders") || pointID.endsWith("olvers")) {
 	            	classField.setText(classField.getText().substring(0, classField.getText().length()-1));
 	            }
             }
