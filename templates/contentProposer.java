@@ -19,7 +19,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
         ArrayList symbols = new ArrayList();
         for (int i = 0; i < in_symbols.size(); i++)
         {
-                DemoParser.Symbol symbol = (DemoParser.Symbol) in_symbols.get(i);
+            $CLASS_NAME_PREFIX$Parser.Symbol symbol = ($CLASS_NAME_PREFIX$Parser.Symbol) in_symbols.get(i);
             String name = symbol.getName();
             if (name.length() >= prefix.length() && prefix.equals(name.substring(0, prefix.length())))
                 symbols.add(symbol);
@@ -28,7 +28,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
         return symbols;
     }
 
-    public ArrayList getVisibleVariables(DemoParser parser, ASTNode n) {
+    public ArrayList getVisibleVariables($CLASS_NAME_PREFIX$Parser parser, ASTNode n) {
         block b = null;
         while (n != null) {
             if (n instanceof block)
@@ -41,7 +41,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
         
         ArrayList result = new ArrayList();
         HashSet set = new HashSet();
-        for (DemoParser.SymbolTable s = (b == null ? parser.getTopLevelSymbolTable() : b.getSymbolTable());
+        for ($CLASS_NAME_PREFIX$Parser.SymbolTable s = (b == null ? parser.getTopLevelSymbolTable() : b.getSymbolTable());
              s != null;
              s = s.getParent())
         {
@@ -64,7 +64,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
         //
         //
         //
-        DemoParser parser = (DemoParser) controller.getParser();
+        $CLASS_NAME_PREFIX$Parser parser = ($CLASS_NAME_PREFIX$Parser) controller.getParser();
         
         //
         // When the offset is in between two tokens (for example, on a white space or comment)
@@ -92,20 +92,20 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
         // we move the candidate and its successor back one token as that still leaves
         // us in the range of the assignment.
         //
-        if (candidate.getKind() == DemoLexer.TK_IDENTIFIER &&
-            token.getKind() != DemoLexer.TK_ASSIGN &&
+        if (candidate.getKind() == $CLASS_NAME_PREFIX$Lexer.TK_IDENTIFIER &&
+            token.getKind() != $CLASS_NAME_PREFIX$Lexer.TK_ASSIGN &&
             offset == candidate.getEndOffset() + 1) {
             token = candidate;
             candidate = prs_stream.getIToken(prs_stream.getPrevious(candidate.getTokenIndex()));
         }
         
         String prefix = "";
-        if (token.getKind() == DemoLexer.TK_IDENTIFIER) {
+        if (token.getKind() == $CLASS_NAME_PREFIX$Lexer.TK_IDENTIFIER) {
             if (offset >= token.getStartOffset() && offset <= token.getEndOffset() + 1)
                 prefix = token.toString().substring(0, offset - token.getStartOffset());
         }
         
-        DemoASTNodeLocator locator = new DemoASTNodeLocator(controller);
+        $CLASS_NAME_PREFIX$ASTNodeLocator locator = new $CLASS_NAME_PREFIX$ASTNodeLocator();
         ASTNode node = (ASTNode) locator.findNode(controller.getCurrentAst(), candidate.getStartOffset(), candidate.getEndOffset()); // offset);
         if (node != null) {
             if (node.getParent() instanceof Iexpression ||
@@ -113,7 +113,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
                 node.getParent() instanceof BadAssignment) {
                 ArrayList vars = filterSymbols(getVisibleVariables(parser, node), prefix);
                 for (int i = 0; i < vars.size(); i++) {
-                    DemoParser.Symbol symbol = (DemoParser.Symbol) vars.get(i);
+                    $CLASS_NAME_PREFIX$Parser.Symbol symbol = ($CLASS_NAME_PREFIX$Parser.Symbol) vars.get(i);
                     list.add(new SourceProposal(symbol.getType() + " " + symbol.getName(),
                                                     symbol.getName(),
                                                     prefix,
