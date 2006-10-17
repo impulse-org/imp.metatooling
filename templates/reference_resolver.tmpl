@@ -242,12 +242,9 @@ public class $CLASS_NAME_PREFIX$ReferenceResolver implements IReferenceResolver,
        				DeclRecord declRecord = (DeclRecord) declStack.get(i);
        				ASTNode declNode = declRecord.getDecl();
        				identifier declaredIdentifier = null;
-       				if (declNode instanceof declaration0) {
-       					declaration0 decl0 = (declaration0) declNode;
-       					declaredIdentifier = decl0.getidentifier();
-       				} else if (declNode instanceof declaration1) {
-       					declaration1 decl1 = (declaration1) declNode;
-       					declaredIdentifier = decl1.getidentifier();
+       				if (declNode instanceof declaration) {
+       					declaration decl = (declaration) declNode;
+       					declaredIdentifier = decl.getidentifier();
        				}
        				if (declaredIdentifier != null) {
        					if (declaredIdentifier.equals(node)) {
@@ -267,25 +264,7 @@ public class $CLASS_NAME_PREFIX$ReferenceResolver implements IReferenceResolver,
        	}
        	
        	
-       	public boolean visit(IProgram node) {
-  	  	
-       		ScopeRecord record = new ScopeRecord();
-       		record.setNode(null);  // no program node type	
-       		record.setStartOffset(node.getLeftIToken().getStartOffset());
-       		record.setEndOffset(node.getRightIToken().getEndOffset());
-    	  	
-       		scopeStack.push(record);
-       		
-       		return true;
-       	}
-       	
-       	public void endVisit(IProgram node) {
-       		scopeStack.pop();
-       		while (!declStack.empty())	
-       			declStack.pop();
-       	}
- 
-       	
+        	
        	public boolean visit(statementList node) {
     		nestedScopeVisit(node);		
        		return true;
@@ -305,16 +284,12 @@ public class $CLASS_NAME_PREFIX$ReferenceResolver implements IReferenceResolver,
        		nestedScopeEndVisit(node);
        	}
        	
-       	public boolean visit(declaration0 node) {
+       	public boolean visit(declaration node) {
        		declVisit(node);
        		return true;	
        	}
 
-       	public boolean visit(declaration1 node) {
-       		declVisit(node);
-       		return true;
-       	}
-       	
+      	
        	public boolean visit(identifier node) {
   			identifierVisit(node);
        		return false;
