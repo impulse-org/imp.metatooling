@@ -14,6 +14,33 @@ import org.eclipse.uide.parser.IParseController;
 
 public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
 {
+    private ArrayList getVisibleVariables($CLASS_NAME_PREFIX$Parser parser, ASTNode n) {
+        block b = null;
+        while (n != null) {
+            if (n instanceof block) {
+                b = (block) n;
+                break;
+            }
+            else n = n.getParent();
+        }
+        
+        ArrayList result = new ArrayList();
+        HashSet set = new HashSet();
+        for ($CLASS_NAME_PREFIX$Parser.SymbolTable s = (b == null ? parser.getTopLevelSymbolTable() : b.getSymbolTable());
+             s != null;
+             s = s.getParent()) {
+            for (Enumeration e = s.keys(); e.hasMoreElements(); ) {
+                Object key = e.nextElement();
+                if (! set.contains(key)) {
+                    set.add(key);
+                    result.add(s.get(key));
+                }
+            }
+        }
+
+        return result;
+    }
+
     private ArrayList filterSymbols(List in_symbols, String prefix)
     {
         ArrayList symbols = new ArrayList();
@@ -28,90 +55,39 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
         return symbols;
     }
 
-    public ArrayList getVisibleVariables($CLASS_NAME_PREFIX$Parser parser, ASTNode n) {
-        block b = null;
-        while (n != null) {
-            if (n instanceof block)
-            {
-                b = (block) n;
-                break;
-            }
-            else n = n.getParent();
-        }
-        
-        ArrayList result = new ArrayList();
-        HashSet set = new HashSet();
-        for ($CLASS_NAME_PREFIX$Parser.SymbolTable s = (b == null ? parser.getTopLevelSymbolTable() : b.getSymbolTable());
-             s != null;
-             s = s.getParent())
-        {
-            for (Enumeration e = s.keys(); e.hasMoreElements(); ) {
-                Object key = e.nextElement();
-                if (! set.contains(key))
-                {
-                    set.add(key);
-                    result.add(s.get(key));
-                }
-            }
-        }
+    private IToken getToken(IParseController controller, int offset) {
+        PrsStream stream = (PrsStream) controller.getParser();
+        int index = stream.getTokenIndexAtCharacter(offset),
+            token_index = (index < 0 ? -(index - 1) : index),
+            previous_index = stream.getPrevious(token_index);
+        return stream.getIToken(((stream.getKind(previous_index) == $CLASS_NAME_PREFIX$Lexer.TK_IDENTIFIER ||
+                                  controller.isKeyword(stream.getKind(previous_index))) &&
+                                 offset == stream.getEndOffset(previous_index) + 1)
+                                         ? previous_index
+                                         : token_index);
+    }
 
-        return result;
+    private String getPrefix(IToken token, int offset) {
+        if (token.getKind() == $CLASS_NAME_PREFIX$Lexer.TK_IDENTIFIER)
+            if (offset >= token.getStartOffset() && offset <= token.getEndOffset() + 1)
+                return token.toString().substring(0, offset - token.getStartOffset());
+        return "";
     }
 
     public ICompletionProposal[] getContentProposals(IParseController controller, int offset)
     {
-        ArrayList list = new ArrayList();
-        //
-        //
-        //
-        $CLASS_NAME_PREFIX$Parser parser = ($CLASS_NAME_PREFIX$Parser) controller.getParser();
-        
-        //
-        // When the offset is in between two tokens (for example, on a white space or comment)
-        // the getTokenIndexAtCharacter in parse stream returns the negative index
-        // of the token preceding the offset. Here, we adjust this index to point instead
-        // to the token following the offset.
-        //
-        // Note that the controller also has a getTokenIndexAtCharacter and 
-        // getTokenAtCharacter. However, these methods won't work here because
-        // controller.getTokenAtCharacter(offset) returns null when the offset
-        // is not the offset of a valid token; and controller.getTokenAtCharacter(offset) returns
-        // the index of the token preceding the offset when the offset is not
-        // the offset of a valid token.
-        //
-        PrsStream prs_stream = parser.getParseStream(); 
-        int index = prs_stream.getTokenIndexAtCharacter(offset),
-            token_index = (index < 0 ? -(index - 1) : index);
-        IToken token = prs_stream.getIToken(token_index),
-               candidate = prs_stream.getIToken(prs_stream.getPrevious(token_index));
-
-        //
-        // If we are at an offset position immediately following an "identifier"
-        // candidate, then consider the candidate to be the token for which we need
-        // completion. If the candidate is not the left-hand side of an assignment,
-        // we move the candidate and its successor back one token as that still leaves
-        // us in the range of the assignment.
-        //
-        if (candidate.getKind() == $CLASS_NAME_PREFIX$Lexer.TK_IDENTIFIER &&
-            token.getKind() != $CLASS_NAME_PREFIX$Lexer.TK_ASSIGN &&
-            offset == candidate.getEndOffset() + 1) {
-            token = candidate;
-            candidate = prs_stream.getIToken(prs_stream.getPrevious(candidate.getTokenIndex()));
-        }
-        
-        String prefix = "";
-        if (token.getKind() == $CLASS_NAME_PREFIX$Lexer.TK_IDENTIFIER) {
-            if (offset >= token.getStartOffset() && offset <= token.getEndOffset() + 1)
-                prefix = token.toString().substring(0, offset - token.getStartOffset());
-        }
+        // START_HERE           
+        ArrayList list = new ArrayList(); // a list of proposals.
+        IToken token = getToken(controller, offset);        
+        String prefix = getPrefix(token, offset);
         
         $CLASS_NAME_PREFIX$ASTNodeLocator locator = new $CLASS_NAME_PREFIX$ASTNodeLocator();
-        ASTNode node = (ASTNode) locator.findNode(controller.getCurrentAst(), candidate.getStartOffset(), candidate.getEndOffset()); // offset);
+        ASTNode node = (ASTNode) locator.findNode(controller.getCurrentAst(), token.getStartOffset(), token.getEndOffset());
         if (node != null) {
             if (node.getParent() instanceof Iexpression ||
                 node.getParent() instanceof assignment ||
                 node.getParent() instanceof BadAssignment) {
-                ArrayList vars = filterSymbols(getVisibleVariables(parser, node), prefix);
+                ArrayList vars = filterSymbols(getVisibleVariables(($CLASS_NAME_PREFIX$Parser) controller.getParser(), node), prefix);
                 for (int i = 0; i < vars.size(); i++) {
                     $CLASS_NAME_PREFIX$Parser.Symbol symbol = ($CLASS_NAME_PREFIX$Parser.Symbol) vars.get(i);
                     list.add(new SourceProposal(symbol.getType() + " " + symbol.getName(),
