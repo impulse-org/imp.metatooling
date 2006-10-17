@@ -13,12 +13,12 @@ import lpg.lpgjavaruntime.IToken;
 
 public class $COLORER_CLASS_NAME$ extends DefaultTokenColorer implements $CLASS_NAME_PREFIX$Parsersym, ITokenColorer {
 
-	TextAttribute commentAttribute, keywordAttribute, stringAttribute, numberAttribute, identifierAttribute;
+    TextAttribute commentAttribute, keywordAttribute, stringAttribute, numberAttribute, identifierAttribute;
 	
-	public TextAttribute getColoring(IParseController controller, IToken token) {
-		switch (token.getKind())
-		{
-			// START_HERE
+    public TextAttribute getColoring(IParseController controller, IToken token) {
+        switch (token.getKind())
+        {
+            // START_HERE
             case TK_IDENTIFIER:
                  return identifierAttribute;
             case TK_NUMBER:
@@ -29,19 +29,19 @@ public class $COLORER_CLASS_NAME$ extends DefaultTokenColorer implements $CLASS_
                 if (controller.isKeyword(token.getKind()))
                      return keywordAttribute;
                else return null;
-		}
-	}
+            }
+    }
 
-	public $COLORER_CLASS_NAME$() {
-		super();
+    public $COLORER_CLASS_NAME$() {
+        super();
         Display display = Display.getDefault();
-		commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.ITALIC); 		
-		stringAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_BLUE), null, SWT.BOLD); 		
-		identifierAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLACK), null, SWT.NORMAL); 		
-		numberAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_YELLOW), null, SWT.BOLD); 		
-        keywordAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_MAGENTA), null, SWT.BOLD); 		
-	}
+        commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.ITALIC);
+        stringAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_BLUE), null, SWT.BOLD);
+        identifierAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLACK), null, SWT.NORMAL);
+        numberAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_YELLOW), null, SWT.BOLD);
+        keywordAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_MAGENTA), null, SWT.BOLD);
+    }
 
-	public void setLanguage(String language) {
-	}
+    public void setLanguage(String language) {
+    }
 }
