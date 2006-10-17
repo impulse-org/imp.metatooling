@@ -56,15 +56,12 @@ public class $OUTLINER_CLASS_NAME$ extends DefaultOutliner
 		}
 		
 		public boolean visit(declaration0 n) {
-			//fItemStack.push(createTopItem(n.getIDENTIFIER().getIToken().toString(), n));
 			fItemStack.push(createTopItem(n.getidentifier().toString(), n));
 			return true;
 		}
 	
 		public boolean visit(assignment n) {
-			//fItemStack.push(createTopItem(n.getIDENTIFIER().getIToken().toString() + "=" + n.getexpression().toString(), n));
 			fItemStack.push(createTopItem(n.getidentifier().toString() + "=" + n.getexpression().toString(), n));
-				
 			return true;
 		}
 
@@ -296,13 +293,6 @@ public class $OUTLINER_CLASS_NAME$ extends DefaultOutliner
 			}
 		}
     }
- 
- 
-
-    public void setEditor(UniversalEditor editor) {
-        System.out.println(editor.getTitle());
-        super.setEditor(editor);
-    }
 
     public void setTree(Tree tree) {
         super.setTree(tree);
@@ -319,7 +309,6 @@ public class $OUTLINER_CLASS_NAME$ extends DefaultOutliner
 		    AbstractTextEditor textEditor= (AbstractTextEditor) activeEditor;
 
 		    textEditor.selectAndReveal(token.getStartOffset(), token.getEndOffset()-token.getStartOffset()+1);
-//		    textEditor.setFocus();
 		}
 	    }
 	    public void widgetDefaultSelected(SelectionEvent e) { }
