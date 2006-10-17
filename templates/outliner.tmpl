@@ -30,6 +30,12 @@ public class $OUTLINER_CLASS_NAME$ extends DefaultOutliner
 	 */
     private final class OutlineVisitor extends AbstractVisitor {
 
+		public OutlineVisitor() {
+			super();
+			fItemStack.push(createTopItem("LEG Program", null));
+		}
+
+
 		public void unimplementedVisitor(String s) {
 			// Sometimes useful for debugging
 			//System.out.println(s);
@@ -47,7 +53,7 @@ public class $OUTLINER_CLASS_NAME$ extends DefaultOutliner
 		// top-level and sub-level outline items are provided.	
 	
 		public boolean visit(block n) {
-			fItemStack.push(createTopItem("Block", n));
+			fItemStack.push(createSubItem("Block", n));
 			return true;
 		}
 		
@@ -55,13 +61,14 @@ public class $OUTLINER_CLASS_NAME$ extends DefaultOutliner
 			fItemStack.pop();
 		}
 		
-		public boolean visit(declaration0 n) {
-			fItemStack.push(createTopItem(n.getidentifier().toString(), n));
+		public boolean visit(declaration n) {
+			createSubItem(n.getn.getidentifier().toString(), n);
 			return true;
 		}
 	
 		public boolean visit(assignment n) {
-			fItemStack.push(createTopItem(n.getidentifier().toString() + "=" + n.getexpression().toString(), n));
+			createSubItem(n.getidentifier().toString() + "=" + n.getexpression().toString(), n);
+				
 			return true;
 		}
 
@@ -293,6 +300,7 @@ public class $OUTLINER_CLASS_NAME$ extends DefaultOutliner
 			}
 		}
     }
+ 
 
     public void setTree(Tree tree) {
         super.setTree(tree);
