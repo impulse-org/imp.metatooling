@@ -33,6 +33,10 @@ public class NewBuilder extends CodeServiceWizard {
         // in the builder template
         // TODO Should pull the source file-name extension from the language description
         //subs.put("$FILE_EXTEN$", fLanguageName);
+        
+        // SMS 17 Oct 2006
+        // Need this now ...
+        subs.put("$PARSER_PKG$", fParserPackage);
 
         ExtensionPointEnabler.enable(project, "org.eclipse.core.resources", "natures", new String[][] {
                 { "extension:id",   fLanguageName + ".safari.nature" },
