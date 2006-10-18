@@ -14,42 +14,33 @@ import org.eclipse.uide.parser.IParseController;
 
 public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
 {
-    private ArrayList getVisibleVariables($CLASS_NAME_PREFIX$Parser parser, ASTNode n) {
-        block b = null;
-        while (n != null) {
-            if (n instanceof block) {
-                b = (block) n;
-                break;
-            }
-            else n = n.getParent();
-        }
+    private $CLASS_NAME_PREFIX$Parser.SymbolTable getLocalSymbolTable($CLASS_NAME_PREFIX$Parser parser, ASTNode n) {
+        for ( ; n != null; n = n.getParent())
+            if (n instanceof block)
+                 return ((block) n).getSymbolTable();
+        return parser.getTopLevelSymbolTable();
+    }
         
-        ArrayList result = new ArrayList();
-        HashSet set = new HashSet();
-        for ($CLASS_NAME_PREFIX$Parser.SymbolTable s = (b == null ? parser.getTopLevelSymbolTable() : b.getSymbolTable());
-             s != null;
-             s = s.getParent()) {
+    private HashMap getVisibleVariables($CLASS_NAME_PREFIX$Parser parser, ASTNode n) {
+        HashMap map = new HashMap();
+        for ($CLASS_NAME_PREFIX$Parser.SymbolTable s = getLocalSymbolTable(parser, n); s != null; s = s.getParent())
             for (Enumeration e = s.keys(); e.hasMoreElements(); ) {
                 Object key = e.nextElement();
-                if (! set.contains(key)) {
-                    set.add(key);
-                    result.add(s.get(key));
-                }
+                if (! map.containsKey(key))
+                    map.put(key, s.get(key));
             }
-        }
 
-        return result;
+        return map;
     }
 
-    private ArrayList filterSymbols(List in_symbols, String prefix)
+    private ArrayList filterSymbols(HashMap in_symbols, String prefix)
     {
         ArrayList symbols = new ArrayList();
-        for (int i = 0; i < in_symbols.size(); i++)
-        {
-            $CLASS_NAME_PREFIX$Parser.Symbol symbol = ($CLASS_NAME_PREFIX$Parser.Symbol) in_symbols.get(i);
-            String name = symbol.getName();
+        for (Iterator i = in_symbols.values().iterator(); i.hasNext(); ) {
+            declaration decl = (declaration) i.next();
+            String name = decl.getidentifier().toString();
             if (name.length() >= prefix.length() && prefix.equals(name.substring(0, prefix.length())))
-                symbols.add(symbol);
+                symbols.add(decl);
         }
 
         return symbols;
@@ -78,25 +69,26 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
     {
         // START_HERE           
         ArrayList list = new ArrayList(); // a list of proposals.
-        IToken token = getToken(controller, offset);        
-        String prefix = getPrefix(token, offset);
+        if (controller.getCurrentAst() != null) {
+            IToken token = getToken(controller, offset);        
+            String prefix = getPrefix(token, offset);
         
-        $CLASS_NAME_PREFIX$ASTNodeLocator locator = new $CLASS_NAME_PREFIX$ASTNodeLocator();
-        ASTNode node = (ASTNode) locator.findNode(controller.getCurrentAst(), token.getStartOffset(), token.getEndOffset());
-        if (node != null) {
-            if (node.getParent() instanceof Iexpression ||
-                node.getParent() instanceof assignment ||
-                node.getParent() instanceof BadAssignment) {
+            $CLASS_NAME_PREFIX$ASTNodeLocator locator = new $CLASS_NAME_PREFIX$ASTNodeLocator();
+            ASTNode node = (ASTNode) locator.findNode(controller.getCurrentAst(), token.getStartOffset(), token.getEndOffset());
+            if (node != null &&
+                (node.getParent() instanceof Iexpression ||
+                 node.getParent() instanceof assignment ||
+                 node.getParent() instanceof BadAssignment)) {
                 ArrayList vars = filterSymbols(getVisibleVariables(($CLASS_NAME_PREFIX$Parser) controller.getParser(), node), prefix);
                 for (int i = 0; i < vars.size(); i++) {
-                    $CLASS_NAME_PREFIX$Parser.Symbol symbol = ($CLASS_NAME_PREFIX$Parser.Symbol) vars.get(i);
-                    list.add(new SourceProposal(symbol.getType() + " " + symbol.getName(),
-                                                    symbol.getName(),
-                                                    prefix,
-                                                    offset));
+                    declaration decl = (declaration) vars.get(i);
+                    list.add(new SourceProposal(decl.gettype().toString() + " " + decl.getidentifier().toString(),
+                                                decl.getidentifier().toString(),
+                                                prefix,
+                                                offset));
                 }
             }
-            else list.add(new SourceProposal("no info available", "", offset));
+            else list.add(new SourceProposal("no completion exists for that prefix", "", offset));
         }
         else list.add(new SourceProposal("no info available due to Syntax error(s)", "", offset));
 
