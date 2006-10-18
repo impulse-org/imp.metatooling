@@ -617,7 +617,7 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 	    new String[][] {
 		{ "objectContribution:adaptable", "false" },
 		{ "objectContribution:nameFilter", "*" },
-		{ "objectContribution:objectClass", "org.eclipse.jdt.core.IJavaProject" },
+		{ "objectContribution:objectClass", "org.eclipse.core.resources.IProject" },
 		{ "objectContribution:id", fLangName + ".safari.projectContextMenu" },
 		{ "objectContribution.action:class", fLangName + ".safari.actions." + actionClassName },
 		{ "objectContribution.action:id", fLangName + ".safari.actions.enableNatureAction" },
