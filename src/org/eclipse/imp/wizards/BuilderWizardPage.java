@@ -12,6 +12,15 @@ public class BuilderWizardPage extends ExtensionPointWizardPage {
         super(owner, "org.eclipse.core.resources", "builders", false);
     }
 
+    @Override
+    public void createControl(Composite parent)
+    {
+        super.createControl(parent);
+        // RMF 10/18/2006: Hack to make wizard page be "finishable" right away.
+        getFieldByFullName("extension.builder.run.parameter:name").fText.setText("foo");
+        getFieldByFullName("extension.builder.run.parameter:value").fText.setText("bar");
+    }
+
     protected void createFirstControls(Composite parent) {
         createLanguageFieldForPlatformSchema(parent);
     }
