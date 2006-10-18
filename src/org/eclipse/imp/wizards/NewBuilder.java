@@ -39,13 +39,17 @@ public class NewBuilder extends CodeServiceWizard {
         subs.put("$PARSER_PKG$", fParserPackage);
 
         ExtensionPointEnabler.enable(project, "org.eclipse.core.resources", "natures", new String[][] {
-                { "extension:id",   fLanguageName + ".safari.nature" },
+                // RMF 10/18/2006: The nature ID should NOT have the plugin ID as a prefix (it's implicit)
+                { "extension:id",   "safari.nature" },
                 { "extension:name", fLanguageName + " Nature" },
                 // SMS 9 May 2006:
                 // Added sProjectName to the following (makes this reference consistent with the
                 // builder id as specified)
-                { "builder:id", project.getName() + "." + fLanguageName + ".safari.builder" },
-    	    { "runtime:", "" },
+                // RMF 10/18/2006: The builder ID really shouldn't have the project name as a prefix.
+                // RMF 10/18/2006: On the other hand, the following creates a REFERENCE to the builder
+                // ID, and so SHOULD have the plugin ID as a prefix.
+                { "builder:id", fLanguageName + ".safari.builder" },
+                { "runtime:", "" },
     	    	// SMS 9 May 2006:
     	    	// Added "builders" after ".safari." and changed fLanguageName (where it occurred
     	    	// before "Nature") to fClassName (as being more appropriate for a class)
