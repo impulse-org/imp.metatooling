@@ -309,9 +309,19 @@ public class ExtensionPointEnabler {
             String attributeName= field.fAttributeName;
             String attributeValue= field.fValue;
 
-	    System.out.println(field);
+//	    System.out.println(field);
 
-            setElementAttribute(schemaElementName, attributeName, attributeValue, extension, elementMap, pluginModel);
+	    // RMF 10/18/2006:
+	    // Plugin extension ID's should not include the plugin ID as a prefix; it's
+	    // implicit. [Extension refs on the other hand must be "fully qualified".]
+	    // The following code removes the plugin ID prefix if this field represents
+	    // an "id" attribute of an "extension" element.
+	    String pluginID= pluginModel.getBundleDescription().getName();
+
+	    if (schemaElementName.equals("extension") && attributeName.equals("id") && attributeValue.startsWith(pluginID + "."))
+		attributeValue= attributeValue.substring(pluginID.length() + 1);
+
+	    setElementAttribute(schemaElementName, attributeName, attributeValue, extension, elementMap, pluginModel);
 	}
     }
 
