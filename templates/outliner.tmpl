@@ -208,7 +208,7 @@ public class $OUTLINER_CLASS_NAME$ extends DefaultOutliner
 				return true;
     		}
     		for (int j = 0; j < (previousEnd - previousStart + 1); j++) {
-    			if (previousChars[previousStart+j] != chars[start+j]) {
+    			if ((previousChars.length != 0) && previousChars[previousStart+j] != chars[start+j]) {
     				// System.out.println("Previous and current tokens have different characters at token # = " + i +
     				//		", character # = " + j);
     				return true;
