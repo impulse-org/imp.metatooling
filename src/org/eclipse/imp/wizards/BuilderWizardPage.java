@@ -1,5 +1,9 @@
 package org.eclipse.uide.wizards;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 /**
@@ -8,6 +12,8 @@ import org.eclipse.swt.widgets.Composite;
  * extension point schema.
  */
 public class BuilderWizardPage extends ExtensionPointWizardPage {
+    boolean fAddSMAPSupport= false;
+
     public BuilderWizardPage(ExtensionPointWizard owner) {
         super(owner, "org.eclipse.core.resources", "builders", false);
     }
@@ -23,5 +29,21 @@ public class BuilderWizardPage extends ExtensionPointWizardPage {
 
     protected void createFirstControls(Composite parent) {
         createLanguageFieldForPlatformSchema(parent);
+    }
+
+    @Override
+    protected void createAdditionalControls(Composite parent) {
+	Button b= new Button(parent, SWT.CHECK);
+
+	b.setText("Add SMAP support");
+
+	b.addSelectionListener(new SelectionAdapter() {
+	    @Override
+	    public void widgetSelected(SelectionEvent e) {
+		fAddSMAPSupport= ((Button) e.widget).getSelection();
+		if (!fRequiredPlugins.contains("com.ibm.watson.smapifier"))
+		    fRequiredPlugins.add("com.ibm.watson.smapifier");
+	    }
+	});
     }
 }

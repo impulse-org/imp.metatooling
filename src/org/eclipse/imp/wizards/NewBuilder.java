@@ -13,15 +13,37 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 public class NewBuilder extends CodeServiceWizard {
+    private boolean fAddSMAPSupport;
+
     public void addPages() {
         addPages(new ExtensionPointWizardPage[] { new BuilderWizardPage(this) });
     }
 
     protected List getPluginDependencies() {
-        return Arrays.asList(new String[] {
-                "org.eclipse.core.runtime", "org.eclipse.core.resources",
-    	    "org.eclipse.uide.runtime" });
+	return Arrays.asList(new String[] {
+		"org.eclipse.core.runtime", "org.eclipse.core.resources",
+		"org.eclipse.uide.runtime" });
     }
+
+    @Override
+    protected void collectCodeParms() {
+        super.collectCodeParms();
+        fAddSMAPSupport= ((BuilderWizardPage) pages[0]).fAddSMAPSupport;
+    }
+
+    private static final String k_IProject_import=
+	"import org.eclipse.core.resources.IProject;\n";
+
+    private static final String k_SMAP_enabler=
+	"\n" +
+	"    public void addToProject(IProject project) {\n" +
+	"        super.addToProject(project);\n" +
+        "        new SmapiProjectNature(\"$LANG_EXTEN$\").addToProject(project);\n" +
+        "    };\n";
+
+    private static final String k_SMAP_import=
+	"\n" + 
+	"import com.ibm.watson.smapifier.builder.SmapiProjectNature;\n";
 
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
         ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
@@ -80,6 +102,11 @@ public class NewBuilder extends CodeServiceWizard {
         subs.put("$PACKAGE_NAME$", packageName);
         
         String packageFolder = packageName.replace('.', File.separatorChar);
+
+        // TODO Get file name extension for the following from the Language descriptor
+        subs.put("$IPROJECT_IMPORT$", fAddSMAPSupport ? k_IProject_import : "");
+        subs.put("$SMAP_SUPPORT$", fAddSMAPSupport ? k_SMAP_enabler.replaceAll("\\$LANG_EXTEN\\$", fLanguageName) : "");
+        subs.put("$SMAPI_IMPORT$", fAddSMAPSupport ? k_SMAP_import : "");
 
         //IFile builderSrc= createFileFromTemplate(fClassName + "Builder.java", "builder.tmpl", fPackageFolder, subs, project, mon);      
         IFile builderSrc= createFileFromTemplate(className + ".java", "builder.tmpl", packageFolder, subs, project, mon);
