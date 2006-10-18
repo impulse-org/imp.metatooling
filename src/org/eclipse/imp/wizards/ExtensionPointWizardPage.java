@@ -966,6 +966,17 @@ public class ExtensionPointWizardPage extends WizardPage {
         return null;
     }
 
+    public WizardPageField getFieldByFullName(String fullName) {
+        for(int n= 0; n < fFields.size(); n++) {
+            WizardPageField field= (WizardPageField) fFields.get(n);
+            String fieldFullName= field.fSchemaElementName + ":" + field.fAttributeName;
+            if (fieldFullName.equals(fullName)) {
+                return field;
+            }
+        }
+        return null;
+    }
+
     public List getRequires() {
         return fRequiredPlugins;
     }
