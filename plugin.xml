@@ -130,6 +130,12 @@
             icon="icons/sample.gif"
             id="org.eclipse.uide.newRefactoring"
             name="New Refactoring"/>
+      <wizard
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
+            class="org.eclipse.uide.wizards.NewNatureEnabler"
+            icon="icons/sample.gif"
+            id="org.eclipse.uide.natureEnablerWizard"
+            name="Nature Enabler"/>
    </extension>
    <extension
          point="org.eclipse.uide.runtime.languageDescription">
