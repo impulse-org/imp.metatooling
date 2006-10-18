@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uide.builder.MarkerCreator;
 import org.eclipse.uide.parser.IParseController;
 
-//public class $CLASS_NAME_PREFIX$Compiler {
 public class $COMPILER_CLASS_NAME$ {
     private static final String sClassNameMacro= "$FILE$";
 
@@ -25,6 +24,7 @@ public class $COMPILER_CLASS_NAME$ {
         "\tpublic static void main(String[] args) {\n";
 
     private static final String sTemplateFooter=
+    	"\t\tSystem.out.println(\"done.\");\n" +
         "\t}\n" +
         "}";
 
@@ -47,11 +47,6 @@ public class $COMPILER_CLASS_NAME$ {
             }
             fTranslationStack.push(buff.toString());
         }
-        public void postVisit(ASTNode n) {
-            if (n instanceof statementList) {
-                endVisit((statementList) n);
-            }
-        }
         public void endVisit(assignment n) {
             String rhs= (String) fTranslationStack.pop();
             String lhs= (String) fTranslationStack.pop();
@@ -63,19 +58,15 @@ public class $COMPILER_CLASS_NAME$ {
         public void endVisit(expression1 n) {
             fTranslationStack.push(fTranslationStack.pop() + "-" + fTranslationStack.pop());
         }
-        public boolean visit(declaration0 n) {
-            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + "int " + n.getIDENTIFIER() + ";");
+        public boolean visit(declaration n) {
+            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + n.gettype() + " " + n.getidentifier() + ";");
             return false;
         }
-        public boolean visit(declaration1 n) {
-            fTranslationStack.push("\t\t" + "short " + n.getIDENTIFIER() + ";");
-            return false;
-        }
-        public boolean visit(term0 n) {
+        public boolean visit(identifier n) {
             fTranslationStack.push(n.getIDENTIFIER().toString());
-            return true;
+            return false;
         }
-        public boolean visit(term1 n) {
+        public boolean visit(term n) {
             fTranslationStack.push(n.getNUMBER().toString());
             return true;
         }
@@ -119,12 +110,13 @@ public class $COMPILER_CLASS_NAME$ {
 
         if (currentAst == null) return;
 
-        String fileBase= file.getName().substring(0, file.getFileExtension().length());
+        String fileExten= file.getFileExtension();
+        String fileBase= file.getName().substring(0, file.getName().length() - fileExten.length() - 1);
 
         currentAst.accept(new TranslatorVisitor());
 
         IFile javaFile= project.getFile(file.getProjectRelativePath().removeFileExtension().addFileExtension("java"));
-        String javaSource= sTemplateHeader.replaceAll(sClassNameMacro.replaceAll("\\$", "\\\\$"), fileBase) + fTranslationStack.pop() + sTemplateFooter;
+        String javaSource= sTemplateHeader.replaceAll(sClassNameMacro.replaceAll("\\$", "\\\\\\$"), fileBase) + fTranslationStack.pop() + sTemplateFooter;
         StringBufferInputStream sbis= new StringBufferInputStream(javaSource);
 
         try {
