@@ -103,7 +103,8 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 	IProject fProject;
 
 	public NewNatureEnablerPage() {
-	    super("New Nature Enabler");
+	    super("New Nature Enabler", "New Nature Enabler", null);
+	    setDescription("Create a new nature enabler pop-up action for your language");
 	}
 
 	private final class ProjectTextModifyListener implements ModifyListener {
@@ -119,8 +120,10 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 	private final class FocusDescriptionListener extends FocusAdapter {
 	    public void focusGained(FocusEvent e) {
 		Text text= (Text) e.widget;
-		WizardPageField field= (WizardPageField) text.getData();
-		fDescriptionText.setText(field.fDescription);
+		if (text == NewNatureEnablerPage.this.fProjectText)
+		    fDescriptionText.setText("Enter the name of a plug-in project");
+		else if (text == NewNatureEnablerPage.this.fLanguageText)
+		    fDescriptionText.setText("Enter the name of the language");
 	    }
 	}
 
@@ -143,19 +146,20 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 		    public String isValid(Object selection) {
 			try {
 			    IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(selection.toString());
-			    if (project.exists() && project.hasNature("org.eclipse.pde.PluginNature")) {
+
+			    if (project.exists() && project.hasNature("org.eclipse.pde.PluginNature") && project.hasNature("org.eclipse.jdt.core.javanature")) {
 				return null;
 			    }
+			    // TODO Check that this project has a nature and a builder defined
 			} catch (Exception e) {
 			}
-			return "The selected element \"" + selection + "\" is not a plug-in project";
+			return "The selected project \"" + selection + "\" is not a plug-in project or is not a Java project.";
 		    }
 		});
 		if (dialog.open() == ContainerSelectionDialog.OK) {
 		    Object[] result= dialog.getResult();
 		    IProject selectedProject= ResourcesPlugin.getWorkspace().getRoot().getProject(result[0].toString());
 		    if (result.length == 1) {
-			// fProjectText.setText(((Path) result[0]).toOSString());
 			fProjectText.setText(selectedProject.getName());
 		    }
 		}
@@ -180,13 +184,25 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 
 		createProjectLabelText(container);
 		createLanguageLabelText(container);
+		createDescriptionText(container);
 		discoverProjectLanguage();
 		dialogChanged();
 		setControl(container);
 		fProjectText.setFocus();
+		dialogChanged();
 	    } catch (Exception e) {
 		e.printStackTrace();
 	    }
+	}
+
+	private void createDescriptionText(Composite container) {
+	    fDescriptionText= new Text(container, SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
+	    fDescriptionText.setBackground(container.getBackground());
+	    GridData gd= new GridData(GridData.FILL_BOTH);
+	    gd.horizontalSpan= 3;
+	    gd.widthHint= 450;
+	    fDescriptionText.setLayoutData(gd);
+	    fDescriptionText.setEditable(false);
 	}
 
 	private void createProjectLabelText(Composite container) {
@@ -395,6 +411,7 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
     protected void collectCodeParms() {
 	fProject= fEnablerPage.fProject;
 	fLangName= fEnablerPage.fLanguageText.getText();
+	// TODO Should try to find the builder package by looking at the builder extension
 	fBuilderPkgName= fLangName + ".safari.builders";
     }
 
