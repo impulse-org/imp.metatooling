@@ -613,11 +613,14 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
     private void addEnablerAction(IProgressMonitor mon) {
 	String actionClassName= "EnableNature";
 
+	ExtensionPointEnabler.addImports(fProject, getPluginDependencies());
+
+	// This one makes the action show up for Java projects
 	ExtensionPointEnabler.enable(fProject, "org.eclipse.ui", "popupMenus",
 	    new String[][] {
 		{ "objectContribution:adaptable", "false" },
 		{ "objectContribution:nameFilter", "*" },
-		{ "objectContribution:objectClass", "org.eclipse.core.resources.IProject" },
+		{ "objectContribution:objectClass", "org.eclipse.jdt.core.IJavaProject" },
 		{ "objectContribution:id", fLangName + ".safari.projectContextMenu" },
 		{ "objectContribution.action:class", fLangName + ".safari.actions." + actionClassName },
 		{ "objectContribution.action:id", fLangName + ".safari.actions.enableNatureAction" },
@@ -625,5 +628,20 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 		{ "objectContribution.action:tooltip", "Enable the " + fLangName + " builder for this project" }
 	    },
 	mon);
+	// RMF 10/19/2006 - disabled for now, since ExtensionPointEnabler.enable()
+	// assumes only one extension per extension point.
+	// This one makes the action show up for ordinary projects
+//	ExtensionPointEnabler.enable(fProject, "org.eclipse.ui", "popupMenus",
+//		    new String[][] {
+//			{ "objectContribution:adaptable", "false" },
+//			{ "objectContribution:nameFilter", "*" },
+//			{ "objectContribution:objectClass", "org.eclipse.core.resources.IProject" },
+//			{ "objectContribution:id", fLangName + ".safari.projectContextMenu" },
+//			{ "objectContribution.action:class", fLangName + ".safari.actions." + actionClassName },
+//			{ "objectContribution.action:id", fLangName + ".safari.actions.enableNatureAction" },
+//			{ "objectContribution.action:label", "Enable " + fLangName + " Builder" },
+//			{ "objectContribution.action:tooltip", "Enable the " + fLangName + " builder for this project" }
+//		    },
+//		mon);
     }
 }
