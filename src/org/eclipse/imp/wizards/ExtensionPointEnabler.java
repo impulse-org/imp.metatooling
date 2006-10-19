@@ -45,7 +45,7 @@ public class ExtensionPointEnabler {
 
     public static void enable(ExtensionPointWizardPage page, IProgressMonitor monitor) {
 	try {
-	    IPluginModel pluginModel= getPluginModel(page);
+	    IPluginModel pluginModel= getPluginModel(page.getProject());
 
 	    if (pluginModel != null) {
 	    	// This call to addExtension takes care of adding
@@ -70,16 +70,14 @@ public class ExtensionPointEnabler {
 	}
     }
 
-    public static IPluginModel getPluginModel(final ExtensionPointWizardPage page) {
+    public static IPluginModel getPluginModel(final IProject project) {
 	try {
-	    final IProject project= page.getProject();
-
 	    if (project == null) return null;
 
             maybeCreatePluginXML(project);
             return getPluginModelForProject(project);
 	} catch (Exception e) {
-		ErrorHandler.reportError("Could not find plugin for project " + page.getProject().getName(), true, e);
+	    ErrorHandler.reportError("Could not find plugin for project " + project.getName(), true, e);
 	    return null;
 	}
     }
@@ -201,7 +199,7 @@ public class ExtensionPointEnabler {
 		if (!extension.isInTheModel())
 		    pluginBase.add(extension);
 	
-		addRequiredPluginImports(pluginModel, page);
+		addRequiredPluginImports(pluginModel, page.getRequires());
 		saveAndRefresh(pluginModel);
 	}
 
@@ -257,6 +255,8 @@ public class ExtensionPointEnabler {
     	// SMS 20 Jul 2006
     	// Delete previous extension of this type, which is presumably
     	// being replaced by the one being added here
+	// TODO RMF 10/19/2006 - Should enhance this API to permit multiple extensions per extension point
+	// (Add boolean parameter that says whether to permit multiple extensions.)
     	removeExtension(pluginModel, pluginID, pointID, attrNamesValues);
     	
     	IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
@@ -402,9 +402,8 @@ public class ExtensionPointEnabler {
 	}
     }
 
-    private static void addRequiredPluginImports(IPluginModel pluginModel, ExtensionPointWizardPage page) throws CoreException {
+    private static void addRequiredPluginImports(IPluginModel pluginModel, List/*<String>*/ requires) throws CoreException {
 	IPluginBase base= pluginModel.getPluginBase();
-	List requires= page.getRequires();
 	// RMF Ask the model's associated bundle description for the list
 	// of required bundles; I've seen this list be out of sync wrt the
 	// list of imports in the IPluginBase (e.g. the latter is empty).
@@ -426,6 +425,15 @@ public class ExtensionPointEnabler {
 		base.add(importNode);
 	    }
 	}
+        // HACK RMF 10/19/2006 - "diddle" the import list by swapping the last 2
+        // entries to try to get PDE/JDT to notice the additions.
+        // HAS NO EFFECT!
+//        IPluginImport[] newImports= base.getImports();
+//
+//        if (newImports.length >= 2) {
+//            int N= newImports.length;
+//            base.swap(newImports[N-2], newImports[N-1]);
+//        }
     }
 
     private static boolean containsImports(IPluginImport[] imports, String pluginID) {
@@ -452,11 +460,11 @@ public class ExtensionPointEnabler {
 
     static public void addImports(ExtensionPointWizardPage page) {
 	try {
-	    IPluginModel plugin= getPluginModel(page);
+	    IPluginModel plugin= getPluginModel(page.getProject());
 
 	    if (plugin == null) return;
 
-	    addRequiredPluginImports(plugin, page);
+	    addRequiredPluginImports(plugin, page.fRequiredPlugins);
 
 	    if (plugin instanceof IBundlePluginModel) {
 		IBundlePluginModel model= (IBundlePluginModel) plugin;
@@ -469,6 +477,28 @@ public class ExtensionPointEnabler {
 	    plugin.getUnderlyingResource().refreshLocal(1, null);
 	} catch (Exception e) {
 	    ErrorHandler.reportError("Could not enable extension point for " + page, e);
+	}
+    }
+
+    static public void addImports(IProject project, List/*<String>*/ requiredPlugins) {
+	try {
+	    IPluginModel plugin= getPluginModel(project);
+
+	    if (plugin == null) return;
+
+	    addRequiredPluginImports(plugin, requiredPlugins);
+
+	    if (plugin instanceof IBundlePluginModel) {
+		IBundlePluginModel model= (IBundlePluginModel) plugin;
+
+		if (model.getPlugin() instanceof IEditableModel)
+		    ((IEditableModel) model.getPlugin()).save();
+		if (model.getBundleModel() instanceof IEditableModel)
+		    ((IEditableModel) model.getBundleModel()).save();
+	    }
+	    plugin.getUnderlyingResource().refreshLocal(1, null);
+	} catch (Exception e) {
+	    ErrorHandler.reportError("Could not add plugin imports to " + project.getName(), e);
 	}
     }
 
