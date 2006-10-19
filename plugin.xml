@@ -19,7 +19,7 @@
             class="org.eclipse.uide.wizards.NewLanguage"
             icon="icons/sample.gif"
             category="org.eclipse.uide.wizards"
-            name="Programming language"
+            name="Programming language descriptor"
             id="org.eclipse.uide.wizards.NewLanguageWizard"/>
       <category
             id="org.eclipse.uide.wizards.core"
