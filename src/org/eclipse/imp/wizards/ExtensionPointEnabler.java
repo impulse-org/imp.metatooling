@@ -316,7 +316,7 @@ public class ExtensionPointEnabler {
 	    // implicit. [Extension refs on the other hand must be "fully qualified".]
 	    // The following code removes the plugin ID prefix if this field represents
 	    // an "id" attribute of an "extension" element.
-	    String pluginID= pluginModel.getBundleDescription().getName();
+	    String pluginID= pluginModel.getPlugin().getId();
 
 	    if (schemaElementName.equals("extension") && attributeName.equals("id") && attributeValue.startsWith(pluginID + "."))
 		attributeValue= attributeValue.substring(pluginID.length() + 1);
