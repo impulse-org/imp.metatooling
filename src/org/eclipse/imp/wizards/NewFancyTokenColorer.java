@@ -208,7 +208,7 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
 
     private String computeTokenAttribDecls() {
 	StringBuffer buff= new StringBuffer();
-	buff.append("    TextAttribute ");
+	buff.append("    protected TextAttribute ");
 	for(Iterator iter= fStyleMap.keySet().iterator(); iter.hasNext(); ) {
 	    String token= (String) iter.next();
 	    buff.append(attributeNameForToken(token));
