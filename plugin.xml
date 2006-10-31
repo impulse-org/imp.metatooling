@@ -136,6 +136,12 @@
             icon="icons/sample.gif"
             id="org.eclipse.uide.natureEnablerWizard"
             name="Nature Enabler"/>
+      <wizard
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            class="org.eclipse.uide.wizards.NewFancyTokenColorer"
+            icon="icons/sample.gif"
+            id="org.eclipse.uide.fancyTokenColorerWizard"
+            name="Fancy New Token Colorer"/>
    </extension>
    <extension
          point="org.eclipse.uide.runtime.languageDescription">
