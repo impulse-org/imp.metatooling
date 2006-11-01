@@ -15,7 +15,6 @@ import lpg.lpgjavaruntime.IToken;
 public class $COLORER_CLASS_NAME$ extends DefaultTokenColorer implements $CLASS_NAME_PREFIX$Parsersym, ITokenColorer {
 
 $TOKEN_ATTRIBUTE_DECLS$
-	
     public TextAttribute getColoring(IParseController controller, IToken token) {
         switch (token.getKind())
         {
