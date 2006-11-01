@@ -113,7 +113,7 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
     }
 
     public void addPages() {
-        addPages(new ExtensionPointWizardPage[] { new FancyTokenColorerPage(this, RuntimePlugin.UIDE_RUNTIME, "outliner"), });
+        addPages(new ExtensionPointWizardPage[] { new FancyTokenColorerPage(this, RuntimePlugin.UIDE_RUNTIME, "tokenColorer"), });
     }
 
     protected List getPluginDependencies() {
