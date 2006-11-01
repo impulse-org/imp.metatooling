@@ -13,15 +13,20 @@ import java.util.List;
 import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.pde.core.IEditableModel;
 import org.eclipse.pde.core.plugin.IPluginBase;
+import org.eclipse.pde.core.plugin.IPluginElement;
 import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginImport;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
+import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.core.plugin.IPluginParent;
 import org.eclipse.pde.core.plugin.ISharedExtensionsModel;
 import org.eclipse.pde.internal.core.PDECore;
@@ -32,6 +37,7 @@ import org.eclipse.pde.internal.core.plugin.PluginElement;
 import org.eclipse.pde.internal.core.plugin.PluginImport;
 import org.eclipse.pde.internal.core.plugin.WorkspaceExtensionsModel;
 import org.eclipse.uide.core.ErrorHandler;
+import org.eclipse.uide.runtime.RuntimePlugin;
 
 import org.eclipse.pde.core.plugin.IPluginModelFactory;		// SMS 20 Jul 2006
 import org.eclipse.pde.core.plugin.IExtensions;				// SMS 20 Jul 2006
@@ -42,6 +48,91 @@ import org.eclipse.pde.core.plugin.IExtensions;				// SMS 20 Jul 2006
  * @author rfuhrer@watson.ibm.com
  */
 public class ExtensionPointEnabler {
+    public static String findServiceImplClass(String serviceName, String lang, String defaultImplClass) {
+        // Following assumes that the impl class is given by the "class" attribute of
+        // a child element whose name is the last component of the extension point ID.
+        return findServiceAttribute(serviceName, lang, serviceName.substring(serviceName.lastIndexOf('.')+1), "class", defaultImplClass);
+    }
+
+    public static String findServiceAttribute(String servicePointID, String lang, String childElementName, String attributeName, String defaultValue) {
+        if (lang != null && lang.length() > 0) {
+            // TODO Handle case where base-language plugin exists but not as workspace project
+            IProject project= findProjectForLanguage(lang);
+            IPluginExtension extension= getServiceExtension(servicePointID, project);
+            IPluginElement element= findChildElement(childElementName, extension);
+    
+            return (element != null) ? element.getAttribute(attributeName).getValue() : defaultValue;
+        }
+        return defaultValue;
+    }
+
+    public static String determineLanguage(IProject project) {
+        IPluginExtension extension= getServiceExtension(RuntimePlugin.UIDE_RUNTIME + ".languageDescription", project);
+        IPluginElement element= findChildElement("language", extension);
+    
+        if (element != null)
+            return element.getAttribute("language").getValue();
+        return "";
+    }
+
+    public static IPluginElement findChildElement(String elementName, IPluginExtension extension) {
+        if (extension == null) return null;
+    
+        IPluginObject[] children= extension.getChildren();
+    
+        for(int k= 0; k < children.length; k++) {
+            IPluginObject object= children[k];
+    
+            if (object.getName().equals(elementName)) {
+        	return (IPluginElement) object;
+            }
+        }
+        return null;
+    }
+
+    public static IPluginExtension getServiceExtension(String pointID, IProject project) {
+        try {
+            IPluginModel pluginModel= getPluginModel(project);
+    
+            if (pluginModel != null) {
+        	IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
+    
+        	for(int n= 0; n < extensions.length; n++) {
+        	    IPluginExtension extension= extensions[n];
+    
+                    if (extension.getPoint().equals(pointID))
+                        return extension;
+        	}
+        	System.out.println("Unable to find language descriptor extension in plugin '" + pluginModel.getBundleDescription().getName() + "'.");
+            } else if (project != null)
+        	System.out.println("Not a plugin project: " + project.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static IProject findProjectForLanguage(String langName) {
+	IWorkspace ws= ResourcesPlugin.getWorkspace();
+	IWorkspaceRoot root= ws.getRoot();
+	IProject[] projects= root.getProjects();
+
+	for(int i= 0; i < projects.length; i++) {
+	    IProject project= projects[i];
+
+	    try {
+		if (project.isNatureEnabled("org.eclipse.pde.PluginNature")) {
+		    String projLangName= determineLanguage(project);
+
+		    if (projLangName.equals(langName))
+			return project;
+		}
+	    } catch (CoreException e) {
+	    }
+	    // Do nothing if this was not a plugin project
+	}
+	return null;
+    }
 
     public static void enable(ExtensionPointWizardPage page, IProgressMonitor monitor) {
 	try {
