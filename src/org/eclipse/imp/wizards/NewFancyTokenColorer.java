@@ -5,6 +5,7 @@ package org.eclipse.uide.wizards;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,11 +34,14 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.editors.text.FileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.uide.core.LanguageRegistry;
 import org.eclipse.uide.runtime.RuntimePlugin;
 
 public class NewFancyTokenColorer extends CodeServiceWizard {
-    private Map<String, FontData> fStyleMap; // used in generating code
-    private Map<String, RGB> fColorMap;
+    private Map<String, FontData> fStyleMap= new HashMap<String, FontData>(); // used in generating code
+    private Map<String, RGB> fColorMap= new HashMap<String, RGB>();
+
+    private static final String DEFAULT_TOKEN_COLORER= "DefaultTokenColorer";
 
     private final class FancyTokenColorerPage extends ExtensionPointWizardPage {
 	private FancyTokenColorerPage(ExtensionPointWizard owner, String pluginid, String pointid) {
@@ -141,6 +145,11 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
 	String packageName= qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
 	subs.put("$PACKAGE_NAME$", packageName);
 
+	// TODO Need to add the base language plugin (if any) as a plugin dependency
+	final String baseLang= ExtensionPointEnabler.findServiceAttribute(RuntimePlugin.UIDE_RUNTIME + ".languageDescription", fLanguageName, "language", "derivedFrom", "");
+	final String baseLangServiceImpl= ExtensionPointEnabler.findServiceImplClass(RuntimePlugin.UIDE_RUNTIME + ".tokenColorer", baseLang, DEFAULT_TOKEN_COLORER);
+	subs.put("$BASE_CLASS$", baseLangServiceImpl);
+
 	subs.put("$TOKEN_ATTRIBUTE_DECLS$", computeTokenAttribDecls());
 	subs.put("$TOKEN_ATTRIBUTE_INITS$", computeTokenAttribInits());
 	subs.put("$TOKEN_ATTRIBUTE_CASES$", computeTokenAttribCases());
@@ -207,6 +216,8 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
     }
 
     private String computeTokenAttribDecls() {
+	if (fStyleMap.keySet().isEmpty())
+	    return "";
 	StringBuffer buff= new StringBuffer();
 	buff.append("    protected TextAttribute ");
 	for(Iterator iter= fStyleMap.keySet().iterator(); iter.hasNext(); ) {
