@@ -12,7 +12,7 @@ import $PARSER_PKG$.$CLASS_NAME_PREFIX$Parsersym;
 
 import lpg.lpgjavaruntime.IToken;
 
-public class $COLORER_CLASS_NAME$ extends DefaultTokenColorer implements $CLASS_NAME_PREFIX$Parsersym, ITokenColorer {
+public class $COLORER_CLASS_NAME$ extends $BASE_CLASS$ implements $CLASS_NAME_PREFIX$Parsersym, ITokenColorer {
 
 $TOKEN_ATTRIBUTE_DECLS$
     public TextAttribute getColoring(IParseController controller, IToken token) {
@@ -24,7 +24,7 @@ $TOKEN_ATTRIBUTE_CASES$
 //                if (controller.isKeyword(token.getKind()))
 //                     return keywordAttribute;
             }
-        return null;
+        return super.getColoring(controller, token);
     }
 
     public $COLORER_CLASS_NAME$() {
