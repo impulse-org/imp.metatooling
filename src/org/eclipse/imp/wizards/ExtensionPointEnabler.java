@@ -48,10 +48,10 @@ import org.eclipse.pde.core.plugin.IExtensions;				// SMS 20 Jul 2006
  * @author rfuhrer@watson.ibm.com
  */
 public class ExtensionPointEnabler {
-    public static String findServiceImplClass(String serviceName, String lang, String defaultImplClass) {
+    public static String findServiceImplClass(String servicePointID, String lang, String defaultImplClass) {
         // Following assumes that the impl class is given by the "class" attribute of
         // a child element whose name is the last component of the extension point ID.
-        return findServiceAttribute(serviceName, lang, serviceName.substring(serviceName.lastIndexOf('.')+1), "class", defaultImplClass);
+        return findServiceAttribute(servicePointID, lang, servicePointID.substring(servicePointID.lastIndexOf('.')+1), "class", defaultImplClass);
     }
 
     public static String findServiceAttribute(String servicePointID, String lang, String childElementName, String attributeName, String defaultValue) {
