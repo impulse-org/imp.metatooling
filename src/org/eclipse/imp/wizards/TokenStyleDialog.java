@@ -10,10 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.window.IShellProvider;
-import org.eclipse.safari.jikespg.runtime.parser.ASTUtils;
-import org.eclipse.safari.jikespg.runtime.parser.JikesPGParser.JikesPG;
-import org.eclipse.safari.jikespg.runtime.parser.JikesPGParser.terminal;
+import org.eclipse.safari.jikespg.parser.ASTUtils;
+import org.eclipse.safari.jikespg.parser.JikesPGParser.JikesPG;
+import org.eclipse.safari.jikespg.parser.JikesPGParser.terminal;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -165,13 +166,12 @@ public class TokenStyleDialog extends Dialog {
 			termStyle.setBounds(bounds);
 			// Re-layout and resize the dialog to accommodate any change in the sample text
 			area.layout();
-			area.getShell().layout();
-			Point size= area.getSize();
-			dlog.getParent().setSize(size.x, size.y);
+			area.getShell().pack();
 		    }
 		}
 	    });
 	}
+//	getButton(IDialogConstants.OK_ID).setText("&Ok");
 	return area;
     }
 
