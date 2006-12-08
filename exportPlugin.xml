@@ -21,6 +21,7 @@
 		<property name="temp.folder" value="${basedir}/temp.folder"/>
 		<property name="lpg.location" value="../lpg"/>
 		<property name="lpg.executable" location="${lpg.location}/bin/lpg-${baseos}_${os.arch}"/>
+		<property name="lpg.templates" location="${lpg.location}/templates"/>
 	</target>
 
 	<target name="properties" if="eclipse.running">
@@ -36,7 +37,7 @@
 		<echo message="Running JikesPG to generate parser and lexer"/>
 		<exec executable="${lpg.executable}" dir="src/org/eclipse/uide/presentation"
 		      failonerror="true" output="LangSpec.log">
-			<arg line="-include-directory=../../../../../../lpg/templates"/>
+			<arg line="-include-directory=${lpg.templates}"/>
 			<arg line="LangSpec.g"/>
 		</exec>
 		<!-- compile the source code -->
@@ -46,6 +47,7 @@
 				<pathelement path="../org.eclipse.uide.runtime/org.eclipse.uide.runtime_${safari.version}.jar"/>
 				<pathelement path="../org.eclipse.safari.jikespg.runtime/org.eclipse.safari.jikespg.runtime_${safari.version}.jar"/>
 				<pathelement path="../lpg/lpg_${safari.version}.jar"/>
+				<pathelement path="../polyglot2/polyglot2_2.0.0.jar"/>
 				<pathelement path="${eclipse.build.path}"/>
 			</classpath>
 			<src path="src/"/>
