@@ -76,9 +76,6 @@ public class $OUTLINER_CLASS_NAME$ extends DefaultOutliner
     }	// End OutlineVisitor
 
 
-    public TreeItem createTopItem(String label) {
-		return createTopItem(label, null);
-    }
 
     public TreeItem createTopItem(String label, $AST_NODE$ n) {
 		TreeItem treeItem= new TreeItem(tree, SWT.NONE);
@@ -89,9 +86,6 @@ public class $OUTLINER_CLASS_NAME$ extends DefaultOutliner
 		return treeItem;
     }
 
-    public TreeItem createSubItem(String label) {
-        return createSubItem(label, null);
-    }
 
     public TreeItem createSubItem(String label, $AST_NODE$ n) {
 		TreeItem treeItem= new TreeItem((TreeItem) fItemStack.peek(), SWT.NONE);
