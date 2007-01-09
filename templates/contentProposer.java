@@ -79,7 +79,8 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
                 (node.getParent() instanceof Iexpression ||
                  node.getParent() instanceof assignment ||
                  node.getParent() instanceof BadAssignment)) {
-                ArrayList vars = filterSymbols(getVisibleVariables(($CLASS_NAME_PREFIX$Parser) controller.getParser(), node), prefix);
+            	HashMap symbols = getVisibleVariables(($CLASS_NAME_PREFIX$Parser) controller.getParser(), node);
+            	ArrayList vars = filterSymbols(symbols, prefix);
                 for (int i = 0; i < vars.size(); i++) {
                     declaration decl = (declaration) vars.get(i);
                     list.add(new SourceProposal(decl.gettype().toString() + " " + decl.getidentifier().toString(),
