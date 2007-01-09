@@ -1,6 +1,6 @@
 Bundle-SymbolicName: org.eclipse.uide; singleton=true
 Bundle-Name: SAFARI Language Support Meta-Tooling
-Bundle-Version: 1.0.43
+Bundle-Version: 1.0.44
 Bundle-Vendor: rfuhrer@watson.ibm.com
 Bundle-Activator: org.eclipse.uide.WizardPlugin
 Provide-Package: org.eclipse.uide,
@@ -23,5 +23,5 @@ Require-Bundle: org.eclipse.core.resources,
  org.eclipse.ui.workbench.texteditor,
  lpg,
  org.eclipse.uide.runtime,
- polyglot2,
- org.eclipse.safari.jikespg.runtime
+ org.eclipse.safari.jikespg.runtime,
+ polyglot
