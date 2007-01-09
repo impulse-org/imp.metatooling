@@ -47,7 +47,7 @@
 				<pathelement path="../org.eclipse.uide.runtime/org.eclipse.uide.runtime_${safari.version}.jar"/>
 				<pathelement path="../org.eclipse.safari.jikespg.runtime/org.eclipse.safari.jikespg.runtime_${safari.version}.jar"/>
 				<pathelement path="../lpg/lpg_${safari.version}.jar"/>
-				<pathelement path="../polyglot2/polyglot2_2.0.1.jar"/>
+				<pathelement path="../polyglot/lib/polyglot-epl.jar"/>
 				<pathelement path="${eclipse.build.path}"/>
 			</classpath>
 			<src path="src/"/>
