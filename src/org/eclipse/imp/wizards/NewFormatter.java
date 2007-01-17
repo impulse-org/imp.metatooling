@@ -57,8 +57,8 @@ public class NewFormatter extends CodeServiceWizard {
         
         String packageFolder = packageName.replace('.', File.separatorChar);
         
-        //IFile formatterSrc= createFileFromTemplate(fClassName + "Formatter.java", "formatter.tmpl", fPackageFolder, subs, project, mon);
-        IFile formatterSrc= createFileFromTemplate(className + ".java", "formatter.tmpl", packageFolder, subs, project, mon);
+        String formatterTemplateName = "formatter.java";
+        IFile formatterSrc= createFileFromTemplate(className + ".java", formatterTemplateName, packageFolder, subs, project, mon);
 
         editFile(mon, formatterSrc);
     }

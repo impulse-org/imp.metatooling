@@ -50,9 +50,7 @@ public class NewContentProposer extends CodeServiceWizard {
         String packageName = qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
         subs.put("$PACKAGE_NAME$", packageName);
         String packageFolder = packageName.replace('.', File.separatorChar);
- 
-        
-        //IFile outlinerSrc= createFileFromTemplate(fClassName + "Outliner.java", "outliner.tmpl", fPackageFolder, subs, project, mon);
+
         IFile outlinerSrc= createFileFromTemplate(className      + ".java", "contentProposer.java", packageFolder, subs, project, mon);
  
         editFile(mon, outlinerSrc);

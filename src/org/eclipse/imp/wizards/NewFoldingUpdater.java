@@ -47,8 +47,8 @@ public class NewFoldingUpdater extends CodeServiceWizard {
             
             String packageFolder = packageName.replace('.', File.separatorChar);
             
-            //IFile folderSrc= createFileFromTemplate(fClassName + "FoldingUpdater.java", "folder.tmpl", fPackageFolder, subs, project, mon);
-            IFile folderSrc = createFileFromTemplate(className + ".java", "folder.tmpl", packageFolder, subs, project, mon);
+            String folderTemplateName = "folder.java";
+            IFile folderSrc = createFileFromTemplate(className + ".java", folderTemplateName, packageFolder, subs, project, mon);
             
             editFile(mon, folderSrc);
 	}

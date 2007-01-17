@@ -94,8 +94,8 @@ public class NewCompiler extends GeneratedComponentServiceWizard {
         // Otherwise, the generated code will not compile, but that can be easily repaired
         // by the user.
         
-        //IFile compilerSrc= createFileFromTemplate(fClassName + "Compiler.java", "compiler.tmpl", fPackageFolder, subs, project, mon);
-        IFile compilerSrc= createFileFromTemplate(className + ".java", "compiler.tmpl", packageFolder, subs, project, mon);
+        String compilerTemplateName = "compiler.java";
+        IFile compilerSrc= createFileFromTemplate(className + ".java", compilerTemplateName, packageFolder, subs, project, mon);
 
         editFile(mon, compilerSrc);
     }

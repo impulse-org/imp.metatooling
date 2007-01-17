@@ -40,15 +40,13 @@ public class NewReferenceResolver extends CodeServiceWizard {
         
         WizardPageField field = page.getField("class");
         String qualifiedClassName = field.fValue;
-//      String className = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.')+1);
-//      subs.put("$HYPERLINK_DETECTOR_CLASS_NAME$", className);
         
         String packageName = qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
         subs.put("$PACKAGE_NAME$", packageName);
         String packageFolder = packageName.replace('.', File.separatorChar);
         
-//      IFile detectorSrc = createFileFromTemplate(className + ".java", "hyperlink_detector.tmpl", packageFolder, subs, project, mon);
-        IFile resolverSrc = createFileFromTemplate(fClassName + "ReferenceResolver.java", "reference_resolver.tmpl", packageFolder, subs, project, mon);
+        String resolverTemplateName = "reference_resolver.java";
+        IFile resolverSrc = createFileFromTemplate(fClassName + "ReferenceResolver.java", resolverTemplateName, packageFolder, subs, project, mon);
         
 //      editFile(mon, detectorSrc);
         editFile(mon, resolverSrc);

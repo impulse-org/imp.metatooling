@@ -155,7 +155,8 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
 	subs.put("$TOKEN_ATTRIBUTE_CASES$", computeTokenAttribCases());
 
 	String packageFolder= packageName.replace('.', File.separatorChar);
-	IFile colorerSrc= createFileFromTemplate(className + ".java", "colorer.java", packageFolder, subs, project, mon);
+	String colorerTemplateName = "colorer_fancy.java";
+	IFile colorerSrc= createFileFromTemplate(className + ".java", colorerTemplateName, packageFolder, subs, project, mon);
 
 	editFile(mon, colorerSrc);
     }

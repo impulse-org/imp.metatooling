@@ -108,12 +108,13 @@ public class NewBuilder extends CodeServiceWizard {
         subs.put("$SMAP_SUPPORT$", fAddSMAPSupport ? k_SMAP_enabler.replaceAll("\\$LANG_EXTEN\\$", fLanguageName) : "");
         subs.put("$SMAPI_IMPORT$", fAddSMAPSupport ? k_SMAP_import : "");
 
-        //IFile builderSrc= createFileFromTemplate(fClassName + "Builder.java", "builder.tmpl", fPackageFolder, subs, project, mon);      
-        IFile builderSrc= createFileFromTemplate(className + ".java", "builder.tmpl", packageFolder, subs, project, mon);
+        String builderTemplateName = "builder.java";
+        IFile builderSrc= createFileFromTemplate(className + ".java", builderTemplateName, packageFolder, subs, project, mon);
         // SMS 18 May 2006:
         // Note that we generate the Nature class and extension regardless of whether
         // the user has indicated in the wizard that the builder has a nature.
-        createFileFromTemplate(fClassName + "Nature.java", "nature.tmpl", packageFolder, subs, project, mon);
+        String natureTemplateName = "nature.java";
+        createFileFromTemplate(fClassName + "Nature.java", natureTemplateName, packageFolder, subs, project, mon);
 
         editFile(mon, builderSrc);
     }

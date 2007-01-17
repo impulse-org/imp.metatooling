@@ -29,7 +29,8 @@ public class NewProject extends CodeServiceWizard {
 
         subs.put("$NATURE_ID$", fLanguageName + ".nature");
 
-        createFileFromTemplate(fClassName + "ProjectWizard.java", "newProjectWizard.tmpl", fPackageFolder, subs, project, mon);
+        String projectTemplateName = "newProjectWizard.java";
+        createFileFromTemplate(fClassName + "ProjectWizard.java", projectTemplateName, fPackageFolder, subs, project, mon);
         IFile projectPageSrc= createFileFromTemplate(fClassName + "ProjectPage.java", "newProjectWizardPage.tmpl", fPackageFolder, subs, project, mon);
 
         editFile(mon, projectPageSrc);

@@ -35,7 +35,8 @@ public class NewLanguage extends CodeServiceWizard {
         subs.put("$PACKAGE_NAME$", pluginPackage);
         subs.put("$PREFS_PACKAGE_NAME$", prefsPackage);
 
-        createFileFromTemplate(fClassName + "Plugin.java", "plugin.tmpl", pluginClassFolder, subs, project, mon);
+        String pluginTemplateName = "plugin.java";
+        createFileFromTemplate(fClassName + "Plugin.java", pluginTemplateName, pluginClassFolder, subs, project, mon);
         createFileFromTemplate(fClassName + "PreferenceCache.java", "prefs_cache.tmpl", prefsFolder, subs, project, mon);
         createFileFromTemplate(fClassName + "PreferenceConstants.java", "prefs_const.tmpl", prefsFolder, subs, project, mon);
     }
