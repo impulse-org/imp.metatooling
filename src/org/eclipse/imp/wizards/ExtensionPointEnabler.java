@@ -46,6 +46,7 @@ import org.eclipse.pde.core.plugin.IExtensions;				// SMS 20 Jul 2006
 /**
  * @author Claffra
  * @author rfuhrer@watson.ibm.com
+ * @author suttons@us.ibm.com
  */
 public class ExtensionPointEnabler {
     public static String findServiceImplClass(String servicePointID, String lang, String defaultImplClass) {
@@ -134,14 +135,21 @@ public class ExtensionPointEnabler {
 	return null;
     }
 
-    public static void enable(ExtensionPointWizardPage page, IProgressMonitor monitor) {
+    public static void enable(ExtensionPointWizardPage page,
+    						  boolean remove, IProgressMonitor monitor) {
 	try {
 	    IPluginModel pluginModel= getPluginModel(page.getProject());
 
 	    if (pluginModel != null) {
+	    	if (remove) {
+	    		System.out.println("ExtensionPointEnabler.enable(..):  removing previous extension for page = " + page.getName());
+	    		removeExtension(pluginModel, page);
+	    	} else {
+	    		System.out.println("ExtensionPointEnabler.enable(..):  not removing previous extension for page = " + page.getName());
+	    	}
 	    	// This call to addExtension takes care of adding
 	    	// the appropriate extension id
-		addExtension(pluginModel, page);
+	    	addExtension(pluginModel, page);
 	    }
 	} catch (Exception e) {
 	    ErrorHandler.reportError("Could not enable extension point for " + page, e);
@@ -149,12 +157,21 @@ public class ExtensionPointEnabler {
     }
 
 
-    public static void enable(IProject project, String pluginID, String pointID, String[][] attrNamesValues, IProgressMonitor monitor) {
+    public static void enable(IProject project, String pluginID, String pointID, String[][] attrNamesValues,
+    						  boolean replace, IProgressMonitor monitor) {
 	try {
 	    IPluginModel pluginModel= getPluginModelForProject(project);
 
 	    if (pluginModel != null) {
-		addExtension(pluginModel, pluginID, pointID, attrNamesValues);
+	    	if (replace) {
+	    		removeExtension(pluginModel, pluginID, pointID, attrNamesValues);
+	    		System.out.println("ExtensionPointEnabler.enable(..):  removing previous extension for pluginID = "
+	    				+ pluginID + " pointID = " + pointID);
+	    	} else {
+	    		System.out.println("ExtensionPointEnabler.enable(..):  not removing previous extension for pluginID = "
+	    				+ pluginID + " pointID = " + pointID);
+	    	}
+	    	addExtension(pluginModel, pluginID, pointID, attrNamesValues);
 	    }
 	} catch (Exception e) {
 	    ErrorHandler.reportError("Could not enable extension point for " + project.getName(), e);
@@ -343,12 +360,9 @@ public class ExtensionPointEnabler {
      */
     public static void addExtension(IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues) throws CoreException, IOException {
 
-    	// SMS 20 Jul 2006
-    	// Delete previous extension of this type, which is presumably
-    	// being replaced by the one being added here
-	// TODO RMF 10/19/2006 - Should enhance this API to permit multiple extensions per extension point
-	// (Add boolean parameter that says whether to permit multiple extensions.)
-    	removeExtension(pluginModel, pluginID, pointID, attrNamesValues);
+    	// SMS 5 Feb 20067
+    	// Removed added call to removeExtension; this call is now made conditionally
+    	// from enable(..)
     	
     	IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
 
