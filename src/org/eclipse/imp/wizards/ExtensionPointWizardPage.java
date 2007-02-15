@@ -201,7 +201,12 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     public ExtensionPointWizardPage(ExtensionPointWizard owner, String pluginID, String pointID, boolean omitIDName) {
         this(owner, 0, 1, pluginID, pointID, false);
-	fOmitExtensionIDName= omitIDName;
+        fOmitExtensionIDName= omitIDName;
+    }
+    
+    public ExtensionPointWizardPage(ExtensionPointWizard owner, String pluginID, String pointID, boolean omitIDName, boolean local) {
+        this(owner, 0, 1, pluginID, pointID, false, local);
+        fOmitExtensionIDName= omitIDName;
     }
 
     public ExtensionPointWizardPage(ExtensionPointWizard owner, int pageNumber, int totalPages, String pluginID, String pointID, boolean isOptional) {
@@ -224,7 +229,8 @@ public class ExtensionPointWizardPage extends WizardPage {
             if (ep.getUniqueIdentifier().startsWith("org.eclipse.") && !ep.getUniqueIdentifier().startsWith("org.eclipse.uide")) {
                 // RMF 1/5/2006 - Hack to get schema for extension points defined by Eclipse
                 // platform plugins: attempts to find them in org.eclipse.platform.source,
-        	// or, failing that, org.eclipse.rcp.source
+            	// or, failing that, org.eclipse.rcp.source
+            	
                 URL schemaURL= locateSchema(ep, "org.eclipse.platform.source");
 
                 if (schemaURL == null)
@@ -234,6 +240,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 
                 localSchemaURL= Platform.asLocalURL(schemaURL);
                 schemaLoc= localSchemaURL.getPath();
+                
             } else {
                 Bundle core= Platform.getBundle(pluginID);
 
@@ -250,6 +257,56 @@ public class ExtensionPointWizardPage extends WizardPage {
         }
     }
 
+    
+    public ExtensionPointWizardPage(ExtensionPointWizard owner, int pageNumber, int totalPages, String pluginID, String pointID, boolean isOptional, boolean local) {
+        super("wizardPage");
+        this.fExtPluginID= pluginID;
+        this.fExtPointID= pointID;
+        this.fIsOptional= isOptional;
+        this.fThisPageNumber= pageNumber;
+        this.fTotalPages= totalPages;
+        this.fOwningWizard= owner;
+        try {
+            //IExtensionPoint ep= (IExtensionPoint) Platform.getExtensionRegistry().getExtensionPoint(pluginID, pointID);
+            String schemaLoc;
+            URL localSchemaURL;
+
+            //if (ep == null)
+        	//	return;
+//        	throw new IllegalArgumentException("Unknown extension point: " + pluginID + "." + pointID);
+
+//            if (ep.getUniqueIdentifier().startsWith("org.eclipse.") && !ep.getUniqueIdentifier().startsWith("org.eclipse.uide")) {
+//                // RMF 1/5/2006 - Hack to get schema for extension points defined by Eclipse
+//                // platform plugins: attempts to find them in org.eclipse.platform.source,
+//            	// or, failing that, org.eclipse.rcp.source
+//            	
+//                URL schemaURL= locateSchema(ep, "org.eclipse.platform.source");
+//
+//                if (schemaURL == null)
+//                    schemaURL= locateSchema(ep, "org.eclipse.rcp.source");
+//                if (schemaURL == null)
+//                    throw new Exception("Cannot find schema source for " + ep.getSchemaReference());
+//
+//                localSchemaURL= Platform.asLocalURL(schemaURL);
+//                schemaLoc= localSchemaURL.getPath();
+//                
+//            } else {
+                Bundle core= Platform.getBundle(pluginID);
+
+                localSchemaURL= Platform.asLocalURL(Platform.find(core, new Path("schema/" + /*ep.getSimpleIdentifier()*/ pointID + ".exsd")));
+                schemaLoc= localSchemaURL.getPath();
+//            }
+            fSchema= new Schema(pluginID, pointID, "", false);
+            fSchema.load(new FileInputStream(schemaLoc));
+            setDescription(fSchema.getDescription());
+        } catch (Exception e) {
+            ErrorHandler.reportError("Cannot create wizard page for " + pluginID + "." + pointID, e);
+            setTitle("Extension point: " + pluginID + "." + pointID);
+            setDescription("Cannot create wizard page: " + e);
+        }
+    }
+
+    
     private URL locateSchema(IExtensionPoint ep, String srcBundle) {
 	Bundle platSrcPlugin= Platform.getBundle(srcBundle);
 	Bundle extProviderPlugin= Platform.getBundle(ep.getNamespace());
