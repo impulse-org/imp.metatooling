@@ -49,6 +49,12 @@
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
             name="Indexer"
             id="org.eclipse.uide.wizards.NewIndexer"/>
+      <wizard
+            class="org.eclipse.uide.wizards.NewPreferencesDialog"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
+            name="Preference Page"
+            id="org.eclipse.uide.wizards.NewPreferencesDialog"/>
       <category
             id="org.eclipse.uide.wizards.parser"
             name="Parser Services"
