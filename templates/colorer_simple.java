@@ -34,6 +34,8 @@ public class $COLORER_CLASS_NAME$ extends DefaultTokenColorer implements $CLASS_
 
     public $COLORER_CLASS_NAME$() {
         super();
+        // TODO:  Define text attributes for the various	
+        // token types that will have their text colored
         Display display = Display.getDefault();
         commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.ITALIC);
         stringAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_BLUE), null, SWT.BOLD);
