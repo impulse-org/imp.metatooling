@@ -627,7 +627,8 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 		{ "objectContribution.action:label", "Enable " + fLangName + " Builder" },
 		{ "objectContribution.action:tooltip", "Enable the " + fLangName + " builder for this project" }
 	    },
-	mon);
+	    false,
+	    mon);
 	// RMF 10/19/2006 - disabled for now, since ExtensionPointEnabler.enable()
 	// assumes only one extension per extension point.
 	// This one makes the action show up for ordinary projects

@@ -78,14 +78,14 @@ public class NewBuilder extends CodeServiceWizard {
     	    	// Note:  fClassName isn't the whole class name; it's really more of a language-
     	    	// specific prefix for naming various classes relating to the language
                 { "runtime.run:class", fLanguageName + ".safari.builders." + fClassName + "Nature" },
-        }, mon);
+        		}, false, mon);
         ExtensionPointEnabler.enable(project, "org.eclipse.core.resources", "markers",
     	    new String[][] {
                     { "extension:id",   "problem" },
                     { "extension:name", fLanguageName + " Error" },
     	    	{ "super:type", "org.eclipse.core.resources.problemmarker" },
         	    },
-        	    mon);
+        	    false, mon);
         
         // SMS 18 Jul 2006
         // Added (or modified) following to accommodate
