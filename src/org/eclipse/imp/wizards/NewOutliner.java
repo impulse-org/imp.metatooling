@@ -54,7 +54,7 @@ public class NewOutliner extends CodeServiceWizard {
         
         String imagesTemplateName = "images.java";
         createFileFromTemplate(fClassName + "Images.java", imagesTemplateName, packageFolder, subs, project, mon);
-        copyLiteralFile("outline_item.gif", "icons", project, mon);
+        copyLiteralFile("../icons/outline_item.gif", "icons", project, mon);
 
         editFile(mon, outlinerSrc);
     }
