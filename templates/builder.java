@@ -17,6 +17,7 @@ import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
 import org.eclipse.uide.core.Language;
 import org.eclipse.uide.core.LanguageRegistry;
 
+import org.eclipse.uide.builder.BuilderUtils;
 import org.eclipse.uide.builder.MarkerCreator;
 import org.eclipse.uide.parser.IParseController;
 import $PARSER_PKG$.$CLASS_NAME_PREFIX$ParseController;
@@ -81,6 +82,8 @@ public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
      */
     protected boolean isNonRootSourceFile(IFile resource)
     {
+    	// TODO:  If your language has non-root source files (e.g., header files), then
+    	// reimplement this method to test for those
         System.err.println("$BUILDER_CLASS_NAME$.isNonRootSourceFile(..) returning FALSE by default");
         return false;
     }
@@ -91,21 +94,23 @@ public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
      */
     protected void collectDependencies(IFile file)
     {   
+    	// TODO:  If your langauge has inter-file dependencies then reimplement
+    	// this method to collect those
         System.err.println("$BUILDER_CLASS_NAME$.collectDependencies(..) doing nothing by default");
         return;
     }
 
+    
     protected boolean isOutputFolder(IResource resource) {
         return resource.getFullPath().lastSegment().equals("bin");
     }
 
+    
     protected void compile(final IFile file, IProgressMonitor monitor) {
         try {
             // START_HERE
             System.out.println("Builder.compile with file = " + file.getName());
-            //createMarker(file, 2, 8, 13, "Oops!", IMarker.SEVERITY_WARNING);
-//          $CLASS_NAME_PREFIX$Compiler compiler= new $CLASS_NAME_PREFIX$Compiler();
-//          compiler.compile(file, monitor);
+            //compiler.compile(file, monitor);
             // Here we provide a substitute for the compile method that simply
             // runs the parser in place of the compiler but creates problem
             // markers for errors that will show up in the problems view
@@ -133,7 +138,7 @@ public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
             parseController.initialize(file.getProjectRelativePath().toString(), file.getProject(), markerCreator);
 	
             // Get file contents for parsing
-            String contents = extractContentsToString(file.getLocation().toString());
+            String contents = BuilderUtils.extractContentsToString(file.getLocation().toString());
         	
             // Finally parse it
             parseController.parse(contents, false, monitor);
@@ -145,70 +150,4 @@ public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
         }
     }
 
-    /**
-     * Operates on a file with contents that have a textual representation
-     * and returns the contents in the form of a String.
-     * 
-     * @param inFileName  Name of a file that contains some content suitable
-     *                    for a String representation.  Used as given (whether
-     *                    absolute or relative)
-     */
-    public static String extractContentsToString(String inFileName)
-    {
-        // Check the given file name
-        if ((inFileName == null) || (inFileName.length() == 0)) {
-            throw new IllegalArgumentException(
-                "ReportExtractionUtilities.extractReportsToFiles:  inFileName is null or empty");
-        }
-        
-        // Check that the inFile exists and can be read
-        File inFile = new File(inFileName);
-        if (!inFile.exists() || !inFile.canRead()) {
-            throw new IllegalArgumentException(
-                "ReportExtractionUtilities.extractReportsToFiles:  inFile does not exsit or cannot be read " +
-                "(name = " + inFileName + ")");        	
-        }
-		
-        // Now do the work ...
-		
-        // Get a buffered reader for the input file
-        FileReader fileReader = null;
-        BufferedReader bufferedReader = null;
-        try {
-            fileReader = new FileReader(inFile);
-            bufferedReader = new BufferedReader(fileReader);
-        } catch(FileNotFoundException e) {
-            System.err.println("ReportExtractionUtilities.extractReportsToFiles:  inFile not found for reading; returning " +
-                    "(name = " + inFileName + ")");	
-            return null;
-        }
-
-        String contents = getTextFromBufferedReader(bufferedReader);
-        if (contents.length() == 0) return null;
-        return contents;
-    }
-
-    /**
-     * Returns the contents of a BufferedReader in the form of a String
-     * 
-     * @param bufferedReader  A BufferedReader
-     * @return                A String with the text in the Reader;
-     *                        empty (not null) if no text is found
-     */
-    static public String getTextFromBufferedReader(BufferedReader bufferedReader)
-    {
-        String line1 = null;
-        String result = null;
-        try {
-            while ((line1 = bufferedReader.readLine()) != null) {
-                result = (result == null? line1 : result + line1);
-                result = result + "\n";
-            }
-        } catch (IOException e) {
-            System.err.println("ContentExtractionUtility.getTextFromBufferedReader:  IOException getting text; returning what text there is");
-            if (result == null) result = "";
-        }
-
-        return result;
-    }
 }
