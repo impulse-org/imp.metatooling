@@ -50,10 +50,30 @@ public class NewPreferencesDialog extends CodeServiceWizard {
         
         field = pages[0].getField("category");
         String menuItem = field.fValue;
+
+        field = pages[0].getField("alternative");
+        String alternativeMessage = field.fValue;
+
         
-        System.out.println("Menu item:  " + menuItem);	
+        //System.out.println("Menu item:  " + menuItem);	
         
         String packageFolder = packageName.replace('.', File.separatorChar);
+        
+        // Note:  In the following, the second parameter is actually the name of the template file,
+        // even though it may be given with a ".java" extension
+        
+        // Check whether there is an "alternative" mesage, in which case
+        // assume that a simple page containing that message should be
+        // generated rather than a full tabbed preference page.
+        if (alternativeMessage.length() != 0){
+            subs.remove("$PREFS_ALTERNATIVE_MESSAGE$");
+            subs.put("$PREFS_ALTERNATIVE_MESSAGE$", alternativeMessage);
+            IFile pageSrc = createFileFromTemplate(className + ".java", "preferencesPageAlternative.java", packageFolder, subs, project, mon);
+            editFile(mon, pageSrc);
+            return;
+        }	
+        
+        // Generating a full tabbed preference page
         
         IFile pageSrc = createFileFromTemplate(className + ".java", "preferencesPageWithTabs.java", packageFolder, subs, project, mon);
         editFile(mon, pageSrc);
@@ -87,7 +107,7 @@ public class NewPreferencesDialog extends CodeServiceWizard {
      * Overrode this method so as to call ExtensionPointEnabler with the
      * point id for preference menu items
      */
-	    public boolean performFinish() {
+	public boolean performFinish() {
 		collectCodeParms(); // Do this in the UI thread while the wizard fields are still accessible
 		
 		// SMS 18 Dec 2006
@@ -100,10 +120,12 @@ public class NewPreferencesDialog extends CodeServiceWizard {
 		WizardPageField prefNameField = page.getField("name");
 		WizardPageField prefClassField = page.getField("class");
 		WizardPageField prefCategoryField = page.getField("category");
+		WizardPageField prefAlternativeField = page.getField("alternative");
 		final String prefID = prefIdField.getText();
 		final String prefName = prefNameField.getText();
 		final String prefClass = prefClassField.getText();
 		final String prefCategory = prefCategoryField.getText();
+		final String prefAlternative = prefAlternativeField.getText();
 
 		//
 	
@@ -114,23 +136,26 @@ public class NewPreferencesDialog extends CodeServiceWizard {
 			    public void run(IProgressMonitor monitor) throws CoreException {
 				try {
 				    for(int n= 0; n < pages.length; n++) {
-					ExtensionPointWizardPage page= pages[n];
-					
-	
-					// BUG Make sure the extension ID is correctly set
-					if (!page.hasBeenSkipped() && page.fSchema != null)
-					    //ExtensionPointEnabler.enable(page, monitor);
-						ExtensionPointEnabler.enable(
-							page.getProject(), "org.eclipse.ui", "preferencePages", 
-							new String[][] {
-								{ "extension:id", "ext." + prefID },
-								{ "extension:name", "ext." + prefName }, 
-								{ "extension.page:id", prefID },
-								{ "extension.page:name", prefName },
-								{ "extension.page:class", prefClass },
-								{ "extension.page:category", prefCategory }
-							},
-							monitor);
+						ExtensionPointWizardPage page= pages[n];	
+						if (!page.hasBeenSkipped() && page.fSchema != null) {
+							// Enable an extension of org.eclipse.ui.preferencePages;
+							// provide only information from fields that correspond to
+							// elements for that extension-point schema.  (Any other
+							// fields provided in the wizard should be ignored for
+							// this purpose.)
+							ExtensionPointEnabler.enable(
+								page.getProject(), "org.eclipse.ui", "preferencePages", 
+								new String[][] {
+									{ "extension:id", "ext." + prefID },
+									{ "extension:name", "ext." + prefName }, 
+									{ "extension.page:id", prefID },
+									{ "extension.page:name", prefName },
+									{ "extension.page:class", prefClass },
+									{ "extension.page:category", prefCategory },
+								},
+								false,
+								monitor);
+						}
 				    }
 				    generateCodeStubs(monitor);
 				} catch (Exception e) {
@@ -157,7 +182,7 @@ public class NewPreferencesDialog extends CodeServiceWizard {
 		    return false;
 		}
 		return true;
-	    }
+	}
     
 	
 }

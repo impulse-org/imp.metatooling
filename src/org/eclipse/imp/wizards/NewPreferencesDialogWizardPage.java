@@ -27,7 +27,7 @@ import org.eclipse.uide.wizards.ExtensionPointEnabler;
 import org.eclipse.uide.wizards.ExtensionPointWizard;
 import org.eclipse.uide.wizards.ExtensionPointWizardPage;
 import org.eclipse.uide.wizards.WizardPageField;
-
+	
 
 /**
 
@@ -40,7 +40,8 @@ public class NewPreferencesDialogWizardPage extends ExtensionPointWizardPage
  		 // controls whether fields for extension name and id are shown
  		 // in the wizard--the parameter is "omitIDName", so "false"
  		 // means don't omit them (and "true" means do omit them)
- 		 super(owner, RuntimePlugin.UIDE_RUNTIME, "preferencesDialog", false);
+ 		 //super(owner, RuntimePlugin.UIDE_RUNTIME, "preferencesDialog", false);
+ 		 super(owner, RuntimePlugin.UIDE_RUNTIME, "preferencesDialog", false, true);
     }
 
 
@@ -52,40 +53,13 @@ public class NewPreferencesDialogWizardPage extends ExtensionPointWizardPage
     public void createControl(Composite parent)
     {
 		super.createControl(parent);
-		
+								
 		// Try to assure that the language is defined
 		setLanguageIfEmpty();
 		
-		// Listen for changes to things on which the default
-		// value of the category depends
-		// Assume that they will change soon enough to allow
-		// a default value for the category to be set at the
-		// outset (or soon enough)
-		
-		try {
-			// Listen for changes in the project field and reset the
-			// language field if it's empty
-			// (assume default language name should be based on project)
-		    fProjectText.addModifyListener(
-		    	new ModifyListener() {
-					public void modifyText(ModifyEvent e) {
-					    setCategoryIfEmpty();
-					}
-		    	});
-		    
-			// Listen for changes in the language field and reset the
-			// category field if it's empty
-		    // (assume default category should be based on language name)
-			getField("language").fText.addModifyListener(
-				new ModifyListener() {
-	                public void modifyText(ModifyEvent e) {
-	                    setCategoryIfEmpty();
-	                }
-	            });
-
-		} catch (Exception e) {
-		    ErrorHandler.reportError("NewPreferencesDialogWizardPage.createControl(Composite):  Internal error, extension point schema may have changed", e);
-		}
+		// Don't set category if empty, because the most
+		// likely (or, anyway, safest) default value is
+		// no category (i.e., a top-level item)
     }
 
     
@@ -140,23 +114,6 @@ public class NewPreferencesDialogWizardPage extends ExtensionPointWizardPage
         }
     }
     
-
-    protected void setCategoryIfEmpty() {
-        try {
-            WizardPageField langField= getField("language");
-            String language= langField.getText();
-
-            if (language.length() == 0)
-                return;
-            String langPkg= lowerCaseFirst(language);
-            String langClass= upperCaseFirst(language);
-
-            getField("category").setText(langClass);
-        } catch (Exception e) {
-            ErrorHandler.reportError("NewPreferencesDialogWizardPage.setCategoryIfEmpty():  Cannot set category", e);
-        }
-    }
-
-  
+ 
     
 }
