@@ -24,4 +24,4 @@ Require-Bundle: org.eclipse.core.resources,
  org.eclipse.uide.runtime,
  org.eclipse.safari.jikespg.runtime,
  polyglot,
- lpg.javaruntime
+ lpg.runtime
