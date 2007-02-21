@@ -2,7 +2,6 @@ package $PACKAGE_NAME$;
 
 
 import org.eclipse.uide.defaults.*;	
-import org.eclipse.uide.outliner.*;
 import org.eclipse.uide.parser.IParseController;
 
 import $AST_PKG$.*;
