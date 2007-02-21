@@ -2,7 +2,7 @@ package $PACKAGE_NAME$;
 
 import $PARSER_PKG$.*;
 import $AST_PKG$.*;
-import lpg.lpgjavaruntime.*;
+import lpg.runtime.*;
 
 import java.util.*;
 
@@ -17,7 +17,8 @@ import org.eclipse.uide.parser.IParseController;
 public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
 {
     private $CLASS_NAME_PREFIX$Parser.SymbolTable getLocalSymbolTable($CLASS_NAME_PREFIX$Parser parser, ASTNode n) {
-        for ( ; n != null; n = n.getParent())
+	// SMS 20 Feb 2007  added cast in assignment to n:
+        for ( ; n != null; n = (ASTNode) n.getParent())
             if (n instanceof block)
                  return ((block) n).getSymbolTable();
         return parser.getTopLevelSymbolTable();
