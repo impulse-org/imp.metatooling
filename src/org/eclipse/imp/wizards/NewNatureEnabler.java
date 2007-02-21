@@ -592,7 +592,7 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
         IProject project= page.getProject();
         Map<String,String> subs= getStandardSubstitutions();
 
-        String language= "leg";
+        String language= fLangName;
         String natureClassName= upperCaseFirst(language) + "Nature";
         String actionClassName= "EnableNature";
 
