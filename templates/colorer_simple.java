@@ -9,7 +9,7 @@ import org.eclipse.uide.parser.IParseController;
  
 import $PARSER_PKG$.$CLASS_NAME_PREFIX$Parsersym;
 
-import lpg.lpgjavaruntime.IToken;
+import lpg.runtime.IToken;
 
 public class $COLORER_CLASS_NAME$ extends DefaultTokenColorer implements $CLASS_NAME_PREFIX$Parsersym, ITokenColorer {
 
