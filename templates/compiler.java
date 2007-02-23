@@ -50,7 +50,7 @@ public class $COMPILER_CLASS_NAME$ {
         public void endVisit(assignment n) {
             String rhs= (String) fTranslationStack.pop();
             String lhs= (String) fTranslationStack.pop();
-            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + lhs + " = " + rhs + ";");
+            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + lhs + " = " + rhs + ";" + "\n\t\tSystem.out.println(\"" + lhs + " = \" + " + lhs + ");");
         }
         public void endVisit(expression0 n) {
             fTranslationStack.push(fTranslationStack.pop() + "+" + fTranslationStack.pop());
