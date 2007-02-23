@@ -19,8 +19,9 @@ public class NewTokenColorer extends CodeServiceWizard {
     }
 
     protected List getPluginDependencies() {
+    	// SMS 23 Feb 2007  "lpg" -> "lpg.runtime"
 	return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
-		"org.eclipse.uide.runtime", "org.eclipse.ui", "org.eclipse.jface.text", "lpg" });
+		"org.eclipse.uide.runtime", "org.eclipse.ui", "org.eclipse.jface.text", "lpg.runtime"});
     }
 
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {

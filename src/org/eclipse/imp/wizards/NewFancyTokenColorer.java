@@ -121,10 +121,11 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
     }
 
     protected List getPluginDependencies() {
+    	// SMS 23 Feb 2007	"lpg" -> "lpg.runtime"
         return Arrays.asList(new String[] {
                 "org.eclipse.core.runtime", "org.eclipse.core.resources",
     	    "org.eclipse.uide.runtime", "org.eclipse.ui", "org.eclipse.jface.text", 
-                "org.eclipse.ui.editors", "org.eclipse.ui.workbench.texteditor", "lpg" });
+                "org.eclipse.ui.editors", "org.eclipse.ui.workbench.texteditor", "lpg.runtime" });
     }
 
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
