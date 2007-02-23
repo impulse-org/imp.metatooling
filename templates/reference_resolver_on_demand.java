@@ -6,7 +6,7 @@ import org.eclipse.uide.core.ILanguageService;
 import org.eclipse.uide.editor.IReferenceResolver;
 import org.eclipse.uide.parser.IParseController;
 
-import lpg.lpgjavaruntime.*;
+import lpg.runtime.*;
 
 import $PARSER_PKG$.Ast.*;
 
