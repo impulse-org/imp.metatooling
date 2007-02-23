@@ -110,6 +110,7 @@ public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
         try {
             // START_HERE
             System.out.println("Builder.compile with file = " + file.getName());
+            //$CLASS_NAME_PREFIX$Compiler compiler= new $CLASS_NAME_PREFIX$Compiler();
             //compiler.compile(file, monitor);
             // Here we provide a substitute for the compile method that simply
             // runs the parser in place of the compiler but creates problem
