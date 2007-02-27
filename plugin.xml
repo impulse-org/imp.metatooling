@@ -168,4 +168,12 @@
             class="org.eclipse.uide.presentation.editor.SpecTokenColorer"
             language="spec"/>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.eclipse.uide.perspective.SAFARIPerspectiveFactory"
+            icon="icons/safariPerspective.gif"
+            id="org.eclipse.uide.perspective"
+            name="SAFARI IDE Building"/>
+   </extension>
 </plugin>
