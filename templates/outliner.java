@@ -65,7 +65,7 @@ public class $OUTLINER_CLASS_NAME$ extends OutlinerBase
 			return true;
 		}
 	
-		public boolean visit(assignment n) {	
+		public boolean visit(assignmentStmt n) {	
 			addSubItem(n.getidentifier().toString() + "=" + n.getexpression().toString(), n);
 			return true;
 		}

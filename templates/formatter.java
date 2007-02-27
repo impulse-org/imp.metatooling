@@ -40,7 +40,7 @@ public class $FORMATTER_CLASS_NAME$ implements ILanguageService, ISourceFormatte
             // Put in some visit methods with node types
             // appropriate to your AST
             ///*
-            public boolean visit(assignment n) {
+            public boolean visit(assignmentStmt n) {
                 buff.append(fIndentString);
                 return true;
             }

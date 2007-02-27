@@ -21,6 +21,8 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
         for ( ; n != null; n = (ASTNode) n.getParent())
             if (n instanceof block)
                  return ((block) n).getSymbolTable();
+            else if (n instanceof functionDeclaration)
+                 return ((functionDeclaration) n).getSymbolTable();
         return parser.getTopLevelSymbolTable();
     }
         
@@ -97,13 +99,13 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
             ASTNode node = (ASTNode) locator.findNode(controller.getCurrentAst(), token.getStartOffset(), token.getEndOffset());
             if (node != null &&
                 (node.getParent() instanceof Iexpression ||
-                 node.getParent() instanceof assignment ||
+                 node.getParent() instanceof assignmentStmt ||
                  node.getParent() instanceof BadAssignment)) {
             	HashMap symbols = getVisibleVariables(($CLASS_NAME_PREFIX$Parser) controller.getParser(), node);
             	ArrayList vars = filterSymbols(symbols, prefix);
                 for (int i = 0; i < vars.size(); i++) {
                     declaration decl = (declaration) vars.get(i);
-                    list.add(new SourceProposal(decl.gettype().toString() + " " + decl.getidentifier().toString(),
+                    list.add(new SourceProposal(decl.getprimitiveType().toString() + " " + decl.getidentifier().toString(),
                                                 decl.getidentifier().toString(),
                                                 prefix,
                                                 offset));
