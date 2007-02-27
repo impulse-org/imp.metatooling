@@ -29,7 +29,7 @@ public class $OUTLINER_CLASS_NAME$ extends OutlinerBase
 			// TODO:  Replace the language name here with the name of your
 			// own language (provided that your language isn't called "Leg"
 			// and you want a heading like this at the top of your outline)
-			pushTopItem("Leg Program", null);
+			pushTopItem("$LANG_NAME$ program", null);
 		}
 
 
