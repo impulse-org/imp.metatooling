@@ -9,6 +9,7 @@ import java.util.Stack;
 
 import $PARSER_PACKAGE$.*;
 import $AST_PACKAGE$.*;
+import $PARSER_PACKAGE$.$CLASS_NAME_PREFIX$Parser.SymbolTable;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -21,16 +22,18 @@ public class $COMPILER_CLASS_NAME$ {
     private static final String sClassNameMacro= "$FILE$";
 
     private static final String sTemplateHeader= "public class " + sClassNameMacro + " {\n" +
-        "\tpublic static void main(String[] args) {\n";
+        "\tpublic static void main(String[] args) {\n" +
+        "\t\tnew " + sClassNameMacro + "().main();\n" +
+        "\t\tSystem.out.println(\"done.\");\n" +
+        "\t}\n";
 
-    private static final String sTemplateFooter=
-    	"\t\tSystem.out.println(\"done.\");\n" +
-        "\t}\n" +
-        "}";
+    private static final String sTemplateFooter= "}\n";
 
     Stack/*<String>*/ fTranslationStack= new Stack();
 
     private final class TranslatorVisitor extends AbstractVisitor {
+    	SymbolTable innerScope;
+
         public void unimplementedVisitor(String s) {
             // System.err.println("Don't know how to translate node type '" + s + "'.");
         }
@@ -53,22 +56,108 @@ public class $COMPILER_CLASS_NAME$ {
             fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + lhs + " = " + rhs + ";" + "\n\t\tSystem.out.println(\"" + lhs + " = \" + " + lhs + ");");
         }
         public void endVisit(expression0 n) {
-            fTranslationStack.push(fTranslationStack.pop() + "+" + fTranslationStack.pop());
+            String right= (String) fTranslationStack.pop();
+            String left= (String) fTranslationStack.pop();
+            fTranslationStack.push(left + "+" + right);
         }
         public void endVisit(expression1 n) {
-            fTranslationStack.push(fTranslationStack.pop() + "-" + fTranslationStack.pop());
+            String right= (String) fTranslationStack.pop();
+            String left= (String) fTranslationStack.pop();
+            fTranslationStack.push(left + "-" + right);
         }
-        public boolean visit(declaration n) {
-            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + n.gettype() + " " + n.getidentifier() + ";");
-            return false;
+        public void endVisit(declaration n) {
+        	fTranslationStack.pop(); // discard identifier's trivial translation - we know what it is
+            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + n.getprimitiveType() + " " + n.getidentifier() + ";");
+        }
+        public boolean visit(block n) {
+        	innerScope= n.getSymbolTable();
+        	return true;
+        }
+        public void endVisit(block n) {
+        	innerScope= innerScope.getParent();
+        	String body= (String) fTranslationStack.pop();
+        	fTranslationStack.push("{\n" + body + "}\n");
+        }
+        public void endVisit(ifStmt n) {
+        	String elseStmt= (n.getelseStmtOpt() != null) ? (String) fTranslationStack.pop() : null;
+        	String then= (String) fTranslationStack.pop();
+        	String cond= (String) fTranslationStack.pop();
+        	if (n.getelseStmtOpt() == null)
+        		fTranslationStack.push("if (" + cond + ") {\n" + then);
+        	else {
+        		fTranslationStack.push("if (" + cond + ") {\n" + then + " } else {\n" + elseStmt + "}\n");
+        	}
+        }
+        public void endVisit(whileStmt n) {
+        	String body= (String) fTranslationStack.pop();
+        	String cond= (String) fTranslationStack.pop();
+        	fTranslationStack.push("while (" + cond + ") " + body);
         }
         public boolean visit(identifier n) {
             fTranslationStack.push(n.getIDENTIFIER().toString());
             return false;
         }
-        public boolean visit(term n) {
+        public boolean visit(term0 n) {
             fTranslationStack.push(n.getNUMBER().toString());
             return true;
+        }
+        public void endVisit(functionDeclaration n) {
+        	IType retType= n.getType();
+        	String body= (String) fTranslationStack.pop();
+        	String funcName= n.getidentifier().toString();
+        	declarationList formals= n.getparameters();
+        	StringBuffer buff= new StringBuffer();
+        	buff.append(retType.toString())
+        	    .append(' ')
+        	    .append(funcName)
+        	    .append('(');
+        	if (formals != null) {
+        		for(int i=0; i < formals.size(); i++) {
+        			if (i > 0) buff.append(',');
+        			fTranslationStack.pop(); // discard trivial translation of formal arg
+        			declaration formal= formals.getdeclarationAt(i);
+        			buff.append(formal.getprimitiveType().toString())
+        			    .append(' ')
+        			    .append(formal.getidentifier().toString());
+        		}
+        	}
+        	buff.append(") {\n");
+        	buff.append(body);
+        	buff.append("}\n");
+        	fTranslationStack.pop(); // discard function name
+        	fTranslationStack.push(buff.toString());
+        }
+        public void endVisit(returnStmt n) {
+        	String retVal= (String) fTranslationStack.pop();
+        	fTranslationStack.push("return " + retVal + ";\n");
+        }
+        public void endVisit(term1 n) {
+        	String funcName= n.getidentifier().toString();
+        	functionDeclaration func= (functionDeclaration) innerScope.findDeclaration(funcName);
+        	int numArgs= func.getparameters().size();
+        	StringBuffer buff= new StringBuffer();
+        	buff.append(funcName)
+        	    .append('(');
+        	Stack actualArgs= new Stack();
+        	for(int arg=0; arg < numArgs; arg++) {
+        		actualArgs.push(fTranslationStack.pop());
+        	}
+        	for(int arg=0; arg < numArgs; arg++) {
+        		if (arg > 0) buff.append(',');
+        		buff.append(actualArgs.pop());
+        	}
+        	buff.append(")");
+        	fTranslationStack.pop(); // discard function name
+        	fTranslationStack.push(buff.toString());
+        }
+        public void endVisit(compilationUnit n) {
+        	StringBuffer buff= new StringBuffer();
+        	compilationUnit unit= n;
+        	while (n != null) {
+        		buff.append(fTranslationStack.pop());
+        		n= n.getcompilationUnit();
+        	}
+        	fTranslationStack.push(buff.toString());
         }
         //*/
     }
