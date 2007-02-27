@@ -45,7 +45,7 @@ public class $CLASS_NAME_PREFIX$ReferenceResolver implements IReferenceResolver,
         // which the service is being defined.
 		
         if (node instanceof Iidentifier && controller.getCurrentAst() != null) {
-            Iidentifier id = (Iidentifier) node;
+            identifier id = (identifier) node;
             $CLASS_NAME_PREFIX$Parser parser = ($CLASS_NAME_PREFIX$Parser) controller.getParser();
             $CLASS_NAME_PREFIX$Parser.SymbolTable symtab = parser.getEnclosingSymbolTable(id);
             return symtab.findDeclaration(id.toString());
