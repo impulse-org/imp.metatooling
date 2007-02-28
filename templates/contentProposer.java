@@ -16,19 +16,9 @@ import org.eclipse.uide.parser.IParseController;
 
 public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
 {
-    private $CLASS_NAME_PREFIX$Parser.SymbolTable getLocalSymbolTable($CLASS_NAME_PREFIX$Parser parser, ASTNode n) {
-	// SMS 20 Feb 2007  added cast in assignment to n:
-        for ( ; n != null; n = (ASTNode) n.getParent())
-            if (n instanceof block)
-                 return ((block) n).getSymbolTable();
-            else if (n instanceof functionDeclaration)
-                 return ((functionDeclaration) n).getSymbolTable();
-        return parser.getTopLevelSymbolTable();
-    }
-        
     private HashMap getVisibleVariables($CLASS_NAME_PREFIX$Parser parser, ASTNode n) {
         HashMap map = new HashMap();
-        for ($CLASS_NAME_PREFIX$Parser.SymbolTable s = getLocalSymbolTable(parser, n); s != null; s = s.getParent())
+        for ($CLASS_NAME_PREFIX$Parser.SymbolTable s = parser.getEnclosingSymbolTable(n); s != null; s = s.getParent())
             for (Enumeration e = s.keys(); e.hasMoreElements(); ) {
                 Object key = e.nextElement();
                 if (! map.containsKey(key))
@@ -38,12 +28,28 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
         return map;
     }
 
+    private String getVariableName(IAst decl){
+        if (decl instanceof declaration)
+             return ((declaration) decl).getidentifier().toString();
+        else if (decl instanceof functionDeclaration)
+             return ((functionDeclaration) decl).getidentifier().toString();
+        return "";
+    }
+    
+    private String getVariableType(IAst decl){
+        if (decl instanceof declaration)
+             return ((declaration) decl).getprimitiveType().toString();
+        else if (decl instanceof functionDeclaration)
+             return ((functionDeclaration) decl).getType().toString();
+        return "";
+    }
+    
     private ArrayList filterSymbols(HashMap in_symbols, String prefix)
     {
         ArrayList symbols = new ArrayList();
         for (Iterator i = in_symbols.values().iterator(); i.hasNext(); ) {
-            declaration decl = (declaration) i.next();
-            String name = decl.getidentifier().toString();
+            IAst decl = (IAst) i.next();
+            String name = getVariableName(decl);
             if (name.length() >= prefix.length() && prefix.equals(name.substring(0, prefix.length())))
                 symbols.add(decl);
         }
@@ -104,9 +110,9 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
             	HashMap symbols = getVisibleVariables(($CLASS_NAME_PREFIX$Parser) controller.getParser(), node);
             	ArrayList vars = filterSymbols(symbols, prefix);
                 for (int i = 0; i < vars.size(); i++) {
-                    declaration decl = (declaration) vars.get(i);
-                    list.add(new SourceProposal(decl.getprimitiveType().toString() + " " + decl.getidentifier().toString(),
-                                                decl.getidentifier().toString(),
+                    IAst decl = (IAst) vars.get(i);
+                    list.add(new SourceProposal(getVariableType(decl) + " " + getVariableName(decl),
+                                                getVariableName(decl),
                                                 prefix,
                                                 offset));
                 }
