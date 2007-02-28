@@ -53,7 +53,7 @@ public class $COMPILER_CLASS_NAME$ {
         public void endVisit(assignmentStmt n) {
             String rhs= (String) fTranslationStack.pop();
             String lhs= (String) fTranslationStack.pop();
-            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + lhs + " = " + rhs + ";" + "\n\t\tSystem.out.println(\"" + lhs + " = \" + " + lhs + ");");
+            fTranslationStack.push("\t\t//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + lhs + " = " + rhs + ";" + "\n\t\tSystem.out.println(\"" + lhs + " = \" + " + lhs + ");");
         }
         public void endVisit(expression0 n) {
             String right= (String) fTranslationStack.pop();
@@ -65,9 +65,39 @@ public class $COMPILER_CLASS_NAME$ {
             String left= (String) fTranslationStack.pop();
             fTranslationStack.push(left + "-" + right);
         }
+        public void endVisit(expression2 n) {
+            String right= (String) fTranslationStack.pop();
+            String left= (String) fTranslationStack.pop();
+            fTranslationStack.push(left + "*" + right);
+        }
+        public void endVisit(expression3 n) {
+            String right= (String) fTranslationStack.pop();
+            String left= (String) fTranslationStack.pop();
+            fTranslationStack.push(left + "/" + right);
+        }
+        public void endVisit(expression4 n) {
+            String right= (String) fTranslationStack.pop();
+            String left= (String) fTranslationStack.pop();
+            fTranslationStack.push(left + ">" + right);
+        }
+        public void endVisit(expression5 n) {
+            String right= (String) fTranslationStack.pop();
+            String left= (String) fTranslationStack.pop();
+            fTranslationStack.push(left + "<" + right);
+        }
+        public void endVisit(expression6 n) {
+            String right= (String) fTranslationStack.pop();
+            String left= (String) fTranslationStack.pop();
+            fTranslationStack.push(left + " == " + right);
+        }
+        public void endVisit(expression7 n) {
+            String right= (String) fTranslationStack.pop();
+            String left= (String) fTranslationStack.pop();
+            fTranslationStack.push(left + " != " + right);
+        }
         public void endVisit(declaration n) {
         	fTranslationStack.pop(); // discard identifier's trivial translation - we know what it is
-            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + n.getprimitiveType() + " " + n.getidentifier() + ";");
+            fTranslationStack.push("\t\t//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + n.getprimitiveType() + " " + n.getidentifier() + ";");
         }
         public boolean visit(block n) {
         	innerScope= n.getSymbolTable();
@@ -76,7 +106,7 @@ public class $COMPILER_CLASS_NAME$ {
         public void endVisit(block n) {
         	innerScope= innerScope.getParent();
         	String body= (String) fTranslationStack.pop();
-        	fTranslationStack.push("{\n" + body + "}\n");
+        	fTranslationStack.push("{\n" + body + "\t\t}\n");
         }
         public void endVisit(ifStmt n) {
         	String elseStmt= (n.getelseStmtOpt() != null) ? (String) fTranslationStack.pop() : null;
@@ -91,7 +121,7 @@ public class $COMPILER_CLASS_NAME$ {
         public void endVisit(whileStmt n) {
         	String body= (String) fTranslationStack.pop();
         	String cond= (String) fTranslationStack.pop();
-        	fTranslationStack.push("while (" + cond + ") " + body);
+        	fTranslationStack.push("\t\twhile (" + cond + ") " + body);
         }
         public boolean visit(identifier n) {
             fTranslationStack.push(n.getIDENTIFIER().toString());
@@ -106,7 +136,7 @@ public class $COMPILER_CLASS_NAME$ {
         	String body= (String) fTranslationStack.pop();
         	String funcName= n.getidentifier().toString();
         	declarationList formals= n.getparameters();
-        	StringBuffer buff= new StringBuffer();
+        	StringBuffer buff= new StringBuffer("\t");
         	buff.append(retType.toString())
         	    .append(' ')
         	    .append(funcName)
@@ -121,15 +151,15 @@ public class $COMPILER_CLASS_NAME$ {
         			    .append(formal.getidentifier().toString());
         		}
         	}
-        	buff.append(") {\n");
+        	buff.append(") ");
         	buff.append(body);
-        	buff.append("}\n");
+        	buff.append("\n");
         	fTranslationStack.pop(); // discard function name
         	fTranslationStack.push(buff.toString());
         }
         public void endVisit(returnStmt n) {
         	String retVal= (String) fTranslationStack.pop();
-        	fTranslationStack.push("return " + retVal + ";\n");
+        	fTranslationStack.push("\t\treturn " + retVal + ";\n");
         }
         public void endVisit(term1 n) {
         	String funcName= n.getidentifier().toString();
@@ -150,12 +180,10 @@ public class $COMPILER_CLASS_NAME$ {
         	fTranslationStack.pop(); // discard function name
         	fTranslationStack.push(buff.toString());
         }
-        public void endVisit(compilationUnit n) {
+        public void endVisit(functionDeclarationList n) {
         	StringBuffer buff= new StringBuffer();
-        	compilationUnit unit= n;
-        	while (n != null) {
+        	for(int i=0; i < n.size(); i++) {
         		buff.append(fTranslationStack.pop());
-        		n= n.getcompilationUnit();
         	}
         	fTranslationStack.push(buff.toString());
         }
