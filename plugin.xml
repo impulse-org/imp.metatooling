@@ -135,7 +135,7 @@
             class="org.eclipse.uide.wizards.NewRefactoringWizard"
             icon="icons/sample.gif"
             id="org.eclipse.uide.newRefactoring"
-            name="New Refactoring"/>
+            name="Refactoring"/>
       <wizard
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
             class="org.eclipse.uide.wizards.NewNatureEnabler"
