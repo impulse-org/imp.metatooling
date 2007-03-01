@@ -13,33 +13,35 @@ import lpg.runtime.IToken;
 
 public class $COLORER_CLASS_NAME$ extends DefaultTokenColorer implements $CLASS_NAME_PREFIX$Parsersym, ITokenColorer {
 
-    TextAttribute commentAttribute, keywordAttribute, stringAttribute, numberAttribute, identifierAttribute;
-	
+    TextAttribute commentAttribute, keywordAttribute, stringAttribute, numberAttribute, doubleAttribute, identifierAttribute;
+
     public TextAttribute getColoring(IParseController controller, IToken token) {
-        switch (token.getKind())
-        {
+        switch (token.getKind()) {
             // START_HERE
             case TK_IDENTIFIER:
                  return identifierAttribute;
             case TK_NUMBER:
-                 return numberAttribute;
+                return numberAttribute;
+            case TK_DoubleLiteral:
+                return doubleAttribute;
 //          case TK_StringLiteral:
 //               return stringAttribute;
             default:
                 if (controller.isKeyword(token.getKind()))
                      return keywordAttribute;
                else return null;
-            }
+        }
     }
 
     public $COLORER_CLASS_NAME$() {
         super();
-        // TODO:  Define text attributes for the various	
+        // TODO:  Define text attributes for the various
         // token types that will have their text colored
         Display display = Display.getDefault();
         commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.ITALIC);
         stringAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_BLUE), null, SWT.BOLD);
         identifierAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLACK), null, SWT.NORMAL);
+        doubleAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_GREEN), null, SWT.BOLD);
         numberAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_YELLOW), null, SWT.BOLD);
         keywordAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_MAGENTA), null, SWT.BOLD);
     }
