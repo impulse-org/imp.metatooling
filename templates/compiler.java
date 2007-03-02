@@ -106,7 +106,7 @@ public class $COMPILER_CLASS_NAME$ {
         }
         public void endVisit(declaration n) {
         	fTranslationStack.pop(); // discard identifier's trivial translation - we know what it is
-            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + n.getprimitiveType() + " " + n.getidentifier());
+            fTranslationStack.push("\t\t" + n.getprimitiveType() + " " + n.getidentifier());
         }
         public boolean visit(block n) {
         	innerScope= n.getSymbolTable();
