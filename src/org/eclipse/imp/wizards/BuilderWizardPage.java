@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Composite;
  * extension point schema.
  */
 public class BuilderWizardPage extends ExtensionPointWizardPage {
-    boolean fAddSMAPSupport= false;
+    boolean fAddSMAPSupport= true;
 
     public BuilderWizardPage(ExtensionPointWizard owner) {
         super(owner, "org.eclipse.core.resources", "builders", false);
@@ -45,5 +45,6 @@ public class BuilderWizardPage extends ExtensionPointWizardPage {
 		    fRequiredPlugins.add("com.ibm.watson.smapifier");
 	    }
 	});
+	b.setSelection(true); // Turn on SMAP support by default
     }
 }
