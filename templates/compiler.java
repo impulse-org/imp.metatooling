@@ -95,9 +95,18 @@ public class $COMPILER_CLASS_NAME$ {
             String left= (String) fTranslationStack.pop();
             fTranslationStack.push(left + " != " + right);
         }
+        public void endVisit(declarationStmt0 n) {
+        	String decl= (String) fTranslationStack.pop();
+        	fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + decl + ";");
+        }
+        public void endVisit(declarationStmt1 n) {
+        	String rhs= (String) fTranslationStack.pop();
+        	String decl= (String) fTranslationStack.pop();
+        	fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + decl + '=' + rhs + ";");
+        }
         public void endVisit(declaration n) {
         	fTranslationStack.pop(); // discard identifier's trivial translation - we know what it is
-            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + n.getprimitiveType() + " " + n.getidentifier() + ";");
+            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + n.getprimitiveType() + " " + n.getidentifier());
         }
         public boolean visit(block n) {
         	innerScope= n.getSymbolTable();
@@ -160,7 +169,9 @@ public class $COMPILER_CLASS_NAME$ {
         }
         public void endVisit(returnStmt n) {
         	String retVal= (String) fTranslationStack.pop();
-        	fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\treturn " + retVal + ";\n");
+        	fTranslationStack.push(
+        			"\t\tSystem.out.println(\"returning \" + " + retVal + ");\n" +
+        			"//#line " + n.getRightIToken().getEndLine() + "\n\t\treturn " + retVal + ";\n");
         }
         public void endVisit(term1 n) {
         	fTranslationStack.push(n.toString());
@@ -171,7 +182,11 @@ public class $COMPILER_CLASS_NAME$ {
         public void endVisit(term3 n) {
         	fTranslationStack.push(n.toString());
         }
-        public void endVisit(term4 n) {
+        public void endVisit(functionStmt n) {
+        	String call= (String) fTranslationStack.pop();
+        	fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + call + ";");
+        }
+        public void endVisit(functionCall n) {
         	String funcName= n.getidentifier().toString();
         	functionDeclaration func= (functionDeclaration) innerScope.findDeclaration(funcName);
         	int numArgs= func.getparameters().size();
