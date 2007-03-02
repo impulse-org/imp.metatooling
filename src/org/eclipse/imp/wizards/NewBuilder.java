@@ -20,9 +20,10 @@ public class NewBuilder extends CodeServiceWizard {
     }
 
     protected List getPluginDependencies() {
+	// TODO Only add smapifier dependency if fAddSMAPSupport is set (but seems this method gets called too early to reflect user's selection?)
 	return Arrays.asList(new String[] {
 		"org.eclipse.core.runtime", "org.eclipse.core.resources",
-		"org.eclipse.uide.runtime" });
+		"org.eclipse.uide.runtime", "com.ibm.watson.smapifier" });
     }
 
     @Override
