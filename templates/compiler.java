@@ -53,7 +53,7 @@ public class $COMPILER_CLASS_NAME$ {
         public void endVisit(assignmentStmt n) {
             String rhs= (String) fTranslationStack.pop();
             String lhs= (String) fTranslationStack.pop();
-            fTranslationStack.push("\t\t//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + lhs + " = " + rhs + ";" + "\n\t\tSystem.out.println(\"" + lhs + " = \" + " + lhs + ");");
+            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + lhs + " = " + rhs + ";" + "\n\t\tSystem.out.println(\"" + lhs + " = \" + " + lhs + ");");
         }
         public void endVisit(expression0 n) {
             String right= (String) fTranslationStack.pop();
@@ -97,7 +97,7 @@ public class $COMPILER_CLASS_NAME$ {
         }
         public void endVisit(declaration n) {
         	fTranslationStack.pop(); // discard identifier's trivial translation - we know what it is
-            fTranslationStack.push("\t\t//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + n.getprimitiveType() + " " + n.getidentifier() + ";");
+            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + n.getprimitiveType() + " " + n.getidentifier() + ";");
         }
         public boolean visit(block n) {
         	innerScope= n.getSymbolTable();
@@ -108,20 +108,21 @@ public class $COMPILER_CLASS_NAME$ {
         	String body= (String) fTranslationStack.pop();
         	fTranslationStack.push("{\n" + body + "\t\t}\n");
         }
-        public void endVisit(ifStmt n) {
-        	String elseStmt= (n.getelseStmtOpt() != null) ? (String) fTranslationStack.pop() : null;
+        public void endVisit(ifStmt0 n) {
         	String then= (String) fTranslationStack.pop();
         	String cond= (String) fTranslationStack.pop();
-        	if (n.getelseStmtOpt() == null)
-        		fTranslationStack.push("if (" + cond + ") {\n" + then);
-        	else {
-        		fTranslationStack.push("if (" + cond + ") {\n" + then + " } else {\n" + elseStmt + "}\n");
-        	}
+        	fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\tif (" + cond + ")\n\t\t\t" + then + "\n");
+        }
+        public void endVisit(ifStmt1 n) {
+        	String elseStmt= (n.getelse() != null) ? (String) fTranslationStack.pop() : null;
+        	String then= (String) fTranslationStack.pop();
+        	String cond= (String) fTranslationStack.pop();
+        	fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\tif (" + cond + ")\n\t\t\t" + then + "\nelse\n\t\t\t" + elseStmt + "\n");
         }
         public void endVisit(whileStmt n) {
         	String body= (String) fTranslationStack.pop();
         	String cond= (String) fTranslationStack.pop();
-        	fTranslationStack.push("\t\twhile (" + cond + ") " + body);
+        	fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\twhile (" + cond + ") " + body);
         }
         public boolean visit(identifier n) {
             fTranslationStack.push(n.getIDENTIFIER().toString());
@@ -159,9 +160,18 @@ public class $COMPILER_CLASS_NAME$ {
         }
         public void endVisit(returnStmt n) {
         	String retVal= (String) fTranslationStack.pop();
-        	fTranslationStack.push("\t\treturn " + retVal + ";\n");
+        	fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\treturn " + retVal + ";\n");
         }
         public void endVisit(term1 n) {
+        	fTranslationStack.push(n.toString());
+        }
+        public void endVisit(term2 n) {
+        	fTranslationStack.push(n.toString());
+        }
+        public void endVisit(term3 n) {
+        	fTranslationStack.push(n.toString());
+        }
+        public void endVisit(term4 n) {
         	String funcName= n.getidentifier().toString();
         	functionDeclaration func= (functionDeclaration) innerScope.findDeclaration(funcName);
         	int numArgs= func.getparameters().size();
