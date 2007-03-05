@@ -6,13 +6,22 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>org.jikespg.uide.jikesPGBuilder</name>
+			<name>org.eclipse.safari.jikespg.runtime.jikesPGBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 		<buildCommand>
 			<name>org.eclipse.jdt.core.javabuilder</name>
 			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>com.ibm.watson.smapifier.SmapieBuilder</name>
+			<arguments>
+				<dictionary>
+					<key>exten</key>
+					<value>g</value>
+				</dictionary>
 			</arguments>
 		</buildCommand>
 		<buildCommand>
@@ -30,5 +39,7 @@
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.jikespg.uide.jikesPGNature</nature>
+		<nature>org.eclipse.safari.jikespg.runtime.jikesPGNature</nature>
+		<nature>com.ibm.watson.smapifier.smapinature</nature>
 	</natures>
 </projectDescription>
