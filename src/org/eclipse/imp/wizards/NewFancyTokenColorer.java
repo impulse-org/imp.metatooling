@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -56,12 +57,12 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 		    IProject project= getProject();
-		    String grammarPath= findGrammarPath(project);
+		    IPath grammarPath= findGrammarPath(project);
 		    if (grammarPath == null) {
 			MessageDialog.openError(e.widget.getDisplay().getActiveShell(), "Error", "Unable to find grammar in project " + project.getName());
 			return;
 		    }
-		    IFile file= project.getFile(new Path(grammarPath));
+		    IFile file= project.getFile(grammarPath);
 		    if (!file.exists()) {
 			MessageDialog.openError(e.widget.getDisplay().getActiveShell(), "Error", "Unable to open grammar file " + file.getLocation().toOSString() + " in project " + project.getName());
 			return;
@@ -88,7 +89,7 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
 	    });
 	}
 
-	protected String findGrammarPath(IProject project) {
+	protected IPath findGrammarPath(IProject project) {
 	    final IFile[] files= new IFile[1];
 	    try {
                 project.accept(new IResourceVisitor() {
@@ -102,9 +103,9 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
                     }
                 });
 	    } catch (CoreException e) {
-		return "";
+		return new Path("");
 	    }
-	    return (files[0] != null) ? files[0].getProjectRelativePath().toPortableString() : "";
+	    return (files[0] != null) ? files[0].getProjectRelativePath() : new Path("");
 	}
     }
 
