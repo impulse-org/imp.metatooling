@@ -155,10 +155,8 @@ public class ExtensionPointEnabler {
 	    ErrorHandler.reportError("Could not enable extension point for " + page, e);
 	}
     }
-
-
-    public static void enable(IProject project, String pluginID, String pointID, String[][] attrNamesValues,
-    						  boolean replace, IProgressMonitor monitor) {
+   
+    public static void enable(IProject project, String pluginID, String pointID, String[][] attrNamesValues, boolean replace, IProgressMonitor monitor) {
 	try {
 	    IPluginModel pluginModel= getPluginModelForProject(project);
 
@@ -205,43 +203,83 @@ public class ExtensionPointEnabler {
     	}
     }
 
-    private static IPluginModel getPluginModelForProject(final IProject project) {
+    // SMS 23 Mar 2007
+    // Changed visibility to public so as to make available to CodeServiceWizard
+    // for prospective changes to enable wizards to get the plugin package name
+    public static IPluginModel getPluginModelForProject(final IProject project) {
 //      WorkspaceModelManager wmm = PDECore.getDefault().getWorkspaceModelManager();
 //      IPluginModelBase[] wsPlugins= wmm.getFeatureModel(project).getWorkspaceModels();
-	PluginModelManager pmm = PDECore.getDefault().getModelManager();
-	IPluginModelBase[] wsPlugins= pmm.getWorkspaceModels();
-
-	if (wsPlugins.length == 0) {
-	    ErrorHandler.reportError("Project " + project.getName() + " is not a plugin project (no plugin projects)?", true);
-	    return null;
-	}
-	for(int i= 0; i < wsPlugins.length; i++) {
-	    IPluginModelBase wsPlugin= wsPlugins[i];
-//	    if (wsPlugin.getBundleDescription().getName().equals(project.getName())) {
-	    
-	    // SMS 19 Jul 2006
-	    // It seems that at least sometimes one of these models might be a workspace plugin model
-	    // (as opposed to a project plugin model), and at least some of those may have no ID
-	    // (perhaps those for a runtime workbench?).  Anyway, it seems reasonable to skip over any
-	    // model where any element of interest is null, since that won't be what we're looking for
-	    // in any case
-	    IPluginBase pmBase = wsPlugin.getPluginBase();
-	    if (pmBase == null) continue;
-	    String id = pmBase.getId();
-	    if (id == null) continue;
-	    String projName = project.getName();
-	    if (projName == null) continue;
-	    
-	    if (wsPlugin.getPluginBase().getId().equals(project.getName())) {
-	        return (IPluginModel) wsPlugin;
-	    }
-	}
-//	    IPluginModelBase thePluginModel= pmm.findModel(project);
-//
-//	    return (IPluginModel) thePluginModel;
-	ErrorHandler.reportError("Could not find plugin for project " + project.getName(), true);
-	return null;
+		PluginModelManager pmm = PDECore.getDefault().getModelManager();
+		IPluginModelBase[] wsPlugins= pmm.getWorkspaceModels();
+	
+		if (wsPlugins.length == 0) {
+		    ErrorHandler.reportError("Project " + project.getName() + " is not a plugin project (no plugin projects)?", true);
+		    return null;
+		}
+		for(int i= 0; i < wsPlugins.length; i++) {
+		    IPluginModelBase wsPlugin= wsPlugins[i];
+	//	    if (wsPlugin.getBundleDescription().getName().equals(project.getName())) {
+		    
+		    // SMS 19 Jul 2006
+		    // May get both workspace and project plugin models
+		    // (although only the latter are of interest)
+		    IPluginBase pmBase = wsPlugin.getPluginBase();
+		    if (pmBase == null) continue;
+		    String id = pmBase.getId();
+		    if (id == null) continue;
+		    String projName = project.getName();
+		    if (projName == null) continue;
+		       
+		    // SMS 22 Mar 2007:  This depends on the plugin id being equal to the project name
+//		    if (wsPlugin.getPluginBase().getId().equals(project.getName())) {
+//		        return (IPluginModel) wsPlugin;
+//		    }
+		    // SMS 22 Mar 2007 Use this, instead:
+		    String resourceLocation = pmBase.getModel().getUnderlyingResource().getLocation().toString();
+		    if (resourceLocation.endsWith(projName + "/META-INF/MANIFEST.MF")) {
+		    	return (IPluginModel) wsPlugin;
+		    }
+		    
+		}
+		ErrorHandler.reportError("Could not find plugin for project " + project.getName(), true);
+		return null;
     }
+    
+    
+    // SMS 27 Mar 2007
+    // New; based on getPluginModelForProject(Iproject)
+    public static String getPluginIDForProject(final IProject project) {
+		PluginModelManager pmm = PDECore.getDefault().getModelManager();
+		IPluginModelBase[] wsPlugins= pmm.getWorkspaceModels();
+	
+		if (wsPlugins.length == 0) {
+		    ErrorHandler.reportError("Project " + project.getName() + " is not a plugin project (no plugin projects)?", true);
+		    return null;
+		}
+		for(int i= 0; i < wsPlugins.length; i++) {
+		    IPluginModelBase wsPlugin= wsPlugins[i];
+
+		    // SMS 19 Jul 2006
+		    // May get both workspace and project plugin models
+		    // (although only the latter are of interest)
+		    IPluginBase pmBase = wsPlugin.getPluginBase();
+		    if (pmBase == null) continue;
+		    String id = pmBase.getId();
+		    if (id == null) continue;
+		    String projName = project.getName();
+		    if (projName == null) continue;
+
+		    String resourceLocation = pmBase.getModel().getUnderlyingResource().getLocation().toString();
+		    if (resourceLocation.endsWith(projName + "/META-INF/MANIFEST.MF")) {
+		    	return id;
+		    }
+		}
+		ErrorHandler.reportError("Could not find plugin id for project " + project.getName(), true);
+		return null;
+    }
+    
+    
+    
     
     
     /**
@@ -265,7 +303,7 @@ public class ExtensionPointEnabler {
      * @throws IOException		If there's a problem working with the plugin file
      */
     static void addExtension(IPluginModel pluginModel, ExtensionPointWizardPage page) throws CoreException, IOException {
-    	
+   	
     	// SMS 20 Jul 2006
     	// Delete previous extension of this type, which is presumably
     	// being replaced by the one being added here
@@ -335,8 +373,8 @@ public class ExtensionPointEnabler {
     	}
     	saveAndRefresh(pluginModel);
     }
-    
-    
+
+ 
     /**
      * Adds an extension to a plugin, where the extension is represented by
      * various given values.
@@ -358,10 +396,12 @@ public class ExtensionPointEnabler {
      * @throws CoreException	If there's a problem working with the plugin or other models
      * @throws IOException		If there's a problem working with the plugin file
      */
-    public static void addExtension(IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues) throws CoreException, IOException {
+    public static void addExtension(IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues)
+    	throws CoreException, IOException
+    {
 
-    	// SMS 5 Feb 20067
-    	// Removed added call to removeExtension; this call is now made conditionally
+    	// SMS 5 Feb 2007
+    	// Removed added call to removeExtension; this call is now made conditionally	
     	// from enable(..)
     	
     	IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
@@ -377,7 +417,8 @@ public class ExtensionPointEnabler {
 	
 		if (!extension.isInTheModel())
 		    pluginBase.add(extension);
-        saveAndRefresh(pluginModel);
+		
+		saveAndRefresh(pluginModel);
     }
 
     
@@ -518,18 +559,18 @@ public class ExtensionPointEnabler {
 //	/*IPluginImport[] curImports=*/ base.getImports(); // make sure the 'base.imports' field is non-null; otherwise, subsequent calls to base.add() are a noop!
 
         for(int n= 0; n < requires.size(); n++) {
-	    String pluginID= (String) requires.get(n);
-	    boolean found= containsImports(imports, pluginID);
-
-	    if (!found /*!containsImport(reqBundles, pluginID*/) {
-		PluginImport importNode= new PluginImport(); // pluginFactory.createImport();
-                importNode.setModel(pluginModel);
-                importNode.setId(pluginID);
-                importNode.setInTheModel(true);
-                importNode.setParent(base);
-		base.add(importNode);
-	    }
-	}
+		    String pluginID= (String) requires.get(n);
+		    boolean found= containsImports(imports, pluginID);
+	
+		    if (!found /*!containsImport(reqBundles, pluginID*/) {
+				PluginImport importNode= new PluginImport(); // pluginFactory.createImport();
+		                importNode.setModel(pluginModel);
+		                importNode.setId(pluginID);
+		                importNode.setInTheModel(true);
+		                importNode.setParent(base);
+				base.add(importNode);
+		    }
+        }
         // HACK RMF 10/19/2006 - "diddle" the import list by swapping the last 2
         // entries to try to get PDE/JDT to notice the additions.
         // HAS NO EFFECT!
