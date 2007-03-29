@@ -12,9 +12,13 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-public class NewBuilder extends CodeServiceWizard {
+public class NewBuilder extends CodeServiceWizard
+{
     private boolean fAddSMAPSupport;
-
+    
+    // SMS 20 Mar 2007:  for holding the entered value of the builder id
+    private String fBuilderExtensionId = null;
+    
     public void addPages() {
         addPages(new ExtensionPointWizardPage[] { new BuilderWizardPage(this) });
     }
@@ -30,6 +34,8 @@ public class NewBuilder extends CodeServiceWizard {
     protected void collectCodeParms() {
         super.collectCodeParms();
         fAddSMAPSupport= ((BuilderWizardPage) pages[0]).fAddSMAPSupport;
+        // SMS 20 Mar 2007:  for getting the entered value of the builder id:
+        fBuilderExtensionId = ((BuilderWizardPage) pages[0]).getExtensionID();
     }
 
     private static final String k_IProject_import=
@@ -48,8 +54,9 @@ public class NewBuilder extends CodeServiceWizard {
 
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
         ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
-        IProject project= page.getProject();
-        Map subs= getStandardSubstitutions();
+        IProject project= page.getProject();	
+        // SMS 23 Mar 2007 getting substitutions based on project
+        Map<String,String> subs= getStandardSubstitutions(project);
 
         // SMS 19 Jul 2006
         // Commented out subs.put since the TODO is now addressed
@@ -57,40 +64,40 @@ public class NewBuilder extends CodeServiceWizard {
         // TODO Should pull the source file-name extension from the language description
         //subs.put("$FILE_EXTEN$", fLanguageName);
         
-        // SMS 17 Oct 2006
-        // Need this now ...
-        subs.put("$PARSER_PKG$", fParserPackage);
-
+        // SMS 17 Oct 2006:  Need this now ...
+        subs.put("$PARSER_PKG$", fParserPackage);	
+        
+        // SMS 20 Mar 2007:  for storing the entered value of the builder id
+        // for later substitution into the Builder template
+        subs.put("$BUILDER_ID$", fBuilderExtensionId);
+        // SMS 28 Mar 2007:  to get builder-specific id for problems markers
+        // (to better accommodate multiple builders per language)
+        subs.put("$PROBLEM_ID$", fBuilderExtensionId + ".problem");
+        
+        
         ExtensionPointEnabler.enable(project, "org.eclipse.core.resources", "natures", new String[][] {
                 // RMF 10/18/2006: The nature ID should NOT have the plugin ID as a prefix (it's implicit)
-                { "extension:id",   "safari.nature" },
+                { "extension:id", "safari.nature" },
                 { "extension:name", fLanguageName + " Nature" },
-                // SMS 9 May 2006:
-                // Added sProjectName to the following (makes this reference consistent with the
-                // builder id as specified)
-                // RMF 10/18/2006: The builder ID really shouldn't have the project name as a prefix.
-                // RMF 10/18/2006: On the other hand, the following creates a REFERENCE to the builder
-                // ID, and so SHOULD have the plugin ID as a prefix.
-                { "builder:id", fLanguageName + ".safari.builder" },
+                // SMS 28 Mar 2007:  updated builder id to be a combination of 
+                // plugin id plus value obtained from wizard (like it says)
+                { "builder:id", subs.get("$PLUGIN_ID$") + "." + fBuilderExtensionId },
                 { "runtime:", "" },
     	    	// SMS 9 May 2006:
-    	    	// Added "builders" after ".safari." and changed fLanguageName (where it occurred
-    	    	// before "Nature") to fClassName (as being more appropriate for a class)
-    	    	// Note:  fClassName isn't the whole class name; it's really more of a language-
-    	    	// specific prefix for naming various classes relating to the language
                 { "runtime.run:class", fLanguageName + ".safari.builders." + fClassName + "Nature" },
-        		}, false, mon);
+        		}, 
+        		false, mon);
         ExtensionPointEnabler.enable(project, "org.eclipse.core.resources", "markers",
     	    new String[][] {
-                    { "extension:id",   "problem" },
+        			// SMS 28 Mar 2007:  id based on parameter
+                    { "extension:id",   (String) subs.get("$PROBLEM_ID$")},
                     { "extension:name", fLanguageName + " Error" },
     	    	{ "super:type", "org.eclipse.core.resources.problemmarker" },
         	    },
         	    false, mon);
-        
+
         // SMS 18 Jul 2006
-        // Added (or modified) following to accommodate
-        // values provided through wizard by user
+        // Added (or modified) following to accommodate values provided through wizard by user
         
         WizardPageField field = pages[0].getField("class");
         String qualifiedClassName = field.fValue;
