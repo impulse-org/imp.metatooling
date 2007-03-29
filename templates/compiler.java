@@ -245,7 +245,7 @@ public class $COMPILER_CLASS_NAME$ {
         // Marker creator handles error messages from the parse controller
         MarkerCreator markerCreator = new MarkerCreator(file, parseController, "$CLASS_NAME_PREFIX$.problem");
 
-        parseController.initialize(file.getProjectRelativePath().toString(), project, markerCreator);
+        parseController.initialize(file.getProjectRelativePath()/*.toString()*/, project, markerCreator);
         parseController.parse(getFileContents(file), false, mon);
 
         $AST_NODE$ currentAst= ($AST_NODE$) parseController.getCurrentAst();
