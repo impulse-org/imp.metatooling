@@ -927,6 +927,17 @@ public class ExtensionPointWizardPage extends WizardPage {
             ErrorHandler.reportError("Cannot set class", e);
         }
     }
+  
+   
+
+    public String getExtensionID() {
+           WizardPageField idField = getField("id");
+           if (idField == null) return null;
+	       if (idField.getText() == null) setIDByLanguage();
+           return idField.getText();
+    }
+    
+    
 
     protected String upperCaseFirst(String language) {
 	return Character.toUpperCase(language.charAt(0)) + language.substring(1);
