@@ -12,7 +12,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uide.core.SAFARIBuilderBase;
 import org.eclipse.uide.runtime.SAFARIPluginBase;
 
-import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
+//import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
+//import $PLUGIN_PACKAGE$.$CLASS_NAME_PREFIX$Plugin;
+import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 
 import org.eclipse.uide.core.Language;
 import org.eclipse.uide.core.LanguageRegistry;
@@ -29,11 +31,16 @@ public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
     /**
      * Extension ID of the $CLASS_NAME_PREFIX$ builder. Must match the ID in the corresponding
      * extension definition in plugin.xml.
+     * SMS 22 Mar 2007:  If that ID is set through the NewBuilder wizard, then so must this one be.
      */
-    public static final String BUILDER_ID= $CLASS_NAME_PREFIX$Plugin.kPluginID + ".safari.builder";
-
-    public static final String PROBLEM_MARKER_ID= $CLASS_NAME_PREFIX$Plugin.kPluginID + ".problem";
-
+	// SMS 28 Mar 2007:  Make plugin class name totally parameterized
+	public static final String BUILDER_ID= $PLUGIN_CLASS$.kPluginID + ".$BUILDER_ID$";
+	// SMS 28 Mar 2007:  Make problem id parameterized (rather than just ".problem") so that
+	// it can be given a builde-specific value (not simply composed here using the builder id
+	// because the problem id is also needed in ExtensionPointEnabler for adding the marker
+	// extension to the plugin.xml file)
+    public static final String PROBLEM_MARKER_ID= $PLUGIN_CLASS$.kPluginID + ".$PROBLEM_ID$";
+    
     // SMS 11 May 2006
     public static final String LANGUAGE_NAME = "$LANG_NAME$";
     public static final Language LANGUAGE = LanguageRegistry.findLanguage(LANGUAGE_NAME);
@@ -41,7 +48,8 @@ public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
 
 
     protected SAFARIPluginBase getPlugin() {
-        return $CLASS_NAME_PREFIX$Plugin.getInstance();
+        //return $CLASS_NAME_PREFIX$Plugin.getInstance();
+        return $PLUGIN_CLASS$.getInstance();
     }
 
     protected String getErrorMarkerID() {
@@ -132,11 +140,11 @@ public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
 
             // Marker creator handles error messages from the parse controller (and
             // uses the parse controller to get additional information about the errors)
-            MarkerCreator markerCreator = new MarkerCreator(file, parseController, "$LANG_NAME$.problem");
+            MarkerCreator markerCreator = new MarkerCreator(file, parseController, 	PROBLEM_MARKER_ID); //"$PROJ_NAME$.problem");
 
             // Need to tell the parse controller which file in which project to parse
             // and also the message handler to which to report errors
-            parseController.initialize(file.getProjectRelativePath().toString(), file.getProject(), markerCreator);
+            parseController.initialize(file.getProjectRelativePath()/*.toString()*/, file.getProject(), markerCreator);
 	
             // Get file contents for parsing
             String contents = BuilderUtils.extractContentsToString(file.getLocation().toString());
