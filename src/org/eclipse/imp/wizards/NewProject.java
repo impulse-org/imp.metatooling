@@ -19,7 +19,7 @@ public class NewProject extends CodeServiceWizard {
     protected List getPluginDependencies() {
         return Arrays.asList(new String[] {
                 "org.eclipse.core.runtime", "org.eclipse.core.resources",
-    	    "org.eclipse.uide.runtime", "org.eclipse.ui" });
+    	    "org.eclipse.uide.runtime", "org.eclipse.ui", "org.eclipse.jdt.core", "org.eclipse.jdt.ui" });
     }
 
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
@@ -31,8 +31,9 @@ public class NewProject extends CodeServiceWizard {
 
         String projectTemplateName = "newProjectWizard.java";
         createFileFromTemplate(fClassName + "ProjectWizard.java", projectTemplateName, fPackageFolder, subs, project, mon);
-        IFile projectPageSrc= createFileFromTemplate(fClassName + "ProjectPage.java", "newProjectWizardPage.tmpl", fPackageFolder, subs, project, mon);
+        IFile projectFirstPageSrc= createFileFromTemplate(fClassName + "ProjectWizardFirstPage.java", "newProjectWizardFirstPage.java", fPackageFolder, subs, project, mon);
+        IFile projectSecondPageSrc= createFileFromTemplate(fClassName + "ProjectWizardSecondPage.java", "newProjectWizardSecondPage.java", fPackageFolder, subs, project, mon);
 
-        editFile(mon, projectPageSrc);
+        editFile(mon, projectFirstPageSrc);
     }
 }
