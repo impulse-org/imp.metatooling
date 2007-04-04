@@ -37,7 +37,7 @@ public class $CLASS_NAME_PREFIX$ProjectWizardSecondPage extends NewProjectWizard
     }
 
     protected ProjectNatureBase getProjectNature() {
-	return new $CLASS_NAME_PREFIX$ProjectNature();
+	return new $NATURE_CLASS_NAME$();
     }
 
     protected IPath getLanguageRuntimePath() {
