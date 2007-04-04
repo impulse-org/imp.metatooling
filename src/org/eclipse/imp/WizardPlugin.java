@@ -1,29 +1,25 @@
 package org.eclipse.uide;
 
-/*
- * Licensed Materials - Property of IBM,
- * (c) Copyright IBM Corp. 2005  All Rights Reserved
- */
-
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.uide.runtime.SAFARIPluginBase;
 import org.osgi.framework.BundleContext;
 
-/**
- * The main plugin class to be used in the desktop.
- */
-public class WizardPlugin extends AbstractUIPlugin {
+public class WizardPlugin extends SAFARIPluginBase {
     public static final String kPluginID= "org.eclipse.uide";
 
-    // The singleton instance.
     private static WizardPlugin sPlugin;
-    // Resource bundle.
+
     private ResourceBundle resourceBundle;
 
     public WizardPlugin() {
 	super();
 	sPlugin= this;
+    }
+
+    @Override
+    public String getID() {
+        return kPluginID;
     }
 
     /**
