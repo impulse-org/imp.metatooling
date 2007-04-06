@@ -29,7 +29,11 @@ public class NewOutliner extends CodeServiceWizard {
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
         ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
         IProject project= page.getProject();
-        Map subs= getStandardSubstitutions();
+        // SMS 6 Apr 2007
+        // Modifying this call to getStandardSubstitutions to provide project
+        // which is needed to get plugin-related substitutions that may be needed
+        // in the "images" class that will be generated along with the outliner
+        Map subs= getStandardSubstitutions(project);
 
         subs.put("$PARSER_PKG$", fParserPackage);
         subs.put("$AST_PKG$", fParserPackage + "." + Wizards.astDirectory);
