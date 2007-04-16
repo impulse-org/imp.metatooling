@@ -7,10 +7,10 @@ package org.eclipse.uide.wizards;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-//import java.io.StringBufferInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
@@ -20,12 +20,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.pde.core.IEditableModel;
+import org.eclipse.pde.core.plugin.IExtensions;
 import org.eclipse.pde.core.plugin.IPluginBase;
 import org.eclipse.pde.core.plugin.IPluginElement;
 import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginImport;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
+import org.eclipse.pde.core.plugin.IPluginModelFactory;
 import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.core.plugin.IPluginParent;
 import org.eclipse.pde.core.plugin.ISharedExtensionsModel;
@@ -38,9 +40,6 @@ import org.eclipse.pde.internal.core.plugin.PluginImport;
 import org.eclipse.pde.internal.core.plugin.WorkspaceExtensionsModel;
 import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.runtime.RuntimePlugin;
-
-import org.eclipse.pde.core.plugin.IPluginModelFactory;		// SMS 20 Jul 2006
-import org.eclipse.pde.core.plugin.IExtensions;				// SMS 20 Jul 2006
 
 
 /**
@@ -346,7 +345,7 @@ public class ExtensionPointEnabler {
 		    pluginBase.add(extension);
 	
 		addRequiredPluginImports(pluginModel, page.getRequires());
-		saveAndRefresh(pluginModel);
+			saveAndRefresh(pluginModel);
 	}
 
 
@@ -464,8 +463,11 @@ public class ExtensionPointEnabler {
 	    // an "id" attribute of an "extension" element.
 	    String pluginID= pluginModel.getPlugin().getId();
 
-	    if (schemaElementName.equals("extension") && attributeName.equals("id") && attributeValue.startsWith(pluginID + "."))
-		attributeValue= attributeValue.substring(pluginID.length() + 1);
+	    // SMS 16 Apr 2007
+	    // Leave the id value alone; if it happens to start with the name of the plugin already
+	    // then that's the way the user set it and that's the value that will be used elsewhere
+	    //if (schemaElementName.equals("extension") && attributeName.equals("id") && attributeValue.startsWith(pluginID + "."))
+		//attributeValue= attributeValue.substring(pluginID.length() + 1);
 
 	    setElementAttribute(schemaElementName, attributeName, attributeValue, extension, elementMap, pluginModel);
 	}
@@ -648,15 +650,27 @@ public class ExtensionPointEnabler {
 	}
     }
 
-    private static void saveAndRefresh(IPluginModel plugin) throws CoreException {
-	if (plugin instanceof IBundlePluginModel) {
-	    IBundlePluginModel bundlePluginModel= (IBundlePluginModel) plugin;
-	    ISharedExtensionsModel extModel= bundlePluginModel.getExtensionsModel();
 
-	    if (extModel instanceof IEditableModel)
-		((IEditableModel) extModel).save();
-	    bundlePluginModel.save(); // This blows away the entire MANIFEST.MF...
-	}
-	plugin.getUnderlyingResource().refreshLocal(1, null);
+    // SMS 16 Apr 2007
+    // I have separate notes on attempts, centered on this method, to debug the problem 
+    // of unrecognized updates to plugin dependencies.
+    
+    private static void saveAndRefresh(IPluginModel plugin) throws CoreException {
+		if (plugin instanceof IBundlePluginModel) {
+		    IBundlePluginModel bundlePluginModel= (IBundlePluginModel) plugin;
+		    ISharedExtensionsModel extModel= bundlePluginModel.getExtensionsModel();
+
+		    if (extModel != null) {
+		    	// SMS 16 Apr 2007:  Commenting out because the extensions model
+		    	// is saved as part of the saving of the bundle plugin model that
+		    	// follows (leaving for future reference until the change is validated
+		    	// in practice).
+//			    if (extModel instanceof IEditableModel) {
+//			    	((IEditableModel) extModel).save();	
+//			    }
+			    bundlePluginModel.save(); // This blows away the entire MANIFEST.MF...
+		    }
+		}
+		plugin.getUnderlyingResource().refreshLocal(1, null);
     }
 }
