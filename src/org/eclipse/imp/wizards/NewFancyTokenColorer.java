@@ -122,7 +122,6 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
     }
 
     protected List getPluginDependencies() {
-    	// SMS 23 Feb 2007	"lpg" -> "lpg.runtime"
         return Arrays.asList(new String[] {
                 "org.eclipse.core.runtime", "org.eclipse.core.resources",
     	    "org.eclipse.uide.runtime", "org.eclipse.ui", "org.eclipse.jface.text", 
@@ -130,22 +129,21 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
     }
 
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
-	ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
-	IProject project= page.getProject();
+//	ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
+//	IProject project= page.getProject();
 	Map subs= getStandardSubstitutions();
 
-	// { "$PKG_NAME$", fPackageName },
 	subs.put("$PARSER_PKG$", fParserPackage);
 
-	WizardPageField field= pages[0].getField("class");
-	String qualifiedClassName= field.fValue;
-	String className= qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.') + 1);
+//	WizardPageField field= pages[0].getField("class");
+//	String qualifiedClassName= field.fValue;
+//	String className= qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.') + 1);
 	subs.remove("$COLORER_CLASS_NAME$");
-	subs.put("$COLORER_CLASS_NAME$", className);
+	subs.put("$COLORER_CLASS_NAME$", fFullClassName);
 
-	subs.remove("$PACKAGE_NAME$");
-	String packageName= qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
-	subs.put("$PACKAGE_NAME$", packageName);
+//	subs.remove("$PACKAGE_NAME$");
+//	String packageName= qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
+	subs.put("$PACKAGE_NAME$", fPackageName);
 
 	// TODO Need to add the base language plugin (if any) as a plugin dependency
 	final String baseLang= ExtensionPointEnabler.findServiceAttribute(RuntimePlugin.UIDE_RUNTIME + ".languageDescription", fLanguageName, "language", "derivedFrom", "");
@@ -156,9 +154,9 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
 	subs.put("$TOKEN_ATTRIBUTE_INITS$", computeTokenAttribInits());
 	subs.put("$TOKEN_ATTRIBUTE_CASES$", computeTokenAttribCases());
 
-	String packageFolder= packageName.replace('.', File.separatorChar);
+//	String packageFolder= packageName.replace('.', File.separatorChar);
 	String colorerTemplateName = "colorer_fancy.java";
-	IFile colorerSrc= createFileFromTemplate(className + ".java", colorerTemplateName, packageFolder, subs, project, mon);
+	IFile colorerSrc= createFileFromTemplate(fFullClassName + ".java", colorerTemplateName, fPackageFolder, subs, fProject, mon);
 
 	editFile(mon, colorerSrc);
     }

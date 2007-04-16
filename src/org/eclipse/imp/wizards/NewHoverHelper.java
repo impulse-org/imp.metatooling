@@ -20,5 +20,9 @@ public class NewHoverHelper extends CodeServiceWizard {
 
     public void generateCodeStubs(IProgressMonitor mon) {
     // TODO Auto-generated method stub
+    	// Note:  Take advantage of field values set by collectCodeParms()
+    	// in CodeServiceWizard, i.e., you shouldn't have to take values
+    	// off the wizard pages here (unless something special is needed)
     }
+    
 }

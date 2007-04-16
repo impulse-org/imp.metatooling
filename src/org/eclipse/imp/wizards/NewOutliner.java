@@ -19,48 +19,40 @@ public class NewOutliner extends CodeServiceWizard {
     }
 
     protected List getPluginDependencies() {
-    	// SMS 23 Feb 2007	"lpg" -> "lpg.runtime"
         return Arrays.asList(new String[] {
                 "org.eclipse.core.runtime", "org.eclipse.core.resources",
     	    "org.eclipse.uide.runtime", "org.eclipse.ui", "org.eclipse.jface.text", 
                 "org.eclipse.ui.editors", "org.eclipse.ui.workbench.texteditor", "lpg.runtime" });
     }
 
-    public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
-        ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
-        IProject project= page.getProject();
+    
+    public void generateCodeStubs(IProgressMonitor mon) throws CoreException
+    {	
         // SMS 6 Apr 2007
         // Modifying this call to getStandardSubstitutions to provide project
         // which is needed to get plugin-related substitutions that may be needed
         // in the "images" class that will be generated along with the outliner
-        Map subs= getStandardSubstitutions(project);
+        Map subs= getStandardSubstitutions(fProject);
 
         subs.put("$PARSER_PKG$", fParserPackage);
         subs.put("$AST_PKG$", fParserPackage + "." + Wizards.astDirectory);
         subs.put("$AST_NODE$", Wizards.astNode);
-
-        // SMS 19 Jul 2006
-        // Added (or modified) following so as to accommodate
-        // values provided through wizard by user
         
-        WizardPageField field = pages[0].getField("class");
-        String qualifiedClassName = field.fValue;
-        String className = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.')+1);
         subs.remove("$OUTLINER_CLASS_NAME$");
-        subs.put("$OUTLINER_CLASS_NAME$", className);
+        subs.put("$OUTLINER_CLASS_NAME$", fFullClassName); //className);
         
         subs.remove("$PACKAGE_NAME$");
-        String packageName = qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
-        subs.put("$PACKAGE_NAME$", packageName);
-        String packageFolder = packageName.replace('.', File.separatorChar);
+        subs.put("$PACKAGE_NAME$", fPackageName);
 
         String outlinerTemplateName = "outliner.java";
-        IFile outlinerSrc= createFileFromTemplate(className	 + ".java", outlinerTemplateName, packageFolder, subs, project, mon);
+        IFile outlinerSrc= createFileFromTemplate(fFullClassName + ".java", outlinerTemplateName, fPackageFolder, subs, fProject, mon);
         
         String imagesTemplateName = "images.java";
-        createFileFromTemplate(fClassName + "Images.java", imagesTemplateName, packageFolder, subs, project, mon);
-        copyLiteralFile("../icons/outline_item.gif", "icons", project, mon);
+        createFileFromTemplate(fClassNamePrefix + "Images.java", imagesTemplateName, fPackageFolder, subs, fProject, mon);
+        copyLiteralFile("../icons/outline_item.gif", "icons", fProject, mon);
 
         editFile(mon, outlinerSrc);
     }
+    
+  
 }

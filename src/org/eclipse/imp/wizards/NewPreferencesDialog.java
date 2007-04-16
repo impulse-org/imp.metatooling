@@ -15,12 +15,18 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.runtime.RuntimePlugin;
 
 public class NewPreferencesDialog extends CodeServiceWizard {
 	
 	protected String fPreferencesPackage;
+	protected String fMenuItem;
+	protected String fAlternativeMessage;
+	
 	
 	public void addPages() {
 	    addPages(new ExtensionPointWizardPage[] { new NewPreferencesDialogWizardPage(this) } );
@@ -31,73 +37,65 @@ public class NewPreferencesDialog extends CodeServiceWizard {
 		    "org.eclipse.uide.runtime" });
 	}
 
-	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
+	
+    protected void collectCodeParms()
+    {
+    	super.collectCodeParms();
+    	
 		ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
-        IProject project= page.getProject();
-        Map subs= getStandardSubstitutions();
-
-        // Get new parameter values from wizard
-        // and replace old parameter values
-        WizardPageField field = pages[0].getField("class");
-        String qualifiedClassName = field.fValue;
-        String className = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.')+1);
-        subs.remove("$PREFS_CLASS_NAME$");
-        subs.put("$PREFS_CLASS_NAME$", className);
-        
-        subs.remove("$PREFS_PACKAGE_NAME$");
-        String packageName = qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
-        subs.put("$PREFS_PACKAGE_NAME$", packageName);
-        
-        field = pages[0].getField("category");
-        String menuItem = field.fValue;
+    	
+		WizardPageField field = pages[0].getField("category");
+        fMenuItem = field.fValue;
 
         field = pages[0].getField("alternative");
-        String alternativeMessage = field.fValue;
+        fAlternativeMessage = field.fValue;
+    }
+	
+	
+	public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
 
+        Map subs= getStandardSubstitutions(fProject);
+
+        subs.remove("$PREFS_CLASS_NAME$");
+        subs.put("$PREFS_CLASS_NAME$", fFullClassName);
         
-        //System.out.println("Menu item:  " + menuItem);	
+        subs.remove("$PREFS_PACKAGE_NAME$");
+        subs.put("$PREFS_PACKAGE_NAME$", fPackageName);
         
-        String packageFolder = packageName.replace('.', File.separatorChar);
-        
-        // Note:  In the following, the second parameter is actually the name of the template file,
-        // even though it may be given with a ".java" extension
-        
-        // Check whether there is an "alternative" mesage, in which case
-        // assume that a simple page containing that message should be
-        // generated rather than a full tabbed preference page.
-        if (alternativeMessage.length() != 0){
+        if (fAlternativeMessage.length() != 0){
             subs.remove("$PREFS_ALTERNATIVE_MESSAGE$");
-            subs.put("$PREFS_ALTERNATIVE_MESSAGE$", alternativeMessage);
-            IFile pageSrc = createFileFromTemplate(className + ".java", "preferencesPageAlternative.java", packageFolder, subs, project, mon);
+            subs.put("$PREFS_ALTERNATIVE_MESSAGE$", fAlternativeMessage);
+            IFile pageSrc = createFileFromTemplate(fFullClassName + ".java", "preferencesPageAlternative.java", fPackageFolder, subs, fProject, mon);
             editFile(mon, pageSrc);
             return;
         }	
         
         // Generating a full tabbed preference page
         
-        IFile pageSrc = createFileFromTemplate(className + ".java", "preferencesPageWithTabs.java", packageFolder, subs, project, mon);
+        IFile pageSrc = createFileFromTemplate(fFullClassName + ".java", "preferencesPageWithTabs.java", fPackageFolder, subs, fProject, mon);
         editFile(mon, pageSrc);
         
-        IFile defaultSrc = createFileFromTemplate(className + "DefaultTab.java", "preferencesTabDefaultLevel.java", packageFolder, subs, project, mon);
+        IFile defaultSrc = createFileFromTemplate(fFullClassName + "DefaultTab.java", "preferencesTabDefaultLevel.java", fPackageFolder, subs, fProject, mon);
         editFile(mon, defaultSrc);
         
-        IFile configSrc = createFileFromTemplate(className + "ConfigurationTab.java", "preferencesTabConfigurationLevel.java", packageFolder, subs, project, mon);
+        IFile configSrc = createFileFromTemplate(fFullClassName + "ConfigurationTab.java", "preferencesTabConfigurationLevel.java", fPackageFolder, subs, fProject, mon);
         editFile(mon, configSrc);
         
-        IFile instanceSrc = createFileFromTemplate(className + "InstanceTab.java", "preferencesTabInstanceLevel.java", packageFolder, subs, project, mon);
+        IFile instanceSrc = createFileFromTemplate(fFullClassName + "InstanceTab.java", "preferencesTabInstanceLevel.java", fPackageFolder, subs, fProject, mon);
         editFile(mon, instanceSrc);
         
-        IFile projectSrc = createFileFromTemplate(className + "ProjectTab.java", "preferencesTabProjectLevel.java", packageFolder, subs, project, mon);
+        IFile projectSrc = createFileFromTemplate(fFullClassName + "ProjectTab.java", "preferencesTabProjectLevel.java", fPackageFolder, subs, fProject, mon);
         editFile(mon, projectSrc);
         
-        IFile initializerSrc = createFileFromTemplate(className + "Initializer.java", "preferencesInitializer.java", packageFolder, subs, project, mon);
+        IFile initializerSrc = createFileFromTemplate(fFullClassName + "Initializer.java", "preferencesInitializer.java", fPackageFolder, subs, fProject, mon);
         editFile(mon, initializerSrc);
           
-        IFile constantsSrc = createFileFromTemplate(className + "Constants.java", "preferencesConstants.java", packageFolder, subs, project, mon);
+        IFile constantsSrc = createFileFromTemplate(fFullClassName + "Constants.java", "preferencesConstants.java", fPackageFolder, subs, fProject, mon);
         editFile(mon, constantsSrc);
 	}
 	
-	
+ 
+ 
 	   
     /**
      * This method is called when 'Finish' button is pressed in the wizard.
@@ -109,6 +107,8 @@ public class NewPreferencesDialog extends CodeServiceWizard {
      */
 	public boolean performFinish() {
 		collectCodeParms(); // Do this in the UI thread while the wizard fields are still accessible
+	   	if (!okToClobberFiles(getFilesThatCouldBeClobbered()))
+    		return false;
 		
 		// SMS 18 Dec 2006
 		// This is really the collection of code parameters, done here (in this thread) because
@@ -127,9 +127,7 @@ public class NewPreferencesDialog extends CodeServiceWizard {
 		final String prefCategory = prefCategoryField.getText();
 		final String prefAlternative = prefAlternativeField.getText();
 
-		//
-	
-		
+
 		IRunnableWithProgress op= new IRunnableWithProgress() {
 		    public void run(IProgressMonitor monitor) throws InvocationTargetException {
 			IWorkspaceRunnable wsop= new IWorkspaceRunnable() {
@@ -184,5 +182,30 @@ public class NewPreferencesDialog extends CodeServiceWizard {
 		return true;
 	}
     
+	
+   /**
+     * Return the names of any existing files that would be clobbered by the
+     * new files to be generated.
+     * 
+     * @return	An array of names of existing files that would be clobbered by
+     * 			the new files to be generated
+     */
+	   protected String[] getFilesThatCouldBeClobbered() {
+	    	String prefix = fProject.getLocation().toString() + '/' + getProjectSourceLocation() + fPackageName.replace('.', '/') + '/';
+	    	if (fAlternativeMessage.length() <= 0)
+				return new String[] {
+						prefix + fFullClassName + ".java", 
+						prefix + fFullClassName + "DefaultTab.java", 
+						prefix + fFullClassName + "ConfigurationTab.java", 
+						prefix + fFullClassName + "InstanceTab.java", 
+						prefix + fFullClassName + "ProjectTab.java", 
+						prefix + fFullClassName + "Initializer.java", 
+						prefix + fFullClassName + "Initializer.java", 
+						prefix + fFullClassName + "Constants.java"
+				};
+	    	else
+	    		return new String[] { prefix + fFullClassName + ".java" };
+	    }
+ 
 	
 }

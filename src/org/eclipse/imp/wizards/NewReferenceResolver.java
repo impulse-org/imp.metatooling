@@ -16,7 +16,8 @@ import org.eclipse.uide.runtime.RuntimePlugin;
 
 public class NewReferenceResolver extends CodeServiceWizard {
     public void addPages() {
-        addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "referenceResolvers"), });
+        addPages(new ExtensionPointWizardPage[] {
+        	new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "referenceResolvers"), });
     }
 
     protected List getPluginDependencies() {
@@ -25,30 +26,20 @@ public class NewReferenceResolver extends CodeServiceWizard {
     }
 
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
-        ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
-        IProject project= page.getProject();
+    	
         Map subs= getStandardSubstitutions();
 
-        // SMS 14 Jul 2006:  This bit is from the original
-        // (should check how parameter is used)
-//      { "$PKG_NAME$", fPackageName },
         subs.put("$PARSER_PKG$", fParserPackage);
-        
-        // SMS 14 Jul 2006
-        // Added (or modified) following to accommodate
-        // values provided through wizard by user
-        
-        WizardPageField field = page.getField("class");
-        String qualifiedClassName = field.fValue;
-        
-        String packageName = qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
-        subs.put("$PACKAGE_NAME$", packageName);
-        String packageFolder = packageName.replace('.', File.separatorChar);
+
+        subs.remove("$PACKAGE_NAME$");
+        subs.put("$PACKAGE_NAME$", fPackageName);
         
         String resolverTemplateName = "reference_resolver.java";
-        IFile resolverSrc = createFileFromTemplate(fClassName + "ReferenceResolver.java", resolverTemplateName, packageFolder, subs, project, mon);
-        
-//      editFile(mon, detectorSrc);
+        IFile resolverSrc = createFileFromTemplate(
+        	fClassNamePrefix + "ReferenceResolver.java", resolverTemplateName, fPackageFolder, subs, fProject, mon);
+
         editFile(mon, resolverSrc);
     }
+    
+   
 }

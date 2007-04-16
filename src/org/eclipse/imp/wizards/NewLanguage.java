@@ -31,6 +31,38 @@ public class NewLanguage extends CodeServiceWizard {
     	    "org.eclipse.uide.runtime", "org.eclipse.ui" });
     }
 
+    
+    /*
+     * Overrides the method in CodeServiceWizard because fewer parameters
+     * are needed and available at this point in the creation of an IDE
+     * 
+     * @see org.eclipse.uide.wizards.ExtensionPointWizard#collectCodeParms()
+     */
+    protected void collectCodeParms() {
+    	fProject = pages[0].getProject();
+    	fProjectName = pages[0].fProjectText.getText();
+        fLanguageName= pages[0].fLanguageText.getText();
+        
+        fClassNamePrefix= Character.toUpperCase(fLanguageName.charAt(0)) + fLanguageName.substring(1);
+//        
+//		String qualifiedClassName= pages[0].getField("class").fValue;
+//		fFullClassName = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.') + 1);
+//		fPackageName= qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
+//		fPackageFolder= fPackageName.replace('.', File.separatorChar);
+//		
+//        String[] subPkgs= fPackageName.split("\\.");
+//        StringBuffer buff= new StringBuffer();
+//        for(int i= 0; i < subPkgs.length-1; i++) {
+//            if (i > 0) buff.append('.');
+//            buff.append(subPkgs[i]);
+//        }
+//        buff.append(".parser");
+//        fParserPackage= buff.toString();
+    }
+
+    
+    
+    
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
         ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
         IProject project= page.getProject();
@@ -52,6 +84,6 @@ public class NewLanguage extends CodeServiceWizard {
         createFileFromTemplate((String)subs.get("$PLUGIN_CLASS$") + ".java", pluginTemplateName, pluginClassFolder, subs, project, mon);
         
         // SMS 27 Mar 2007 commented out creation of file for preference cache because no longer used
-        createFileFromTemplate(fClassName + "PreferenceConstants.java", "prefs_const.tmpl", prefsFolder, subs, project, mon);
+        createFileFromTemplate(fClassNamePrefix + "PreferenceConstants.java", "prefs_const.tmpl", prefsFolder, subs, project, mon);
     }
 }
