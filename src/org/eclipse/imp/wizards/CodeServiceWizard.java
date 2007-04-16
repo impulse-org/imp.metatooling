@@ -23,16 +23,6 @@ import org.eclipse.pde.internal.core.plugin.PluginElement;
  */
 public abstract class CodeServiceWizard extends ExtensionPointWizard {
 
-	protected String fProjectName;
-    protected String fLanguageName;
-    protected String fPackageName;
-    protected String fPackageFolder;
-    protected String fParserPackage;
-    // SMS 	13 Apr 2007:  refactored fClassName -> fClassNamePrefix
-    // to better reflect actual use
-    protected String fClassNamePrefix;
-    protected String fFullClassName;
-
     protected void collectCodeParms() {
     	fProject = pages[0].getProject();
     	fProjectName = pages[0].fProjectText.getText();
