@@ -34,6 +34,9 @@ import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.INewWizard;
@@ -48,19 +51,28 @@ import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.utils.StreamUtils;
 import org.osgi.framework.Bundle;
 
+
 /**
  * This wizard creates a new file resource in the provided container. 
  * The wizard creates one file with the extension "g". 
  */
-public abstract class ExtensionPointWizard extends Wizard implements INewWizard {
+public abstract class ExtensionPointWizard extends Wizard implements INewWizard
+{
     private static final String START_HERE= "// START_HERE";
 
     protected int currentPage;
-
+    
     protected ExtensionPointWizardPage pages[];
 
     protected int NPAGES;
 
+    // SMS 13 Apr 2007
+    // Can be set by collectCodeParms(), which can get it
+    // from the page along with the parameters
+    protected IProject fProject;
+
+    
+    
     public ExtensionPointWizard() {
 	super();
 	setNeedsProgressMonitor(true);
@@ -71,19 +83,19 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
     }
 
     protected void addPages(ExtensionPointWizardPage[] pages) {
-	this.pages= pages;
-	NPAGES= pages.length;
-	for(int n= 0; n < pages.length; n++) {
-	    addPage(pages[n]);
-	}
-	List/*<String>*/extenRequires= getPluginDependencies();
-	for(Iterator/*<String>*/iter= extenRequires.iterator(); iter.hasNext();) {
-	    String requiredPlugin= (String) iter.next();
-	    for(int n= 0; n < pages.length; n++) {
-		List/*<String>*/pageRequires= pages[n].getRequires();
-		pageRequires.add(requiredPlugin);
-	    }
-	}
+		this.pages= pages;
+		NPAGES= pages.length;
+		for(int n= 0; n < pages.length; n++) {
+		    addPage(pages[n]);
+		}
+		List/*<String>*/extenRequires= getPluginDependencies();
+		for(Iterator/*<String>*/iter= extenRequires.iterator(); iter.hasNext();) {
+		    String requiredPlugin= (String) iter.next();
+		    for(int n= 0; n < pages.length; n++) {	
+			List/*<String>*/pageRequires= pages[n].getRequires();
+			pageRequires.add(requiredPlugin);
+		    }
+		}
     }
 
     public IWizardPage getPreviousPage(IWizardPage page) {
@@ -130,50 +142,75 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
      * to generate code.
      */
     protected void collectCodeParms() {}
+    
+
+    // SMS 13 Apr 2007
+    // Added methods and calls related to checking for existing
+    // files that would be clobbered by generated files
+    
+    /**
+     * Implementors of generateCodeStubs(..) should override this method to return
+     * the names of any existing files that would be clobbered by the new files to
+     * be generated.
+     * 
+     * @return	An array of names of existing files that would be clobbered by
+     * 			the new files to be generated
+     */
+    protected String[] getFilesThatCouldBeClobbered() {
+    	return new String[0];
+    }
+    
 
     /**
      * This method is called when 'Finish' button is pressed in the wizard.
      * We will create an operation and run it using wizard as execution context.
      */
     public boolean performFinish() {
-	collectCodeParms(); // Do this in the UI thread while the wizard fields are still accessible
-	IRunnableWithProgress op= new IRunnableWithProgress() {
-	    public void run(IProgressMonitor monitor) throws InvocationTargetException {
-		IWorkspaceRunnable wsop= new IWorkspaceRunnable() {
-		    public void run(IProgressMonitor monitor) throws CoreException {
-			try {
-			    for(int n= 0; n < pages.length; n++) {
-				ExtensionPointWizardPage page= pages[n];
-
-				// BUG Make sure the extension ID is correctly set
-				if (!page.hasBeenSkipped() && page.fSchema != null)
-				    ExtensionPointEnabler.enable(page, false, monitor);
+    	// Do the following in the UI thread while the wizard fields are
+    	// still accessible and dialogs are still possible
+		collectCodeParms();
+		// NOTE:  Invoke after collectCodeParms() so that collectCodeParms()
+		// collect collect the names of files from the wizard
+    	if (!okToClobberFiles(getFilesThatCouldBeClobbered()))
+    		return false;
+    	
+		IRunnableWithProgress op= new IRunnableWithProgress() {
+		    public void run(IProgressMonitor monitor) throws InvocationTargetException {
+			IWorkspaceRunnable wsop= new IWorkspaceRunnable() {
+			    public void run(IProgressMonitor monitor) throws CoreException {
+				try {
+				    for(int n= 0; n < pages.length; n++) {
+					ExtensionPointWizardPage page= pages[n];
+	
+					// BUG Make sure the extension ID is correctly set
+					if (!page.hasBeenSkipped() && page.fSchema != null)
+					    ExtensionPointEnabler.enable(page, false, monitor);
+				    }
+				    generateCodeStubs(monitor);
+				} catch (Exception e) {
+				    ErrorHandler.reportError("Could not add extension points", e);
+				} finally {
+				    monitor.done();
+				}
 			    }
-			    generateCodeStubs(monitor);
+			};
+			try {
+			    ResourcesPlugin.getWorkspace().run(wsop, monitor);
 			} catch (Exception e) {
 			    ErrorHandler.reportError("Could not add extension points", e);
-			} finally {
-			    monitor.done();
 			}
 		    }
 		};
 		try {
-		    ResourcesPlugin.getWorkspace().run(wsop, monitor);
-		} catch (Exception e) {
-		    ErrorHandler.reportError("Could not add extension points", e);
+		    getContainer().run(true, false, op);
+		} catch (InvocationTargetException e) {
+		    Throwable realException= e.getTargetException();
+		    ErrorHandler.reportError("Error", realException);
+		    return false;
+		} catch (InterruptedException e) {
+		    return false;
 		}
-	    }
-	};
-	try {
-	    getContainer().run(true, false, op);
-	} catch (InvocationTargetException e) {
-	    Throwable realException= e.getTargetException();
-	    ErrorHandler.reportError("Error", realException);
-	    return false;
-	} catch (InterruptedException e) {
-	    return false;
-	}
-	return true;
+		return true;
     }
 
     public void setPage(int page) {
@@ -249,18 +286,27 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
 	monitor.worked(1);
     }
 
+    
+    // SMS 13 Apr 2007
+    // Temporary experiment to allow explicit assumption of "src"
+    // directory to be relaxed
+    public String getProjectSourceLocation() {
+    		return "src/";
+    }
+    
+    
     protected IFile createFileFromTemplate(String fileName, String templateName, String folder, Map replacements,
 	    IProject project, IProgressMonitor monitor) throws CoreException {
 	monitor.setTaskName("Creating " + fileName);
 
-	final IFile file= project.getFile(new Path("src/" + folder + "/" + fileName));
+	final IFile file= project.getFile(new Path(getProjectSourceLocation() + folder + "/" + fileName));
 	String templateContents= new String(getTemplateFile(templateName));
 	String contents= performSubstitutions(templateContents, replacements);
 
 	if (file.exists()) {
 	    file.setContents(new ByteArrayInputStream(contents.getBytes()), true, true, monitor);
 	} else {
-            createSubFolders("src/" + folder, project, monitor);
+            createSubFolders(getProjectSourceLocation() + folder, project, monitor);
 	    file.create(new ByteArrayInputStream(contents.getBytes()), true, monitor);
 	}
 //	monitor.worked(1);
@@ -345,4 +391,43 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard 
     }
 
     protected abstract Map getStandardSubstitutions();
+    
+ 
+    /**
+     * Check whether it's okay for the files to be generated to clobber
+     * any existing files.
+     * 
+     * Current implementation expects that the file names provided will
+     * be the full absolute path names in the file system.
+     * 
+     * @param files		The names of files that would be clobbered by
+     * 					files to be generated
+     * @return			True if there are no files that would be clobbered
+     * 					or if the users presses OK; false if there are
+     * 					files and the user presses CANCEL
+     */
+    protected boolean okToClobberFiles(String[] files) {
+    	if (files.length == 0)
+    		return true;
+    	String message = "File(s) with the following name(s) already exist; do you want to overwrite?\n";
+    	boolean askUser = false;
+    	for (int i = 0; i < files.length; i++) {
+    		File file = new File(files[i]);
+    		if (file.exists()) {
+    			askUser = true;
+    			message = message + "\n" + files[i];
+    		}
+    	}
+    	if (!askUser)
+    		return true;
+    	Shell parent = this.getShell();
+    	MessageBox messageBox = new MessageBox(parent, (SWT.CANCEL | SWT.OK));
+    	messageBox.setMessage(message);
+    	int result = messageBox.open();
+    	if (result == SWT.CANCEL)
+    		return false;
+    	return true;
+    }
+    	
+    
 }
