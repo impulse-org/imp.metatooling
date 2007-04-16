@@ -1,11 +1,11 @@
 package $PREFS_PACKAGE_NAME$;
 
-
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.uide.preferences.ISafariPreferencesService;
 import org.eclipse.uide.preferences.SafariPreferencesTab;
 import org.eclipse.uide.preferences.SafariTabbedPreferencesPage;
-import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
+//import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
+import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;	// SMS 27 Mar 2007
 
 /**
  * The Safari-based tabbed preferences page for language $CLASS_NAME_PREFIX$.
@@ -19,7 +19,8 @@ public class $PREFS_CLASS_NAME$ extends SafariTabbedPreferencesPage {
 	public $PREFS_CLASS_NAME$() {
 		super();
 		// Get the language-specific preferences service
-		prefService = $CLASS_NAME_PREFIX$Plugin.getPreferencesService();
+		// SMS 28 Mar 2007:  parameterized full name of plugin class
+		prefService = $PLUGIN_CLASS$.getPreferencesService();
 	}
 	
 	

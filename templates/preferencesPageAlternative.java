@@ -1,7 +1,8 @@
 package $PREFS_PACKAGE_NAME$;
 
 import org.eclipse.uide.preferences.SafariAlternativePreferencesPage;
-import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
+//import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
+import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 
 /**
  * A Safari-based preferences page placeholder for language $CLASS_NAME_PREFIX$.

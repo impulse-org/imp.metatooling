@@ -2,8 +2,8 @@ package $PREFS_PACKAGE_NAME$;
 	
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.uide.preferences.ISafariPreferencesService;
-import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
-
+//import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
+import $LANG_NAME$.$PLUGIN_CLASS$;	// SMS 27 Mar 2007
 
 /**
  * Provides a method to initialize the default-level preference for $PREFS_CLASS_NAME$
@@ -25,7 +25,8 @@ public class $PREFS_CLASS_NAME$Initializer extends AbstractPreferenceInitializer
      */
     public void initializeDefaultPreferences() {
     
-		ISafariPreferencesService service = $CLASS_NAME_PREFIX$Plugin.getPreferencesService();
+//		ISafariPreferencesService service = $CLASS_NAME_PREFIX$Plugin.getPreferencesService();
+		ISafariPreferencesService service = $PLUGIN_CLASS$.getPreferencesService();
 		
 		// TODO:  Initialize preferences values here ...
 		// Example:
