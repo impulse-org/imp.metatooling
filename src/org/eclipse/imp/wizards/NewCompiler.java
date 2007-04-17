@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.uide.runtime.RuntimePlugin;
 import org.eclipse.uide.utils.ExtensionPointUtils;
 
-public class NewCompiler extends GeneratedComponentServiceWizard {
+public class NewCompiler extends GeneratedComponentWizard {
     // Need a variant of CodeServiceWizard that doesn't actually create an extension, just generates code...
 	// SMS 27 Jul 2006:  This is it ...
 	
@@ -55,47 +55,26 @@ public class NewCompiler extends GeneratedComponentServiceWizard {
                 "org.eclipse.uide.runtime" });
     }
 
-    public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
-    	GeneratedComponentWizardPage page= (GeneratedComponentWizardPage) pages[0];
-        IProject project= page.getProject();
-        Map<String,String> subs= getStandardSubstitutions();
+    public void generateCodeStubs(IProgressMonitor mon) throws CoreException
+    {	
+        Map<String,String> subs= getStandardSubstitutions(fProject);
 
-        // SMS 10 Aug 2006
-        // The following are all now part of the standard substitution
-        //subs.put("$PARSER_PACKAGE$", fParserPackage); // These should be in the standard substitutions...
-        //subs.put("$AST_PACKAGE$", fParserPackage + ".Ast");
-        //subs.put("$AST_NODE$", "ASTNode");
+        subs.remove("$COMPILER_CLASS_NAME$");
+        subs.put("$COMPILER_CLASS_NAME$", fFullClassName);
 
-        // SMS 21 Jul 2006
-        // Added (or modified) following to accommodate
-        // values provided through wizard by user
-        
-        WizardPageField field = pages[0].getField("class");
-        String qualifiedClassName = field.fValue;
-        String className = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.')+1);
-        subs.put("$COMPILER_CLASS_NAME$", className);
-        
-        String packageName = qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
-        subs.put("$PACKAGE_NAME$", packageName);
-        
-        String packageFolder = packageName.replace('.', File.separatorChar);
-        
-        // SMS 10 Aug 2006
-        // We also need to know the name of the ParseController class
-        // because the user may have changed that from the default
-        String parseControllerClassName = getParseControllerClassName(project);
+        String parseControllerClassName = getParseControllerClassName(fProject);
         subs.put("$ParseControllerClassName$", parseControllerClassName);
         
         // SMS 21 Jul 2006
         // NOTE:  The template also makes reference to "$CLASS_NAME_PREFIX$ParseController();"
-        // which may *not* be the name of the parese controller if the user has change that
+        // which may *not* be the name of the par	se controller if the user has change that
         // from the default.  So some provision should be made to identify the correct name
         // for the parse controller (e.g., adding a field to the new compiler wizard).
         // Otherwise, the generated code will not compile, but that can be easily repaired
         // by the user.
         
         String compilerTemplateName = "compiler.java";
-        IFile compilerSrc= createFileFromTemplate(className + ".java", compilerTemplateName, packageFolder, subs, project, mon);
+        IFile compilerSrc= createFileFromTemplate(fFullClassName + ".java", compilerTemplateName, fPackageFolder, subs, fProject, mon);
 
         editFile(mon, compilerSrc);
     }
