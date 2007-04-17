@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.StringBufferInputStream;
 import java.util.Stack;
 
+import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 import $PARSER_PACKAGE$.*;
 import $AST_PACKAGE$.*;
 import $PARSER_PACKAGE$.$CLASS_NAME_PREFIX$Parser.SymbolTable;
@@ -30,7 +31,15 @@ public class $COMPILER_CLASS_NAME$ {
     private static final String sTemplateFooter= "}\n";
 
     Stack/*<String>*/ fTranslationStack= new Stack();
-
+    
+    //public static final String PROBLEM_MARKER_ID= $PLUGIN_CLASS$.kPluginID + ".$PROBLEM_ID$";
+    public String PROBLEM_MARKER_ID;
+    
+    public $COMPILER_CLASS_NAME$(String problem_marker_id) {
+    	PROBLEM_MARKER_ID = problem_marker_id;
+    }
+    
+    
     private final class TranslatorVisitor extends AbstractVisitor {
     	SymbolTable innerScope;
 
@@ -243,14 +252,17 @@ public class $COMPILER_CLASS_NAME$ {
         IParseController parseController= new $ParseControllerClassName$();
         
         // Marker creator handles error messages from the parse controller
-        MarkerCreator markerCreator = new MarkerCreator(file, parseController, "$CLASS_NAME_PREFIX$.problem");
+        MarkerCreator markerCreator = new MarkerCreator(file, parseController, PROBLEM_MARKER_ID);
 
         parseController.initialize(file.getProjectRelativePath()/*.toString()*/, project, markerCreator);
         parseController.parse(getFileContents(file), false, mon);
 
         $AST_NODE$ currentAst= ($AST_NODE$) parseController.getCurrentAst();
 
-        if (currentAst == null) return;
+        if (currentAst == null) {
+            System.err.println("$COMPILER_CLASS_NAME$.compile:  current AST is null (parse errors?); unable to compile.");
+        	return;
+        }
 
         String fileExten= file.getFileExtension();
         String fileBase= file.getName().substring(0, file.getName().length() - fileExten.length() - 1);
