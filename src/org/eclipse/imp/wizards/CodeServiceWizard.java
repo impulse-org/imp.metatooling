@@ -23,6 +23,14 @@ import org.eclipse.pde.internal.core.plugin.PluginElement;
  */
 public abstract class CodeServiceWizard extends ExtensionPointWizard {
 
+	
+    /**
+     * Collects basic information from wizard-page fields and computes
+     * additional common values for use by wizards in generating code.
+     * 	
+     * Can be extended by subclasses for specific wizards in order to
+     * gather wizard-specific values.
+     */
     protected void collectCodeParms() {
     	fProject = pages[0].getProject();
     	fProjectName = pages[0].fProjectText.getText();
