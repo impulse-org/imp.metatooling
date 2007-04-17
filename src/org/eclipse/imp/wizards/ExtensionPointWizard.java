@@ -320,8 +320,8 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
 
     
     // SMS 13 Apr 2007
-    // Temporary experiment to allow explicit assumption of "src"
-    // directory to be relaxed
+    // A step toward relaxing assumptions about the location
+    // of source files within the project
     public String getProjectSourceLocation() {
     		return "src/";
     }
