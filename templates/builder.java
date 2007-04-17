@@ -14,7 +14,7 @@ import org.eclipse.uide.runtime.SAFARIPluginBase;
 
 //import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
 //import $PLUGIN_PACKAGE$.$CLASS_NAME_PREFIX$Plugin;
-import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
+	import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 
 import org.eclipse.uide.core.Language;
 import org.eclipse.uide.core.LanguageRegistry;
@@ -118,7 +118,7 @@ public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
         try {
             // START_HERE
             System.out.println("Builder.compile with file = " + file.getName());
-            //$CLASS_NAME_PREFIX$Compiler compiler= new $CLASS_NAME_PREFIX$Compiler();
+            //$CLASS_NAME_PREFIX$Compiler compiler= new $CLASS_NAME_PREFIX$Compiler(PROBLEM_MARKER_ID);
             //compiler.compile(file, monitor);
             // Here we provide a substitute for the compile method that simply
             // runs the parser in place of the compiler but creates problem
@@ -140,7 +140,7 @@ public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
 
             // Marker creator handles error messages from the parse controller (and
             // uses the parse controller to get additional information about the errors)
-            MarkerCreator markerCreator = new MarkerCreator(file, parseController, 	PROBLEM_MARKER_ID); //"$PROJ_NAME$.problem");
+            MarkerCreator markerCreator = new MarkerCreator(file, parseController, 	PROBLEM_MARKER_ID);
 
             // Need to tell the parse controller which file in which project to parse
             // and also the message handler to which to report errors
