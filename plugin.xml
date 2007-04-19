@@ -21,28 +21,34 @@
             category="org.eclipse.uide.wizards"
             name="Programming language descriptor"
             id="org.eclipse.uide.wizards.NewLanguageWizard"/>
-      <category
-            id="org.eclipse.uide.wizards.core"
-            name="Core Services"
-            parentCategory="org.eclipse.uide.wizards"/>
+            
+	<category
+	            id="org.eclipse.uide.wizards.build"
+	            name="Build Services"
+	            parentCategory="org.eclipse.uide.wizards"/>
       <wizard
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
-            name="New Project Wizard"
-            icon="icons/sample.gif"
-            class="org.eclipse.uide.wizards.NewProject"
-            id="org.eclipse.uide.wizards.NewProjectWizard"/>
-      <wizard
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.build"
             class="org.eclipse.uide.wizards.NewBuilder"
             icon="icons/sample.gif"
             id="org.eclipse.uide.newBuilder"
             name="Incremental Builder"/>
       <wizard
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.build"
             class="org.eclipse.uide.wizards.NewCompiler"
             icon="icons/sample.gif"
             id="org.eclipse.uide.newCompiler"
             name="Poor Man's Compiler"/>
+	  <wizard
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.build"
+            class="org.eclipse.uide.wizards.NewNatureEnabler"
+            icon="icons/sample.gif"
+            id="org.eclipse.uide.natureEnablerWizard"
+            name="Nature Enabler"/>
+            
+      <category
+            id="org.eclipse.uide.wizards.core"
+            name="Core Services"
+            parentCategory="org.eclipse.uide.wizards"/>
       <wizard
             class="org.eclipse.uide.wizards.NewIndexer"
             icon="icons/sample.gif"
@@ -55,23 +61,24 @@
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
             name="Preference Page"
             id="org.eclipse.uide.wizards.NewPreferencesDialog"/>
-      <category
-            id="org.eclipse.uide.wizards.parser"
-            name="Parser Services"
-            parentCategory="org.eclipse.uide.wizards"/>
-      <wizard
-            class="org.eclipse.uide.wizards.NewParser"
-            icon="icons/newgrammarfile.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.parser"
-            name="Hand-written Parser"
-            id="org.eclipse.uide.wizards.NewParser"/>
-<!--  <wizard
-            class="org.eclipse.uide.wizards.NewModelListener"
+	  <wizard
+            class="org.eclipse.uide.wizards.NewReferenceResolver"
             icon="icons/sample.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.parser"
-            name="Model Listener"
-            id="org.eclipse.uide.wizards.NewModelListener"/>
- -->
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
+            name="Reference Resolver"
+            id="org.eclipse.uide.wizards.NewReferenceResolver"/>
+            
+ 	<category
+            id="org.eclipse.uide.wizards.create"
+            name="Creation Services"
+            parentCategory="org.eclipse.uide.wizards"/>
+	<wizard
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.create	"
+            name="New Project Wizard"
+            icon="icons/sample.gif"
+            class="org.eclipse.uide.wizards.NewProject"
+            id="org.eclipse.uide.wizards.NewProjectWizard"/>
+ 
       <category
             id="org.eclipse.uide.wizards.editor"
             name="Editor Services"
@@ -113,12 +120,6 @@
             name="Source folding updater"
             id="org.eclipse.uide.wizards.NewFoldingUpdater"/>
       <wizard
-            class="org.eclipse.uide.wizards.NewReferenceResolver"
-            icon="icons/sample.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
-            name="Reference Resolver"
-            id="org.eclipse.uide.wizards.NewReferenceResolver"/>
-      <wizard
             class="org.eclipse.uide.wizards.NewAutoEditStrategy"
             icon="icons/sample.gif"
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
@@ -132,22 +133,42 @@
             id="org.eclipse.uide.wizards.NewFormatter"/>
       <wizard
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
-            class="org.eclipse.uide.wizards.NewRefactoringWizard"
-            icon="icons/sample.gif"
-            id="org.eclipse.uide.newRefactoring"
-            name="Refactoring"/>
-      <wizard
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
-            class="org.eclipse.uide.wizards.NewNatureEnabler"
-            icon="icons/sample.gif"
-            id="org.eclipse.uide.natureEnablerWizard"
-            name="Nature Enabler"/>
-      <wizard
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
             class="org.eclipse.uide.wizards.NewFancyTokenColorer"
             icon="icons/sample.gif"
             id="org.eclipse.uide.fancyTokenColorerWizard"
             name="Fancy New Token Colorer"/>
+            
+      <category
+            id="org.eclipse.uide.wizards.parser"
+            name="Parser Services"
+            parentCategory="org.eclipse.uide.wizards"/>
+      <wizard
+            class="org.eclipse.uide.wizards.NewParser"
+            icon="icons/newgrammarfile.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.parser"
+            name="Hand-written Parser"
+            id="org.eclipse.uide.wizards.NewParser"/>
+<!--  <wizard
+            class="org.eclipse.uide.wizards.NewModelListener"
+            icon="icons/sample.gif"
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.parser"
+            name="Model Listener"
+            id="org.eclipse.uide.wizards.NewModelListener"/>
+ -->            
+            
+	<category
+            id="org.eclipse.uide.wizards.transform"
+            name="Transformation Services"
+            parentCategory="org.eclipse.uide.wizards"/>
+      <wizard
+            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.transform"
+            class="org.eclipse.uide.wizards.NewRefactoringWizard"
+            icon="icons/sample.gif"
+            id="org.eclipse.uide.newRefactoring"
+            name="Refactoring"/>        
+            
+            
+            
    </extension>
    <extension
          point="org.eclipse.uide.runtime.languageDescription">
