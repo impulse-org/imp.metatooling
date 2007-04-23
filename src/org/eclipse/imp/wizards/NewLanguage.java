@@ -146,7 +146,7 @@ public class NewLanguage extends CodeServiceWizard {
     protected boolean okToDuplicatePluginIds(String pluginId)
     {
     	String message = "This project has id = '" + pluginId + "', which duplicates that of another project.\n" +
-    					 "Duplicate plugin ids can lead to incorrect dispatching of language services;\n" +
+    					 "Duplicate plugin ids can lead to errors in the enabling of new language services;\n" +
     					 "do you wish to continue to define your language in this project?";
     	Shell parent = this.getShell();
     	MessageBox messageBox = new MessageBox(parent, (SWT.OK | SWT.CANCEL));
