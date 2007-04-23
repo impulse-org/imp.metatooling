@@ -1,10 +1,10 @@
 package $PACKAGE_NAME$;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringBufferInputStream;
 import java.util.Stack;
 
 import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
@@ -271,13 +271,13 @@ public class $COMPILER_CLASS_NAME$ {
 
         IFile javaFile= project.getFile(file.getProjectRelativePath().removeFileExtension().addFileExtension("java"));
         String javaSource= sTemplateHeader.replaceAll(sClassNameMacro.replaceAll("\\$", "\\\\\\$"), fileBase) + fTranslationStack.pop() + sTemplateFooter;
-        StringBufferInputStream sbis= new StringBufferInputStream(javaSource);
+        ByteArrayInputStream bais = new ByteArrayInputStream(javaSource.getBytes());
 
         try {
             if (!javaFile.exists())
-                javaFile.create(sbis, true, mon);
+                javaFile.create(bais, true, mon);
             else
-                javaFile.setContents(sbis, true, false, mon);
+                javaFile.setContents(bais, true, false, mon);
         } catch (CoreException ce) {
             System.err.println(ce.getMessage());
         }
