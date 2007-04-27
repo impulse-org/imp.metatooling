@@ -31,8 +31,8 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
     private String getVariableName(IAst decl){
         if (decl instanceof declaration)
              return ((declaration) decl).getidentifier().toString();
-        else if (decl instanceof functionDeclaration)
-             return ((functionDeclaration) decl).getidentifier().toString();
+        else if (decl instanceof functionHeader)
+             return ((functionHeader) decl).getidentifier().toString();
         return "";
     }
     
@@ -42,8 +42,8 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
             string = ((declaration) decl).getprimitiveType().toString() + " " +
                      ((declaration) decl).getidentifier().toString();
         }
-        else if (decl instanceof functionDeclaration) {
-            functionDeclaration fdecl = (functionDeclaration) decl;
+        else if (decl instanceof functionHeader) {
+            functionHeader fdecl = (functionHeader) decl;
             declarationList parameters = fdecl.getparameters();
             string = fdecl.getType().toString() + " " + fdecl.getidentifier().toString() + "(";
             for (int i = 0; i < parameters.size(); i++)
@@ -122,7 +122,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
                 for (int i = 0; i < vars.size(); i++) {
                     IAst decl = (IAst) vars.get(i);
                     list.add(new SourceProposal(getVariableProposal(decl),
-                                                getVariableName(decl) + (decl instanceof functionDeclaration ? "()" : ""),
+                                                getVariableName(decl) + (decl instanceof functionHeader ? "()" : ""),
                                                 prefix,
                                                 offset));
                 }
