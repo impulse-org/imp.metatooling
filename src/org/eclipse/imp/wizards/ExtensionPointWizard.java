@@ -29,11 +29,20 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.text.edits.MalformedTreeException;
+import org.eclipse.text.edits.TextEdit;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -317,7 +326,6 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
 	});
 	monitor.worked(1);
     }
-
     
     // SMS 13 Apr 2007
     // A step toward relaxing assumptions about the location
@@ -327,6 +335,18 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
     }
     
     
+    /**
+     * Creates a file of the given name from the named template in the given location in the
+     * given project. Subjects the template's contents to meta-variable substitution.
+     * @param fileName
+     * @param templateName
+     * @param folder
+     * @param replacements a Map of meta-variable substitutions to apply to the template
+     * @param project
+     * @param monitor
+     * @return a handle to the file created
+     * @throws CoreException
+     */
     protected IFile createFileFromTemplate(String fileName, String templateName, String folder, Map replacements,
 	    IProject project, IProgressMonitor monitor) throws CoreException {
 	monitor.setTaskName("Creating " + fileName);
@@ -334,6 +354,10 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
 	final IFile file= project.getFile(new Path(getProjectSourceLocation() + folder + "/" + fileName));
 	String templateContents= new String(getTemplateFile(templateName));
 	String contents= performSubstitutions(templateContents, replacements);
+
+	if (fileName.endsWith(".java")) {
+	    contents= formatJavaCode(contents);
+	}
 
 	if (file.exists()) {
 	    file.setContents(new ByteArrayInputStream(contents.getBytes()), true, true, monitor);
@@ -345,6 +369,26 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
 	return file;
     }
 
+    private String formatJavaCode(String contents) {
+	CodeFormatter formatter= org.eclipse.jdt.core.ToolFactory.createCodeFormatter(JavaCore.getOptions());
+	TextEdit te= formatter.format(CodeFormatter.K_COMPILATION_UNIT, contents, 0, contents.length(), 0, "\n");
+
+	IDocument l_doc= new Document(contents);
+	try {
+	    te.apply(l_doc);
+	} catch (MalformedTreeException e) {
+	    e.printStackTrace();
+	} catch (BadLocationException e) {
+	    e.printStackTrace();
+	}
+	contents= l_doc.get();
+	return contents;
+    }
+
+    /**
+     * Like createFileFromTemplate, but does not attempt to perform any meta-variable substitutions.
+     * Useful for binary files (e.g. images) that are to be copied as-is to the user's workspace.
+     */
     protected IFile copyLiteralFile(String fileName, String folder, IProject project, IProgressMonitor monitor) throws CoreException {
 	monitor.setTaskName("Creating " + fileName);
 
