@@ -152,10 +152,10 @@ public class $COMPILER_CLASS_NAME$ {
             return true;
         }
         public void endVisit(functionDeclaration n) {
-        	IType retType= n.getType();
+        	IType retType= n.getfunctionHeader().getType();
         	String body= (String) fTranslationStack.pop();
-        	String funcName= n.getidentifier().toString();
-        	declarationList formals= n.getparameters();
+        	String funcName= n.getfunctionHeader().getidentifier().toString();
+        	declarationList formals= n.getfunctionHeader().getparameters();
         	StringBuffer buff= new StringBuffer("\t");
         	buff.append(retType.toString())
         	    .append(' ')
@@ -199,7 +199,7 @@ public class $COMPILER_CLASS_NAME$ {
         public void endVisit(functionCall n) {
         	String funcName= n.getidentifier().toString();
         	functionDeclaration func= (functionDeclaration) innerScope.findDeclaration(funcName);
-        	int numArgs= func.getparameters().size();
+        	int numArgs= func.getfunctionHeader().getparameters().size();
         	StringBuffer buff= new StringBuffer();
         	buff.append(funcName)
         	    .append('(');
