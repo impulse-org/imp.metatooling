@@ -35,7 +35,11 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.editors.text.FileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.core.LanguageRegistry;
+import org.eclipse.uide.model.ISourceProject;
+import org.eclipse.uide.model.ModelFactory;
+import org.eclipse.uide.model.ModelFactory.ModelException;
 import org.eclipse.uide.runtime.RuntimePlugin;
 
 public class NewFancyTokenColorer extends CodeServiceWizard {
@@ -56,22 +60,24 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
 	    fancyButton.addSelectionListener(new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-		    IProject project= getProject();
-		    IPath grammarPath= findGrammarPath(project);
-		    if (grammarPath == null) {
-			MessageDialog.openError(e.widget.getDisplay().getActiveShell(), "Error", "Unable to find grammar in project " + project.getName());
-			return;
-		    }
-		    IFile file= project.getFile(grammarPath);
-		    if (!file.exists()) {
-			MessageDialog.openError(e.widget.getDisplay().getActiveShell(), "Error", "Unable to open grammar file " + file.getLocation().toOSString() + " in project " + project.getName());
-			return;
-		    }
-		    ParseController ctlr= new ParseController();
-		    ctlr.initialize(grammarPath, project, null);
-		    IFileEditorInput fileInput= new FileEditorInput(file);
-		    FileDocumentProvider fdp= new FileDocumentProvider();
 		    try {
+			IProject project= getProject();
+			ISourceProject srcProject= ModelFactory.open(project);
+			IPath grammarPath= findGrammarPath(project);
+			if (grammarPath == null) {
+			    MessageDialog.openError(e.widget.getDisplay().getActiveShell(), "Error", "Unable to find grammar in project " + project.getName());
+			    return;
+			}
+			IFile file= project.getFile(grammarPath);
+			if (!file.exists()) {
+			    MessageDialog.openError(e.widget.getDisplay().getActiveShell(), "Error", "Unable to open grammar file " + file.getLocation().toOSString() + " in project " + project.getName());
+			    return;
+			}
+			ParseController ctlr= new ParseController();
+			ctlr.initialize(grammarPath, srcProject, null);
+			IFileEditorInput fileInput= new FileEditorInput(file);
+			FileDocumentProvider fdp= new FileDocumentProvider();
+
 			fdp.connect(fileInput);
 			IDocument document= fdp.getDocument(fileInput);
 			JikesPG jpg= (JikesPG) ctlr.parse(document.get(), false, new NullProgressMonitor());
@@ -83,7 +89,9 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
 			}
 			fdp.disconnect(fileInput);
 		    } catch (CoreException e2) {
-			System.err.println("oops: " + e2.getMessage());
+			ErrorHandler.reportError("oops: " + e2.getMessage());
+		    } catch (ModelException exc) {
+			ErrorHandler.reportError(exc.getMessage());
 		    }
 		}
 	    });
