@@ -44,9 +44,10 @@
 		<javac destdir="${temp.folder}/${plugin.jar.name}.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="${javacSource}" target="${javacTarget}"		>
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
+				<pathelement path="../com.ibm.watson.smapifier/com.ibm.watson.smapifier_${safari.version}.jar"/>
 				<pathelement path="../org.eclipse.uide.runtime/org.eclipse.uide.runtime_${safari.version}.jar"/>
 				<pathelement path="../org.eclipse.safari.jikespg.runtime/org.eclipse.safari.jikespg.runtime_${safari.version}.jar"/>
-				<pathelement path="../lpg.runtime.java/lpg.runtime_2.0.3.jar"/>
+				<pathelement path="../lpg.runtime.java/lpg.runtime_2.0.4.jar"/>
 				<pathelement path="../polyglot/lib/polyglot-epl.jar"/>
 				<pathelement path="${eclipse.build.path}"/>
 			</classpath>
