@@ -40,6 +40,7 @@ import org.eclipse.uide.core.LanguageRegistry;
 import org.eclipse.uide.model.ISourceProject;
 import org.eclipse.uide.model.ModelFactory;
 import org.eclipse.uide.model.ModelFactory.ModelException;
+import org.eclipse.uide.parser.IParseController;
 import org.eclipse.uide.runtime.RuntimePlugin;
 
 public class NewFancyTokenColorer extends CodeServiceWizard {
@@ -73,7 +74,7 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
 			    MessageDialog.openError(e.widget.getDisplay().getActiveShell(), "Error", "Unable to open grammar file " + file.getLocation().toOSString() + " in project " + project.getName());
 			    return;
 			}
-			ParseController ctlr= new ParseController();
+			IParseController ctlr= new ParseController();
 			ctlr.initialize(grammarPath, srcProject, null);
 			IFileEditorInput fileInput= new FileEditorInput(file);
 			FileDocumentProvider fdp= new FileDocumentProvider();
