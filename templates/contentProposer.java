@@ -10,7 +10,6 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.uide.editor.IContentProposer;
 import org.eclipse.uide.editor.SourceProposal;
-import org.eclipse.uide.parser.Ast;
 import org.eclipse.uide.parser.IParseController;
 
 
