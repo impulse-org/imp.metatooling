@@ -5,11 +5,12 @@ package org.eclipse.uide.wizards;
  * (c) Copyright IBM Corp. 2005  All Rights Reserved
  */
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -56,6 +57,7 @@ import org.eclipse.pde.internal.core.ischema.ISchemaType;
 import org.eclipse.pde.internal.core.schema.Schema;
 import org.eclipse.pde.internal.core.schema.SchemaComplexType;
 import org.eclipse.pde.internal.ui.util.SWTUtil;
+import org.eclipse.search.internal.core.SearchScope;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -67,7 +69,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
@@ -84,6 +88,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.internal.Workbench;
 import org.eclipse.uide.core.ErrorHandler;
+import org.eclipse.uide.preferences.SafariPreferencesUtilities;
 import org.osgi.framework.Bundle;
 
 /**
@@ -308,13 +313,13 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     
     private URL locateSchema(IExtensionPoint ep, String srcBundle) {
-	Bundle platSrcPlugin= Platform.getBundle(srcBundle);
-	Bundle extProviderPlugin= Platform.getBundle(ep.getNamespace());
-	String extPluginVersion= (String) extProviderPlugin.getHeaders().get("Bundle-Version");
-	Path schemaPath= new Path("src/" + ep.getNamespace() + "_" + extPluginVersion + "/" + ep.getSchemaReference());
-	URL schemaURL= Platform.find(platSrcPlugin, schemaPath);
-
-	return schemaURL;
+		Bundle platSrcPlugin= Platform.getBundle(srcBundle);
+		Bundle extProviderPlugin= Platform.getBundle(ep.getNamespace());
+		String extPluginVersion= (String) extProviderPlugin.getHeaders().get("Bundle-Version");
+		Path schemaPath= new Path("src/" + ep.getNamespace() + "_" + extPluginVersion + "/" + ep.getSchemaReference());
+		URL schemaURL= Platform.find(platSrcPlugin, schemaPath);
+	
+		return schemaURL;
     }
 
     /**
@@ -372,8 +377,8 @@ public class ExtensionPointWizardPage extends WizardPage {
             }
             createProjectLabelText(container);
             try {
-        	createFirstControls(container);
-        	createControlsForSchema(fSchema, container);
+	        	createFirstControls(container);
+	        	createControlsForSchema(fSchema, container);
                 createAdditionalControls(container);
                 createDescriptionText(container);
                 discoverProjectLanguage();
@@ -476,8 +481,8 @@ public class ExtensionPointWizardPage extends WizardPage {
         if (required)
             name+= "*";
         name+= ":";
-        if (basedOn != null) {
-            labelWidget= createNewClassHyperlink(field, name, basedOn, container);
+       	if (basedOn != null && basedOn.equals("ClassBrowse")) {
+        		labelWidget= createNewClassHyperlink(field, name, "org.eclipse.uide.parser.IParseController", container);
         } else {
             Label label= new Label(container, SWT.NULL);
             label.setText(name);
@@ -494,8 +499,20 @@ public class ExtensionPointWizardPage extends WizardPage {
             gd.horizontalSpan= 1;
         text.setLayoutData(gd);
         text.setText(value);
-        if (basedOn != null)
-            createClassBrowseButton(container, field, text);
+        if (basedOn != null) {
+        	// SMS 5 May 2007
+        	if (basedOn.equals("FileBrowse")) {
+        		createFileBrowseButton(container, field, text);
+        	} else if (basedOn.equals("FolderBrowse")) {
+            	createFolderBrowseButton(container, field, text);
+        	} else if (basedOn.equals("ClassBrowse")) {
+	            createClassBrowseButton(container, field, text);
+        	} else {
+	        	// This is the original action;
+        		// left until a better option can be identified
+	            createClassBrowseButton(container, field, text);
+        	}
+        }
         if (field != null)
             field.fText= text;
 
@@ -549,7 +566,137 @@ public class ExtensionPointWizardPage extends WizardPage {
             field.fLink= link;
         return labelWidget;
     }
+        
+    
+    //
+    // SMS 7 May 2007
+    // Added following couple of classes to support addition
+    // of browse buttons for arbitrary files.
+    //
+    	
+    private void createFileBrowseButton(Composite container, WizardPageField field, Text text) {
+        Button button= new Button(container, SWT.PUSH);
+        button.setText("Browse...");
+        button.setData(text);
+        button.addSelectionListener(new FileBrowseSelectionAdapter(/*container,*/ field));
+        if (field != null)
+            field.fButton= button;
+    }
+    
 
+    protected class FileBrowseSelectionAdapter extends SelectionAdapter
+    {
+    	private WizardPageField field;
+    	
+    	public FileBrowseSelectionAdapter(WizardPageField field) {
+    		this.field = field;
+    	}
+
+    	public void widgetSelected(SelectionEvent e) {
+          String newValue = null;
+          File f = new File(field.getText());
+          if (!f.exists())
+              f = null;
+          File d = getFile(f);
+          if (d != null)
+              newValue = d.getAbsolutePath();
+          if (newValue != null) {	
+          	field.setText(newValue);
+          }
+    	}
+        
+        /**
+         * Helper to open the file chooser dialog.
+         * @param startingDirectory the directory to open the dialog on.
+         * @return File The File the user selected or <code>null</code> if they
+         * do not.
+         */
+        private File getFile(File startingDirectory) {
+            FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
+            if (startingDirectory != null)
+                dialog.setFileName(startingDirectory.getPath());
+//            if (extensions != null)
+//                dialog.setFilterExtensions(extensions);
+            String file = dialog.open();
+            if (file != null) {
+                file = file.trim();
+                if (file.length() > 0)
+                    return new File(file);
+            }	
+            return null;
+        }	
+    }
+
+    
+    //
+    // SMS 10 May 2007
+    // Added following couple of classes to support addition
+    // of browse buttons for arbitrary folders.
+    //
+    	
+    private void createFolderBrowseButton(Composite container, WizardPageField field, Text text) {
+        Button button= new Button(container, SWT.PUSH);
+        button.setText("Browse...");
+        button.setData(text);
+        button.addSelectionListener(new FolderBrowseSelectionAdapter(/*container,*/ field));
+        if (field != null)
+            field.fButton= button;
+    }
+    
+
+    protected class FolderBrowseSelectionAdapter extends SelectionAdapter
+    {
+    	private WizardPageField field;
+    	
+    	public FolderBrowseSelectionAdapter(WizardPageField field) {
+    		this.field = field;
+    	}
+
+    	
+    	public void widgetSelected(SelectionEvent e) {
+    		
+          String newValue = null;
+          File f = new File(field.getText());
+          if (!f.exists()) {
+        	  IFolder srcFolder = getProject().getFolder("src");
+        	  if (srcFolder.exists()) {
+        		  f = srcFolder.getLocation().toFile();
+        	  } else {
+        		  f = getProject().getLocation().toFile();
+        	  }
+          }
+          File d = getDirectory(f);
+          if (d != null)
+              newValue = d.getAbsolutePath();
+          if (newValue != null) {	
+          	field.setText(newValue);
+          }
+    	}
+        
+        /**
+         * Helper that opens the directory chooser dialog.
+         * @param startingDirectory The directory the dialog will open in.
+         * @return File File or <code>null</code>.
+         * 
+         */
+        private File getDirectory(File startingDirectory) {
+            DirectoryDialog fileDialog = new DirectoryDialog(getShell(), SWT.OPEN);
+            // Dialog should not return with a null value, although it might
+            // return with an invalid one
+            if (startingDirectory != null)
+            	fileDialog.setFilterPath(startingDirectory.getPath());
+            String dir = fileDialog.open();
+            if (dir != null) {
+	        	dir = dir.trim();
+	        	if (dir.length() > 0)
+	        	    return new File(dir);
+            }
+            return null;
+        }
+    }
+
+    	
+    
     private void createClassBrowseButton(Composite container, WizardPageField field, Text text) {
         Button button= new Button(container, SWT.PUSH);
 
@@ -575,6 +722,7 @@ public class ExtensionPointWizardPage extends WizardPage {
         if (field != null)
             field.fButton= button;
     }
+
 
     protected void openClassDialog(String interfaceQualName, String superClassName, Text text) {
         try {
@@ -726,27 +874,27 @@ public class ExtensionPointWizardPage extends WizardPage {
      * language name field in the dialog.
      */
     private void discoverProjectLanguage() {
-	if (fProjectText.getText().length() == 0)
-	    return;
-
-	IPluginModelBase pluginModel= getPluginModel();
-
-	if (pluginModel != null) {
-	    IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
-
-	    for(int i= 0; i < extensions.length; i++) {
-		if (extensions[i].getPoint().endsWith(".languageDescription")) {
-		    IPluginObject[] children= extensions[i].getChildren();
-
-		    for(int j= 0; j < children.length; j++) {
-			if (children[j].getName().equals("language")) {
-			    fLanguageText.setText(((IPluginElement) children[j]).getAttribute("language").getValue());
-			    return;
-			}
+		if (fProjectText.getText().length() == 0)
+		    return;
+	
+		IPluginModelBase pluginModel= getPluginModel();
+	
+		if (pluginModel != null) {
+		    IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
+	
+		    for(int i= 0; i < extensions.length; i++) {
+				if (extensions[i].getPoint().endsWith(".languageDescription")) {
+				    IPluginObject[] children= extensions[i].getChildren();
+		
+				    for(int j= 0; j < children.length; j++) {
+					if (children[j].getName().equals("language")) {
+					    fLanguageText.setText(((IPluginElement) children[j]).getAttribute("language").getValue());
+					    return;
+					}
+				    }
+				}
 		    }
 		}
-	    }
-	}
     }
 
     private IProject getProject(ISelection selection) {
