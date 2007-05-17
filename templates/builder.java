@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uide.core.SAFARIBuilderBase;
+import org.eclipse.uide.model.SourceProject;
 import org.eclipse.uide.runtime.SAFARIPluginBase;
 
 //import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
@@ -151,7 +152,8 @@ public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
             
             // Need to tell the parse controller which file in which project to parse
             // and also the message handler to which to report errors
-            parseController.initialize(file.getProjectRelativePath()/*.toString()*/, file.getProject(), markerCreator);
+            parseController.initialize(file.getProjectRelativePath()/*.toString()*/,
+            		new SourceProject(file.getProject()), markerCreator);
 	
             // Get file contents for parsing
             String contents = BuilderUtils.extractContentsToString(file.getLocation().toString());
