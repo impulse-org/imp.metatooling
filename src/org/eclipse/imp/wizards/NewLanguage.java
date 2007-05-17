@@ -72,10 +72,10 @@ public class NewLanguage extends CodeServiceWizard {
     
     
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
-    	if (fProject == null || fSubs == null) {
+        fSubs = getStandardSubstitutions(fProject);
+    	if (fProject == null) {
     		ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
     		fProject = page.getProject();
-            fSubs = getStandardSubstitutions(fProject);
     	}
         
         String pluginPackage = getPluginPackageName(fProject, null);
@@ -92,7 +92,7 @@ public class NewLanguage extends CodeServiceWizard {
         createFileFromTemplate((String)fSubs.get("$PLUGIN_CLASS$") + ".java", pluginTemplateName, pluginClassFolder, fSubs, fProject, mon);
         
         // SMS 27 Mar 2007 commented out creation of file for preference cache because no longer used
-        createFileFromTemplate(fClassNamePrefix + "PreferenceConstants.java", "prefs_const.tmpl", prefsFolder, fSubs, fProject, mon);
+        //createFileFromTemplate(fClassNamePrefix + "PreferenceConstants.java", "prefs_const.tmpl", prefsFolder, fSubs, fProject, mon);
     }
     
     
