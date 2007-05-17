@@ -1,4 +1,4 @@
-package org.eclipse.uide.wizards;
+	package org.eclipse.uide.wizards;
 
 /*
  * Licensed Materials - Property of IBM,
@@ -481,7 +481,7 @@ public class ExtensionPointWizardPage extends WizardPage {
         if (required)
             name+= "*";
         name+= ":";
-       	if (basedOn != null && basedOn.equals("ClassBrowse")) {
+       	if (basedOn != null && basedOn.endsWith("ClassBrowse")) {
         		labelWidget= createNewClassHyperlink(field, name, "org.eclipse.uide.parser.IParseController", container);
         } else {
             Label label= new Label(container, SWT.NULL);
@@ -501,11 +501,11 @@ public class ExtensionPointWizardPage extends WizardPage {
         text.setText(value);
         if (basedOn != null) {
         	// SMS 5 May 2007
-        	if (basedOn.equals("FileBrowse")) {
+        	if (basedOn.endsWith("FileBrowse")) {
         		createFileBrowseButton(container, field, text);
-        	} else if (basedOn.equals("FolderBrowse")) {
+        	} else if (basedOn.endsWith("FolderBrowse")) {
             	createFolderBrowseButton(container, field, text);
-        	} else if (basedOn.equals("ClassBrowse")) {
+        	} else if (basedOn.endsWith("ClassBrowse")) {
 	            createClassBrowseButton(container, field, text);
         	} else {
 	        	// This is the original action;
