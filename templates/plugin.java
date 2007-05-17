@@ -5,9 +5,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.uide.runtime.SAFARIPluginBase;
 //import $PACKAGE_NAME$.preferences.$CLASS_NAME_PREFIX$PreferenceCache;
 //import $PACKAGE_NAME$.preferences.$CLASS_NAME_PREFIX$PreferenceConstants;
-// SMS 27 Mar 2007:  Taking out preference cache elements as no longer useful
-//import $PLUGIN_PACKAGE$.preferences.$CLASS_NAME_PREFIX$PreferenceCache;
-import $PLUGIN_PACKAGE$.preferences.$CLASS_NAME_PREFIX$PreferenceConstants;
 import org.osgi.framework.BundleContext;
 
 // SMS 28 Mar 2007:  plugin class name now totally parameterized
