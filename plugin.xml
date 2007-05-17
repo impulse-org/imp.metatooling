@@ -54,14 +54,16 @@
             icon="icons/sample.gif"
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
             name="Indexer"
-            id="org.eclipse.uide.wizards.NewIndexer"/>
+            id="org.eclipse.uide.wizards.NewIndexer"/>	
+<!--            
       <wizard
             class="org.eclipse.uide.wizards.NewPreferencesDialog"
             icon="icons/sample.gif"
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
             name="Preference Page"
             id="org.eclipse.uide.wizards.NewPreferencesDialog"/>
-	  <wizard
+-->
+  <wizard
             class="org.eclipse.uide.wizards.NewReferenceResolver"
             icon="icons/sample.gif"
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
@@ -142,12 +144,13 @@
             id="org.eclipse.uide.wizards.parser"
             name="Parser Services"
             parentCategory="org.eclipse.uide.wizards"/>
-      <wizard
+      <!-- Never implemented
+      wizard
             class="org.eclipse.uide.wizards.NewParser"
             icon="icons/newgrammarfile.gif"
             category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.parser"
             name="Hand-written Parser"
-            id="org.eclipse.uide.wizards.NewParser"/>
+            id="org.eclipse.uide.wizards.NewParser"/ -->
 <!--  <wizard
             class="org.eclipse.uide.wizards.NewModelListener"
             icon="icons/sample.gif"
@@ -165,11 +168,9 @@
             class="org.eclipse.uide.wizards.NewRefactoringWizard"
             icon="icons/sample.gif"
             id="org.eclipse.uide.newRefactoring"
-            name="Refactoring"/>        
-            
-            
-            
+            name="Refactoring"/> 
    </extension>
+   
    <extension
          point="org.eclipse.uide.runtime.languageDescription">
       <language
