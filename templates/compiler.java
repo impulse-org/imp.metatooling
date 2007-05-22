@@ -198,8 +198,17 @@ public class $COMPILER_CLASS_NAME$ {
         }
         public void endVisit(functionCall n) {
         	String funcName= n.getidentifier().toString();
-        	functionDeclaration func= (functionDeclaration) innerScope.findDeclaration(funcName);
-        	int numArgs= func.getfunctionHeader().getparameters().size();
+        	// SMS 21 May 2007:  some decls are functionHeaders, evidently
+        	//functionDeclaration func= (functionDeclaration) innerScope.findDeclaration(funcName);
+        	//int numArgs= func.getfunctionHeader().getparameters().size();
+        	int numArgs = 0;
+        	Object decl = innerScope.findDeclaration(funcName);
+        	if (decl instanceof functionDeclaration) {
+        		numArgs = ((functionDeclaration)decl).getfunctionHeader().getparameters().size();
+        	} else if (decl instanceof functionHeader) {
+        		numArgs = ((functionHeader)decl).getparameters().size();
+        	}
+        	
         	StringBuffer buff= new StringBuffer();
         	buff.append(funcName)
         	    .append('(');
