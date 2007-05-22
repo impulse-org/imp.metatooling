@@ -44,20 +44,19 @@ public class $FORMATTER_CLASS_NAME$ implements ILanguageService, ISourceFormatte
                 buff.append(fIndentString);
                 return true;
             }
-            public boolean visit(declaration0 n) {
-                buff.append(fIndentString);
-                buff.append(n.getint());
-                buff.append(' ');
-                buff.append(n.getIDENTIFIER());
-                return true;
-            }
-            public boolean visit(declaration1 n) {
-                buff.append(fIndentString);
-                buff.append(n.getshort());
-                buff.append(' ');
-                buff.append(n.getIDENTIFIER());
-                return true;
-            }
+			public boolean visit(declaration n) {
+				buff.append(fIndentString);
+				IprimitiveType primType = n.getprimitiveType();
+				if (primType instanceof primitiveType0)
+					buff.append(((primitiveType0)primType).getboolean());
+				else if (primType instanceof primitiveType1)
+					buff.append(((primitiveType1)primType).getdouble());
+				else if (primType instanceof primitiveType2)
+					buff.append(((primitiveType2)primType).getint());
+				buff.append(' ');
+				buff.append(n.getidentifier());
+				return true;
+			}
             //*/
         });
 
