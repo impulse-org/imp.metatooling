@@ -43,7 +43,7 @@ public class NewCompiler extends GeneratedComponentWizard {
 
 		protected void createFirstControls(Composite parent) {
 		    super.createFirstControls(parent);
-		    createClassField(parent);
+		    createClassField(parent, "ClassBrowse");
 		}
 		
     }
