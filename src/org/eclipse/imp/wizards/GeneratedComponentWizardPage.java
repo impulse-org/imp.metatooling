@@ -901,9 +901,9 @@ public class GeneratedComponentWizardPage extends WizardPage
     }
     
     
-    protected void createClassField(Composite parent) {
+    protected void createClassField(Composite parent, String basedOn) {
 	    WizardPageField field = new WizardPageField(null, "class", "Class:", "Compiler", 0, true, "Name of the class that implements " + fComponentID);
-	    Text classText= createLabelTextBrowse(parent, field, "");
+	    Text classText= createLabelTextBrowse(parent, field, basedOn);
 
 	    classText.setData(field);
 	    fFields.add(field);
