@@ -1,4 +1,4 @@
-	package org.eclipse.uide.wizards;
+package org.eclipse.uide.wizards;
 
 /*
  * Licensed Materials - Property of IBM,
@@ -57,7 +57,6 @@ import org.eclipse.pde.internal.core.ischema.ISchemaType;
 import org.eclipse.pde.internal.core.schema.Schema;
 import org.eclipse.pde.internal.core.schema.SchemaComplexType;
 import org.eclipse.pde.internal.ui.util.SWTUtil;
-import org.eclipse.search.internal.core.SearchScope;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -88,7 +87,6 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.internal.Workbench;
 import org.eclipse.uide.core.ErrorHandler;
-import org.eclipse.uide.preferences.SafariPreferencesUtilities;
 import org.osgi.framework.Bundle;
 
 /**
@@ -856,6 +854,16 @@ public class ExtensionPointWizardPage extends WizardPage {
         fAddThisExtensionPointButton.setLayoutData(gd);
     }
 
+    /*
+     * This (original) version of discoverSelectedProject() is called by getProject().
+     * It updates fProjectText, which triggers a further call to getProject().
+     * The potential cycle has been broken by a test in getProject() for a change
+     * to sProjectName.  That test allows the whole thing to work for the first
+     * project selected, but it meant that later selections of a different
+     * project would go unrecognized.  (Since sProjectName was set, there was no
+     * reason to try to discover a newly selected project.)
+     * SMS 23 May 2007
+     */
     private IProject discoverSelectedProject() {
         ISelectionService service= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
         ISelection selection= service.getSelection();
@@ -868,6 +876,22 @@ public class ExtensionPointWizardPage extends WizardPage {
         return project;
     }
 
+    
+    /*
+     * This new version of discoverSelectedProject(WithoutUpdating)() is now also
+     * called from getProject(); it differs from the original in not updating fProjectText.
+     * That allows getProject() to get a selected project without triggering a recursive
+     * call, which means it can be used to test for a newly selected project even after
+     * another project has been previously selected.
+     * SMS 23 May 2007
+     */
+    private IProject discoverSelectedProjectWithoutUpdating() {
+	    ISelectionService service= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
+	    ISelection selection= service.getSelection();
+	    IProject project= getProject(selection);
+	    return project;
+    }
+    
     /**
      * Attempt to find the languageDescription extension for the specified project
      * (if any), and use the language name from that extension to populate the
@@ -895,7 +919,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 				}
 		    }
 		}
-    }
+    }	
 
     private IProject getProject(ISelection selection) {
         if (selection instanceof IStructuredSelection && !selection.isEmpty()) {
@@ -934,15 +958,29 @@ public class ExtensionPointWizardPage extends WizardPage {
             sProjectName= "\\" + newProjectName;
     }
 
+    private boolean newProjectSelected = true;
+    
+    
+    /*
+     * Modified to use an alternative method to test for the
+     * selected project, i.e., one that doesn't trigger an update
+     * of the corresponding text field, thus not triggering a
+     * callback to this method.  Nonterminating cycles were not a
+     * problem with the previous implementation of this method,
+     * but the test that prevented cycles caused subsequent project
+     * selections to be missed.  This approach seems to both to preclude
+     * nonterminating cycles and recognize updates of the selected
+     * project.
+     */
     public IProject getProject() {
         try {
             IProject project= null;
-
+            sProjectName = discoverSelectedProjectWithoutUpdating().getName();	
+            
             if (sProjectName != null && sProjectName.length() > 0)
-        	project= ResourcesPlugin.getWorkspace().getRoot().getProject(sProjectName);
-
+            	project= ResourcesPlugin.getWorkspace().getRoot().getProject(sProjectName);
             if (project == null)
-        	project= discoverSelectedProject();
+            	project= discoverSelectedProject();
 
             if (project != null && project.exists())
                 return project;
