@@ -884,12 +884,24 @@ public class ExtensionPointWizardPage extends WizardPage {
      * call, which means it can be used to test for a newly selected project even after
      * another project has been previously selected.
      * SMS 23 May 2007
+     * 
+     * Updated to trap NullPointerException that can result if called when there
+     * is no active workbench window.
+     * SMS 24 May 2007
+     * 
      */
     private IProject discoverSelectedProjectWithoutUpdating() {
-	    ISelectionService service= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
-	    ISelection selection= service.getSelection();
-	    IProject project= getProject(selection);
-	    return project;
+    	try {
+		    ISelectionService service= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
+		    ISelection selection= service.getSelection();
+		    IProject project= getProject(selection);
+		    return project;
+    	} catch (NullPointerException e) {
+    		// May occur if method is called when there is no longer an active
+    		// workbench window; callers will have to rely on some previously
+    		// obtained value for the project
+    		return null;
+    	}
     }
     
     /**
@@ -962,7 +974,16 @@ public class ExtensionPointWizardPage extends WizardPage {
     
     
     /*
-     * Modified to use an alternative method to test for the
+     * Get the project most recently selected in whatever wizard
+     * has been run.  This method may be called when the wizard
+     * is still active or after it is disposed.  In the former
+     * case it returns the project, if any, that is currently
+     * selected.  If the latter case, or if there is no current
+     * selection, it returns the project that was most recently
+     * selected (if any).
+     * 
+     * SMS 23 May 2007
+     * Updated to use an alternative method to test for the
      * selected project, i.e., one that doesn't trigger an update
      * of the corresponding text field, thus not triggering a
      * callback to this method.  Nonterminating cycles were not a
@@ -971,13 +992,24 @@ public class ExtensionPointWizardPage extends WizardPage {
      * selections to be missed.  This approach seems to both to preclude
      * nonterminating cycles and recognize updates of the selected
      * project.
+     * 
+     * SMS 24 May 2007
+     * Updated to check for null project at first "discover" call,
+     * which can happen if called when there is no active workbench
+     * window.
      */
     public IProject getProject() {
         try {
             IProject project= null;
-            sProjectName = discoverSelectedProjectWithoutUpdating().getName();	
-            
-            if (sProjectName != null && sProjectName.length() > 0)
+            boolean haveCurrentSelection = false;
+            project = discoverSelectedProjectWithoutUpdating();
+            if (project != null) {
+            	sProjectName = project.getName();
+            	haveCurrentSelection = true;
+            }
+
+            if (!haveCurrentSelection && sProjectName != null && sProjectName.length() > 0)
+            	// get project based on name set with previous selection
             	project= ResourcesPlugin.getWorkspace().getRoot().getProject(sProjectName);
             if (project == null)
             	project= discoverSelectedProject();
