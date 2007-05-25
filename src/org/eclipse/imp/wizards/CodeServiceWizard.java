@@ -310,9 +310,12 @@ public abstract class CodeServiceWizard extends ExtensionPointWizard {
         if (parserExtension != null) {
         	IPluginObject[] children = parserExtension.getChildren();
         	for (int i = 0; i < children.length; i++) {
-        		if(children[i].getName().equals("parser")) {
+        		String childName = children[i].getName();
+        		if(childName != null &&
+        		   (childName.equals("parser") || childName.equals("parserWrapper")))
+        		{
         			parserPluginElement = (PluginElement) children[i];
-        				break;
+        			break;
         		}
         	}
         }
