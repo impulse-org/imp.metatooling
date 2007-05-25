@@ -18,9 +18,10 @@ public class NewFormatter extends CodeServiceWizard {
         addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "formatter"), });
     }
 
+    // SMS 25 May 2007:  added "org.eclipse.jface.text"
     protected List getPluginDependencies() {
         return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
-                "org.eclipse.uide.runtime" });
+                "org.eclipse.uide.runtime", "org.eclipse.jface.text" });
     }
 
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
