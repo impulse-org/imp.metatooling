@@ -68,9 +68,13 @@ public class SAFARIPerspectiveFactory implements IPerspectiveFactory {
 	layout.addNewWizardShortcut("org.eclipse.jdt.ui.wizards.NewSourceFolderCreationWizard"); //$NON-NLS-1$
 //	layout.addNewWizardShortcut("org.eclipse.jdt.ui.wizards.NewSnippetFileCreationWizard"); //$NON-NLS-1$
 
+
 	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewLanguageWizard");
-	layout.addNewWizardShortcut("org.jikespg.uide.NewJikesPGParserWizard");
+//	layout.addNewWizardShortcut("org.jikespg.uide.NewJikesPGParserWizard");
 //	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewParser");
+	layout.addNewWizardShortcut("org.jikespg.uide.NewLPGGrammarParserWrapperWizard");
+	layout.addNewWizardShortcut("org.jikespg.uide.NewLPGGrammarWizard");
+	layout.addNewWizardShortcut("org.jikespg.uide.NewParserWrapperWizard");	
 	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewTokenColorer");
 	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewOutliner");
 	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewFoldingUpdater");
