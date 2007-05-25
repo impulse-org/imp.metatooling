@@ -78,6 +78,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.ISelectionValidator;
@@ -885,21 +886,20 @@ public class ExtensionPointWizardPage extends WizardPage {
      * another project has been previously selected.
      * SMS 23 May 2007
      * 
-     * Updated to trap NullPointerException that can result if called when there
-     * is no active workbench window.
-     * SMS 24 May 2007
+     * Updated to better address the case in which there is no active workbench window.
+     * SMS 25 May 2007
      * 
      */
     private IProject discoverSelectedProjectWithoutUpdating() {
     	try {
-		    ISelectionService service= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
+    		IWorkbenchWindow activeWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		    if (activeWindow == null)
+		    	return null;
+    		ISelectionService service= activeWindow.getSelectionService();
 		    ISelection selection= service.getSelection();
 		    IProject project= getProject(selection);
 		    return project;
     	} catch (NullPointerException e) {
-    		// May occur if method is called when there is no longer an active
-    		// workbench window; callers will have to rely on some previously
-    		// obtained value for the project
     		return null;
     	}
     }
