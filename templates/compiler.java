@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uide.builder.MarkerCreator;
+import org.eclipse.uide.model.SourceProject;
 import org.eclipse.uide.parser.IParseController;
 import org.eclipse.uide.parser.IParseControllerWithMarkerTypes;
 
@@ -270,7 +271,7 @@ public class $COMPILER_CLASS_NAME$ {
             ((IParseControllerWithMarkerTypes)parseController).addProblemMarkerType(PROBLEM_MARKER_ID);
         }
         
-        parseController.initialize(file.getProjectRelativePath()/*.toString()*/, project, markerCreator);
+        parseController.initialize(file.getProjectRelativePath()/*.toString()*/, new SourceProject(project), markerCreator);
         parseController.parse(getFileContents(file), false, mon);
 
         $AST_NODE$ currentAst= ($AST_NODE$) parseController.getCurrentAst();

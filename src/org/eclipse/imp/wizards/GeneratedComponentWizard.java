@@ -608,9 +608,10 @@ public abstract class GeneratedComponentWizard extends Wizard implements INewWiz
         if (parserExtension != null) {
         	IPluginObject[] children = parserExtension.getChildren();
         	for (int i = 0; i < children.length; i++) {
-        		if(children[i].getName().equals("parser")) {
+        		String name = children[i].getName();
+        		if(name.equals("parser") || name.equals("parserWrapper")) {
         			parserPluginElement = (PluginElement) children[i];
-        				break;
+        			break;
         		}
         	}
         }

@@ -130,6 +130,9 @@ public class NewCompiler extends GeneratedComponentWizard {
 
         // Get the plugin element that represents the class of the parser
         PluginElement parserPluginElement = ExtensionPointUtils.findElementByName("parser", parserExtension);
+        if (parserPluginElement == null) {
+            parserPluginElement = ExtensionPointUtils.findElementByName("parserWrapper", parserExtension);
+        }
 
         if (parserPluginElement == null) return null;
  
