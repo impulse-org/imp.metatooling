@@ -17,7 +17,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uide.builder.MarkerCreator;
-import org.eclipse.uide.model.SourceProject;
+import org.eclipse.uide.model.ISourceProject;
+import org.eclipse.uide.model.ModelFactory;
+import org.eclipse.uide.model.ModelFactory.ModelException;
 import org.eclipse.uide.parser.IParseController;
 
 public class $COMPILER_CLASS_NAME$ {
@@ -258,7 +260,23 @@ public class $COMPILER_CLASS_NAME$ {
     }
 
     public void compile(IFile file, IProgressMonitor mon) {
-        IProject project= file.getProject();
+    	
+    	if (file == null) {
+            System.err.println("$COMPILER_CLASS_NAME$.compile(..):  File is null; returning without parsing");
+    		return;
+    	}
+    	IProject project= file.getProject();
+    	if (project == null) {
+            System.err.println("$COMPILER_CLASS_NAME$.compile(..):  Project is null; returning without parsing");
+    		return;
+    	}
+		ISourceProject sourceProject = null;
+    	try {
+    		sourceProject = ModelFactory.open(project);
+    	} catch (ModelException me){
+            System.err.println("$COMPILER_CLASS_NAME$.compile(..):  Model exception:\n" + me.getMessage() + "\nReturning without parsing");
+            return;
+    	}
         IParseController parseController= new $ParseControllerClassName$();
         
         // Marker creator handles error messages from the parse controller
@@ -268,13 +286,14 @@ public class $COMPILER_CLASS_NAME$ {
         // what types of problem marker the builder will create
         parseController.addProblemMarkerType(PROBLEM_MARKER_ID);
         
-        parseController.initialize(file.getProjectRelativePath()/*.toString()*/, new SourceProject(project), markerCreator);
+        parseController.initialize(file.getProjectRelativePath(), sourceProject, markerCreator);
+    	
         parseController.parse(getFileContents(file), false, mon);
 
         $AST_NODE$ currentAst= ($AST_NODE$) parseController.getCurrentAst();
 
         if (currentAst == null) {
-            System.err.println("$COMPILER_CLASS_NAME$.compile:  current AST is null (parse errors?); unable to compile.");
+            System.err.println("$COMPILER_CLASS_NAME$.compile(..):  current AST is null (parse errors?); unable to compile.");
         	return;
         }
 
@@ -293,7 +312,7 @@ public class $COMPILER_CLASS_NAME$ {
             else
                 javaFile.setContents(bais, true, false, mon);
         } catch (CoreException ce) {
-            System.err.println(ce.getMessage());
+            System.err.println(	ce.getMessage());
         }
     }
 }
