@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uide.builder.MarkerCreator;
 import org.eclipse.uide.model.SourceProject;
 import org.eclipse.uide.parser.IParseController;
-import org.eclipse.uide.parser.IParseControllerWithMarkerTypes;
 
 public class $COMPILER_CLASS_NAME$ {
     private static final String sClassNameMacro= "$FILE$";
@@ -267,9 +266,7 @@ public class $COMPILER_CLASS_NAME$ {
 
         // If we have a kind of parser that might be receptive, tell it
         // what types of problem marker the builder will create
-        if (parseController instanceof IParseControllerWithMarkerTypes) {
-            ((IParseControllerWithMarkerTypes)parseController).addProblemMarkerType(PROBLEM_MARKER_ID);
-        }
+        parseController).addProblemMarkerType(PROBLEM_MARKER_ID);
         
         parseController.initialize(file.getProjectRelativePath()/*.toString()*/, new SourceProject(project), markerCreator);
         parseController.parse(getFileContents(file), false, mon);

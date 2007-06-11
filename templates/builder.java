@@ -15,7 +15,7 @@ import org.eclipse.uide.runtime.SAFARIPluginBase;
 
 //import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
 //import $PLUGIN_PACKAGE$.$CLASS_NAME_PREFIX$Plugin;
-	import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
+import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 
 import org.eclipse.uide.core.Language;
 import org.eclipse.uide.core.LanguageRegistry;
@@ -23,7 +23,6 @@ import org.eclipse.uide.core.LanguageRegistry;
 import org.eclipse.uide.builder.BuilderUtils;
 import org.eclipse.uide.builder.MarkerCreator;
 import org.eclipse.uide.parser.IParseController;
-import org.eclipse.uide.parser.IParseControllerWithMarkerTypes;
 import $PARSER_PKG$.$CLASS_NAME_PREFIX$ParseController;
 
 /**
@@ -146,9 +145,7 @@ public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
 
             // If we have a kind of parser that might be receptive, tell it
             // what types of problem marker the builder will create
-            if (parseController instanceof IParseControllerWithMarkerTypes) {
-                ((IParseControllerWithMarkerTypes)parseController).addProblemMarkerType(getErrorMarkerID());
-            }
+            parseController.addProblemMarkerType(getErrorMarkerID());
             
             // Need to tell the parse controller which file in which project to parse
             // and also the message handler to which to report errors
