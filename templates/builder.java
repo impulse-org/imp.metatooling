@@ -5,12 +5,15 @@ import java.io.InputStream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uide.core.SAFARIBuilderBase;
-import org.eclipse.uide.model.SourceProject;
+import org.eclipse.uide.model.ISourceProject;
+import org.eclipse.uide.model.ModelFactory;
+import org.eclipse.uide.model.ModelFactory.ModelException;
 import org.eclipse.uide.runtime.SAFARIPluginBase;
 
 //import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
@@ -149,8 +152,15 @@ public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
             
             // Need to tell the parse controller which file in which project to parse
             // and also the message handler to which to report errors
-            parseController.initialize(file.getProjectRelativePath()/*.toString()*/,
-            		new SourceProject(file.getProject()), markerCreator);
+            IProject project= file.getProject();
+    		ISourceProject sourceProject = null;
+        	try {
+        		sourceProject = ModelFactory.open(project);
+        	} catch (ModelException me){
+                System.err.println("$CLASS_NAME_PREFIX$ParseController.runParserForComplier(..):  Model exception:\n" + me.getMessage() + "\nReturning without parsing");
+                return;
+        	}
+            parseController.initialize(file.getProjectRelativePath(), sourceProject, markerCreator);
 	
             // Get file contents for parsing
             String contents = BuilderUtils.extractContentsToString(file.getLocation().toString());
