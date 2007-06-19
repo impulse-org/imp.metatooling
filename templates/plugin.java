@@ -1,9 +1,9 @@
 package $PLUGIN_PACKAGE$;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.uide.preferences.SafariPreferencesService;
 import org.eclipse.uide.runtime.SAFARIPluginBase;
-//import $PACKAGE_NAME$.preferences.$CLASS_NAME_PREFIX$PreferenceCache;
-//import $PACKAGE_NAME$.preferences.$CLASS_NAME_PREFIX$PreferenceConstants;
 import org.osgi.framework.BundleContext;
 
 /*
@@ -11,8 +11,10 @@ import org.osgi.framework.BundleContext;
  * SMS 28 Mar 2007:
  * 	- Plugin class name now totally parameterized
  *  - Plugin package made a separate parameter
- * SMS 19 Jun 2007:  Added kLanguageName (may be used by later
- * 	updates to the template)
+ * SMS 19 Jun 2007:
+ * 	- Added kLanguageName (may be used by later updates to the template)
+ * 	- Added field and method related to new preferences service; deleted
+ *	  code for initializing preference store from start(..) method
  */ 
 
 public class $PLUGIN_CLASS$ extends SAFARIPluginBase {
@@ -37,13 +39,26 @@ public class $PLUGIN_CLASS$ extends SAFARIPluginBase {
     public void start(BundleContext context) throws Exception {
         super.start(context);
 
-        // TODO  Replace with use of preferences service
-		// Initialize the Preferences fields with the preference store data.
-		IPreferenceStore prefStore= getPreferenceStore();
     }
 
     public String getID() {
     	return kPluginID;
     }  
+    
+    
+    protected static SafariPreferencesService preferencesService = null;
+    
+    public static SafariPreferencesService getPreferencesService() {
+    	if (preferencesService == null) {
+    		preferencesService = new SafariPreferencesService(ResourcesPlugin.getWorkspace().getRoot().getProject());
+    		preferencesService.setLanguageName(kLanguageName);
+    		// TODO:  When some actual preferences are created, put
+    		// a call to the preferences initializer here
+    		// (The SAFARI New Preferences Support wizard creates such
+    		// an initizlizer.)
+    		
+    	}
+    	return preferencesService;
+    }
     
 }
