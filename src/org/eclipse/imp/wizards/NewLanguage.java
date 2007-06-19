@@ -25,6 +25,19 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.runtime.RuntimePlugin;
 
+
+/*
+ * SMS 27 Mar 2007:
+ * 	- Introduced use of $PLUGIN_CLASS$ parameter
+ *  - eliminated generation of PreferencesConstants class
+ * SMS 23 Apr 2007:
+ * 	- Made fProject and fSubs top-level fields so that
+ * 	  they can be shared by gatherCodeParms and performFinish.
+ * 	- Added code to check for duplicate plugin ids and confirm
+ *    whether the user wants that
+ * SMS 19 Jun 2007:  Added $LANG_NAME$ substitution parameter
+ */
+
 public class NewLanguage extends CodeServiceWizard {
     public void addPages() {
         addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "languageDescription") });
@@ -49,24 +62,9 @@ public class NewLanguage extends CodeServiceWizard {
         fLanguageName= pages[0].fLanguageText.getText();
         
         fClassNamePrefix= Character.toUpperCase(fLanguageName.charAt(0)) + fLanguageName.substring(1);
-//        
-//		String qualifiedClassName= pages[0].getField("class").fValue;
-//		fFullClassName = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.') + 1);
-//		fPackageName= qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
-//		fPackageFolder= fPackageName.replace('.', File.separatorChar);
-//		
-//        String[] subPkgs= fPackageName.split("\\.");
-//        StringBuffer buff= new StringBuffer();
-//        for(int i= 0; i < subPkgs.length-1; i++) {
-//            if (i > 0) buff.append('.');
-//            buff.append(subPkgs[i]);
-//        }
-//        buff.append(".parser");
-//        fParserPackage= buff.toString();
     }
 
-    
-    // SMS 23 Apr 2007
+
     IProject fProject = null;
     Map<String, String> fSubs = null;
     
@@ -86,13 +84,10 @@ public class NewLanguage extends CodeServiceWizard {
         String prefsPackage= pluginPackage + ".preferences";
         String prefsFolder= prefsPackage.replace('.', File.separatorChar);
         fSubs.put("$PREFS_PACKAGE_NAME$", prefsPackage);
+    	fSubs.put("$LANG_NAME$", fLanguageName);
 
         String pluginTemplateName = "plugin.java";
-        // SMS 27 Mar 2007:  using parameter for plugin class name
-        createFileFromTemplate((String)fSubs.get("$PLUGIN_CLASS$") + ".java", pluginTemplateName, pluginClassFolder, fSubs, fProject, mon);
-        
-        // SMS 27 Mar 2007 commented out creation of file for preference cache because no longer used
-        //createFileFromTemplate(fClassNamePrefix + "PreferenceConstants.java", "prefs_const.tmpl", prefsFolder, fSubs, fProject, mon);
+        createFileFromTemplate((String)fSubs.get("$PLUGIN_CLASS$") + ".java", pluginTemplateName, pluginClassFolder, fSubs, fProject, mon);	
     }
     
     
