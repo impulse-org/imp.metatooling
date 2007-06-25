@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.resources.IFolder;
@@ -29,7 +30,9 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.search.JavaSearchScope;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
+import org.eclipse.jdt.internal.ui.dialogs.PackageSelectionDialog;
 import org.eclipse.jdt.internal.ui.dialogs.TypeSelectionDialog2;
 import org.eclipse.jdt.internal.ui.wizards.NewClassCreationWizard;
 import org.eclipse.jdt.ui.wizards.NewClassWizardPage;
@@ -72,6 +75,7 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IEditorInput;
@@ -107,8 +111,10 @@ public class ExtensionPointWizardPage extends WizardPage {
 	public void modifyText(ModifyEvent e) {
 	    Text text= (Text) e.widget;
 
-	    setProjectName(text.getText());
+	    String projectName = text.getText();
+	    setProjectName(projectName);	    
 	    discoverProjectLanguage();
+	    
 	    // RMF Don't add imports yet; wait for user to press "Finish"
 	    // ExtensionPointEnabler.addImports(ExtensionPointWizardPage.this);
 	    dialogChanged();
@@ -116,42 +122,42 @@ public class ExtensionPointWizardPage extends WizardPage {
     }
 
     private final class ProjectBrowseSelectionListener extends SelectionAdapter {
-	private final IProject project;
-
-	private ProjectBrowseSelectionListener(IProject project) {
-	    super();
-	    this.project= project;
-	}
-
-	public void widgetSelected(SelectionEvent e) {
-	    ContainerSelectionDialog dialog= new ContainerSelectionDialog(getShell(), project, false,
-	            "Select a plug-in Project");
-	    // RMF Would have thought the following would set the initial selection,
-	    // but passing project as the initialRoot arg above seems to work...
-	    if (project != null)
-	        dialog.setInitialSelections(new Object[] { project.getFullPath() });
-	    dialog.setValidator(new ISelectionValidator() {
-	        public String isValid(Object selection) {
-	            try {
-	                IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(selection.toString());
-	                if (project.exists() && project.hasNature("org.eclipse.pde.PluginNature")) {
-	                    return null;
-	                }
-	            } catch (Exception e) {
-	            }
-	            return "The selected element \"" + selection + "\" is not a plug-in project";
-	        }
-	    });
-	    if (dialog.open() == ContainerSelectionDialog.OK) {
-	        Object[] result= dialog.getResult();
-	        IProject selectedProject= ResourcesPlugin.getWorkspace().getRoot().getProject(result[0].toString());
-	        if (result.length == 1) {
-	            // fProjectText.setText(((Path) result[0]).toOSString());
-	            fProjectText.setText(selectedProject.getName());
-	            sProjectName= selectedProject.getName();
-	        }
-	    }
-	}
+		private final IProject project;
+	
+		private ProjectBrowseSelectionListener(IProject project) {
+		    super();
+		    this.project= project;
+		}
+	
+		public void widgetSelected(SelectionEvent e) {
+		    ContainerSelectionDialog dialog= new ContainerSelectionDialog(getShell(), project, false,
+		            "Select a plug-in Project");
+		    // RMF Would have thought the following would set the initial selection,
+		    // but passing project as the initialRoot arg above seems to work...
+		    if (project != null)
+		        dialog.setInitialSelections(new Object[] { project.getFullPath() });
+		    dialog.setValidator(new ISelectionValidator() {
+		        public String isValid(Object selection) {
+		            try {
+		                IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(selection.toString());
+		                if (project.exists() && project.hasNature("org.eclipse.pde.PluginNature")) {
+		                    return null;
+		                }
+		            } catch (Exception e) {
+		            }
+		            return "The selected element \"" + selection + "\" is not a plug-in project";
+		        }
+		    });
+		    if (dialog.open() == ContainerSelectionDialog.OK) {
+		        Object[] result= dialog.getResult();
+		        IProject selectedProject= ResourcesPlugin.getWorkspace().getRoot().getProject(result[0].toString());
+		        if (result.length == 1) {
+		            // fProjectText.setText(((Path) result[0]).toOSString());
+		            fProjectText.setText(selectedProject.getName());
+		            sProjectName= selectedProject.getName();
+		        }
+		    }
+		}
     }
 
     protected String fExtPluginID;
@@ -460,7 +466,8 @@ public class ExtensionPointWizardPage extends WizardPage {
         WizardPageField field= new WizardPageField(schemaElementPrefix, name, upName, valueStr, attribute.getKind(), isRequired, description);
         Text text= createLabelTextBrowse(container, field, basedOn);
 
-        if (name.equals("language"))
+        // SMS 13 Jun 2007:  added test for "Language"
+        if (name.equals("language") || name.equals("Language"))
             fLanguageText= text;
         else if (name.equals("class"))
             fQualClassText= text;
@@ -506,6 +513,8 @@ public class ExtensionPointWizardPage extends WizardPage {
             	createFolderBrowseButton(container, field, text);
         	} else if (basedOn.endsWith("ClassBrowse")) {
 	            createClassBrowseButton(container, field, text);
+        	} else if (basedOn.endsWith("PackageBrowse")) {
+	            createPackageBrowseButton(container, field, text);
         	} else {
 	        	// This is the original action;
         		// left until a better option can be identified
@@ -694,6 +703,60 @@ public class ExtensionPointWizardPage extends WizardPage {
         }
     }
 
+    
+    private void createPackageBrowseButton(Composite container, WizardPageField field, Text text) {
+        Button button= new Button(container, SWT.PUSH);
+
+        button.setText("Browse...");
+        button.setData(text);
+    	final Shell shell = container.getShell();
+    	
+        button.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                try {
+                    IRunnableContext context= PlatformUI.getWorkbench().getProgressService();
+                    //JavaSearchScope scope = new JavaWorkspaceScope();	// This is kind of a big scope
+                    
+                	IProject project = null;
+                	String projectName = fProjectText.getText();
+                	if (projectName != null) {
+                		project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+                	}
+                	if (project ==  null) {
+                		project= getProject();
+                	}
+                	
+                    if (project == null) {
+                        setErrorMessage("Please select a plug-in project to add this extension point to");
+                        setPageComplete(false);
+                        return;
+                    }	
+                    
+                    JavaProject javaProject = (JavaProject) JavaCore.create(project);
+                    if (javaProject == null)
+                        // the project is not configured for Java (has no Java nature)
+                        throw new Exception("createPackageBrowseButton:  unable to create Java project = '" + project.getName() + "' for search scope");
+                    JavaSearchScope scope = new JavaSearchScope();
+                    scope.add(javaProject, IJavaSearchScope.SOURCES, new HashSet());
+                    PackageSelectionDialog dialog= new PackageSelectionDialog(shell, context,
+                    		PackageSelectionDialog.F_HIDE_DEFAULT_PACKAGE | PackageSelectionDialog.F_REMOVE_DUPLICATES | PackageSelectionDialog.F_SHOW_PARENTS,
+                    		scope);
+
+                    if (dialog.open() == PackageSelectionDialog.OK) {
+                        Text text= (Text) e.widget.getData();
+                        org.eclipse.jdt.internal.core.PackageFragment pack = (org.eclipse.jdt.internal.core.PackageFragment) dialog.getFirstResult();
+                        text.setText(pack.getElementName());
+                    }
+                } catch (Exception ee) {
+                    ErrorHandler.reportError("Could not browse package", ee);
+                }
+            }
+        });
+        if (field != null)
+            field.fButton= button;
+    }
+    
+    
     	
     
     private void createClassBrowseButton(Composite container, WizardPageField field, Text text) {
@@ -727,6 +790,8 @@ public class ExtensionPointWizardPage extends WizardPage {
         try {
             String intfName= interfaceQualName.substring(interfaceQualName.lastIndexOf('.') + 1);
             IJavaProject javaProject= JavaCore.create(getProject());
+// SMS 13 Jun 2007  Probably want to change getProject() here ^^^
+            
             // RMF 7/5/2005 - If the project doesn't yet have the necessary plug-in
             // dependency for this reference to be satisfiable, an error ensues.
             IType basedOnClass= javaProject.findType(interfaceQualName);
@@ -913,7 +978,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 		if (fProjectText.getText().length() == 0)
 		    return;
 	
-		IPluginModelBase pluginModel= getPluginModel();
+		IPluginModelBase pluginModel= getPluginModel(fProjectText.getText());
 	
 		if (pluginModel != null) {
 		    IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
@@ -1020,6 +1085,12 @@ public class ExtensionPointWizardPage extends WizardPage {
         }
         return null;
     }
+
+    
+    public String getProjectNameFromField() {
+    	return fProjectText.getText();
+    }
+    
 
     public void setVisible(boolean visible) {
         if (visible) {
@@ -1166,10 +1237,11 @@ public class ExtensionPointWizardPage extends WizardPage {
     }
 
     IPluginModelBase getPluginModel() {
+    	IProject project = null;
         try {
             PluginModelManager pmm= PDECore.getDefault().getModelManager();
             IPluginModelBase[] plugins= pmm.getAllPlugins();
-            IProject project= getProject();
+            	project= getProject();
 
             if (project == null)
         	return null;
@@ -1181,17 +1253,53 @@ public class ExtensionPointWizardPage extends WizardPage {
                 }
             }
         } catch (Exception e) {
-            ErrorHandler.reportError("Could not enable extension point for " + getProject(), e);
+            ErrorHandler.reportError("Could not enable extension point for " + project.getName(), e);
         }
         return null;
     }
 
+    
+    IPluginModelBase getPluginModel(String projectName) {
+        try {
+        	if (projectName == null)
+        		return null;
+            PluginModelManager pmm= PDECore.getDefault().getModelManager();
+            IPluginModelBase[] plugins= pmm.getAllPlugins();
+
+            for(int n= 0; n < plugins.length; n++) {
+                IPluginModelBase plugin= plugins[n];
+                IResource resource= plugin.getUnderlyingResource();
+                if (resource != null && projectName.equals(resource.getProject().getName())) {
+                    return plugin;
+                }
+            }
+        } catch (Exception e) {
+            ErrorHandler.reportError("Could not enable extension point for " + projectName, e);
+        }
+        return null;
+    }
+    
+    
     void dialogChanged() {
         setErrorMessage(null);
         if (fSkip)
             setPageComplete(true);
         else {
-            IProject project= getProject();
+        	// SMS 13 Jun 2007
+        	// Seem to need to check for a project that's set in the wizard
+        	// before going and getting a project otherwise, which can return
+        	// the current selection in the package explorer regardless
+        	// of what's set in the wizard
+            //IProject project= getProject();
+        	IProject project = null;
+        	String projectName = fProjectText.getText();
+        	if (projectName != null) {
+        		project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+        	}
+        	if (project ==  null) {
+        		project= getProject();
+        	}
+        	
             if (project == null) {
                 setErrorMessage("Please select a plug-in project to add this extension point to");
                 setPageComplete(false);
@@ -1235,7 +1343,8 @@ public class ExtensionPointWizardPage extends WizardPage {
     public String getValue(String name) {
         for(int n= 0; n < fFields.size(); n++) {
             WizardPageField field= (WizardPageField) fFields.get(n);
-            if (field.fAttributeName.toLowerCase().equals(name)) {
+            // SMS 13 Jun 2007:  added toLowerCase of name
+            if (field.fAttributeName.toLowerCase().equals(name.toLowerCase())) {
                 return field.fValue;
             }
         }
@@ -1245,7 +1354,8 @@ public class ExtensionPointWizardPage extends WizardPage {
     public WizardPageField getField(String name) {
         for(int n= 0; n < fFields.size(); n++) {
             WizardPageField field= (WizardPageField) fFields.get(n);
-            if (field.fAttributeName.toLowerCase().equals(name)) {
+            // SMS 13 Jun 2007:  added toLowerCase of name
+            if (field.fAttributeName.toLowerCase().equals(name.toLowerCase())) {
                 return field;
             }
         }
