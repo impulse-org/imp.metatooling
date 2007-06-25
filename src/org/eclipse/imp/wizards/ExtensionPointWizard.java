@@ -347,28 +347,78 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
      * @return a handle to the file created
      * @throws CoreException
      */
-    protected IFile createFileFromTemplate(String fileName, String templateName, String folder, Map replacements,
-	    IProject project, IProgressMonitor monitor) throws CoreException {
-	monitor.setTaskName("Creating " + fileName);
-
-	final IFile file= project.getFile(new Path(getProjectSourceLocation() + folder + "/" + fileName));
-	String templateContents= new String(getTemplateFile(templateName));
-	String contents= performSubstitutions(templateContents, replacements);
-
-	if (fileName.endsWith(".java")) {
-	    contents= formatJavaCode(contents);
-	}
-
-	if (file.exists()) {
-	    file.setContents(new ByteArrayInputStream(contents.getBytes()), true, true, monitor);
-	} else {
-            createSubFolders(getProjectSourceLocation() + folder, project, monitor);
-	    file.create(new ByteArrayInputStream(contents.getBytes()), true, monitor);
-	}
-//	monitor.worked(1);
-	return file;
+    protected IFile createFileFromTemplate(
+    	String fileName, String templateName, String folder, Map replacements,
+	    IProject project, IProgressMonitor monitor)
+    throws CoreException
+	{
+		monitor.setTaskName("ExtensionPointWizard.createFileFromTemplate:  Creating " + fileName);
+		
+		final IFile file= project.getFile(new Path(getProjectSourceLocation() + folder + "/" + fileName));
+		String templateContents= new String(getTemplateFile(templateName));
+		String contents= performSubstitutions(templateContents, replacements);
+	
+		if (fileName.endsWith(".java")) {
+		    contents= formatJavaCode(contents);
+		}
+	
+		if (file.exists()) {
+		    file.setContents(new ByteArrayInputStream(contents.getBytes()), true, true, monitor);
+		} else {
+	        createSubFolders(getProjectSourceLocation() + folder, project, monitor);
+		    file.create(new ByteArrayInputStream(contents.getBytes()), true, monitor);
+		}
+	//	monitor.worked(1);
+		return file;
     }
 
+    
+    /**
+     * Extends a file of the given name from the named template in the given folder in the
+     * given project. Subjects the template's contents to meta-variable substitution.
+     * @param fileName
+     * @param templateName
+     * @param folder
+     * @param replacements a Map of meta-variable substitutions to apply to the template
+     * @param project
+     * @param monitor
+     * @return a handle to the extended file
+     * @throws CoreException
+     * 
+     * SMS 19 Jun 2007:  Added to support extension of existing files with updates by
+     * 					 later introduced language services (e.g., of language plugin file
+     * 					 with elements related to the preference service--which isn't actually
+     * 					 done yet, but which might reasonably be introduced)
+     */
+    protected IFile extendFileFromTemplate(
+    	String fileName, String templateName, String folder, Map replacements,
+	    IProject project, IProgressMonitor monitor)
+    throws CoreException
+	{
+		monitor.setTaskName("ExtensionPointWizard.extendFileFromTemplate:  Extending " + fileName);
+		
+		final IFile file= project.getFile(new Path(getProjectSourceLocation() + folder + "/" + fileName));
+		if (!file.exists()) {
+			throw new IllegalArgumentException();	
+		}
+		String fileContents = file.getContents().toString();
+		fileContents = fileContents.substring(0, fileContents.lastIndexOf("}")) + "\n";
+		
+		String extensionContents= new String(getTemplateFile(templateName));
+		extensionContents = performSubstitutions(extensionContents, replacements);
+	
+		String newFileContents = fileContents + extensionContents + "\n\n}";
+		
+		if (fileName.endsWith(".java")) {
+			newFileContents= formatJavaCode(newFileContents);
+		}
+
+	    file.setContents(new ByteArrayInputStream(newFileContents.getBytes()), true, true, monitor);
+
+		return file;
+    }
+    
+    
     private String formatJavaCode(String contents) {
 	CodeFormatter formatter= org.eclipse.jdt.core.ToolFactory.createCodeFormatter(JavaCore.getOptions());
 	TextEdit te= formatter.format(CodeFormatter.K_COMPILATION_UNIT, contents, 0, contents.length(), 0, "\n");
@@ -380,6 +430,9 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
 	    e.printStackTrace();
 	} catch (BadLocationException e) {
 	    e.printStackTrace();
+	} catch (NullPointerException e) {
+		// Can happen that te is null
+		e.printStackTrace();
 	}
 	contents= l_doc.get();
 	return contents;
