@@ -1,7 +1,7 @@
 Bundle-SymbolicName: org.eclipse.uide; singleton=true
 Bundle-Name: SAFARI Language Support Meta-Tooling
 Bundle-Vendor: rfuhrer@watson.ibm.com
-Bundle-Version: 1.0.54
+Bundle-Version: 1.0.55
 Bundle-Activator: org.eclipse.uide.WizardPlugin
 Eclipse-AutoStart: true
 Provide-Package: org.eclipse.uide,
