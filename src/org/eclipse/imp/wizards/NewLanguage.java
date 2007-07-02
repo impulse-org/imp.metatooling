@@ -36,12 +36,19 @@ import org.eclipse.uide.runtime.RuntimePlugin;
  * 	- Added code to check for duplicate plugin ids and confirm
  *    whether the user wants that
  * SMS 19 Jun 2007:  Added $LANG_NAME$ substitution parameter
+ * SMS 02 Jul 2007:  Realized that fProject is already defined
+ *  in ExtensionPointWizard, so eliminating local declaration
  */
 
 public class NewLanguage extends CodeServiceWizard {
+	
+	// For sharing between methods here, to avoid recomputation
+    Map<String, String> fSubs = null;
+	
     public void addPages() {
         addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "languageDescription") });
     }
+
 
     protected List getPluginDependencies() {
         return Arrays.asList(new String[] {
@@ -64,10 +71,6 @@ public class NewLanguage extends CodeServiceWizard {
         fClassNamePrefix= Character.toUpperCase(fLanguageName.charAt(0)) + fLanguageName.substring(1);
     }
 
-
-    IProject fProject = null;
-    Map<String, String> fSubs = null;
-    
     
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
         fSubs = getStandardSubstitutions(fProject);
