@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.resources.IFolder;
@@ -30,11 +29,11 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.search.JavaSearchScope;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.ui.dialogs.PackageSelectionDialog;
 import org.eclipse.jdt.internal.ui.dialogs.TypeSelectionDialog2;
 import org.eclipse.jdt.internal.ui.wizards.NewClassCreationWizard;
+import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jdt.ui.wizards.NewClassWizardPage;
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -86,6 +85,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.ISelectionValidator;
+import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -715,16 +715,15 @@ public class ExtensionPointWizardPage extends WizardPage {
             public void widgetSelected(SelectionEvent e) {
                 try {
                     IRunnableContext context= PlatformUI.getWorkbench().getProgressService();
-                    //JavaSearchScope scope = new JavaWorkspaceScope();	// This is kind of a big scope
-                    
-                	IProject project = null;
-                	String projectName = fProjectText.getText();
-                	if (projectName != null) {
-                		project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-                	}
-                	if (project ==  null) {
-                		project= getProject();
-                	}
+                    IProject project = null;
+                    String projectName = fProjectText.getText();
+
+                    if (projectName != null) {
+                	project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+                    }
+                    if (project ==  null) {
+                	project= getProject();
+                    }
                 	
                     if (project == null) {
                         setErrorMessage("Please select a plug-in project to add this extension point to");
@@ -735,16 +734,13 @@ public class ExtensionPointWizardPage extends WizardPage {
                     JavaProject javaProject = (JavaProject) JavaCore.create(project);
                     if (javaProject == null)
                         // the project is not configured for Java (has no Java nature)
-                        throw new Exception("createPackageBrowseButton:  unable to create Java project = '" + project.getName() + "' for search scope");
-                    JavaSearchScope scope = new JavaSearchScope();
-                    scope.add(javaProject, IJavaSearchScope.SOURCES, new HashSet());
-                    PackageSelectionDialog dialog= new PackageSelectionDialog(shell, context,
-                    		PackageSelectionDialog.F_HIDE_DEFAULT_PACKAGE | PackageSelectionDialog.F_REMOVE_DUPLICATES | PackageSelectionDialog.F_SHOW_PARENTS,
-                    		scope);
+                        throw new Exception("createPackageBrowseButton:  unable to open Java project = '" + project.getName() + "' for search scope");
+
+                    SelectionDialog dialog= JavaUI.createPackageDialog(shell, javaProject, 0);
 
                     if (dialog.open() == PackageSelectionDialog.OK) {
                         Text text= (Text) e.widget.getData();
-                        org.eclipse.jdt.internal.core.PackageFragment pack = (org.eclipse.jdt.internal.core.PackageFragment) dialog.getFirstResult();
+                        IPackageFragment pack = (org.eclipse.jdt.internal.core.PackageFragment) dialog.getResult()[0];
                         text.setText(pack.getElementName());
                     }
                 } catch (Exception ee) {
@@ -1291,14 +1287,14 @@ public class ExtensionPointWizardPage extends WizardPage {
         	// the current selection in the package explorer regardless
         	// of what's set in the wizard
             //IProject project= getProject();
-        	IProject project = null;
-        	String projectName = fProjectText.getText();
-        	if (projectName != null) {
-        		project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-        	}
-        	if (project ==  null) {
-        		project= getProject();
-        	}
+            IProject project = null;
+            String projectName = fProjectText.getText();
+            if (projectName != null && projectName.length() > 0) {
+        	project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+            }
+            if (project ==  null) {
+        	project= getProject();
+            }
         	
             if (project == null) {
                 setErrorMessage("Please select a plug-in project to add this extension point to");
