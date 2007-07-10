@@ -155,7 +155,9 @@ public class ExtensionPointEnabler {
 	}
     }
    
-    public static void enable(IProject project, String pluginID, String pointID, String[][] attrNamesValues, boolean replace, IProgressMonitor monitor) {
+    public static void enable(
+    		IProject project, String pluginID, String pointID, String[][] attrNamesValues, boolean replace, 
+    		List imports, IProgressMonitor monitor) {
 	try {
 	    IPluginModel pluginModel= getPluginModelForProject(project);
 
@@ -168,7 +170,7 @@ public class ExtensionPointEnabler {
 	    		System.out.println("ExtensionPointEnabler.enable(..):  not removing previous extension for pluginID = "
 	    				+ pluginID + " pointID = " + pointID);
 	    	}
-	    	addExtension(pluginModel, pluginID, pointID, attrNamesValues);
+	    	addExtension(pluginModel, pluginID, pointID, attrNamesValues, imports);
 	    }
 	} catch (Exception e) {
 	    ErrorHandler.reportError("Could not enable extension point for " + project.getName(), e);
@@ -345,7 +347,7 @@ public class ExtensionPointEnabler {
 		    pluginBase.add(extension);
 	
 		addRequiredPluginImports(pluginModel, page.getRequires());
-			saveAndRefresh(pluginModel);
+		saveAndRefresh(pluginModel);
 	}
 
 
@@ -395,8 +397,9 @@ public class ExtensionPointEnabler {
      * @throws CoreException	If there's a problem working with the plugin or other models
      * @throws IOException		If there's a problem working with the plugin file
      */
-    public static void addExtension(IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues)
-    	throws CoreException, IOException
+    public static void addExtension(
+    	IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues, List imports)
+    throws CoreException, IOException
     {
 
     	// SMS 5 Feb 2007
@@ -417,6 +420,7 @@ public class ExtensionPointEnabler {
 		if (!extension.isInTheModel())
 		    pluginBase.add(extension);
 		
+		addRequiredPluginImports(pluginModel, imports);
 		saveAndRefresh(pluginModel);
     }
 
@@ -533,21 +537,23 @@ public class ExtensionPointEnabler {
      * @param attrNamesValues
      * @throws CoreException
      */
-    public static void setElementAttributes(IPluginModel pluginModel, IPluginExtension extension, String[][] attrNamesValues) throws CoreException {
+    public static void setElementAttributes(
+    	IPluginModel pluginModel, IPluginExtension extension, String[][] attrNamesValues) throws CoreException
+    {
         Map/*<String qualElemName, PluginElement>*/ elementMap= new HashMap(); // so we can find nested/parent elements after they've been created, somewhat regardless of the field ordering
 
         elementMap.put("extension", extension); // Let nested elements find the extension object itself by name
 
-	for(int i= 0; i < attrNamesValues.length; i++) {
-	    String elementAttrName= attrNamesValues[i][0];
-            String elementName= elementAttrName.substring(0, elementAttrName.indexOf(':'));
-            String attrName= elementAttrName.substring(elementAttrName.indexOf(':') + 1);
-            String attrValue= attrNamesValues[i][1];
-
-            System.out.println("Creating attribute " + elementAttrName + " => " + attrValue);
-
-            setElementAttribute(elementName, attrName, attrValue, extension, elementMap, pluginModel);
-	}
+		for(int i= 0; i < attrNamesValues.length; i++) {
+		    String elementAttrName= attrNamesValues[i][0];
+	            String elementName= elementAttrName.substring(0, elementAttrName.indexOf(':'));
+	            String attrName= elementAttrName.substring(elementAttrName.indexOf(':') + 1);
+	            String attrValue= attrNamesValues[i][1];
+	
+	            System.out.println("Creating attribute " + elementAttrName + " => " + attrValue);
+	
+	            setElementAttribute(elementName, attrName, attrValue, extension, elementMap, pluginModel);
+		}
     }
 
     private static void addRequiredPluginImports(IPluginModel pluginModel, List/*<String>*/ requires) throws CoreException {
