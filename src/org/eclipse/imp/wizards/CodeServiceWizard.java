@@ -123,8 +123,9 @@ public abstract class CodeServiceWizard extends ExtensionPointWizard {
             	activator = wbm.getBundle().getHeader("Bundle-Activator");
             }
 
-            if (activator != null) {
-            	result = activator.substring(0, activator.lastIndexOf("."));
+            if (activator != null && !activator.equals("")) {
+            	if (activator.lastIndexOf(".") >= 0)
+            		result = activator.substring(0, activator.lastIndexOf("."));
             }
     	}
        	return result;
