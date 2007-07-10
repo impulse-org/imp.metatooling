@@ -359,7 +359,7 @@ public class ExtensionPointEnabler {
     // SMS 20 Jul 2006
     static void removeExtension(IPluginModel pluginModel, ExtensionPointWizardPage page)
     	throws CoreException, IOException
-    {	    	
+    {      
     	IPluginModelFactory pmFactory = pluginModel.getPluginFactory();
     	IExtensions pmExtensions = pluginModel.getExtensions();
     	IPluginExtension[] pluginExtensions = pmExtensions.getExtensions();
@@ -373,7 +373,7 @@ public class ExtensionPointEnabler {
     		}
     	}
     	saveAndRefresh(pluginModel);
-    }
+     }
 
  
     /**
@@ -405,7 +405,7 @@ public class ExtensionPointEnabler {
     	// SMS 5 Feb 2007
     	// Removed added call to removeExtension; this call is now made conditionally	
     	// from enable(..)
-    	
+        
     	IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
 
         if (extension == null) {
@@ -422,7 +422,7 @@ public class ExtensionPointEnabler {
 		
 		addRequiredPluginImports(pluginModel, imports);
 		saveAndRefresh(pluginModel);
-    }
+     }
 
     
     // SMS 20 Jul 2006
@@ -557,7 +557,7 @@ public class ExtensionPointEnabler {
     }
 
     private static void addRequiredPluginImports(IPluginModel pluginModel, List/*<String>*/ requires) throws CoreException {
-	IPluginBase base= pluginModel.getPluginBase();
+	IPluginBase base= pluginModel.getPluginBase();	
 	// RMF Ask the model's associated bundle description for the list
 	// of required bundles; I've seen this list be out of sync wrt the
 	// list of imports in the IPluginBase (e.g. the latter is empty).
@@ -572,13 +572,14 @@ public class ExtensionPointEnabler {
 	
 		    if (!found /*!containsImport(reqBundles, pluginID*/) {
 				PluginImport importNode= new PluginImport(); // pluginFactory.createImport();
-		                importNode.setModel(pluginModel);
-		                importNode.setId(pluginID);
-		                importNode.setInTheModel(true);
-		                importNode.setParent(base);
+                importNode.setModel(pluginModel);
+                importNode.setId(pluginID);
+                importNode.setInTheModel(true);
+                importNode.setParent(base);
 				base.add(importNode);
 		    }
         }
+
         // HACK RMF 10/19/2006 - "diddle" the import list by swapping the last 2
         // entries to try to get PDE/JDT to notice the additions.
         // HAS NO EFFECT!
@@ -615,7 +616,7 @@ public class ExtensionPointEnabler {
     static public void addImports(ExtensionPointWizardPage page) {
 	try {
 	    IPluginModel plugin= getPluginModel(page.getProject());
-
+	    
 	    if (plugin == null) return;
 
 	    addRequiredPluginImports(plugin, page.fRequiredPlugins);
@@ -639,7 +640,7 @@ public class ExtensionPointEnabler {
 	    IPluginModel plugin= getPluginModel(project);
 
 	    if (plugin == null) return;
-
+	    
 	    addRequiredPluginImports(plugin, requiredPlugins);
 
 	    if (plugin instanceof IBundlePluginModel) {
@@ -671,10 +672,24 @@ public class ExtensionPointEnabler {
 		    	// is saved as part of the saving of the bundle plugin model that
 		    	// follows (leaving for future reference until the change is validated
 		    	// in practice).
-//			    if (extModel instanceof IEditableModel) {
-//			    	((IEditableModel) extModel).save();	
-//			    }
-			    bundlePluginModel.save(); // This blows away the entire MANIFEST.MF...
+		    	// Or not
+//		    	String extModelContents = null;
+
+			    if (extModel instanceof IEditableModel) {
+//			    	if (extModel instanceof WorkspaceExtensionsModel) {
+//			    		extModelContents = ((WorkspaceExtensionsModel)extModel).getContents();
+//			    	}
+			    	// Save here finds that the extensions model is dirty (so savable)
+			    	// and has non-empty contents (so something to save)
+			    	((IEditableModel) extModel).save();	
+			    }
+//			    System.out.println("EPE.saveAndRefresh():  extModelContents = " + extModelContents);
+
+			    // Will separately save fBundleModel and fExtensionsModel, but has no effect
+			    // because fBundleModel will not be seen as dirty, and fExtensionsModel has
+			    // just been saved above (so it won't be dirty, either)
+			    // Note:  It's the fBundleModel that represents the manifest.mf file	
+			    bundlePluginModel.save();
 		    }
 		}
 		plugin.getUnderlyingResource().refreshLocal(1, null);
