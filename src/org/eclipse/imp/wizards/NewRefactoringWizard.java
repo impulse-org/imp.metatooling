@@ -168,11 +168,13 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 
 	if (ExtensionPointUtils.findExtensionByName("refactoringContributor", pages[0].getPluginModel()) == null) {
 	    try {
-		ExtensionPointEnabler.addExtension((IPluginModel) pages[0].getPluginModel().getAdapter(IPluginModel.class),
+		ExtensionPointEnabler.addExtension(
+			(IPluginModel) pages[0].getPluginModel().getAdapter(IPluginModel.class),
 			RuntimePlugin.UIDE_RUNTIME,
 			"refactoringContributions",
 			new String[][] { { "refactoringContributor:language", pages[0].sLanguage },
-				         { "refactoringContributor:class", contributorQualClassName } }
+				         { "refactoringContributor:class", contributorQualClassName } },
+		    getPluginDependencies()
 		);
 		createFileFromTemplate(contributorClassName + ".java", "refactoringContributor.java", packageFolder, subs, project, mon);
 		createFileFromTemplate("RefactoringMessages.java", "refactoringMessages.java", packageFolder, subs, project, mon);

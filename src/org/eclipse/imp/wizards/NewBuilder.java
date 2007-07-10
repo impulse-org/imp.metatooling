@@ -3,12 +3,12 @@
  */
 package org.eclipse.uide.wizards;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -74,8 +74,10 @@ public class NewBuilder extends CodeServiceWizard
                 { "runtime:", "" },
     	    	// SMS 9 May 2006:
                 { "runtime.run:class", fLanguageName + ".safari.builders." + fClassNamePrefix + "Nature" },
-        		}, 
-        		false, mon);
+        		},     
+        		false,
+        		getPluginDependencies(),
+        		mon);
         ExtensionPointEnabler.enable(fProject, "org.eclipse.core.resources", "markers",
     	    new String[][] {
         			// SMS 28 Mar 2007:  id based on parameter
@@ -83,7 +85,9 @@ public class NewBuilder extends CodeServiceWizard
                     { "extension:name", fLanguageName + " Error" },
     	    	{ "super:type", "org.eclipse.core.resources.problemmarker" },
         	    },
-        	    false, mon);
+        		false,
+        		getPluginDependencies(),
+        		mon);
 
         subs.remove("$BUILDER_CLASS_NAME$");
         subs.put("$BUILDER_CLASS_NAME$", fFullClassName);
