@@ -28,6 +28,11 @@ public class $PLUGIN_CLASS$ extends SAFARIPluginBase {
     protected static $PLUGIN_CLASS$ sPlugin;
 
     public static $PLUGIN_CLASS$ getInstance() {
+    	// SMS 11 Jul 2007
+    	// Added conditional call to constructor in case the plugin
+    	// class has not been auto-started
+    	if (sPlugin == null)
+    		new $PLUGIN_CLASS$();
         return sPlugin;
     }
 
