@@ -304,7 +304,7 @@ public class ExtensionPointEnabler {
      * @throws IOException		If there's a problem working with the plugin file
      */
     static void addExtension(IPluginModel pluginModel, ExtensionPointWizardPage page) throws CoreException, IOException {
-   	
+    	
     	// SMS 20 Jul 2006
     	// Delete previous extension of this type, which is presumably
     	// being replaced by the one being added here
@@ -429,8 +429,8 @@ public class ExtensionPointEnabler {
     public static void removeExtension(IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues)
     	throws CoreException, IOException
     {
-    	
-    	IPluginModelFactory pmFactory = pluginModel.getPluginFactory();
+    	// SMS 10 Jul 2007:  pmFactory apparently not used
+    	//IPluginModelFactory pmFactory = pluginModel.getPluginFactory();
     	IExtensions pmExtensions = pluginModel.getExtensions();
     	IPluginExtension[] pluginExtensions = pmExtensions.getExtensions();
     	for (int i = 0; i < pluginExtensions.length; i++) {
@@ -557,40 +557,95 @@ public class ExtensionPointEnabler {
     }
 
     private static void addRequiredPluginImports(IPluginModel pluginModel, List/*<String>*/ requires) throws CoreException {
-	IPluginBase base= pluginModel.getPluginBase();	
-	// RMF Ask the model's associated bundle description for the list
-	// of required bundles; I've seen this list be out of sync wrt the
-	// list of imports in the IPluginBase (e.g. the latter is empty).
-	IPluginImport[] imports= base.getImports();
-//	BundleSpecification[] reqBundles= pluginModel.getBundleDescription().getRequiredBundles();
-//	IPluginModelFactory pluginFactory= pluginModel.getPluginFactory();
-//	/*IPluginImport[] curImports=*/ base.getImports(); // make sure the 'base.imports' field is non-null; otherwise, subsequent calls to base.add() are a noop!
+		IPluginBase base= pluginModel.getPluginBase();	
+		// RMF Ask the model's associated bundle description for the list
+		// of required bundles; I've seen this list be out of sync wrt the
+		// list of imports in the IPluginBase (e.g. the latter is empty).
+		IPluginImport[] imports= base.getImports();
+//		BundleSpecification[] reqBundles= pluginModel.getBundleDescription().getRequiredBundles();
+//		IPluginModelFactory pluginFactory= pluginModel.getPluginFactory();
+//		/*IPluginImport[] curImports=*/ base.getImports(); // make sure the 'base.imports' field is non-null; otherwise, subsequent calls to base.add() are a noop!
 
+	    // SMS 14 Jul 2007
+	    // The manifest file is rewritten whenever an extension is added, but the
+		// Require-Bundle in the manifest file seems to be rewritten correctly only
+		// when an import is added.  (In other words, if we add an extension that
+		// requires no new imports, the Require-Bundle will not be rewritten correctly;
+		// in fact, it will be omitted entirely.)  So, to assure that the Require-Bundle
+		// attribute is rewritten correctly, we need to assure that an import is added
+		// whenever the manifest Require-Bundle needs to be present.
+		//
+	    // Note:  This works, whereas previous attempts to achieve the same effect by
+		// reordering imports in the imports list don't seem to have any effect when
+		// performed through the API.
+		
+		
+		// If we're not adding any imports, then the appropriate action depends on
+		// whether there are existing imports.  If there are none, then it doesn't
+		// matter, so just return.  If there are some, then remove and add back one
+		// of them, so that the existing imports will be recreated properly.
+		if (requires.size() == 0) {
+			if (imports.length > 0) {
+				removeImport(base, imports[0]);
+				addImport(pluginModel, base, new PluginImport(), imports[0].getId());
+			}
+			return;
+		}
+		
+		
+		// Otherwise, we have some imports to be added, which may or may not be
+		// present already in the existing imports.
+		// First add any that need to be added
+		boolean importAdded = false;
         for(int n= 0; n < requires.size(); n++) {
 		    String pluginID= (String) requires.get(n);
 		    boolean found= containsImports(imports, pluginID);
-	
-		    if (!found /*!containsImport(reqBundles, pluginID*/) {
-				PluginImport importNode= new PluginImport(); // pluginFactory.createImport();
-                importNode.setModel(pluginModel);
-                importNode.setId(pluginID);
-                importNode.setInTheModel(true);
-                importNode.setParent(base);
-				base.add(importNode);
-		    }
-        }
 
-        // HACK RMF 10/19/2006 - "diddle" the import list by swapping the last 2
-        // entries to try to get PDE/JDT to notice the additions.
-        // HAS NO EFFECT!
-//        IPluginImport[] newImports= base.getImports();
-//
-//        if (newImports.length >= 2) {
-//            int N= newImports.length;
-//            base.swap(newImports[N-2], newImports[N-1]);
-//        }
+		    if (!found) {
+		    	addImport(pluginModel, base, new PluginImport(), pluginID);
+		    	importAdded = true;
+		    }  
+        }
+        // If there were no new imports added, then remove and add back one of
+        // the existing imports
+        if (!importAdded) {
+			removeImport(base, imports[0]);
+			addImport(pluginModel, base, new PluginImport(), imports[0].getId());
+        }
     }
 
+    
+    /*
+     * Remove the given plugin import node from the given base
+     * SMS 15 Jul 2007
+     */
+    private static void removeImport(IPluginBase base, IPluginImport node)
+    throws CoreException
+    {
+    	base.remove(node);
+    	node.setInTheModel(false);
+    	if (node instanceof PluginImport) {
+    		((PluginImport)node).setParent(null);
+    	}
+    }
+
+
+    /*
+     * Add the given plugin import node, with the given plugin ID, to the given plugin model,
+     * with the given plugin base
+     * SMS 15 Jul 2007
+     */
+    private static void addImport(IPluginModel model, IPluginBase base, PluginImport node, String pluginID)
+    throws CoreException
+    {
+    	node.setModel(model);
+    	node.setId(pluginID);
+    	node.setInTheModel(true);
+    	node.setParent(base);
+  		base.add(node);
+    }
+	
+    
     private static boolean containsImports(IPluginImport[] imports, String pluginID) {
 	boolean found= false;
 	for(int i= 0; i < imports.length; i++) {
@@ -657,38 +712,30 @@ public class ExtensionPointEnabler {
 	}
     }
 
-
-    // SMS 16 Apr 2007
-    // I have separate notes on attempts, centered on this method, to debug the problem 
-    // of unrecognized updates to plugin dependencies.
-    
     private static void saveAndRefresh(IPluginModel plugin) throws CoreException {
 		if (plugin instanceof IBundlePluginModel) {
 		    IBundlePluginModel bundlePluginModel= (IBundlePluginModel) plugin;
 		    ISharedExtensionsModel extModel= bundlePluginModel.getExtensionsModel();
 
 		    if (extModel != null) {
-		    	// SMS 16 Apr 2007:  Commenting out because the extensions model
-		    	// is saved as part of the saving of the bundle plugin model that
-		    	// follows (leaving for future reference until the change is validated
-		    	// in practice).
-		    	// Or not
-//		    	String extModelContents = null;
+		    	// SMS 15 Jul 2007
+		    	// Don't need to save the extensions model separately because it
+		    	// is saved by BundlePluginModelBase.save(), called below
+//			    if (extModel instanceof IEditableModel) {
+//			    	// Save here finds that the extensions model is dirty (so savable)
+//			    	// and has non-empty contents (so something to save)
+//			    	((IEditableModel) extModel).save();	
+//			    }
 
-			    if (extModel instanceof IEditableModel) {
-//			    	if (extModel instanceof WorkspaceExtensionsModel) {
-//			    		extModelContents = ((WorkspaceExtensionsModel)extModel).getContents();
-//			    	}
-			    	// Save here finds that the extensions model is dirty (so savable)
-			    	// and has non-empty contents (so something to save)
-			    	((IEditableModel) extModel).save();	
-			    }
-//			    System.out.println("EPE.saveAndRefresh():  extModelContents = " + extModelContents);
-
-			    // Will separately save fBundleModel and fExtensionsModel, but has no effect
-			    // because fBundleModel will not be seen as dirty, and fExtensionsModel has
-			    // just been saved above (so it won't be dirty, either)
-			    // Note:  It's the fBundleModel that represents the manifest.mf file	
+		    	// SMS 15 Jul 2007
+			    // Will separately save the bundle model and extensions model
+			    // (Note:  It's the bundle model that represents the manifest.mf file)
+			    // The Eclipse implementation for each model first checks whether the model
+			    // is dirty and then only saves the model if so.  Our operations on the
+			    // extensions model have the effect of marking it dirty, but our operations
+			    // on the bundle model don't have that effect (for reasons we don't understand).
+			    // Consequently, we have adapted the implementation of BundlePluginModelBase
+			    // to remove the test for the model being dirty and to save it in any case.
 			    bundlePluginModel.save();
 		    }
 		}
