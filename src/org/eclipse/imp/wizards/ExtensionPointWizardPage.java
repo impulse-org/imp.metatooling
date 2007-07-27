@@ -45,6 +45,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.pde.core.plugin.IPluginElement;
 import org.eclipse.pde.core.plugin.IPluginExtension;
+import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.internal.core.PDECore;
@@ -177,6 +178,8 @@ public class ExtensionPointWizardPage extends WizardPage {
     protected boolean fIsOptional;
 
     protected List/*<WizardPageField>*/ fFields= new ArrayList();
+    
+    protected IProject fProject;
 
     protected Text fProjectText;
 
@@ -553,7 +556,8 @@ public class ExtensionPointWizardPage extends WizardPage {
                         MessageDialog.openError(null, "SAFARI Wizard", "Please select a project first");
                     else {
                 	// BUG Should pick up info from wizard page, rather than using defaults.
-                        ExtensionPointEnabler.addImports(ExtensionPointWizardPage.this);
+                    	// SMS 26 Jul 2007:  Why add imports here?  Omitting doesn't seem to cause problems ...
+                        //ExtensionPointEnabler.addImports(ExtensionPointWizardPage.this);
                         String basedOnQualName= basedOn;
                         String basedOnTypeName= basedOn.substring(basedOnQualName.lastIndexOf('.') + 1);
                         String superClassName= "";
@@ -932,6 +936,7 @@ public class ExtensionPointWizardPage extends WizardPage {
         IProject project= getProject(selection);
 
         if (project != null) {
+        	fProject = project;
             sProjectName= project.getName();
             fProjectText.setText(sProjectName);
         }
@@ -977,6 +982,20 @@ public class ExtensionPointWizardPage extends WizardPage {
 		IPluginModelBase pluginModel= getPluginModel(fProjectText.getText());
 	
 		if (pluginModel != null) {
+		   	// SMS 26 Jul 2007
+	        // Load the extensions model in detail, using the adapted IMP representation,
+	        // to assure that the children of model elements are represented
+			if (fProject == null) {
+				discoverSelectedProject();
+			}
+	    	try {
+	    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, fProject);
+	    	} catch (CoreException e) {
+	    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
+	    	} catch (ClassCastException e) {
+	    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  ClassCastExeption loading extensions model; may not succeed");
+	    	}
+	    	
 		    IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
 	
 		    for(int i= 0; i < extensions.length; i++) {
