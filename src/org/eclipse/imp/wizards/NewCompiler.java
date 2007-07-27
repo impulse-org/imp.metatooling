@@ -3,10 +3,10 @@
  */
 package org.eclipse.uide.wizards;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.pde.core.plugin.IPluginExtension;
+import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.uide.runtime.RuntimePlugin;
@@ -123,15 +124,17 @@ public class NewCompiler extends GeneratedComponentWizard {
     
     public String getParseControllerClassName(IProject project)
     {
+    	IPluginModelBase pluginModelBase = pages[0].getPluginModel();
+
         // Get the extension that represents the parser
-        IPluginExtension parserExtension= ExtensionPointUtils.findExtensionByName("org.eclipse.uide.runtime.parser", pages[0].getPluginModel());
+        IPluginExtension parserExtension= ExtensionPointUtils.findExtensionByName("org.eclipse.uide.runtime.parser", pluginModelBase);
 
         if (parserExtension == null) return null;
 
         // Get the plugin element that represents the class of the parser
-        PluginElement parserPluginElement = ExtensionPointUtils.findElementByName("parser", parserExtension);
+        PluginElement parserPluginElement = ExtensionPointUtils.findElementByName(pluginModelBase, project, "parser", parserExtension);
         if (parserPluginElement == null) {
-            parserPluginElement = ExtensionPointUtils.findElementByName("parserWrapper", parserExtension);
+            parserPluginElement = ExtensionPointUtils.findElementByName(pluginModelBase, project, "parserWrapper", parserExtension);
         }
 
         if (parserPluginElement == null) return null;
