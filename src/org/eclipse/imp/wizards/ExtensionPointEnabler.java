@@ -7,6 +7,7 @@ package org.eclipse.uide.wizards;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,6 @@ import org.eclipse.pde.core.plugin.IExtensions;
 import org.eclipse.pde.core.plugin.IPluginBase;
 import org.eclipse.pde.core.plugin.IPluginElement;
 import org.eclipse.pde.core.plugin.IPluginExtension;
-import org.eclipse.pde.core.plugin.IPluginImport;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.IPluginModelFactory;
@@ -36,10 +36,10 @@ import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModel;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModelBase;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
-import org.eclipse.pde.internal.core.plugin.PluginImport;
-import org.eclipse.pde.internal.core.plugin.WorkspaceExtensionsModel;
 import org.eclipse.uide.core.ErrorHandler;
+import org.eclipse.uide.extensionsmodel.ImpWorkspaceExtensionsModel;
 import org.eclipse.uide.runtime.RuntimePlugin;
+import org.eclipse.uide.utils.StreamUtils;
 
 
 /**
@@ -95,17 +95,28 @@ public class ExtensionPointEnabler {
             IPluginModel pluginModel= getPluginModel(project);
     
             if (pluginModel != null) {
-        	IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
-    
-        	for(int n= 0; n < extensions.length; n++) {
-        	    IPluginExtension extension= extensions[n];
-    
-                    if (extension.getPoint().equals(pointID))
-                        return extension;
-        	}
-        	System.out.println("Unable to find language descriptor extension in plugin '" + pluginModel.getBundleDescription().getName() + "'.");
+    		   	// SMS 26 Jul 2007
+    	        // Load the extensions model in detail, using the adapted IMP representation,
+    	        // to assure that the children of model elements are represented
+    	    	try {
+    	    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
+    	    	} catch (CoreException e) {
+    	    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
+    	    	} catch (ClassCastException e) {
+    	    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  ClassCastExeption loading extensions model; may not succeed");
+    	    	}
+    	    	
+	        	IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
+	    
+	        	for(int n= 0; n < extensions.length; n++) {
+	        	    IPluginExtension extension= extensions[n];
+	    
+	                    if (extension.getPoint().equals(pointID))
+	                        return extension;
+	        	}
+	        	System.out.println("Unable to find language descriptor extension in plugin '" + pluginModel.getBundleDescription().getName() + "'.");
             } else if (project != null)
-        	System.out.println("Not a plugin project: " + project.getName());
+            	System.out.println("Not a plugin project: " + project.getName());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -134,8 +145,9 @@ public class ExtensionPointEnabler {
 	return null;
     }
 
-    public static void enable(ExtensionPointWizardPage page,
-    						  boolean remove, IProgressMonitor monitor) {
+    public static void enable(
+    		ExtensionPointWizardPage page,
+    		boolean remove, IProgressMonitor monitor) {
 	try {
 	    IPluginModel pluginModel= getPluginModel(page.getProject());
 
@@ -170,7 +182,7 @@ public class ExtensionPointEnabler {
 	    		System.out.println("ExtensionPointEnabler.enable(..):  not removing previous extension for pluginID = "
 	    				+ pluginID + " pointID = " + pointID);
 	    	}
-	    	addExtension(pluginModel, pluginID, pointID, attrNamesValues, imports);
+	    	addExtension(project, pluginModel, pluginID, pointID, attrNamesValues, imports);
 	    }
 	} catch (Exception e) {
 	    ErrorHandler.reportError("Could not enable extension point for " + project.getName(), e);
@@ -287,66 +299,80 @@ public class ExtensionPointEnabler {
      * Adds an extension to a plugin, where the extension is represented by
      * an ExtensionPointWizardPage.
      * 
-     * NOTE:  As of 21 Jul 2006, the implementation of this method first removes the 
-     * extension from the plugin, if it exists there, on the assumption that the
-     * extension being added is intended to replace the existing one.  Without this,
-     * multiple copies of the same extension can accumulate in the plugin.xml file,
-     * and the superfluous ones would have to be removed explicitly by the user.
-     * This approach is probably safe for SAFARI so long as the number of languages
-     * per plugin is restricted to at most one, which seems to be the current practical
-     * limit.  If there may be multiple languages per plugin, then some additional
-     * care needs to be taken regarding the removal of existing extensions.
-     * 
-     * 
      * @param pluginModel		Represents the plugin to which the extension is added
      * @param page				Represents the extension added to the plugin
      * @throws CoreException	If there's a problem working with the plugin or other models
      * @throws IOException		If there's a problem working with the plugin file
      */
-    static void addExtension(IPluginModel pluginModel, ExtensionPointWizardPage page) throws CoreException, IOException {
+    static void addExtension(IPluginModel pluginModel, ExtensionPointWizardPage page)
+    	throws CoreException, IOException
+    {
+    	// SMS 26 Jul 2007
+    	// Ideally, that is, if org.eclipse.pde.core supported all of the things that
+    	// we'd like to do with the extensions model, we would just create an extension,
+    	// fill in the plugin and point ids, add it to the extensions model, and save
+    	// the model.  In rare cases that the extension model didn't exist (for example,
+    	// before the first extension or extension point was created), the extensions
+    	// model would also have to be created.  The model is loaded at startup (I assume),
+    	// and listeners keep the loaded version up-to-date with respect to changes in
+    	// the plugin.xml file.  (Of course, the file is changed every time the model is
+    	// written out.)
+    	//
+    	// So what's not ideal?
+    	// 1.  The extensions model is only read shallowly.  Certain details of the
+    	//     model are omitted, and we sometimes need those details when creating our
+    	//     extensions.  There seems to be no way in the current implementation of
+    	//     org.eclipse.pde.core to access the details of the model
+    	// 2.  Repeated cycles of saving the model followed by shallow reading of the
+    	//     model lead to the destricution of previous extensions (or of their details).
+    	//     When we add a new extension to the model and save the model, that extension
+    	//     gets saved in detail, along with the rest of the extensions model, with
+    	//     whatever detail it happens to have.  But then a listener reloads the model
+    	//     from the file, omitting details, including details for the extension just
+    	//     created.  So, when we next add the next extension, we add it to a model
+    	//     that lacks the details of all previous extensions.  When we then save the
+    	//     model, we overwrite any previously detailed extensions with versions that
+    	//     lack details.
+    	//     
+    	// How can we end the cycle of destruction?
+    	// 1.  Use our own subtype of the exstensions model in which we load the extensions
+    	//     model in detail.
+    	// 2.  Always create a new extensions model (of our own subtype) whenever we want to
+    	//     add a new extension, not just when the model does not already exist.
+    	// In this way, we can assure that we always have an up-to-date, in-depth extensions
+    	// model available to us, regardless of any shallow extensions model that may have
+    	// been previously loaded by other mechanisms in org.eclipse.pde.core
+    	//
     	
-    	// SMS 20 Jul 2006
-    	// Delete previous extension of this type, which is presumably
-    	// being replaced by the one being added here
-    	removeExtension(pluginModel, page);
-    	
-    	IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
-	
+    	// Get the plugin.xml file and use that to initialize a new
+    	// extensions model (of our own adaptation)	
+//        String filename= "plugin.xml";
+//        IFile file= page.getProject().getFile(filename);
+//        // Evidently, just creating the extensions model with a given file doesn't
+//        // actually load the model from that file, which must be done explicitly
+//        ImpWorkspaceExtensionsModel extensions = new ImpWorkspaceExtensionsModel(file);
+//        extensions.load(file.getContents(), true);
+//        
+//        // Hook the extensions model into the bundle plugin model base
+//        IBundlePluginModelBase bpmb= (IBundlePluginModelBase) pluginModel;
+//        extensions.setBundleModel(bpmb);	
+//        bpmb.setExtensionsModel(extensions);
+
+    	loadImpExtensionsModel(pluginModel, page.getProject());
+        
+        // Create the exstension, fill it out, and add it to the model if necessary
+        IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
         if (extension == null) {
-            String filename= "plugin.xml";
-            IBundlePluginModelBase bundleModel= (IBundlePluginModelBase) pluginModel;
-            IFile file= page.getProject().getFile(filename);
-            WorkspaceExtensionsModel extensions= new WorkspaceExtensionsModel(file);
-
-            extensions.load(file.getContents(), true);
-            extensions.setBundleModel(bundleModel);
-            bundleModel.setExtensionsModel(extensions);
-            extension= pluginModel.getPluginFactory().createExtension();
-
-            if (extension == null) {
-            	ErrorHandler.reportError("Unable to create extension " + page.fExtPointID + " in plugin " + pluginModel.getBundleDescription().getName(), true);
-            	return;
-            }
+        	ErrorHandler.reportError("Unable to create extension " + page.fExtPointID + " in plugin " + pluginModel.getBundleDescription().getName(), true);
+        	return;
         }
 		extension.setPoint(page.fExtPluginID + "." + page.fExtPointID);
-		// SMS 21 Jul 2006
-		// Note:  Above we set the point of the extension but nowhere
-		// do we set the name or id.  That has been accommodated by deleting
-		// the name and id attributes of the extensions we create (none of
-		// which really need those attributes).
-		// Logic used in ExtensionPointWizardPage can be adapted if it
-		// ever becomes necessary to determine name or id values for
-		// an extension.
-		
 		setElementAttributes(pluginModel, page, extension);
-		// N.B. BundlePluginBase.add(IPluginExtension) has logic to add the "singleton directive" if needed.
-		//      As a result, we call getPluginBase().add() below rather than getExtensions().add()...
-		IPluginBase pluginBase= pluginModel.getPluginBase();
+		if (!extension.isInTheModel())	
+			pluginModel.getPluginBase().add(extension);
 	
-		if (!extension.isInTheModel())
-		    pluginBase.add(extension);
-	
-		addRequiredPluginImports(pluginModel, page.getRequires());
+		addRequiredPluginImports(pluginModel, page.getProject(), page.getRequires());
+		
 		saveAndRefresh(pluginModel);
 	}
 
@@ -398,32 +424,94 @@ public class ExtensionPointEnabler {
      * @throws IOException		If there's a problem working with the plugin file
      */
     public static void addExtension(
-    	IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues, List imports)
+    	IProject project, IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues, List imports)
     throws CoreException, IOException
     {
+    	// SMS 26 Jul 2007:  This is an earlier version of the adapted-model
+    	// implementation, prior to cleaning up as presented below; saved for
+    	// historical reasons only (i.e., in case the cleanup is buggy)
+//		String filename= "plugin.xml";
+//		IBundlePluginModelBase bundleModel= (IBundlePluginModelBase) pluginModel;
+//		IFile file= project.getFile(filename);
+//		ImpWorkspaceExtensionsModel extensions= new ImpWorkspaceExtensionsModel(file);
+//		
+//		extensions.load(file.getContents(), true);
+//		extensions.setBundleModel(bundleModel);	
+//		bundleModel.setExtensionsModel(extensions);
+//		IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
+//		
+//		if (extension == null) {
+//			ErrorHandler.reportError("Unable to create extension " + pointID + " in plugin " + pluginModel.getBundleDescription().getName(), true);
+//			return;
+//		}
+//
+//		extension.setPoint(pluginID + "." + pointID);
+//		
+//		setElementAttributes(pluginModel, extension, attrNamesValues);
+//		// N.B. BundlePluginBase.add(IPluginExtension) has logic to add the "singleton directive" if needed.
+//		//      As a result, we call getPluginBase().add() below rather than getExtensions().add()...
+//		IPluginBase pluginBase= pluginModel.getPluginBase();
+//	
+//		if (!extension.isInTheModel())
+//		    pluginBase.add(extension);
+		
+		// SMS 26 Jul 2007
+    	// As to why this method is implemented the way it is--and this method is
+    	// definitely implemented in a particular way--see comments in the body
+    	// of addExtension(IPluginModel, ExtensionPointWizardPage).
+    	
+//	   	// Get the plugin.xml file and use that to initialize a new
+//    	// extensions model (of our own adaptation)	
+//        String filename= "plugin.xml";
+//        IFile file= project.getFile(filename);
+//        // Evidently, just creating the extensions model with a given file doesn't
+//        // actually load the model from that file, which must be done explicitly
+//        ImpWorkspaceExtensionsModel extensions = new ImpWorkspaceExtensionsModel(file);
+//        extensions.load(file.getContents(), true);
+//        
+//        // Hook the extensions model into the bundle plugin model base
+//        IBundlePluginModelBase bpmb= (IBundlePluginModelBase) pluginModel;
+//        extensions.setBundleModel(bpmb);	
+//        bpmb.setExtensionsModel(extensions);
 
-    	// SMS 5 Feb 2007
-    	// Removed added call to removeExtension; this call is now made conditionally	
-    	// from enable(..)
-        
-    	IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
-
+    	loadImpExtensionsModel(pluginModel, project);
+    	
+        // Create the exstension, fill it out, and add it to the model if necessary
+        IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
         if (extension == null) {
-            ErrorHandler.reportError("Unable to create extension " + pointID + " in plugin " + pluginModel.getBundleDescription().getName(), true);
+			ErrorHandler.reportError("Unable to create extension " + pointID + " in plugin " + pluginModel.getBundleDescription().getName(), true);
+			return;
         }
 		extension.setPoint(pluginID + "." + pointID);
 		setElementAttributes(pluginModel, extension, attrNamesValues);
-		// N.B. BundlePluginBase.add(IPluginExtension) has logic to add the "singleton directive" if needed.
-		//      As a result, we call getPluginBase().add() below rather than getExtensions().add()...
-		IPluginBase pluginBase= pluginModel.getPluginBase();
-	
-		if (!extension.isInTheModel())
-		    pluginBase.add(extension);
-		
-		addRequiredPluginImports(pluginModel, imports);
+        
+		if (!extension.isInTheModel())	
+			pluginModel.getPluginBase().add(extension);	
+
+		addRequiredPluginImports(pluginModel, project, imports);
 		saveAndRefresh(pluginModel);
      }
 
+    
+    
+    public static ImpWorkspaceExtensionsModel loadImpExtensionsModel(IPluginModel pluginModel, IProject project)
+    	throws CoreException
+    {
+        String filename= "plugin.xml";
+        IFile file= project	.getFile(filename);
+        // Evidently, just creating the extensions model with a given file doesn't
+        // actually load the model from that file, which must be done explicitly
+        ImpWorkspaceExtensionsModel extensions = new ImpWorkspaceExtensionsModel(file);
+        extensions.load(file.getContents(), true);
+        
+        // Hook the extensions model into the bundle plugin model base
+        IBundlePluginModelBase bpmb= (IBundlePluginModelBase) pluginModel;
+        extensions.setBundleModel(bpmb);	
+        bpmb.setExtensionsModel(extensions);
+    	return extensions;
+    }
+    
+    
     
     // SMS 20 Jul 2006
     public static void removeExtension(IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues)
@@ -446,37 +534,31 @@ public class ExtensionPointEnabler {
     }
     
     
-    private static void setElementAttributes(IPluginModel pluginModel, ExtensionPointWizardPage page, IPluginExtension extension) throws CoreException {
-	List fields= page.getFields();
-	Map/*<String qualElemName, PluginElement>*/ elementMap= new HashMap(); // so we can find nested/parent elements after they've been created, somewhat regardless of the field ordering
-
-	elementMap.put("extension", extension); // Let nested elements find the extension object itself by name
-
-	for(int n= 0; n < fields.size(); n++) {
-	    WizardPageField field= (WizardPageField) fields.get(n);
-            String schemaElementName= field.fSchemaElementName;
-            String attributeName= field.fAttributeName;
-            String attributeValue= field.fValue;
-
-//	    System.out.println(field);
-
-	    // RMF 10/18/2006:
-	    // Plugin extension ID's should not include the plugin ID as a prefix; it's
-	    // implicit. [Extension refs on the other hand must be "fully qualified".]
-	    // The following code removes the plugin ID prefix if this field represents
-	    // an "id" attribute of an "extension" element.
-	    String pluginID= pluginModel.getPlugin().getId();
-
-	    // SMS 16 Apr 2007
-	    // Leave the id value alone; if it happens to start with the name of the plugin already
-	    // then that's the way the user set it and that's the value that will be used elsewhere
-	    //if (schemaElementName.equals("extension") && attributeName.equals("id") && attributeValue.startsWith(pluginID + "."))
-		//attributeValue= attributeValue.substring(pluginID.length() + 1);
-
-	    setElementAttribute(schemaElementName, attributeName, attributeValue, extension, elementMap, pluginModel);
-	}
+    private static void setElementAttributes(
+    	IPluginModel pluginModel, ExtensionPointWizardPage page, IPluginExtension extension)
+    	throws CoreException
+    {
+		List fields= page.getFields();
+		Map/*<String qualElemName, PluginElement>*/ elementMap= new HashMap(); // so we can find nested/parent elements after they've been created, somewhat regardless of the field ordering
+	
+		elementMap.put("extension", extension); // Let nested elements find the extension object itself by name
+	
+		for(int n= 0; n < fields.size(); n++) {
+		    WizardPageField field= (WizardPageField) fields.get(n);
+	            String schemaElementName= field.fSchemaElementName;
+	            String attributeName= field.fAttributeName;
+	            String attributeValue= field.fValue;
+	
+	        // SMS 26 Jul 2007
+	        // Here we used to have a little bit of code that adjusted the extension id according to
+	        // to whether it began with the plugin id.  Now we just trust whoever or whatever set the
+	        // extension id and leave it at that.
+	            
+		    setElementAttribute(schemaElementName, attributeName, attributeValue, extension, elementMap, pluginModel);
+		}
     }
 
+    	
     private static void setElementAttribute(String schemaElementName, String attributeName, String attributeValue, IPluginExtension extension, Map elementMap, IPluginModel pluginModel) throws CoreException {
 	
     	if (schemaElementName.equals("extension")) {
@@ -556,111 +638,232 @@ public class ExtensionPointEnabler {
 		}
     }
 
-    private static void addRequiredPluginImports(IPluginModel pluginModel, List/*<String>*/ requires) throws CoreException {
-		IPluginBase base= pluginModel.getPluginBase();	
-		// RMF Ask the model's associated bundle description for the list
-		// of required bundles; I've seen this list be out of sync wrt the
-		// list of imports in the IPluginBase (e.g. the latter is empty).
-		IPluginImport[] imports= base.getImports();
-//		BundleSpecification[] reqBundles= pluginModel.getBundleDescription().getRequiredBundles();
-//		IPluginModelFactory pluginFactory= pluginModel.getPluginFactory();
-//		/*IPluginImport[] curImports=*/ base.getImports(); // make sure the 'base.imports' field is non-null; otherwise, subsequent calls to base.add() are a noop!
-
-	    // SMS 14 Jul 2007
-	    // The manifest file is rewritten whenever an extension is added, but the
-		// Require-Bundle in the manifest file seems to be rewritten correctly only
-		// when an import is added.  (In other words, if we add an extension that
-		// requires no new imports, the Require-Bundle will not be rewritten correctly;
-		// in fact, it will be omitted entirely.)  So, to assure that the Require-Bundle
-		// attribute is rewritten correctly, we need to assure that an import is added
-		// whenever the manifest Require-Bundle needs to be present.
-		//
-	    // Note:  This works, whereas previous attempts to achieve the same effect by
-		// reordering imports in the imports list don't seem to have any effect when
-		// performed through the API.
-		
-		
-		// If we're not adding any imports, then the appropriate action depends on
-		// whether there are existing imports.  If there are none, then it doesn't
-		// matter, so just return.  If there are some, then remove and add back one
-		// of them, so that the existing imports will be recreated properly.
-		if (requires.size() == 0) {
-			if (imports.length > 0) {
-				removeImport(base, imports[0]);
-				addImport(pluginModel, base, new PluginImport(), imports[0].getId());
-			}
-			return;
-		}
-		
-		
-		// Otherwise, we have some imports to be added, which may or may not be
-		// present already in the existing imports.
-		// First add any that need to be added
-		boolean importAdded = false;
-        for(int n= 0; n < requires.size(); n++) {
-		    String pluginID= (String) requires.get(n);
-		    boolean found= containsImports(imports, pluginID);
-
-		    if (!found) {
-		    	addImport(pluginModel, base, new PluginImport(), pluginID);
-		    	importAdded = true;
-		    }  
-        }
-        // If there were no new imports added, then remove and add back one of
-        // the existing imports
-        if (!importAdded) {
-			removeImport(base, imports[0]);
-			addImport(pluginModel, base, new PluginImport(), imports[0].getId());
-        }
-    }
-
-    
-    /*
-     * Remove the given plugin import node from the given base
-     * SMS 15 Jul 2007
-     */
-    private static void removeImport(IPluginBase base, IPluginImport node)
-    throws CoreException
-    {
-    	base.remove(node);
-    	node.setInTheModel(false);
-    	if (node instanceof PluginImport) {
-    		((PluginImport)node).setParent(null);
+    private static void addRequiredPluginImports(
+    	IPluginModel pluginModel, IProject project, List/*<String>*/ requires)
+    	throws CoreException
+   	{
+    	// SMS 24 Jul 2007	
+    	IFile manifestFile = project.getFile("META-INF/MANIFEST.MF");
+    	String manifestContents = null;
+    	if (manifestFile.exists()) {
+    		manifestContents = StreamUtils.readStreamContents(manifestFile.getContents(), manifestFile.getCharset());
     	}
+    	
+    	List importsList = new ArrayList();	
+    	int requireBundleStart = manifestContents.indexOf("Require-Bundle");
+    	int requireBundleSemicolon = -1;
+    	int nextBundleSemicolon = -1;
+    	// This part especially is fragile (assumes semicolon immediately follows bundle name):
+    	int nextBundleStart = -1;
+    	if (requireBundleStart > -1) {
+    		// manifest file has a require bundle
+	    	requireBundleSemicolon = manifestContents.indexOf(":", requireBundleStart);
+	    	nextBundleSemicolon = manifestContents.indexOf(":", requireBundleSemicolon+1);
+	    	if (nextBundleSemicolon > -1) {
+	    		// there is a bundle following the require bundle
+	    		// (this part especially is fragile (assumes semicolon immediately follows bundle name))
+	    		nextBundleStart = manifestContents.lastIndexOf("\n", nextBundleSemicolon) + 1;
+	    	} else {
+	    		// there is no bundle following the rquire bundle;
+	    		// next bundle start will remain as initialized	 to -1
+	    	}
+	    	String requireBundleText = null;
+	    	if (nextBundleStart > requireBundleStart) {
+	    		// require bundle is not the last bundle in the file
+	    		// so get text from require bundle start up to the next bundle
+	    		requireBundleText = manifestContents.substring(requireBundleSemicolon+1, nextBundleStart);
+	    	} else {
+	    		// require bundle is the last bundle in the file
+	    		// so get text from require bundle start up to the end of the file
+	    		requireBundleText = manifestContents.substring(requireBundleSemicolon+1);
+	    	}
+	    	// clean junk out of the string of import ids
+	    	requireBundleText = requireBundleText.replace(" ", "");
+	    	requireBundleText = requireBundleText.replace("\n", "");
+	    	requireBundleText = requireBundleText.replace("\r", "");
+	    	requireBundleText = requireBundleText.replace("\t", "");
+	    	// put the existing import ids into a list (by way of an array)
+	    	String[] importsArray = requireBundleText.split(",");
+	    	for (int i = 0; i < importsArray.length; i++) {
+	    		importsList.add(importsArray[i]);
+	    	}
+    	} else {
+    		// manifest file lacks a require bundle
+    		// so list of existing import ids will be empty
+    	}
+    	
+    	// add any required import ids that are not already in the list
+    	for (int i = 0; i < requires.size(); i++) {	
+    		if (importsList.contains(requires.get(i)))
+    			continue;
+    		importsList.add(requires.get(i));
+    	}
+    	
+    	// put the list of import ids back into a string that
+    	// defines the require bundle
+    	String newRequireBundleText = "Require-Bundle: ";
+    	for (int i = 0; i < importsList.size(); i++) {
+    		newRequireBundleText += importsList.get(i);
+    		if (i < importsList.size()-1)
+    			newRequireBundleText += ",\n ";
+    		else
+    			newRequireBundleText += "\n";
+    	}			
+    	
+    	// put the new require bundle text back into the manifest file
+    	// surrounded by whatever it was surrounded by before
+    	String newManifestContents = null;
+    	if (requireBundleStart > -1) {
+    		newManifestContents = manifestContents.substring(0, requireBundleStart);
+    	} else {
+    		newManifestContents = manifestContents;
+    	}
+    	if (!newManifestContents.endsWith("\n"))
+    		newManifestContents += "\n";
+    	newManifestContents += newRequireBundleText;
+    	if (nextBundleStart > -1) {
+    		newManifestContents += manifestContents.substring(nextBundleStart);
+    	}
+    	
+    	// Now make sure that the singleton directive is set
+    	// This is kind of a simplistic approach, but it will work since
+    	// multiple declarations of the singleton directive are tolerated
+    	String updatedNewManifestContents = newManifestContents;
+    	int singletonStart = newManifestContents.indexOf("singleton:=true");
+    	if (singletonStart < 0) {
+    		// Append the singleton directive to the line containing the 
+    		// Bundle-SymbolicName
+    		int bundleSymbolicNameStart = newManifestContents.indexOf("Bundle-SymbolicName");
+    		if (bundleSymbolicNameStart > -1) {
+    			// We have the line on which to operate
+    			int endLineBundleSymbolicName = newManifestContents.indexOf("\n", bundleSymbolicNameStart);
+    			if (endLineBundleSymbolicName < 0) {
+    				// Bundle-SymbolicName is the last line in the file
+    				endLineBundleSymbolicName = newManifestContents.length();
+    			}
+    			// The following will put the singleton directive ahead of the "\n" that
+    			// is already at the end of the line that contains the Bundle-SymbolicName
+    			// (so don't add another "\n")
+    			updatedNewManifestContents = newManifestContents.substring(0,endLineBundleSymbolicName);
+    			updatedNewManifestContents += ";singleton:=true";
+    			if (endLineBundleSymbolicName != newManifestContents.length()) {
+    				updatedNewManifestContents += newManifestContents.substring(endLineBundleSymbolicName, newManifestContents.length());
+    			}
+    		} else {
+    			// We don't have the line, which seems extremely unlikely to me,
+    			// and probably represents some sort of error that represents a
+    			// bigger problem than the lack of a singleton directive, so
+    			// just skip it
+    		}
+    	}
+    	
+    	// Put the text back into the file
+		manifestFile.setContents(new ByteArrayInputStream(updatedNewManifestContents.getBytes()), true, true, null);
+
+    	
+    	// SMS 24 Jul 2007 End addition
+    	
+//		IPluginBase base= pluginModel.getPluginBase();	
+//		// RMF Ask the model's associated bundle description for the list
+//		// of required bundles; I've seen this list be out of sync wrt the
+//		// list of imports in the IPluginBase (e.g. the latter is empty).
+//		IPluginImport[] imports= base.getImports();
+//		String importID = imports[0].getId();
+//		
+////		BundleSpecification[] reqBundles= pluginModel.getBundleDescription().getRequiredBundles();
+////		IPluginModelFactory pluginFactory= pluginModel.getPluginFactory();
+////		/*IPluginImport[] curImports=*/ base.getImports(); // make sure the 'base.imports' field is non-null; otherwise, subsequent calls to base.add() are a noop!
+//
+//	    // SMS 14 Jul 2007
+//	    // The manifest file is rewritten whenever an extension is added, but the
+//		// Require-Bundle in the manifest file seems to be rewritten correctly only
+//		// when an import is added.  (In other words, if we add an extension that
+//		// requires no new imports, the Require-Bundle will not be rewritten correctly;
+//		// in fact, it will be omitted entirely.)  So, to assure that the Require-Bundle
+//		// attribute is rewritten correctly, we need to assure that an import is added
+//		// whenever the manifest Require-Bundle needs to be present.
+//		//
+//	    // Note:  This works, whereas previous attempts to achieve the same effect by
+//		// reordering imports in the imports list don't seem to have any effect when
+//		// performed through the API.
+//		
+//		
+//		// If we're not adding any imports, then the appropriate action depends on
+//		// whether there are existing imports.  If there are none, then it doesn't
+//		// matter, so just return.  If there are some, then remove and add back one
+//		// of them, so that the existing imports will be recreated properly.
+//		if (requires.size() == 0) {
+//			if (imports.length > 0) {
+//				removeImport(base, imports[0]);
+//				addImport(pluginModel, base, new PluginImport(), imports[0].getId());
+//			}
+//			return;
+//		}
+//		
+//		// Otherwise, we have some imports to be added, which may or may not be
+//		// present already in the existing imports.
+//		// First add any that need to be added
+//		boolean importAdded = false;
+//        for(int n= 0; n < requires.size(); n++) {
+//		    String pluginID= (String) requires.get(n);
+//		    boolean found= containsImports(imports, pluginID);
+//
+//		    if (!found) {
+//		    	addImport(pluginModel, base, new PluginImport(), pluginID);
+//		    	importAdded = true;
+//		    }  
+//        }
+//        // If there were no new imports added, then remove and add back one of
+//        // the existing imports
+//        if (!importAdded) {
+//			removeImport(base, imports[0]);
+//			addImport(pluginModel, base, new PluginImport(), imports[0].getId());
+//        }
     }
 
-
-    /*
-     * Add the given plugin import node, with the given plugin ID, to the given plugin model,
-     * with the given plugin base
-     * SMS 15 Jul 2007
-     */
-    private static void addImport(IPluginModel model, IPluginBase base, PluginImport node, String pluginID)
-    throws CoreException
-    {
-    	node.setModel(model);
-    	node.setId(pluginID);
-    	node.setInTheModel(true);
-    	node.setParent(base);
-  		base.add(node);
-    }
-	
+    // SMS 26 Jul 2007
+    // The following three private methods were used in the implementation
+    // of addRequiredluginImports(..) that operated on the model; if that
+    // method is implemented by operations directly on the manifest file,
+    // then these methods are not needed.  Retaining for now in the event
+    // that we may return to operating on the model rather than the file
+    // (although that may depend on enhancements to org.eclipse.pde.core.)
     
-    private static boolean containsImports(IPluginImport[] imports, String pluginID) {
-	boolean found= false;
-	for(int i= 0; i < imports.length; i++) {
-	    if (imports[i].getId().equals(pluginID)) {
-		found= true;
-		break;
-	    }
-	}
-	return found;
-    }
-
-//    private static boolean containsImport(BundleSpecification[] imports, String pluginID) {
+//    /*
+//     * Remove the given plugin import node from the given base
+//     * SMS 15 Jul 2007
+//     */
+//    private static void removeImport(IPluginBase base, IPluginImport node)
+//    throws CoreException
+//    {
+//    	base.remove(node);
+//    	node.setInTheModel(false);
+//    	if (node instanceof PluginImport) {
+//    		((PluginImport)node).setParent(null);
+//    	}
+//    }
+//
+//
+//    /*
+//     * Add the given plugin import node, with the given plugin ID, to the given plugin model,
+//     * with the given plugin base
+//     * SMS 15 Jul 2007
+//     */
+//    private static void addImport(IPluginModel model, IPluginBase base, PluginImport node, String pluginID)
+//    throws CoreException
+//    {
+//    	node.setModel(model);
+//    	node.setId(pluginID);
+//    	node.setInTheModel(true);
+//    	node.setParent(base);
+//  		base.add(node);
+//    }
+//	
+//    
+//  private static boolean containsImports(IPluginImport[] imports, String pluginID) {
 //	boolean found= false;
 //	for(int i= 0; i < imports.length; i++) {
-//	    if (imports[i].getBundle().getSymbolicName().equals(pluginID)) {
+//	    if (imports[i].getId().equals(pluginID)) {
 //		found= true;
 //		break;
 //	    }
@@ -668,64 +871,86 @@ public class ExtensionPointEnabler {
 //	return found;
 //    }
 
-    static public void addImports(ExtensionPointWizardPage page) {
-	try {
-	    IPluginModel plugin= getPluginModel(page.getProject());
-	    
-	    if (plugin == null) return;
 
-	    addRequiredPluginImports(plugin, page.fRequiredPlugins);
+    // SMS 26 Jul 2007
+    // addImports(ExtensionPointWizardPage) was only called from
+    // ExtensionPointWizardPage, in the linkActivated(..) method of the 
+    // HyperlinkAdapter associated with a newly created Hyperlink in
+    // createNewClassHyperlink(..), where it seems to be superfluous.
+    // I've commented out the call there, and so have commented out
+    // the method here.  I don't know why the call was made originally,
+    // but doing removing it doesn't seem to cause any problems.
+//    static public void addImports(ExtensionPointWizardPage page) {
+//		try {
+//		    IPluginModel plugin= getPluginModel(page.getProject());
+//		    
+//		    if (plugin == null) return;
+//	
+//		    // SMS 25 Jul 2007:  project parameter added
+//		    addRequiredPluginImports(plugin, page.getProject(), page.fRequiredPlugins);
+//		    
+//		    // SMS 25 Jul 2007:  don't write out models if manifest file
+//		    // is updated directly
+//		    if (plugin instanceof IBundlePluginModel) {
+//			IBundlePluginModel model= (IBundlePluginModel) plugin;
+//	
+//			if (model.getPlugin() instanceof IEditableModel)
+//			    ((IEditableModel) model.getPlugin()).save();
+//	//		if (model.getBundleModel() instanceof IEditableModel)
+//	//		    ((IEditableModel) model.getBundleModel()).save();
+//		    }
+//		    plugin.getUnderlyingResource().refreshLocal(1, null);
+//		} catch (Exception e) {
+//		    ErrorHandler.reportError("Could not enable extension point for " + page, e);
+//		}
+//    }
 
-	    if (plugin instanceof IBundlePluginModel) {
-		IBundlePluginModel model= (IBundlePluginModel) plugin;
-
-		if (model.getPlugin() instanceof IEditableModel)
-		    ((IEditableModel) model.getPlugin()).save();
-		if (model.getBundleModel() instanceof IEditableModel)
-		    ((IEditableModel) model.getBundleModel()).save();
-	    }
-	    plugin.getUnderlyingResource().refreshLocal(1, null);
-	} catch (Exception e) {
-	    ErrorHandler.reportError("Could not enable extension point for " + page, e);
-	}
-    }
-
-    static public void addImports(IProject project, List/*<String>*/ requiredPlugins) {
-	try {
-	    IPluginModel plugin= getPluginModel(project);
-
-	    if (plugin == null) return;
-	    
-	    addRequiredPluginImports(plugin, requiredPlugins);
-
-	    if (plugin instanceof IBundlePluginModel) {
-		IBundlePluginModel model= (IBundlePluginModel) plugin;
-
-		if (model.getPlugin() instanceof IEditableModel)
-		    ((IEditableModel) model.getPlugin()).save();
-		if (model.getBundleModel() instanceof IEditableModel)
-		    ((IEditableModel) model.getBundleModel()).save();
-	    }
-	    plugin.getUnderlyingResource().refreshLocal(1, null);
-	} catch (Exception e) {
-	    ErrorHandler.reportError("Could not add plugin imports to " + project.getName(), e);
-	}
-    }
-
-    private static void saveAndRefresh(IPluginModel plugin) throws CoreException {
-		if (plugin instanceof IBundlePluginModel) {
-		    IBundlePluginModel bundlePluginModel= (IBundlePluginModel) plugin;
+    // SMS 26 Jul 2007
+    // addIimports(IProject, List) was only called from NewNatureEnabler.addEnablerAction(..),
+    // prior to calling ExtensionPointEnabler.enable(..).  But enable(..) adds the
+    // requried imports, so the separate call to this addImports was unnecessary.  I've
+    // commented out that call, and so commented out the method here.  As expected, this
+    // doesn't seem to cause any problems.
+//    static public void addImports(IProject project, List/*<String>*/ requiredPlugins) {
+//		try {
+//			IPluginModel plugin= getPluginModel(project);
+//	
+//		    if (plugin == null) return;
+//		    
+//		    // SMS 25 Jul 2007:  project parameter added
+//		    addRequiredPluginImports(plugin, project, requiredPlugins);
+//	
+//		    // SMS 25 Jul 2007:  don't write out models if manifest file
+//		    // is updated directly
+//		    if (plugin instanceof IBundlePluginModel) {
+//			IBundlePluginModel model= (IBundlePluginModel) plugin;
+//	
+//			if (model.getPlugin() instanceof IEditableModel)
+//			    ((IEditableModel) model.getPlugin()).save();
+//	//		if (model.getBundleModel() instanceof IEditableModel)
+//	//		    ((IEditableModel) model.getBundleModel()).save();
+//		    }
+//		    plugin.getUnderlyingResource().refreshLocal(1, null);
+//		} catch (Exception e) {
+//		    ErrorHandler.reportError("Could not add plugin imports to " + project.getName(), e);
+//		}
+//    }
+    
+    
+    private static void saveAndRefresh(IPluginModel pluginModel) throws CoreException {
+		if (pluginModel instanceof IBundlePluginModel) {
+		    IBundlePluginModel bundlePluginModel= (IBundlePluginModel) pluginModel;
 		    ISharedExtensionsModel extModel= bundlePluginModel.getExtensionsModel();
 
 		    if (extModel != null) {
 		    	// SMS 15 Jul 2007
-		    	// Don't need to save the extensions model separately because it
-		    	// is saved by BundlePluginModelBase.save(), called below
-//			    if (extModel instanceof IEditableModel) {
-//			    	// Save here finds that the extensions model is dirty (so savable)
-//			    	// and has non-empty contents (so something to save)
-//			    	((IEditableModel) extModel).save();	
-//			    }
+		    	// If the bundle plugin model is saved below, then you don't need
+		    	// to save the 	extensions model separately here, since that model
+		    	// is saved as part of the bundle plugin model.  (But if the extensions
+		    	// model isn't saved below, then it should be saved here)
+			    if (extModel instanceof IEditableModel) {
+			    	((IEditableModel) extModel).save();	
+			    }
 
 		    	// SMS 15 Jul 2007
 			    // Will separately save the bundle model and extensions model
@@ -736,9 +961,13 @@ public class ExtensionPointEnabler {
 			    // on the bundle model don't have that effect (for reasons we don't understand).
 			    // Consequently, we have adapted the implementation of BundlePluginModelBase
 			    // to remove the test for the model being dirty and to save it in any case.
-			    bundlePluginModel.save();
+			    //
+			    // SMS 24 Jul 2007
+			    // BUT don't do this if updating the manifest file directly!
+//			    bundlePluginModel.save();
 		    }
 		}
-		plugin.getUnderlyingResource().refreshLocal(1, null);
+		pluginModel.getUnderlyingResource().refreshLocal(1, null);
     }
+
 }
