@@ -1,25 +1,22 @@
-package org.eclipse.uide.wizards;
+	package org.eclipse.uide.wizards;
 
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringBufferInputStream;
-import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.action.IAction;
-import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.uide.runtime.RuntimePlugin;
 import org.eclipse.uide.utils.ExtensionPointUtils;
 
@@ -169,6 +166,9 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 	if (ExtensionPointUtils.findExtensionByName("refactoringContributor", pages[0].getPluginModel()) == null) {
 	    try {
 		ExtensionPointEnabler.addExtension(
+			// SMS 24 Jul 2007:  added project parameter reflecting change
+			// in ExtensionPointEnabler (evidently)
+			pages[0].getProject(),
 			(IPluginModel) pages[0].getPluginModel().getAdapter(IPluginModel.class),
 			RuntimePlugin.UIDE_RUNTIME,
 			"refactoringContributions",
