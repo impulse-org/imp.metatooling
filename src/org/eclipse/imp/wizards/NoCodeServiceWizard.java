@@ -5,6 +5,7 @@ package org.eclipse.uide.wizards;
 
 import java.util.Collections;
 import java.util.Map;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 
 public abstract class NoCodeServiceWizard extends ExtensionPointWizard {

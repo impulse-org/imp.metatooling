@@ -6,6 +6,7 @@ package org.eclipse.uide.wizards;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;

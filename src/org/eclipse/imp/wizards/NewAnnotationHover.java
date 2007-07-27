@@ -5,6 +5,7 @@ package org.eclipse.uide.wizards;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uide.runtime.RuntimePlugin;

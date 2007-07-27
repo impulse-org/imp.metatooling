@@ -3,17 +3,16 @@
  */
 package org.eclipse.uide.wizards;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,7 +20,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.safari.jikespg.parser.ParseController;
 import org.eclipse.safari.jikespg.parser.JikesPGParser.JikesPG;
 import org.eclipse.swt.SWT;
@@ -34,9 +32,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.editors.text.FileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.uide.core.ErrorHandler;
-import org.eclipse.uide.core.LanguageRegistry;
 import org.eclipse.uide.model.ISourceProject;
 import org.eclipse.uide.model.ModelFactory;
 import org.eclipse.uide.model.ModelFactory.ModelException;
