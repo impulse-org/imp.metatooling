@@ -1,7 +1,6 @@
 package $PACKAGE_NAME$;
 
 import java.io.*;
-import java.io.InputStream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -163,15 +162,37 @@ public class $BUILDER_CLASS_NAME$ extends SAFARIBuilderBase {
             parseController.initialize(file.getProjectRelativePath(), sourceProject, markerCreator);
 	
             // Get file contents for parsing
-            String contents = BuilderUtils.extractContentsToString(file.getLocation().toString());
-        	
-            // Finally parse it
+            //BuilderUtils.extractContentsToString(file.getLocation().toString());
+            String contents = getFileContents(file);
+            
+            	// Finally parse it
             parseController.parse(contents, false, monitor);
 
             doRefresh(file.getParent());
         } catch (Exception e) {
             getPlugin().writeErrorMsg(e.getMessage());
             e.printStackTrace();
+        }
+    }
+    
+	// Copied from the compiler template, so that the builder (here)
+    // and compiler (when used) will evaluate the same string
+    public String getFileContents(IFile file) {
+        char[] buf= null;
+        try {
+            File javaFile= new File(file.getLocation().toOSString());
+            FileReader fileReader= new FileReader(javaFile);
+            int len= (int) javaFile.length();
+
+            buf= new char[len];
+            fileReader.read(buf, 0, len);
+            return new String(buf);
+        } catch(FileNotFoundException fnf) {
+            System.err.println(fnf.getMessage());
+            return "";
+        } catch(IOException io) {
+            System.err.println(io.getMessage());
+            return "";
         }
     }
 
