@@ -37,6 +37,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.pde.core.plugin.IPluginElement;
 import org.eclipse.pde.core.plugin.IPluginExtension;
+import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.internal.core.PDECore;
@@ -157,6 +158,8 @@ public class GeneratedComponentWizardPage extends WizardPage
     protected boolean fIsOptional;
 
     protected List/*<WizardPageField>*/ fFields= new ArrayList();
+    
+    protected IProject fProject;
 
     protected Text fProjectText;
 
@@ -623,6 +626,7 @@ public class GeneratedComponentWizardPage extends WizardPage
         IProject project= getProject(selection);
 
         if (project != null) {
+        	fProject = project;
             sProjectName= project.getName();
             fProjectText.setText(sProjectName);
         }
@@ -633,29 +637,46 @@ public class GeneratedComponentWizardPage extends WizardPage
      * Attempt to find the languageDescription extension for the specified project
      * (if any), and use the language name from that extension to populate the
      * language name field in the dialog.
+     * 
+     * SMS 26 Jul 2007:  Adapted to use load the extensions model in detail using
+     * the IMP-adapted mechanism	
+     * 
      */
     private void discoverProjectLanguage() {
-	if (fProjectText.getText().length() == 0)
-	    return;
-
-	IPluginModelBase pluginModel= getPluginModel();
-
-	if (pluginModel != null) {
-	    IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
-
-	    for(int i= 0; i < extensions.length; i++) {
-		if (extensions[i].getPoint().endsWith(".languageDescription")) {
-		    IPluginObject[] children= extensions[i].getChildren();
-
-		    for(int j= 0; j < children.length; j++) {
-			if (children[j].getName().equals("language")) {
-			    fLanguageText.setText(((IPluginElement) children[j]).getAttribute("language").getValue());
-			    return;
-			}
+		if (fProjectText.getText().length() == 0)
+		    return;
+	
+		IPluginModelBase pluginModel= getPluginModel();
+		
+		if (pluginModel != null) {
+		   	// SMS 26 Jul 2007
+	        // Load the extensions model in detail, using the adapted IMP representation,
+	        // to assure that the children of model elements are represented
+	    	if (fProject == null) {
+	    		discoverSelectedProject();
+	    	}
+	    	try {
+	    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, fProject);
+	    	} catch (CoreException e) {
+	    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
+	    	} catch (ClassCastException e) {
+	    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  ClassCastExeption loading extensions model; may not succeed");
+	    	}
+	    	
+		    IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
+		    for(int i= 0; i < extensions.length; i++) {
+				if (extensions[i].getPoint().endsWith(".languageDescription")) {
+				    IPluginObject[] children= extensions[i].getChildren();
+		
+				    for(int j= 0; j < children.length; j++) {
+						if (children[j].getName().equals("language")) {
+								fLanguageText.setText(((IPluginElement) children[j]).getAttribute("language").getValue());
+						    return;
+						}
+				    }
+				}
 		    }
 		}
-	    }
-	}
     }
 
     private IProject getProject(ISelection selection) {
