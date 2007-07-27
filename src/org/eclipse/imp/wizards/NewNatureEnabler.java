@@ -33,6 +33,7 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.pde.core.plugin.IPluginElement;
 import org.eclipse.pde.core.plugin.IPluginExtension;
+import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.internal.core.PDECore;
@@ -239,8 +240,8 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 	    IProject project= getProject(selection);
 
 	    if (project != null) {
-		fProject= project;
-		fProjectText.setText(fProject.getName());
+			fProject= project;
+			fProjectText.setText(fProject.getName());
 	    }
 	    return project;
 	}
@@ -257,20 +258,31 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 	    IPluginModelBase pluginModel= getPluginModel();
 
 	    if (pluginModel != null) {
-		IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
+	    	// SMS 26 Jul 2007
+	    	if (fProject == null) {
+	    		discoverSelectedProject();
+	    	}
+	    	try {
+	    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, fProject);
+	    	} catch (CoreException e) {
+	    		System.err.println("NewNatureEnabler.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
+	    	} catch (ClassCastException e) {
+	    		System.err.println("ExtensionPointUtils.findElementByName(..):  ClassCastExeption loading extensions model; may not succeed");
+	    	}
+	    	IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
 
-		for(int i= 0; i < extensions.length; i++) {
-		    if (extensions[i].getPoint().endsWith(".languageDescription")) {
-			IPluginObject[] children= extensions[i].getChildren();
-
-			for(int j= 0; j < children.length; j++) {
-			    if (children[j].getName().equals("language")) {
-				fLanguageText.setText(((IPluginElement) children[j]).getAttribute("language").getValue());
-				return;
+			for(int i= 0; i < extensions.length; i++) {
+			    if (extensions[i].getPoint().endsWith(".languageDescription")) {
+					IPluginObject[] children= extensions[i].getChildren();
+		
+					for(int j= 0; j < children.length; j++) {
+					    if (children[j].getName().equals("language")) {
+					    	fLanguageText.setText(((IPluginElement) children[j]).getAttribute("language").getValue());
+						return;
+					    }
+					}
 			    }
 			}
-		    }
-		}
 	    }
 	}
 
@@ -613,7 +625,8 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
     private void addEnablerAction(IProgressMonitor mon) {
 	String actionClassName= "EnableNature";
 
-	ExtensionPointEnabler.addImports(fProject, getPluginDependencies());
+	// SMS 26 Jul 2007:  Done within ExtensionPointEnabler.enable(..)
+    //ExtensionPointEnabler.addImports(fProject, getPluginDependencies());
 
 	// This one makes the action show up for Java projects
 	ExtensionPointEnabler.enable(fProject, "org.eclipse.ui", "popupMenus",
