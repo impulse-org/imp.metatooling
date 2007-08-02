@@ -1,14 +1,14 @@
-Bundle-SymbolicName: org.eclipse.uide; singleton=true
-Bundle-Name: SAFARI Language Support Meta-Tooling
+Bundle-SymbolicName: org.eclipse.imp.metatooling;singleton:=true
+Bundle-Name: IMP Language Support Meta-Tooling
 Bundle-Vendor: rfuhrer@watson.ibm.com
-Bundle-Version: 1.0.56
-Bundle-Activator: org.eclipse.uide.WizardPlugin
-Eclipse-AutoStart: true
-Provide-Package: org.eclipse.uide,
- org.eclipse.uide.presentation,
- org.eclipse.uide.presentation.ast,
- org.eclipse.uide.utils,
- org.eclipse.uide.wizards
+Bundle-Version: 1.0.58
+Bundle-Activator: org.eclipse.imp.WizardPlugin
+Eclipse-LazyStart: true
+Provide-Package: org.eclipse.imp,
+ org.eclipse.imp.presentation,
+ org.eclipse.imp.presentation.ast,
+ org.eclipse.imp.utils,
+ org.eclipse.imp.wizards
 Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.runtime,
  org.eclipse.jdt.core,
@@ -22,11 +22,11 @@ Require-Bundle: org.eclipse.core.resources,
  org.eclipse.ui.ide,
  org.eclipse.ui.views,
  org.eclipse.ui.workbench.texteditor,
- org.eclipse.uide.runtime,
- org.eclipse.safari.jikespg.runtime,
+ org.eclipse.imp.lpg.runtime,
  polyglot,
  lpg.runtime,
  org.eclipse.search,
  org.eclipse.ui.console,
  org.eclipse.debug.ui,
- com.ibm.watson.smapifier
+ com.ibm.watson.smapifier,
+ org.eclipse.imp.runtime

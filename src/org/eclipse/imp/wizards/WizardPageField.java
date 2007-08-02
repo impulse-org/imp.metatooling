@@ -1,7 +1,7 @@
 /*
  * Created on Oct 27, 2005
  */
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Text;

@@ -1,4 +1,4 @@
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 public class Wizards {
     // HACK: These must be in sync with the corresponding definitions in NewUIDEParserWizard.

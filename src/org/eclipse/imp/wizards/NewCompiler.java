@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +11,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.runtime.RuntimePlugin;
+import org.eclipse.imp.utils.ExtensionPointUtils;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
@@ -19,8 +21,6 @@ import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.uide.runtime.RuntimePlugin;
-import org.eclipse.uide.utils.ExtensionPointUtils;
 
 public class NewCompiler extends GeneratedComponentWizard {
     // Need a variant of CodeServiceWizard that doesn't actually create an extension, just generates code...

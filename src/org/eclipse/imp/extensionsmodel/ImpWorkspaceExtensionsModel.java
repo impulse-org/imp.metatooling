@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.uide.extensionsmodel;
+package org.eclipse.imp.extensionsmodel;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -33,7 +33,6 @@ import org.eclipse.pde.internal.core.NLResourceHelper;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModelBase;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModelProvider;
-import org.eclipse.pde.internal.core.plugin.Extensions;
 import org.eclipse.pde.internal.core.plugin.PluginHandler;
 import org.eclipse.pde.internal.core.plugin.WorkspaceExtensionsModel;
 import org.xml.sax.SAXException;

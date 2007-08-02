@@ -1,4 +1,4 @@
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 /*
  * Licensed Materials - Property of IBM,
@@ -20,6 +20,10 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.extensionsmodel.ImpWorkspaceExtensionsModel;
+import org.eclipse.imp.runtime.RuntimePlugin;
+import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.pde.core.IEditableModel;
 import org.eclipse.pde.core.plugin.IExtensions;
 import org.eclipse.pde.core.plugin.IPluginBase;
@@ -36,10 +40,6 @@ import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModel;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModelBase;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
-import org.eclipse.uide.core.ErrorHandler;
-import org.eclipse.uide.extensionsmodel.ImpWorkspaceExtensionsModel;
-import org.eclipse.uide.runtime.RuntimePlugin;
-import org.eclipse.uide.utils.StreamUtils;
 
 
 /**

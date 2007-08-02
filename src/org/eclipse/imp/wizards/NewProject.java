@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 import java.util.Arrays;
 import java.util.List;

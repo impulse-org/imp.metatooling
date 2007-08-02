@@ -1,7 +1,7 @@
 /*
  * Created on Mar 22, 2006
  */
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 import org.eclipse.swt.widgets.Composite;
 

@@ -1,12 +1,12 @@
 /**
  * 
  */
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.uide.runtime.RuntimePlugin;
+import org.eclipse.imp.runtime.RuntimePlugin;
 
 public class NewModelListener extends NoCodeServiceWizard {
     public void addPages() {

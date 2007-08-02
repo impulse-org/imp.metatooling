@@ -1,8 +1,9 @@
-package org.eclipse.uide;
+package org.eclipse.imp;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import org.eclipse.uide.runtime.SAFARIPluginBase;
+
+import org.eclipse.imp.runtime.SAFARIPluginBase;
 import org.osgi.framework.BundleContext;
 
 public class WizardPlugin extends SAFARIPluginBase {

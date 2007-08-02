@@ -1,10 +1,7 @@
 /*
  * Created on Feb 27, 2007
  */
-package org.eclipse.uide.perspective;
-
-import org.eclipse.ui.IPageLayout;
-import org.eclipse.ui.IPerspectiveFactory;
+package org.eclipse.imp.perspective;
 
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jdt.ui.JavaUI;

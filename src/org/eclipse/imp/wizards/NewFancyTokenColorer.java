@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,10 +18,16 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.lpg.parser.ParseController;
+import org.eclipse.imp.lpg.parser.LPGParser.JikesPG;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.safari.jikespg.parser.ParseController;
-import org.eclipse.safari.jikespg.parser.JikesPGParser.JikesPG;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -32,12 +38,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.editors.text.FileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.uide.core.ErrorHandler;
-import org.eclipse.uide.model.ISourceProject;
-import org.eclipse.uide.model.ModelFactory;
-import org.eclipse.uide.model.ModelFactory.ModelException;
-import org.eclipse.uide.parser.IParseController;
-import org.eclipse.uide.runtime.RuntimePlugin;
 
 public class NewFancyTokenColorer extends CodeServiceWizard {
     private Map<String, FontData> fStyleMap= new HashMap<String, FontData>(); // used in generating code

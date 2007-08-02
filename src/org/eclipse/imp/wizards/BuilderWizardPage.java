@@ -1,4 +1,4 @@
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;

@@ -1,4 +1,4 @@
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 /*
  * Licensed Materials - Property of IBM,
@@ -30,6 +30,9 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.imp.WizardPlugin;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -54,9 +57,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
-import org.eclipse.uide.WizardPlugin;
-import org.eclipse.uide.core.ErrorHandler;
-import org.eclipse.uide.utils.StreamUtils;
 import org.osgi.framework.Bundle;
 
 

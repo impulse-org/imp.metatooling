@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.uide.runtime.RuntimePlugin;
+import org.eclipse.imp.runtime.RuntimePlugin;
 
 public class NewOutliner extends CodeServiceWizard {
     public void addPages() {

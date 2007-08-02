@@ -1,4 +1,4 @@
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 import java.io.PrintWriter;
 

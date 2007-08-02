@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.uide.runtime.RuntimePlugin;
+import org.eclipse.imp.runtime.RuntimePlugin;
 
 public class NewContentProposer extends CodeServiceWizard {
     public void addPages() {
@@ -25,8 +25,7 @@ public class NewContentProposer extends CodeServiceWizard {
     }
 
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
-    	
-        Map subs= getStandardSubstitutions();
+        Map<String,String> subs= getStandardSubstitutions();
 
         subs.put("$PARSER_PKG$", fParserPackage);
         subs.put("$AST_PKG$", fParserPackage + "." + Wizards.astDirectory);
@@ -43,6 +42,4 @@ public class NewContentProposer extends CodeServiceWizard {
  
         editFile(mon, outlinerSrc);
     }
-    
-    
 }

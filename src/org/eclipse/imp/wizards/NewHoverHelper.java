@@ -1,13 +1,13 @@
 /**
  * 
  */
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.uide.runtime.RuntimePlugin;
+import org.eclipse.imp.runtime.RuntimePlugin;
 
 public class NewHoverHelper extends CodeServiceWizard {
     public void addPages() {

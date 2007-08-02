@@ -1,7 +1,7 @@
 /*
  * Created on Oct 27, 2006
  */
-package org.eclipse.uide.wizards;
+package org.eclipse.imp.wizards;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,11 +9,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.imp.lpg.parser.ASTUtils;
+import org.eclipse.imp.lpg.parser.LPGParser.JikesPG;
+import org.eclipse.imp.lpg.parser.LPGParser.terminal;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.window.IShellProvider;
-import org.eclipse.safari.jikespg.parser.ASTUtils;
-import org.eclipse.safari.jikespg.parser.JikesPGParser.JikesPG;
-import org.eclipse.safari.jikespg.parser.JikesPGParser.terminal;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
