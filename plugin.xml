@@ -11,199 +11,199 @@
 
    <extension
          point="org.eclipse.ui.newWizards">
-      <primaryWizard id="org.eclipse.uide.wizards.NewLanguageWizard"/>
+      <primaryWizard id="org.eclipse.imp.wizards.NewLanguageWizard"/>
       <category
-            id="org.eclipse.uide.wizards"
+            id="org.eclipse.imp.wizards"
             name="IDE Language Support"/>
       <wizard
-            class="org.eclipse.uide.wizards.NewLanguage"
+            class="org.eclipse.imp.wizards.NewLanguage"
             icon="icons/sample.gif"
-            category="org.eclipse.uide.wizards"
+            category="org.eclipse.imp.wizards"
             name="Programming language descriptor"
-            id="org.eclipse.uide.wizards.NewLanguageWizard"/>
+            id="org.eclipse.imp.wizards.NewLanguageWizard"/>
             
 	<category
-	            id="org.eclipse.uide.wizards.build"
+	            id="org.eclipse.imp.wizards.build"
 	            name="Build Services"
-	            parentCategory="org.eclipse.uide.wizards"/>
+	            parentCategory="org.eclipse.imp.wizards"/>
       <wizard
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.build"
-            class="org.eclipse.uide.wizards.NewBuilder"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.build"
+            class="org.eclipse.imp.wizards.NewBuilder"
             icon="icons/sample.gif"
-            id="org.eclipse.uide.newBuilder"
+            id="org.eclipse.imp.newBuilder"
             name="Incremental Builder"/>
       <wizard
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.build"
-            class="org.eclipse.uide.wizards.NewCompiler"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.build"
+            class="org.eclipse.imp.wizards.NewCompiler"
             icon="icons/sample.gif"
-            id="org.eclipse.uide.newCompiler"
+            id="org.eclipse.imp.newCompiler"
             name="Poor Man's Compiler"/>
 	  <wizard
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.build"
-            class="org.eclipse.uide.wizards.NewNatureEnabler"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.build"
+            class="org.eclipse.imp.wizards.NewNatureEnabler"
             icon="icons/sample.gif"
-            id="org.eclipse.uide.natureEnablerWizard"
+            id="org.eclipse.imp.natureEnablerWizard"
             name="Nature Enabler"/>
             
       <category
-            id="org.eclipse.uide.wizards.core"
+            id="org.eclipse.imp.wizards.core"
             name="Core Services"
-            parentCategory="org.eclipse.uide.wizards"/>
+            parentCategory="org.eclipse.imp.wizards"/>
       <wizard
-            class="org.eclipse.uide.wizards.NewIndexer"
+            class="org.eclipse.imp.wizards.NewIndexer"
             icon="icons/sample.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.core"
             name="Indexer"
-            id="org.eclipse.uide.wizards.NewIndexer"/>
+            id="org.eclipse.imp.wizards.NewIndexer"/>
   <wizard
-            class="org.eclipse.uide.wizards.NewReferenceResolver"
+            class="org.eclipse.imp.wizards.NewReferenceResolver"
             icon="icons/sample.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.core"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.core"
             name="Reference Resolver"
-            id="org.eclipse.uide.wizards.NewReferenceResolver"/>
+            id="org.eclipse.imp.wizards.NewReferenceResolver"/>
             
  	<category
-            id="org.eclipse.uide.wizards.create"
+            id="org.eclipse.imp.wizards.create"
             name="Creation Services"
-            parentCategory="org.eclipse.uide.wizards"/>
+            parentCategory="org.eclipse.imp.wizards"/>
 	<wizard
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.create	"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.create	"
             name="New Project Wizard"
             icon="icons/sample.gif"
-            class="org.eclipse.uide.wizards.NewProject"
-            id="org.eclipse.uide.wizards.NewProjectWizard"/>
+            class="org.eclipse.imp.wizards.NewProject"
+            id="org.eclipse.imp.wizards.NewProjectWizard"/>
  
       <category
-            id="org.eclipse.uide.wizards.editor"
+            id="org.eclipse.imp.wizards.editor"
             name="Editor Services"
-            parentCategory="org.eclipse.uide.wizards"/>
+            parentCategory="org.eclipse.imp.wizards"/>
       <wizard
-            class="org.eclipse.uide.wizards.NewOutliner"
+            class="org.eclipse.imp.wizards.NewOutliner"
             icon="icons/sample.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             name="Outliner"
-            id="org.eclipse.uide.wizards.NewOutliner"/>
+            id="org.eclipse.imp.wizards.NewOutliner"/>
       <wizard
-            class="org.eclipse.uide.wizards.NewHoverHelper"
+            class="org.eclipse.imp.wizards.NewHoverHelper"
             icon="icons/sample.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             name="Hover helper"
-            id="org.eclipse.uide.wizards.NewHoverHelper"/>
+            id="org.eclipse.imp.wizards.NewHoverHelper"/>
       <wizard
-            class="org.eclipse.uide.wizards.NewTokenColorer"
+            class="org.eclipse.imp.wizards.NewTokenColorer"
             icon="icons/sample.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             name="Token colorer"
-            id="org.eclipse.uide.wizards.NewTokenColorer"/>
+            id="org.eclipse.imp.wizards.NewTokenColorer"/>
       <wizard
-            class="org.eclipse.uide.wizards.NewContentProposer"
+            class="org.eclipse.imp.wizards.NewContentProposer"
             icon="icons/sample.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             name="Content proposer"
-            id="org.eclipse.uide.wizards.NewContentProposer"/>
+            id="org.eclipse.imp.wizards.NewContentProposer"/>
       <wizard
-            class="org.eclipse.uide.wizards.NewAnnotationHover"
+            class="org.eclipse.imp.wizards.NewAnnotationHover"
             icon="icons/sample.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             name="Annotation hover"
-            id="org.eclipse.uide.wizards.NewAnnotationHover"/>
+            id="org.eclipse.imp.wizards.NewAnnotationHover"/>
       <wizard
-            class="org.eclipse.uide.wizards.NewFoldingUpdater"
+            class="org.eclipse.imp.wizards.NewFoldingUpdater"
             icon="icons/sample.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             name="Source folding updater"
-            id="org.eclipse.uide.wizards.NewFoldingUpdater"/>
+            id="org.eclipse.imp.wizards.NewFoldingUpdater"/>
       <wizard
-            class="org.eclipse.uide.wizards.NewAutoEditStrategy"
+            class="org.eclipse.imp.wizards.NewAutoEditStrategy"
             icon="icons/sample.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             name="Auto-Edit Strategy"
-            id="org.eclipse.uide.wizards.NewAutoEditStrategy"/>
+            id="org.eclipse.imp.wizards.NewAutoEditStrategy"/>
       <wizard
-            class="org.eclipse.uide.wizards.NewFormatter"
+            class="org.eclipse.imp.wizards.NewFormatter"
             icon="icons/sample.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             name="Source Formatter"
-            id="org.eclipse.uide.wizards.NewFormatter"/>
+            id="org.eclipse.imp.wizards.NewFormatter"/>
       <wizard
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.editor"
-            class="org.eclipse.uide.wizards.NewFancyTokenColorer"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
+            class="org.eclipse.imp.wizards.NewFancyTokenColorer"
             icon="icons/sample.gif"
-            id="org.eclipse.uide.fancyTokenColorerWizard"
+            id="org.eclipse.imp.fancyTokenColorerWizard"
             name="Fancy New Token Colorer"/>
             
       <category
-            id="org.eclipse.uide.wizards.parser"
+            id="org.eclipse.imp.wizards.parser"
             name="Parser Services"
-            parentCategory="org.eclipse.uide.wizards"/>
+            parentCategory="org.eclipse.imp.wizards"/>
       <!-- Never implemented
       wizard
-            class="org.eclipse.uide.wizards.NewParser"
+            class="org.eclipse.imp.wizards.NewParser"
             icon="icons/newgrammarfile.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.parser"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.parser"
             name="Hand-written Parser"
-            id="org.eclipse.uide.wizards.NewParser"/ -->
+            id="org.eclipse.imp.wizards.NewParser"/ -->
 <!--  <wizard
-            class="org.eclipse.uide.wizards.NewModelListener"
+            class="org.eclipse.imp.wizards.NewModelListener"
             icon="icons/sample.gif"
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.parser"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.parser"
             name="Model Listener"
-            id="org.eclipse.uide.wizards.NewModelListener"/>
+            id="org.eclipse.imp.wizards.NewModelListener"/>
  -->            
             
 	<category
-            id="org.eclipse.uide.wizards.transform"
+            id="org.eclipse.imp.wizards.transform"
             name="Transformation Services"
-            parentCategory="org.eclipse.uide.wizards"/>
+            parentCategory="org.eclipse.imp.wizards"/>
       <wizard
-            category="org.eclipse.uide.wizards/org.eclipse.uide.wizards.transform"
-            class="org.eclipse.uide.wizards.NewRefactoringWizard"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.transform"
+            class="org.eclipse.imp.wizards.NewRefactoringWizard"
             icon="icons/sample.gif"
-            id="org.eclipse.uide.newRefactoring"
+            id="org.eclipse.imp.newRefactoring"
             name="Refactoring"/> 
    </extension>
    
    <extension
-         point="org.eclipse.uide.runtime.languageDescription">
+         point="org.eclipse.imp.runtime.languageDescription">
       <language
-            description="SAFARI Presentation Specification"
+            description="IMP Presentation Specification"
             extensions="spec"
             language="spec"/>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.parser">
+         point="org.eclipse.imp.runtime.parser">
       <parser
-            class="org.eclipse.uide.presentation.SpecParseController"
+            class="org.eclipse.imp.presentation.SpecParseController"
             language="spec"/>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.tokenColorer">
+         point="org.eclipse.imp.runtime.tokenColorer">
       <tokenColorer
-            class="org.eclipse.uide.presentation.editor.SpecTokenColorer"
+            class="org.eclipse.imp.presentation.editor.SpecTokenColorer"
             language="spec"/>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="org.eclipse.uide.perspective.SAFARIPerspectiveFactory"
-            icon="icons/safariPerspective.gif"
-            id="org.eclipse.uide.perspective"
-            name="SAFARI IDE Building"/>
+            class="org.eclipse.imp.perspective.SAFARIPerspectiveFactory"
+            icon="icons/impPerspective.gif"
+            id="org.eclipse.imp.perspective"
+            name="IMP IDE Building"/>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.outliner">
+         point="org.eclipse.imp.runtime.outliner">
       <outliner
-            class="spec.safari.outliner.SpecOutliner"
+            class="org.eclipse.imp.presentation.outliner.SpecOutliner"
             language="spec">
       </outliner>
    </extension>
    <extension
-         id="spec.safari.builder"
+         id="org.eclipse.imp.presentation.builder"
          name="spec builder"
          point="org.eclipse.core.resources.builders">
       <builder>
          <run
-               class="spec.safari.builders.SpecBuilder">
+               class="org.eclipse.imp.presentation.builders.SpecBuilder">
             <parameter
                   name="foo"
                   value="bar">
@@ -212,15 +212,15 @@
       </builder>
    </extension>
    <extension
-         id="safari.nature"
-         name="spec Nature"
+         id="org.eclipse.imp.presentation.nature"
+         name="Presentation Specification Nature"
          point="org.eclipse.core.resources.natures">
       <builder
-            id="spec.safari.builder">
+            id="org.eclipse.imp.presentation.builder">
       </builder>
       <runtime>
          <run
-               class="spec.safari.builders.SpecNature">
+               class="org.eclipse.imp.presentation.builders.SpecNature">
          </run>
       </runtime>
    </extension>
@@ -238,12 +238,12 @@
             objectClass="org.eclipse.jdt.core.IJavaProject"
             adaptable="false"
             nameFilter="*"
-            id="spec.safari.projectContextMenu">
+            id="org.eclipse.imp.presentation.projectContextMenu">
          <action
                label="Enable spec Builder"
                tooltip="Enable the spec builder for this project"
-               class="spec.safari.actions.EnableNature"
-               id="spec.safari.actions.enableNatureAction">
+               class="org.eclipse.imp.presentation.actions.EnableNature"
+               id="org.eclipse.imp.presentation.actions.enableNatureAction">
          </action>
       </objectContribution>
    </extension>
