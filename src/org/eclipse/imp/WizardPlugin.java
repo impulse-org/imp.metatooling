@@ -7,7 +7,7 @@ import org.eclipse.imp.runtime.SAFARIPluginBase;
 import org.osgi.framework.BundleContext;
 
 public class WizardPlugin extends SAFARIPluginBase {
-    public static final String kPluginID= "org.eclipse.uide";
+    public static final String kPluginID= "org.eclipse.imp.metatooling";
 
     private static WizardPlugin sPlugin;
 
