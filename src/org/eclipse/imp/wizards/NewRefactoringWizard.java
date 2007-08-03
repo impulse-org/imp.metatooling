@@ -58,7 +58,7 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 
     class NewRefactoringPage extends GeneratedComponentWizardPage {
 	public NewRefactoringPage(GeneratedComponentWizard owner) {
-	    super(owner, RuntimePlugin.UIDE_RUNTIME, "refactoring", false, refactoringAttributes.toArray(new GeneratedComponentAttribute[refactoringAttributes
+	    super(owner, RuntimePlugin.IMP_RUNTIME, "refactoring", false, refactoringAttributes.toArray(new GeneratedComponentAttribute[refactoringAttributes
 		    .size()]), thisWizardName, thisWizardDescription);
 	}
 
@@ -170,7 +170,7 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 			// in ExtensionPointEnabler (evidently)
 			pages[0].getProject(),
 			(IPluginModel) pages[0].getPluginModel().getAdapter(IPluginModel.class),
-			RuntimePlugin.UIDE_RUNTIME,
+			RuntimePlugin.IMP_RUNTIME,
 			"refactoringContributions",
 			new String[][] { { "refactoringContributor:language", pages[0].sLanguage },
 				         { "refactoringContributor:class", contributorQualClassName } },

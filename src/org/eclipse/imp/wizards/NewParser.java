@@ -10,7 +10,7 @@ import org.eclipse.imp.runtime.RuntimePlugin;
 
 public class NewParser extends NoCodeServiceWizard {
     public void addPages() {
-        addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "parser"), });
+        addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.IMP_RUNTIME, "parser"), });
     }
 
     protected List getPluginDependencies() {

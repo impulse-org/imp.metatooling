@@ -67,7 +67,7 @@ public class ExtensionPointEnabler {
     }
 
     public static String determineLanguage(IProject project) {
-        IPluginExtension extension= getServiceExtension(RuntimePlugin.UIDE_RUNTIME + ".languageDescription", project);
+        IPluginExtension extension= getServiceExtension(RuntimePlugin.IMP_RUNTIME + ".languageDescription", project);
         IPluginElement element= findChildElement("language", extension);
     
         if (element != null)

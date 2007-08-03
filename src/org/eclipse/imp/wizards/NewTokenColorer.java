@@ -16,7 +16,7 @@ public class NewTokenColorer extends CodeServiceWizard {
 	
 	
     public void addPages() {
-	addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "tokenColorer"), });
+	addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.IMP_RUNTIME, "tokenColorer"), });
     }
 
     protected List getPluginDependencies() {

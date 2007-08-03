@@ -41,7 +41,7 @@ public class NewLanguage extends CodeServiceWizard {
     Map<String, String> fSubs = null;
 	
     public void addPages() {
-        addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "languageDescription") });
+        addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.IMP_RUNTIME, "languageDescription") });
     }
 
 

@@ -10,7 +10,7 @@ import org.eclipse.imp.runtime.RuntimePlugin;
 
 public class NewModelListener extends NoCodeServiceWizard {
     public void addPages() {
-        addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "modelListener"), });
+        addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.IMP_RUNTIME, "modelListener"), });
     }
 
     protected List getPluginDependencies() {

@@ -39,7 +39,7 @@ public class NewCompiler extends GeneratedComponentWizard {
     
     class NewCompilerPage extends GeneratedComponentWizardPage {
 		public NewCompilerPage(GeneratedComponentWizard owner) {
-		    super(owner, RuntimePlugin.UIDE_RUNTIME, "compiler", false, compilerAttributes, thisWizardName, thisWizardDescription);
+		    super(owner, RuntimePlugin.IMP_RUNTIME, "compiler", false, compilerAttributes, thisWizardName, thisWizardDescription);
 		}
 
 		protected void createFirstControls(Composite parent) {

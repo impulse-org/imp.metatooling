@@ -10,7 +10,7 @@ import org.eclipse.imp.runtime.RuntimePlugin;
 
 public class NewIndexer extends NoCodeServiceWizard {
     public void addPages() {
-        addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "indexContributor"), });
+        addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.IMP_RUNTIME, "indexContributor"), });
     }
 
     protected List getPluginDependencies() {

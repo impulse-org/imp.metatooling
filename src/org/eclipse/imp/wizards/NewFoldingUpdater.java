@@ -14,7 +14,7 @@ import org.eclipse.imp.runtime.RuntimePlugin;
 
 public class NewFoldingUpdater extends CodeServiceWizard {
 	public void addPages() {
-	    addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "foldingUpdater"), });
+	    addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.IMP_RUNTIME, "foldingUpdater"), });
 	}
 
 	protected List getPluginDependencies() {

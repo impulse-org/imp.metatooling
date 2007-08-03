@@ -15,7 +15,7 @@ import org.eclipse.imp.runtime.RuntimePlugin;
 public class NewReferenceResolver extends CodeServiceWizard {
     public void addPages() {
         addPages(new ExtensionPointWizardPage[] {
-        	new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "referenceResolvers"), });
+        	new ExtensionPointWizardPage(this, RuntimePlugin.IMP_RUNTIME, "referenceResolvers"), });
     }
 
     protected List getPluginDependencies() {

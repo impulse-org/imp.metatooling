@@ -11,7 +11,7 @@ import org.eclipse.imp.runtime.RuntimePlugin;
 
 public class NewHoverHelper extends CodeServiceWizard {
     public void addPages() {
-        addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.UIDE_RUNTIME, "hoverHelper"), });
+        addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.IMP_RUNTIME, "hoverHelper"), });
     }
 
     protected List getPluginDependencies() {
