@@ -239,7 +239,7 @@ public class ExtensionPointWizardPage extends WizardPage {
         	return;
 //        	throw new IllegalArgumentException("Unknown extension point: " + pluginID + "." + pointID);
 
-            if (ep.getUniqueIdentifier().startsWith("org.eclipse.") && !ep.getUniqueIdentifier().startsWith("org.eclipse.uide")) {
+            if (ep.getUniqueIdentifier().startsWith("org.eclipse.") && !ep.getUniqueIdentifier().startsWith("org.eclipse.imp")) {
                 // RMF 1/5/2006 - Hack to get schema for extension points defined by Eclipse
                 // platform plugins: attempts to find them in org.eclipse.platform.source,
             	// or, failing that, org.eclipse.rcp.source
@@ -288,7 +288,7 @@ public class ExtensionPointWizardPage extends WizardPage {
         	//	return;
 //        	throw new IllegalArgumentException("Unknown extension point: " + pluginID + "." + pointID);
 
-//            if (ep.getUniqueIdentifier().startsWith("org.eclipse.") && !ep.getUniqueIdentifier().startsWith("org.eclipse.uide")) {
+//            if (ep.getUniqueIdentifier().startsWith("org.eclipse.") && !ep.getUniqueIdentifier().startsWith("org.eclipse.imp")) {
 //                // RMF 1/5/2006 - Hack to get schema for extension points defined by Eclipse
 //                // platform plugins: attempts to find them in org.eclipse.platform.source,
 //            	// or, failing that, org.eclipse.rcp.source
@@ -491,7 +491,7 @@ public class ExtensionPointWizardPage extends WizardPage {
             name+= "*";
         name+= ":";
        	if (basedOn != null && basedOn.endsWith("ClassBrowse")) {
-        		labelWidget= createNewClassHyperlink(field, name, "org.eclipse.uide.parser.IParseController", container);
+        		labelWidget= createNewClassHyperlink(field, name, "org.eclipse.imp.parser.IParseController", container);
         } else {
             Label label= new Label(container, SWT.NULL);
             label.setText(name);
@@ -563,7 +563,7 @@ public class ExtensionPointWizardPage extends WizardPage {
                         String superClassName= "";
 
                         if (basedOnTypeName.charAt(0) == 'I' && Character.isUpperCase(basedOnTypeName.charAt(1))) {
-                            superClassName= "org.eclipse.uide.defaults.Default" + basedOnTypeName.substring(1);
+                            superClassName= "org.eclipse.imp.defaults.Default" + basedOnTypeName.substring(1);
                         }
                         openClassDialog(basedOnQualName, superClassName, text);
                     }

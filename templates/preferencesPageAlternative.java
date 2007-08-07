@@ -1,6 +1,6 @@
 package $PREFS_PACKAGE_NAME$;
 
-import org.eclipse.uide.preferences.SafariAlternativePreferencesPage;
+import org.eclipse.imp.preferences.SafariAlternativePreferencesPage;
 //import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
 import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 

@@ -3,13 +3,13 @@ package $PREFS_PACKAGE_NAME$;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.uide.preferences.ISafariPreferencesService;
-import org.eclipse.uide.preferences.ProjectPreferencesTab;
-import org.eclipse.uide.preferences.SafariPreferencesUtilities;
-import org.eclipse.uide.preferences.fields.SafariFieldEditor;
+import org.eclipse.imp.preferences.ISafariPreferencesService;
+import org.eclipse.imp.preferences.ProjectPreferencesTab;
+import org.eclipse.imp.preferences.SafariPreferencesUtilities;
+import org.eclipse.imp.preferences.fields.SafariFieldEditor;
 import org.osgi.service.prefs.Preferences;
 //TODO:  Import additional classes for specific field types from
-//org.eclipse.uide.preferences.fields
+//org.eclipse.imp.preferences.fields
 
 
 public class $PREFS_CLASS_NAME$ProjectTab extends ProjectPreferencesTab {

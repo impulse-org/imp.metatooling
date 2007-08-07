@@ -1,8 +1,8 @@
 package $PACKAGE_NAME$;
 
 import org.eclipse.ui.texteditor.TextEditorAction;
-import org.eclipse.uide.editor.UniversalEditor;
-import org.eclipse.uide.refactoring.RefactoringStarter;
+import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.refactoring.RefactoringStarter;
 
 public class $REFACTORING_PREFIX$RefactoringAction extends TextEditorAction {
 //    private final UniversalEditor fEditor;

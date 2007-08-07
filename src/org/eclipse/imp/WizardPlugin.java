@@ -64,7 +64,7 @@ public class WizardPlugin extends SAFARIPluginBase {
     public ResourceBundle getResourceBundle() {
 	try {
 	    if (resourceBundle == null)
-		resourceBundle= ResourceBundle.getBundle("org.eclipse.uide.wizard.WizardPluginResources");
+		resourceBundle= ResourceBundle.getBundle("org.eclipse.imp.wizard.WizardPluginResources");
 	} catch (MissingResourceException x) {
 	    resourceBundle= null;
 	}

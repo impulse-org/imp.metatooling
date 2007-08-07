@@ -2,12 +2,12 @@ package $PREFS_PACKAGE_NAME$;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.uide.preferences.ISafariPreferencesService;
-import org.eclipse.uide.preferences.InstancePreferencesTab;
-import org.eclipse.uide.preferences.SafariPreferencesUtilities;
-import org.eclipse.uide.preferences.fields.SafariFieldEditor;
+import org.eclipse.imp.preferences.ISafariPreferencesService;
+import org.eclipse.imp.preferences.InstancePreferencesTab;
+import org.eclipse.imp.preferences.SafariPreferencesUtilities;
+import org.eclipse.imp.preferences.fields.SafariFieldEditor;
 //TODO:  Import additional classes for specific field types from
-//org.eclipse.uide.preferences.fields
+//org.eclipse.imp.preferences.fields
 
 
 

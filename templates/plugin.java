@@ -2,8 +2,8 @@ package $PLUGIN_PACKAGE$;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.uide.preferences.SafariPreferencesService;
-import org.eclipse.uide.runtime.SAFARIPluginBase;
+import org.eclipse.imp.preferences.SafariPreferencesService;
+import org.eclipse.imp.runtime.SAFARIPluginBase;
 import org.osgi.framework.BundleContext;
 
 /*

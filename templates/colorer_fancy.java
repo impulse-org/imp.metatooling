@@ -4,9 +4,9 @@ import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.uide.defaults.DefaultTokenColorer;
-import org.eclipse.uide.editor.ITokenColorer;
-import org.eclipse.uide.parser.IParseController;
+import org.eclipse.imp.defaults.DefaultTokenColorer;
+import org.eclipse.imp.editor.ITokenColorer;
+import org.eclipse.imp.parser.IParseController;
  
 import $PARSER_PKG$.$CLASS_NAME_PREFIX$Parsersym;
 

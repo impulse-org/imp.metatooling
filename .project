@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.eclipse.uide</name>
+	<name>org.eclipse.imp.metatooling</name>
 	<comment></comment>
 	<projects>
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>org.eclipse.safari.jikespg.runtime.jikesPGBuilder</name>
+			<name>org.eclipse.imp.lpg.runtime.LPGBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
@@ -38,8 +38,7 @@
 	<natures>
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>org.jikespg.uide.jikesPGNature</nature>
-		<nature>org.eclipse.safari.jikespg.runtime.jikesPGNature</nature>
+		<nature>org.eclipse.imp.lpg.runtime.LPGNature</nature>
 		<nature>com.ibm.watson.smapifier.smapinature</nature>
 	</natures>
 </projectDescription>

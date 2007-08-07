@@ -414,7 +414,7 @@ public class GeneratedComponentWizardPage extends WizardPage
                         String superClassName= "";
 
                         if (basedOnTypeName.charAt(0) == 'I' && Character.isUpperCase(basedOnTypeName.charAt(1))) {
-                            superClassName= "org.eclipse.uide.defaults.Default" + basedOnTypeName.substring(1);
+                            superClassName= "org.eclipse.imp.defaults.Default" + basedOnTypeName.substring(1);
                         }
                         openClassDialog(basedOnQualName, superClassName, text);
                     }

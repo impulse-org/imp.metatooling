@@ -18,9 +18,9 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.uide.editor.UniversalEditor;
-import org.eclipse.uide.parser.IASTNodeLocator;
-import org.eclipse.uide.parser.IParseController;
+import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.parser.IASTNodeLocator;
+import org.eclipse.imp.parser.IParseController;
 
 public class $REFACTORING_PREFIX$Refactoring extends Refactoring {
     private final IFile fSourceFile;

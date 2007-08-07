@@ -140,7 +140,7 @@ public class ExtensionPointUtils {
         IPluginExtension[] extensions = extensionsThing.getExtensions();
         IPluginExtension parserExtension = null;
         for (int i = 0; i < extensions.length; i++) {
-        	if(extensions[i].getPoint().equals("org.eclipse.uide.runtime.parser")) {
+        	if(extensions[i].getPoint().equals("org.eclipse.imp.runtime.parser")) {
         		parserExtension = extensions[i];
         		break;
         	}

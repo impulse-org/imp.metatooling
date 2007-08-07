@@ -1,8 +1,8 @@
 package $PACKAGE_NAME$;
 
 
-import org.eclipse.uide.defaults.*;	
-import org.eclipse.uide.parser.IParseController;
+import org.eclipse.imp.defaults.*;	
+import org.eclipse.imp.parser.IParseController;
 
 import $AST_PKG$.*;
 

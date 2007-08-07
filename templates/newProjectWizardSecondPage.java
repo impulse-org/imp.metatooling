@@ -27,8 +27,8 @@ import org.eclipse.jdt.internal.ui.wizards.NewWizardMessages;
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jdt.ui.wizards.JavaCapabilityConfigurationPage;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.uide.core.ProjectNatureBase;
-import org.eclipse.uide.wizards.NewProjectWizardSecondPage;
+import org.eclipse.imp.core.ProjectNatureBase;
+import org.eclipse.imp.wizards.NewProjectWizardSecondPage;
 import org.osgi.framework.Bundle;
 
 public class $CLASS_NAME_PREFIX$ProjectWizardSecondPage extends NewProjectWizardSecondPage {

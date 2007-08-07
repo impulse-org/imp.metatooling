@@ -1,8 +1,8 @@
     package $PACKAGE_NAME$;
 
-import org.eclipse.uide.core.ILanguageService;
-import org.eclipse.uide.editor.ISourceFormatter;
-import org.eclipse.uide.parser.IParseController;
+import org.eclipse.imp.core.ILanguageService;
+import org.eclipse.imp.editor.ISourceFormatter;
+import org.eclipse.imp.parser.IParseController;
 
 import $AST_PACKAGE$.*;
 

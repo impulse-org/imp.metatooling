@@ -8,9 +8,9 @@ import java.util.*;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.uide.editor.IContentProposer;
-import org.eclipse.uide.editor.SourceProposal;
-import org.eclipse.uide.parser.IParseController;
+import org.eclipse.imp.editor.IContentProposer;
+import org.eclipse.imp.editor.SourceProposal;
+import org.eclipse.imp.parser.IParseController;
 
 
 public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer

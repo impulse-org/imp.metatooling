@@ -1,6 +1,6 @@
 package $PACKAGE_NAME$;
 
-import org.eclipse.uide.wizards.NewProjectWizardFirstPage;
+import org.eclipse.imp.wizards.NewProjectWizardFirstPage;
 
 public class $CLASS_NAME_PREFIX$ProjectWizardFirstPage extends NewProjectWizardFirstPage {
     public $CLASS_NAME_PREFIX$ProjectWizardFirstPage() {

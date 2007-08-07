@@ -412,7 +412,7 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 
     protected List getPluginDependencies() {
         return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
-        "org.eclipse.uide.runtime", "org.eclipse.ui", "org.eclipse.jdt.core" });
+        "org.eclipse.imp.runtime", "org.eclipse.ui", "org.eclipse.jdt.core" });
     }
 
     /**

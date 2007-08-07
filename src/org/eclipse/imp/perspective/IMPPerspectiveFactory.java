@@ -66,29 +66,29 @@ public class SAFARIPerspectiveFactory implements IPerspectiveFactory {
 //	layout.addNewWizardShortcut("org.eclipse.jdt.ui.wizards.NewSnippetFileCreationWizard"); //$NON-NLS-1$
 
 
-	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewLanguageWizard");
-//	layout.addNewWizardShortcut("org.jikespg.uide.NewJikesPGParserWizard");
-//	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewParser");
-	layout.addNewWizardShortcut("org.jikespg.uide.NewLPGGrammarParserWrapperWizard");
-	layout.addNewWizardShortcut("org.jikespg.uide.NewLPGGrammarWizard");
-	layout.addNewWizardShortcut("org.jikespg.uide.NewParserWrapperWizard");	
-	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewTokenColorer");
-	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewOutliner");
-	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewFoldingUpdater");
-//	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewHoverHelper");
-//	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewAnnotationHover");
-	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewReferenceResolver");
-	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewContentProposer");
-//	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewAutoEditStrategy");
-//	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewFormatter");
-//	layout.addNewWizardShortcut("org.eclipse.uide.fancyTokenColorerWizard");
-//	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewProjectWizard");
-	layout.addNewWizardShortcut("org.eclipse.uide.newBuilder");
-	layout.addNewWizardShortcut("org.eclipse.uide.natureEnablerWizard");
-	layout.addNewWizardShortcut("org.eclipse.uide.newCompiler");
-//	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewIndexer");
-	layout.addNewWizardShortcut("org.eclipse.uide.wizards.NewPreferencesDialog");
-	layout.addNewWizardShortcut("org.eclipse.uide.newRefactoring");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewLanguageWizard");
+//	layout.addNewWizardShortcut("org.eclipse.imp.lpg.metatooling.NewJikesPGParserWizard");
+//	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewParser");
+	layout.addNewWizardShortcut("org.eclipse.imp.lpg.NewLPGGrammarParserWrapperWizard");
+	layout.addNewWizardShortcut("org.eclipse.imp.lpg.NewLPGGrammarWizard");
+	layout.addNewWizardShortcut("org.eclipse.imp.lpg.NewParserWrapperWizard");	
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewTokenColorer");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewOutliner");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewFoldingUpdater");
+//	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewHoverHelper");
+//	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewAnnotationHover");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewReferenceResolver");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewContentProposer");
+//	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewAutoEditStrategy");
+//	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewFormatter");
+//	layout.addNewWizardShortcut("org.eclipse.imp.fancyTokenColorerWizard");
+//	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewProjectWizard");
+	layout.addNewWizardShortcut("org.eclipse.imp.newBuilder");
+	layout.addNewWizardShortcut("org.eclipse.imp.natureEnablerWizard");
+	layout.addNewWizardShortcut("org.eclipse.imp.newCompiler");
+//	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewIndexer");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewPreferencesDialog");
+	layout.addNewWizardShortcut("org.eclipse.imp.newRefactoring");
 
 	layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");//$NON-NLS-1$
 	layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//$NON-NLS-1$

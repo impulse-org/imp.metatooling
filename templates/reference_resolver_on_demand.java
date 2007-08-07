@@ -2,9 +2,9 @@ package $PACKAGE_NAME$;
 
 import java.util.*;
 
-import org.eclipse.uide.core.ILanguageService;	
-import org.eclipse.uide.editor.IReferenceResolver;
-import org.eclipse.uide.parser.IParseController;
+import org.eclipse.imp.core.ILanguageService;	
+import org.eclipse.imp.editor.IReferenceResolver;
+import org.eclipse.imp.parser.IParseController;
 
 import lpg.runtime.*;
 

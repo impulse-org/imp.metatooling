@@ -1,9 +1,9 @@
 package $PREFS_PACKAGE_NAME$;
 
 import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.uide.preferences.ISafariPreferencesService;
-import org.eclipse.uide.preferences.SafariPreferencesTab;
-import org.eclipse.uide.preferences.SafariTabbedPreferencesPage;
+import org.eclipse.imp.preferences.ISafariPreferencesService;
+import org.eclipse.imp.preferences.SafariPreferencesTab;
+import org.eclipse.imp.preferences.SafariTabbedPreferencesPage;
 //import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
 import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;	// SMS 27 Mar 2007
 

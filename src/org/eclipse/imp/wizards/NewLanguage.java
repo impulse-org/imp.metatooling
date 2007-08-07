@@ -48,7 +48,7 @@ public class NewLanguage extends CodeServiceWizard {
     protected List getPluginDependencies() {
         return Arrays.asList(new String[] {
             "org.eclipse.core.runtime", "org.eclipse.core.resources",
-    	    "org.eclipse.uide.runtime", "org.eclipse.ui" });
+    	    "org.eclipse.imp.runtime", "org.eclipse.ui" });
     }
 
     
@@ -56,7 +56,7 @@ public class NewLanguage extends CodeServiceWizard {
      * Overrides the method in CodeServiceWizard because fewer parameters
      * are needed and available at this point in the creation of an IDE
      * 
-     * @see org.eclipse.uide.wizards.ExtensionPointWizard#collectCodeParms()
+     * @see org.eclipse.imp.wizards.ExtensionPointWizard#collectCodeParms()
      */
     protected void collectCodeParms() {
     	fProject = pages[0].getProject();

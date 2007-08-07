@@ -9,22 +9,22 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.uide.core.SAFARIBuilderBase;
-import org.eclipse.uide.model.ISourceProject;
-import org.eclipse.uide.model.ModelFactory;
-import org.eclipse.uide.model.ModelFactory.ModelException;
-import org.eclipse.uide.runtime.SAFARIPluginBase;
+import org.eclipse.imp.core.SAFARIBuilderBase;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.runtime.SAFARIPluginBase;
 
 //import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
 //import $PLUGIN_PACKAGE$.$CLASS_NAME_PREFIX$Plugin;
 import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 
-import org.eclipse.uide.core.Language;
-import org.eclipse.uide.core.LanguageRegistry;
+import org.eclipse.imp.core.Language;
+import org.eclipse.imp.core.LanguageRegistry;
 
-import org.eclipse.uide.builder.BuilderUtils;
-import org.eclipse.uide.builder.MarkerCreator;
-import org.eclipse.uide.parser.IParseController;
+import org.eclipse.imp.builder.BuilderUtils;
+import org.eclipse.imp.builder.MarkerCreator;
+import org.eclipse.imp.parser.IParseController;
 import $PARSER_PKG$.$CLASS_NAME_PREFIX$ParseController;
 
 /**

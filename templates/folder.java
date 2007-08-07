@@ -3,7 +3,7 @@ package $PACKAGE_NAME$;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.uide.defaults.FolderBase;
+import org.eclipse.imp.defaults.FolderBase;
 
 import $AST_PACKAGE$.*;
 

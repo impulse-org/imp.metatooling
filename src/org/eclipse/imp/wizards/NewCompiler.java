@@ -53,7 +53,7 @@ public class NewCompiler extends GeneratedComponentWizard {
     
     protected List getPluginDependencies() {
         return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
-                "org.eclipse.uide.runtime" });
+                "org.eclipse.imp.runtime" });
     }
 
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException
@@ -127,7 +127,7 @@ public class NewCompiler extends GeneratedComponentWizard {
     	IPluginModelBase pluginModelBase = pages[0].getPluginModel();
 
         // Get the extension that represents the parser
-        IPluginExtension parserExtension= ExtensionPointUtils.findExtensionByName("org.eclipse.uide.runtime.parser", pluginModelBase);
+        IPluginExtension parserExtension= ExtensionPointUtils.findExtensionByName("org.eclipse.imp.runtime.parser", pluginModelBase);
 
         if (parserExtension == null) return null;
 

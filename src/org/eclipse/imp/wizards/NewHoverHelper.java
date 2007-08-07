@@ -16,7 +16,7 @@ public class NewHoverHelper extends CodeServiceWizard {
 
     protected List getPluginDependencies() {
         return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
-    	    "org.eclipse.uide.runtime" });
+    	    "org.eclipse.imp.runtime" });
     }
 
     public void generateCodeStubs(IProgressMonitor mon) {

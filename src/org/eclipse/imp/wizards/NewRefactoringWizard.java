@@ -84,7 +84,7 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
     }
 
     protected List getPluginDependencies() {
-	return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources", "org.eclipse.uide.runtime", "org.eclipse.jdt.core",
+	return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources", "org.eclipse.imp.runtime", "org.eclipse.jdt.core",
 		"org.eclipse.jdt.ui", "org.eclipse.ui.ide", "org.eclipse.ltk.core.refactoring", "org.eclipse.ltk.ui.refactoring" });
     }
 

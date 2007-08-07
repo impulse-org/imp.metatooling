@@ -21,7 +21,7 @@ public class NewTokenColorer extends CodeServiceWizard {
 
     protected List getPluginDependencies() {
 		return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
-			"org.eclipse.uide.runtime", "org.eclipse.ui", "org.eclipse.jface.text", "lpg.runtime"});
+			"org.eclipse.imp.runtime", "org.eclipse.ui", "org.eclipse.jface.text", "lpg.runtime"});
     }
     
     

@@ -1,8 +1,8 @@
 package $PACKAGE_NAME$;
 
 $IPROJECT_IMPORT$
-import org.eclipse.uide.core.ProjectNatureBase;
-import org.eclipse.uide.runtime.IPluginLog;
+import org.eclipse.imp.core.ProjectNatureBase;
+import org.eclipse.imp.runtime.IPluginLog;
 $SMAPI_IMPORT$
 //import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
 //import $PLUGIN_PACKAGE$.$CLASS_NAME_PREFIX$Plugin;
