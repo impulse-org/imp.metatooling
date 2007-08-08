@@ -12,7 +12,7 @@ import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.progress.IProgressConstants;
 
-public class SAFARIPerspectiveFactory implements IPerspectiveFactory {
+public class IMPPerspectiveFactory implements IPerspectiveFactory {
     public void createInitialLayout(IPageLayout layout) {
 	String editorArea= layout.getEditorArea();
 	IFolderLayout folder= layout.createFolder("left", IPageLayout.LEFT, (float) 0.25, editorArea); //$NON-NLS-1$
