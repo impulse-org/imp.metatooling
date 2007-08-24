@@ -20,10 +20,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.imp.core.ErrorHandler;
-import org.eclipse.imp.extensionsmodel.ImpWorkspaceExtensionsModel;
-import org.eclipse.imp.runtime.RuntimePlugin;
-import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.pde.core.IEditableModel;
 import org.eclipse.pde.core.plugin.IExtensions;
 import org.eclipse.pde.core.plugin.IPluginBase;
@@ -40,6 +36,10 @@ import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModel;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModelBase;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.extensionsmodel.ImpWorkspaceExtensionsModel;
+import org.eclipse.imp.runtime.RuntimePlugin;
+import org.eclipse.imp.utils.StreamUtils;
 
 
 /**
@@ -498,7 +498,7 @@ public class ExtensionPointEnabler {
     	throws CoreException
     {
         String filename= "plugin.xml";
-        IFile file= project	.getFile(filename);
+        IFile file= project.getFile(filename);
         // Evidently, just creating the extensions model with a given file doesn't
         // actually load the model from that file, which must be done explicitly
         ImpWorkspaceExtensionsModel extensions = new ImpWorkspaceExtensionsModel(file);

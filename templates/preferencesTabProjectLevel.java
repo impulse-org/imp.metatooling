@@ -3,10 +3,10 @@ package $PREFS_PACKAGE_NAME$;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.imp.preferences.ISafariPreferencesService;
+import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.ProjectPreferencesTab;
-import org.eclipse.imp.preferences.SafariPreferencesUtilities;
-import org.eclipse.imp.preferences.fields.SafariFieldEditor;
+import org.eclipse.imp.preferences.PreferencesUtilities;
+import org.eclipse.imp.preferences.fields.FieldEditor;
 import org.osgi.service.prefs.Preferences;
 //TODO:  Import additional classes for specific field types from
 //org.eclipse.imp.preferences.fields
@@ -24,7 +24,7 @@ public class $PREFS_CLASS_NAME$ProjectTab extends ProjectPreferencesTab {
 
 	
 	
-	public $PREFS_CLASS_NAME$ProjectTab(ISafariPreferencesService prefService) {
+	public $PREFS_CLASS_NAME$ProjectTab(IPreferencesService prefService) {
 		super(prefService);
 	}
 
@@ -34,17 +34,17 @@ public class $PREFS_CLASS_NAME$ProjectTab extends ProjectPreferencesTab {
 	 * Creates specific preference fields with settings appropriate to
 	 * the Project preferences level.
 	 * 
-	 * Overrides an unimplemented method in SafariPreferencesTab.
+	 * Overrides an unimplemented method in PreferencesTab.
 	 * 
 	 * @return	An array that contains the created preference fields
 	 */
-	protected SafariFieldEditor[] createFields(Composite composite) {
+	protected FieldEditor[] createFields(Composite composite) {
 		
 		// TODO:  Construct the specific fields, including a "details" link
 		// for each field; also create "toggle" listeners between fields whose
 		// editability is linked.  Add spaces, boxes, etc. as apprpriate.
 		//
-		// SafariPreferencesUtilities has factory-like methods for creating
+		// PreferencesUtilities has factory-like methods for creating
 		// fields and links of specific types.
 		//
 		// Among the various parameters that can be set for a Safari preferences
@@ -59,7 +59,7 @@ public class $PREFS_CLASS_NAME$ProjectTab extends ProjectPreferencesTab {
 		
 		
 		// TODO:  Put the created fields into an array and return it
-		SafariFieldEditor fields[] = new SafariFieldEditor[0];		// change length as appropriate
+		FieldEditor fields[] = new FieldEditor[0];		// change length as appropriate
 		// 	Add fields here ...
 		
 		
@@ -73,7 +73,7 @@ public class $PREFS_CLASS_NAME$ProjectTab extends ProjectPreferencesTab {
 	 * 
 	 * Overrides an unimplemented method in ProjectPreferencesTab.
 	 */
-	public void addressProjectSelection(ISafariPreferencesService.ProjectSelectionEvent event, Composite composite)
+	public void addressProjectSelection(IPreferencesService.ProjectSelectionEvent event, Composite composite)
 	{
 		// Check that at least one affected preference is non-null
 		Preferences oldeNode = event.getPrevious();
@@ -95,7 +95,7 @@ public class $PREFS_CLASS_NAME$ProjectTab extends ProjectPreferencesTab {
 			removeProjectPreferenceChangeListeners();
 			haveCurrentListeners = false;
 		} else {	
-			//System.out.println("JsdivProjectPreferencesPage.SafariProjectSelectionListener.selection():  " +
+			//System.out.println("JsdivProjectPreferencesPage.ProjectSelectionListener.selection():  " +
 			//	"\n\tnode is null, not of IEclipsePreferences type, or currentListener is null; not possible to add preference-change listener");
 		}
 
@@ -143,7 +143,7 @@ public class $PREFS_CLASS_NAME$ProjectTab extends ProjectPreferencesTab {
 				// TODO:  For each field
 				// 1) assign the parent to a local variable for handy reference (if you're using
 				//    these)
-				// 2) Call SafariPreferencesUtilities.setField(..) with the field (and it's parent)
+				// 2) Call PreferencesUtilities.setField(..) with the field (and it's parent)
 				//    to set a value in the field.  (setField(..) will obtain a value from the
 				//    preferences store, if there is one set there, or inherit one from a higher
 				//    preferences level, if not).
@@ -181,7 +181,7 @@ public class $PREFS_CLASS_NAME$ProjectTab extends ProjectPreferencesTab {
 			selectedProjectName.setStringValue("none selected");
 			
 			// Clear the preferences from the store
-			prefService.clearPreferencesAtLevel(ISafariPreferencesService.PROJECT_LEVEL);
+			prefService.clearPreferencesAtLevel(IPreferencesService.PROJECT_LEVEL);
 			
 			// Disable fields and make them non-editable
 			if (!composite.isDisposed()) {

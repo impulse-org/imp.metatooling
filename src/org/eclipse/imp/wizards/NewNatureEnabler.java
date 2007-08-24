@@ -22,9 +22,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.WizardPlugin;
-import org.eclipse.imp.core.ErrorHandler;
-import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -68,6 +65,9 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.ISelectionValidator;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
+import org.eclipse.imp.WizardPlugin;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.utils.StreamUtils;
 import org.osgi.framework.Bundle;
 
 public class NewNatureEnabler extends Wizard implements INewWizard {
@@ -229,7 +229,7 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 		public void focusGained(FocusEvent e) {
 		    // Text text = (Text)e.widget;
 		    if (fDescriptionText != null)
-			fDescriptionText.setText("Select the plug-in project to add this extension point to");
+			fDescriptionText.setText("Select the plug-in project to add this extension to");
 		}
 	    });
 	}
@@ -352,7 +352,7 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 	    IProject project= getProject();
 
 	    if (project == null) {
-		setErrorMessage("Please select a plug-in project to add this extension point to");
+		setErrorMessage("Please select a plug-in project to add this extension to");
 		setPageComplete(false);
 		return;
 	    }
@@ -362,7 +362,7 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 	    } catch (CoreException e) {
 	    }
 	    if (!isPlugin) {
-		setErrorMessage("\"" + fProject.getName() + "\" is not a plug-in project. Please select a plug-in project to add this extension point to");
+		setErrorMessage("\"" + fProject.getName() + "\" is not a plug-in project. Please select a plug-in project to add this extension to");
 		setPageComplete(false);
 		return;
 	    }

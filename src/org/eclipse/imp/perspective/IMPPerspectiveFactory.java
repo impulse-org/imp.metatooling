@@ -67,8 +67,6 @@ public class IMPPerspectiveFactory implements IPerspectiveFactory {
 
 
 	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewLanguageWizard");
-//	layout.addNewWizardShortcut("org.eclipse.imp.lpg.metatooling.NewJikesPGParserWizard");
-//	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewParser");
 	layout.addNewWizardShortcut("org.eclipse.imp.lpg.NewLPGGrammarParserWrapperWizard");
 	layout.addNewWizardShortcut("org.eclipse.imp.lpg.NewLPGGrammarWizard");
 	layout.addNewWizardShortcut("org.eclipse.imp.lpg.NewParserWrapperWizard");	

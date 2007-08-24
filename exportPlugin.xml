@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="org.eclipse.uide" default="build.update.jar" basedir=".">
-	<import file="../org.eclipse.safari.feature/buildCommon.xml"/>
-	<import file="../org.eclipse.safari.update/buildPluginCommon.xml"/>
+<project name="org.eclipse.imp.metatooling" default="build.update.jar" basedir=".">
+	<import file="../org.eclipse.imp.feature/buildCommon.xml"/>
+	<import file="../org.eclipse.imp.update/buildPluginCommon.xml"/>
 
 	<target name="init" depends="properties">
-		<property name="plugin.name" value="org.eclipse.uide"/>
-		<property name="plugin.version" value="${safari.version}"/>
+		<property name="plugin.name" value="org.eclipse.imp.metatooling"/>
+		<property name="plugin.version" value="${plugins.version.32}"/>
 		<property name="plugin.jar.name" value="${plugin.name}_${plugin.version}.jar"/>
 		<property name="plugin.zip.name" value="${plugin.name}_${plugin.version}.zip"/>
 		<property name="plugin.src.zip" value="${plugin.name}_src.zip"/>
@@ -22,6 +22,8 @@
 		<property name="lpg.location" value="../lpg.runtime.java"/>
 		<property name="lpg.executable" location="${lpg.location}/lpgexe/lpg-${baseos}_${os.arch}"/>
 		<property name="lpg.templates" location="${lpg.location}/templates"/>
+		<property name="lpg.metatooling.location" value="../org.eclipse.imp.lpg.metatooling"/>
+		<property name="lpg.metatooling.templates" location="${lpg.metatooling.location}/templates"/>
 	</target>
 
 	<target name="properties" if="eclipse.running">
@@ -34,21 +36,22 @@
 		<delete dir="${temp.folder}/${plugin.jar.name}.bin"/>
 		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin"/>
 		<!-- run jikespg to generate the parser and lexer -->
-		<echo message="Running JikesPG to generate parser and lexer"/>
-		<exec executable="${lpg.executable}" dir="src/org/eclipse/uide/presentation"
+		<echo message="Running LPG to generate parser and lexer"/>
+		<exec executable="${lpg.executable}" dir="src/org/eclipse/imp/presentation"
 		      failonerror="true" output="LangSpec.log">
-			<arg line="-include-directory=${lpg.templates}"/>
+			<arg line="-include-directory=${lpg.templates};${lpg.metatooling.templates}"/>
 			<arg line="LangSpec.g"/>
 		</exec>
+		<echo message="eclipse.build.path = ${eclipse.build.path}"/>
 		<!-- compile the source code -->
 		<javac destdir="${temp.folder}/${plugin.jar.name}.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="${javacSource}" target="${javacTarget}"		>
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
-				<pathelement path="../com.ibm.watson.smapifier/com.ibm.watson.smapifier_${safari.version}.jar"/>
-				<pathelement path="../org.eclipse.uide.runtime/org.eclipse.uide.runtime_${safari.version}.jar"/>
-				<pathelement path="../org.eclipse.safari.jikespg.runtime/org.eclipse.safari.jikespg.runtime_${safari.version}.jar"/>
-				<pathelement path="../lpg.runtime.java/lpg.runtime_2.0.4.jar"/>
-				<pathelement path="../polyglot/lib/polyglot-epl.jar"/>
+				<pathelement path="../com.ibm.watson.smapifier/bin"/>
+				<pathelement path="../org.eclipse.imp.runtime/bin"/>
+				<pathelement path="../org.eclipse.imp.lpg.runtime/bin"/>
+				<pathelement path="../lpg.runtime.java/bin"/>
+				<pathelement path="../polyglot/classes"/>
 				<pathelement path="${eclipse.build.path}"/>
 			</classpath>
 			<src path="src/"/>

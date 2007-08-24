@@ -3,7 +3,7 @@ package $PACKAGE_NAME$;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.imp.editor.IOutlineImage;
+import org.eclipse.imp.services.IOutlineImage;
 
 
 public class $CLASS_NAME_PREFIX$Images implements IOutlineImage

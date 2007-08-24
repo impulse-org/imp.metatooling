@@ -8,7 +8,7 @@ import java.util.*;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.imp.editor.IContentProposer;
+import org.eclipse.imp.services.IContentProposer;
 import org.eclipse.imp.editor.SourceProposal;
 import org.eclipse.imp.parser.IParseController;
 

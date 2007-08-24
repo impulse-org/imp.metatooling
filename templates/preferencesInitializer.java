@@ -1,8 +1,7 @@
 package $PREFS_PACKAGE_NAME$;
 	
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.imp.preferences.ISafariPreferencesService;
-//import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
+import org.eclipse.imp.preferences.IPreferencesService;
 import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;	// SMS 27 Mar 2007
 
 /**
@@ -25,13 +24,12 @@ public class $PREFS_CLASS_NAME$Initializer extends AbstractPreferenceInitializer
      */
     public void initializeDefaultPreferences() {
     
-//		ISafariPreferencesService service = $CLASS_NAME_PREFIX$Plugin.getPreferencesService();
-		ISafariPreferencesService service = $PLUGIN_CLASS$.getPreferencesService();
+		IPreferencesService service = $PLUGIN_CLASS$.getPreferencesService();
 		
 		// TODO:  Initialize preferences values here ...
 		// Example:
 		// 	service.setBooleanPreference(
-		//		ISafariPreferencesService.DEFAULT_LEVEL, $PREFS_CLASS_NAME$Constants.P_EMIT_MESSAGES, getDefaultEmitMessages());
+		//		IPreferencesService.DEFAULT_LEVEL, $PREFS_CLASS_NAME$Constants.P_EMIT_MESSAGES, getDefaultEmitMessages());
 		// Note the stipulation of the default level
 		// We typically use a separate package to define constant identifiers for preferences
 		// This example uses a function (defined below) to represent the initial value

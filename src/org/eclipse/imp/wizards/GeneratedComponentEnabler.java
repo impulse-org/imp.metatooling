@@ -13,7 +13,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.pde.core.IEditableModel;
 import org.eclipse.pde.core.plugin.IPluginBase;
 import org.eclipse.pde.core.plugin.IPluginImport;
@@ -23,6 +22,7 @@ import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModel;
 import org.eclipse.pde.internal.core.plugin.PluginImport;
+import org.eclipse.imp.core.ErrorHandler;
 
 /**
  * @author ssutton, adapted from ExtensionPointEnabler by claffra

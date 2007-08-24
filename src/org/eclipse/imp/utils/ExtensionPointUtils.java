@@ -6,7 +6,6 @@ import java.util.Map;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.imp.wizards.ExtensionPointEnabler;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -19,6 +18,7 @@ import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
+import org.eclipse.imp.wizards.ExtensionPointEnabler;
 
 public class ExtensionPointUtils {
     private ExtensionPointUtils() { }

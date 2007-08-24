@@ -14,7 +14,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -72,6 +71,7 @@ import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.internal.Workbench;
+import org.eclipse.imp.core.ErrorHandler;
 
 /**
  * The "New" wizard page allows setting the container for the new file as well as the file name. The page will only
@@ -542,7 +542,7 @@ public class GeneratedComponentWizardPage extends WizardPage
             public void focusGained(FocusEvent e) {
                 // Text text = (Text)e.widget;
         	if (fDescriptionText != null)
-        	    fDescriptionText.setText("Select the plug-in project to add this extension point to");
+        	    fDescriptionText.setText("Select the plug-in project to add this extension to");
             }
         });
     }
@@ -837,7 +837,7 @@ public class GeneratedComponentWizardPage extends WizardPage
         else {
             IProject project= getProject();
             if (project == null) {
-                setErrorMessage("Please select a plug-in project to add this extension point to");
+                setErrorMessage("Please select a plug-in project to add this extension to");
                 setPageComplete(false);
                 return;
             }
@@ -847,7 +847,7 @@ public class GeneratedComponentWizardPage extends WizardPage
             } catch (CoreException e) {
             }
             if (!isPlugin) {
-                setErrorMessage("\"" + sProjectName + "\" is not a plug-in project. Please select a plug-in project to add this extension point to");
+                setErrorMessage("\"" + sProjectName + "\" is not a plug-in project. Please select a plug-in project to add this extension to");
                 setPageComplete(false);
                 return;
             }

@@ -3,10 +3,10 @@ package org.eclipse.imp;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import org.eclipse.imp.runtime.SAFARIPluginBase;
+import org.eclipse.imp.runtime.PluginBase;
 import org.osgi.framework.BundleContext;
 
-public class WizardPlugin extends SAFARIPluginBase {
+public class WizardPlugin extends PluginBase {
     public static final String kPluginID= "org.eclipse.imp.metatooling";
 
     private static WizardPlugin sPlugin;

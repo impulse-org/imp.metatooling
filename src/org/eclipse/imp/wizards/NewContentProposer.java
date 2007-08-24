@@ -25,7 +25,8 @@ public class NewContentProposer extends CodeServiceWizard {
     }
 
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
-        Map<String,String> subs= getStandardSubstitutions();
+    	
+        Map subs= getStandardSubstitutions();
 
         subs.put("$PARSER_PKG$", fParserPackage);
         subs.put("$AST_PKG$", fParserPackage + "." + Wizards.astDirectory);
@@ -42,4 +43,6 @@ public class NewContentProposer extends CodeServiceWizard {
  
         editFile(mon, outlinerSrc);
     }
+    
+    
 }

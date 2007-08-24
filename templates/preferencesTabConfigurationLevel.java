@@ -3,16 +3,16 @@ package $PREFS_PACKAGE_NAME$;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.imp.preferences.ConfigurationPreferencesTab;
-import org.eclipse.imp.preferences.ISafariPreferencesService;
-import org.eclipse.imp.preferences.SafariPreferencesUtilities;
-import org.eclipse.imp.preferences.fields.SafariFieldEditor;
+import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.imp.preferences.PreferencesUtilities;
+import org.eclipse.imp.preferences.fields.FieldEditor;
 //TODO:  Import additional classes for specific field types from
 //org.eclipse.imp.preferences.fields
 
 public class $PREFS_CLASS_NAME$ConfigurationTab extends ConfigurationPreferencesTab {
 	
 	
-	public $PREFS_CLASS_NAME$ConfigurationTab(ISafariPreferencesService prefService) {
+	public $PREFS_CLASS_NAME$ConfigurationTab(IPreferencesService prefService) {
 		super(prefService);
 	}
 	
@@ -21,11 +21,11 @@ public class $PREFS_CLASS_NAME$ConfigurationTab extends ConfigurationPreferences
 	 * Creates specific preference fields with settings appropriate to
 	 * the Workspace Configuration preferences level.
 	 * 
-	 * Overrides an unimplemented method in SafariPreferencesTab.
+	 * Overrides an unimplemented method in PreferencesTab.
 	 * 
 	 * @return	An array that contains the created preference fields
 	 */
-	protected SafariFieldEditor[] createFields(Composite composite) {
+	protected FieldEditor[] createFields(Composite composite) {
 		
 		// TODO:  Declare preference fields here ...
 
@@ -33,7 +33,7 @@ public class $PREFS_CLASS_NAME$ConfigurationTab extends ConfigurationPreferences
 		// for each field; also create "toggle" listeners between fields whose
 		// editability is linked.  Add spaces, boxes, etc. as apprpriate.
 		//
-		// SafariPreferencesUtilities has factory-like methods for creating
+		// PreferencesUtilities has factory-like methods for creating
 		// fields and links of specific types.
 		//
 		// Among the various parameters that can be set for a Safari preferences
@@ -41,7 +41,7 @@ public class $PREFS_CLASS_NAME$ConfigurationTab extends ConfigurationPreferences
 		
 		
 		// TODO:  Put the created fields into an array and return it
-		SafariFieldEditor fields[] = new SafariFieldEditor[0];		// change length as appropriate
+		FieldEditor fields[] = new FieldEditor[0];		// change length as appropriate
 		// 	Add fields here ...
 		
 		return fields;

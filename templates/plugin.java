@@ -1,9 +1,8 @@
 package $PLUGIN_PACKAGE$;
 
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.imp.preferences.SafariPreferencesService;
-import org.eclipse.imp.runtime.SAFARIPluginBase;
+import org.eclipse.imp.preferences.PreferencesService;
+import org.eclipse.imp.runtime.PluginBase;
 import org.osgi.framework.BundleContext;
 
 /*
@@ -17,7 +16,7 @@ import org.osgi.framework.BundleContext;
  *	  code for initializing preference store from start(..) method
  */ 
 
-public class $PLUGIN_CLASS$ extends SAFARIPluginBase {
+public class $PLUGIN_CLASS$ extends PluginBase {
 
     public static final String kPluginID= "$PLUGIN_ID$";
     public static final String kLanguageName = "$LANG_NAME$";
@@ -51,19 +50,18 @@ public class $PLUGIN_CLASS$ extends SAFARIPluginBase {
     }  
     
     
-    protected static SafariPreferencesService preferencesService = null;
+    protected static PreferencesService preferencesService = null;
     
-    public static SafariPreferencesService getPreferencesService() {
+    public static PreferencesService getPreferencesService() {
     	if (preferencesService == null) {
-    		preferencesService = new SafariPreferencesService(ResourcesPlugin.getWorkspace().getRoot().getProject());
+    		preferencesService = new PreferencesService(ResourcesPlugin.getWorkspace().getRoot().getProject());
     		preferencesService.setLanguageName(kLanguageName);
     		// TODO:  When some actual preferences are created, put
     		// a call to the preferences initializer here
-    		// (The SAFARI New Preferences Support wizard creates such
-    		// an initizlizer.)
+    		// (The IMP New Preferences Support wizard creates such
+    		// an initializer.)
     		
     	}
     	return preferencesService;
     }
-    
 }

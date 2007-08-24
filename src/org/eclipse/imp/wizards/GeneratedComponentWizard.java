@@ -23,10 +23,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.WizardPlugin;
-import org.eclipse.imp.core.ErrorHandler;
-import org.eclipse.imp.utils.ExtensionPointUtils;
-import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -45,6 +41,10 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
+import org.eclipse.imp.WizardPlugin;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.utils.ExtensionPointUtils;
+import org.eclipse.imp.utils.StreamUtils;
 import org.osgi.framework.Bundle;
 
 /**

@@ -1,8 +1,6 @@
 package $PACKAGE_NAME$;
 
-
-import org.eclipse.imp.defaults.*;	
-import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.services.base.OutlinerBase;
 
 import $AST_PKG$.*;
 

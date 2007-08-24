@@ -1,12 +1,11 @@
 package $PACKAGE_NAME$;
 
 $IPROJECT_IMPORT$
-import org.eclipse.imp.core.ProjectNatureBase;
+import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.runtime.IPluginLog;
 $SMAPI_IMPORT$
-//import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
-//import $PLUGIN_PACKAGE$.$CLASS_NAME_PREFIX$Plugin;
-import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;	// SMS 27 Mar 2007
+
+import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 
 public class $CLASS_NAME_PREFIX$Nature extends ProjectNatureBase {
 	// SMS 28 Mar 2007:  plugin class now totally parameterized

@@ -8,9 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.imp.utils.ExtensionPointUtils;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.internal.core.bundle.WorkspaceBundleModel;
+import org.eclipse.imp.utils.ExtensionPointUtils;
 	
 /**
  * An ExtensionPointWizard that also generates source code from one or more template files.

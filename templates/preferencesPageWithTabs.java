@@ -1,20 +1,19 @@
 package $PREFS_PACKAGE_NAME$;
 
 import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.imp.preferences.ISafariPreferencesService;
-import org.eclipse.imp.preferences.SafariPreferencesTab;
-import org.eclipse.imp.preferences.SafariTabbedPreferencesPage;
-//import $LANG_NAME$.$CLASS_NAME_PREFIX$Plugin;
+import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.imp.preferences.PreferencesTab;
+import org.eclipse.imp.preferences.TabbedPreferencesPage;
 import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;	// SMS 27 Mar 2007
 
 /**
- * The Safari-based tabbed preferences page for language $CLASS_NAME_PREFIX$.
+ * The IMP-based tabbed preferences page for language $CLASS_NAME_PREFIX$.
  * 
  * Naming conventions:  This template uses the language name as a prefix
  * for naming the language plugin class and the preference-tab classes.
  * 	
  */
-public class $PREFS_CLASS_NAME$ extends SafariTabbedPreferencesPage {
+public class $PREFS_CLASS_NAME$ extends TabbedPreferencesPage {
 	
 	public $PREFS_CLASS_NAME$() {
 		super();
@@ -24,10 +23,10 @@ public class $PREFS_CLASS_NAME$ extends SafariTabbedPreferencesPage {
 	}
 	
 	
-	protected SafariPreferencesTab[] createTabs(
-			ISafariPreferencesService prefService, SafariTabbedPreferencesPage page, TabFolder tabFolder) 
+	protected PreferencesTab[] createTabs(
+			IPreferencesService prefService, TabbedPreferencesPage page, TabFolder tabFolder) 
 	{
-		SafariPreferencesTab[] tabs = new SafariPreferencesTab[4];
+		PreferencesTab[] tabs = new PreferencesTab[4];
 		
 		$PREFS_CLASS_NAME$ProjectTab projectTab = new $PREFS_CLASS_NAME$ProjectTab(prefService);
 		projectTab.createProjectPreferencesTab(page, tabFolder);

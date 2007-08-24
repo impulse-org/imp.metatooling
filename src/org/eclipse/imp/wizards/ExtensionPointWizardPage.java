@@ -16,11 +16,13 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -28,7 +30,6 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.ui.dialogs.PackageSelectionDialog;
@@ -177,7 +178,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     protected boolean fIsOptional;
 
-    protected List/*<WizardPageField>*/ fFields= new ArrayList();
+    protected List<WizardPageField> fFields= new ArrayList<WizardPageField>();
     
     protected IProject fProject;
 
@@ -251,13 +252,13 @@ public class ExtensionPointWizardPage extends WizardPage {
                 if (schemaURL == null)
                     throw new Exception("Cannot find schema source for " + ep.getSchemaReference());
 
-                localSchemaURL= Platform.asLocalURL(schemaURL);
+                localSchemaURL= FileLocator.toFileURL(schemaURL);
                 schemaLoc= localSchemaURL.getPath();
                 
             } else {
                 Bundle core= Platform.getBundle(pluginID);
 
-                localSchemaURL= Platform.asLocalURL(Platform.find(core, new Path("schema/" + ep.getSimpleIdentifier() + ".exsd")));
+                localSchemaURL= FileLocator.toFileURL(FileLocator.find(core, new Path("schema/" + ep.getSimpleIdentifier() + ".exsd"), null));
                 schemaLoc= localSchemaURL.getPath();
             }
             fSchema= new Schema(pluginID, pointID, "", false);
@@ -306,7 +307,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 //            } else {
                 Bundle core= Platform.getBundle(pluginID);
 
-                localSchemaURL= Platform.asLocalURL(Platform.find(core, new Path("schema/" + /*ep.getSimpleIdentifier()*/ pointID + ".exsd")));
+                localSchemaURL= FileLocator.toFileURL(FileLocator.find(core, new Path("schema/" + /*ep.getSimpleIdentifier()*/ pointID + ".exsd"), null));
                 schemaLoc= localSchemaURL.getPath();
 //            }
             fSchema= new Schema(pluginID, pointID, "", false);
@@ -322,10 +323,10 @@ public class ExtensionPointWizardPage extends WizardPage {
     
     private URL locateSchema(IExtensionPoint ep, String srcBundle) {
 		Bundle platSrcPlugin= Platform.getBundle(srcBundle);
-		Bundle extProviderPlugin= Platform.getBundle(ep.getNamespace());
+		Bundle extProviderPlugin= Platform.getBundle(ep.getContributor().getName());
 		String extPluginVersion= (String) extProviderPlugin.getHeaders().get("Bundle-Version");
-		Path schemaPath= new Path("src/" + ep.getNamespace() + "_" + extPluginVersion + "/" + ep.getSchemaReference());
-		URL schemaURL= Platform.find(platSrcPlugin, schemaPath);
+		Path schemaPath= new Path("src/" + ep.getContributor().getName() + "_" + extPluginVersion + "/" + ep.getSchemaReference());
+		URL schemaURL= FileLocator.find(platSrcPlugin, schemaPath, null);
 	
 		return schemaURL;
     }
@@ -730,7 +731,7 @@ public class ExtensionPointWizardPage extends WizardPage {
                     }
                 	
                     if (project == null) {
-                        setErrorMessage("Please select a plug-in project to add this extension point to");
+                        setErrorMessage("Please select a plug-in project to add this extension to");
                         setPageComplete(false);
                         return;
                     }	
@@ -773,8 +774,11 @@ public class ExtensionPointWizardPage extends WizardPage {
 
                     if (dialog.open() == TypeSelectionDialog2.OK) {
                         Text text= (Text) e.widget.getData();
-                        BinaryType type= (BinaryType) dialog.getFirstResult();
-                        text.setText(type.getFullyQualifiedName());
+                        Object res = dialog.getFirstResult();
+                        if (res instanceof IType) {
+                            IType type= (IType) dialog.getFirstResult();
+                            text.setText(type.getFullyQualifiedName());
+                        }
                     }
                 } catch (Exception ee) {
                     ErrorHandler.reportError("Could not browse type", ee);
@@ -816,7 +820,7 @@ public class ExtensionPointWizardPage extends WizardPage {
 
             page.setSuperClass(superClassName, true);
 
-            ArrayList interfaces= new ArrayList();
+            ArrayList<String> interfaces= new ArrayList<String>();
 
             interfaces.add(interfaceQualName);
             page.setSuperInterfaces(interfaces, true);
@@ -874,7 +878,7 @@ public class ExtensionPointWizardPage extends WizardPage {
             public void focusGained(FocusEvent e) {
                 // Text text = (Text)e.widget;
         	if (fDescriptionText != null)
-        	    fDescriptionText.setText("Select the plug-in project to add this extension point to");
+        	    fDescriptionText.setText("Select the plug-in project to add this extension to");
             }
         });
     }
@@ -1019,8 +1023,8 @@ public class ExtensionPointWizardPage extends WizardPage {
             if (ssel.size() > 1)
                 return null;
             Object obj= ssel.getFirstElement();
-            if (obj instanceof IPackageFragmentRoot)
-                obj= ((IPackageFragmentRoot) obj).getResource();
+            if (obj instanceof IJavaElement)
+                obj= ((IJavaElement) obj).getResource();
             if (obj instanceof IResource) {
                 return ((IResource) obj).getProject();
             }
@@ -1050,7 +1054,7 @@ public class ExtensionPointWizardPage extends WizardPage {
             sProjectName= "\\" + newProjectName;
     }
 
-    private boolean newProjectSelected = true;
+//    private boolean newProjectSelected = true;
     
     
     /*
@@ -1316,7 +1320,7 @@ public class ExtensionPointWizardPage extends WizardPage {
             }
         	
             if (project == null) {
-                setErrorMessage("Please select a plug-in project to add this extension point to");
+                setErrorMessage("Please select a plug-in project to add this extension to");
                 setPageComplete(false);
                 return;
             }
@@ -1326,7 +1330,7 @@ public class ExtensionPointWizardPage extends WizardPage {
             } catch (CoreException e) {
             }
             if (!isPlugin) {
-                setErrorMessage("\"" + sProjectName + "\" is not a plug-in project. Please select a plug-in project to add this extension point to");
+                setErrorMessage("\"" + sProjectName + "\" is not a plug-in project. Please select a plug-in project to add this extension to");
                 setPageComplete(false);
                 return;
             }

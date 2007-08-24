@@ -1,4 +1,4 @@
-package org.eclipse.imp.wizards;
+	package org.eclipse.imp.wizards;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -15,10 +15,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.imp.runtime.RuntimePlugin;
-import org.eclipse.imp.utils.ExtensionPointUtils;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.imp.runtime.RuntimePlugin;
+import org.eclipse.imp.utils.ExtensionPointUtils;
 
 public class NewRefactoringWizard extends GeneratedComponentWizard {
     protected static final String thisWizardName= "New Refactoring";

@@ -54,7 +54,15 @@
             icon="icons/sample.gif"
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.core"
             name="Indexer"
-            id="org.eclipse.imp.wizards.NewIndexer"/>
+            id="org.eclipse.imp.wizards.NewIndexer"/>	
+<!--            
+      <wizard
+            class="org.eclipse.imp.wizards.NewPreferencesDialog"
+            icon="icons/sample.gif"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.core"
+            name="Preference Page"
+            id="org.eclipse.imp.wizards.NewPreferencesDialog"/>
+-->
   <wizard
             class="org.eclipse.imp.wizards.NewReferenceResolver"
             icon="icons/sample.gif"
@@ -185,7 +193,7 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="org.eclipse.imp.perspective.SAFARIPerspectiveFactory"
+            class="org.eclipse.imp.perspective.IMPPerspectiveFactory"
             icon="icons/impPerspective.gif"
             id="org.eclipse.imp.perspective"
             name="IMP IDE Building"/>
@@ -198,8 +206,8 @@
       </outliner>
    </extension>
    <extension
-         id="org.eclipse.imp.presentation.builder"
-         name="spec builder"
+         id="spec.imp.builder"
+         name="Presentation Specification Builder"
          point="org.eclipse.core.resources.builders">
       <builder>
          <run
@@ -212,11 +220,11 @@
       </builder>
    </extension>
    <extension
-         id="org.eclipse.imp.presentation.nature"
+         id="spec.imp.nature"
          name="Presentation Specification Nature"
          point="org.eclipse.core.resources.natures">
       <builder
-            id="org.eclipse.imp.presentation.builder">
+            id="spec.imp.builder">
       </builder>
       <runtime>
          <run
@@ -238,12 +246,12 @@
             objectClass="org.eclipse.jdt.core.IJavaProject"
             adaptable="false"
             nameFilter="*"
-            id="org.eclipse.imp.presentation.projectContextMenu">
+            id="spec.imp.projectContextMenu">
          <action
-               label="Enable spec Builder"
+               label="Enable Presentation Spec Builder"
                tooltip="Enable the spec builder for this project"
                class="org.eclipse.imp.presentation.actions.EnableNature"
-               id="org.eclipse.imp.presentation.actions.enableNatureAction">
+               id="spec.imp.actions.enableNatureAction">
          </action>
       </objectContribution>
    </extension>

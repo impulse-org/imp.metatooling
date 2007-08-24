@@ -1,12 +1,8 @@
 package $PACKAGE_NAME$;
 
-import java.util.*;
-
-import org.eclipse.imp.core.ILanguageService;
-import org.eclipse.imp.editor.IReferenceResolver;
+import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.parser.IParseController;
-
-import lpg.runtime.*;
+import org.eclipse.imp.services.IReferenceResolver;
 
 import $PARSER_PKG$.$CLASS_NAME_PREFIX$Parser;
 import $PARSER_PKG$.Ast.*;

@@ -4,16 +4,16 @@ import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.imp.preferences.DefaultPreferencesTab;
-import org.eclipse.imp.preferences.ISafariPreferencesService;
-import org.eclipse.imp.preferences.SafariPreferencesUtilities;
-import org.eclipse.imp.preferences.fields.SafariFieldEditor;
+import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.imp.preferences.PreferencesUtilities;
+import org.eclipse.imp.preferences.fields.FieldEditor;
 // TODO:  Import additional classes for specific field types from
 // org.eclipse.imp.preferences.fields
 
 
 public class $PREFS_CLASS_NAME$DefaultTab extends DefaultPreferencesTab {
 	
-	public $PREFS_CLASS_NAME$DefaultTab(ISafariPreferencesService prefService) {
+	public $PREFS_CLASS_NAME$DefaultTab(IPreferencesService prefService) {
 		super(prefService);
 	}
 
@@ -35,11 +35,11 @@ public class $PREFS_CLASS_NAME$DefaultTab extends DefaultPreferencesTab {
 	 * Creates specific preference fields with settings appropriate to
 	 * the Default preferences level.
 	 * 
-	 * Overrides an unimplemented method in SafariPreferencesTab.
+	 * Overrides an unimplemented method in PreferencesTab.
 	 * 
 	 * @return	An array that contains the created preference fields
 	 */
-	protected SafariFieldEditor[] createFields(Composite composite)
+	protected FieldEditor[] createFields(Composite composite)
 	{
 		// TODO:  Declare preference fields here ...
 
@@ -47,15 +47,15 @@ public class $PREFS_CLASS_NAME$DefaultTab extends DefaultPreferencesTab {
 		// for each field; also create "toggle" listeners between fields whose
 		// editability is linked.  Add spaces, boxes, etc. as apprpriate.
 		//
-		// SafariPreferencesUtilities has factory-like methods for creating
+		// PreferencesUtilities has factory-like methods for creating
 		// fields and links of specific types.
 		//
-		// Among the various parameters that can be set for a Safari preferences
+		// Among the various parameters that can be set for a IMP preferences
 		// field, fields on the default level should generally not be removable.
 		
 		
 		// TODO:  Put the created fields into an array and return it
-		SafariFieldEditor fields[] = new SafariFieldEditor[0];		// change length as appropriate
+		FieldEditor fields[] = new FieldEditor[0];		// change length as appropriate
 		// 	Add fields here ...
 		
 		return fields;
