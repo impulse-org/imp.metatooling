@@ -154,7 +154,7 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 	GeneratedComponentWizardPage page= (GeneratedComponentWizardPage) pages[0];
 	IProject project= page.getProject();
 	Map<String,String> subs= getStandardSubstitutions();
-	String packageName= "safari." + page.sLanguage + ".refactoring";// qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
+	String packageName= "imp." + page.sLanguage + ".refactoring";// qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
 	String packageFolder= packageName.replace('.', File.separatorChar);
 
 	subs.put("$LANG_NAME$", page.sLanguage);
