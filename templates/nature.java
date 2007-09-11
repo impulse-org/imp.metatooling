@@ -9,7 +9,7 @@ import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 
 public class $CLASS_NAME_PREFIX$Nature extends ProjectNatureBase {
 	// SMS 28 Mar 2007:  plugin class now totally parameterized
-	public static final String k_natureID = $PLUGIN_CLASS$.kPluginID + ".safari.nature";
+	public static final String k_natureID = $PLUGIN_CLASS$.kPluginID + ".imp.nature";
  
     public String getNatureID() {
         return k_natureID;
