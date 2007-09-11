@@ -20,27 +20,7 @@ import org.eclipse.imp.runtime.PluginBase;
 import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 import $PARSER_PKG$.$CLASS_NAME_PREFIX$ParseController;
 
-/*
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.imp.builder.BuilderUtils;
-import org.eclipse.imp.builder.MarkerCreator;
-import org.eclipse.imp.builder.BuilderBase;
-import org.eclipse.imp.language.Language;
-import org.eclipse.imp.language.LanguageRegistry;
-import org.eclipse.imp.model.ISourceProject;
-import org.eclipse.imp.model.ModelFactory;
-import org.eclipse.imp.model.ModelFactory.ModelException;
-import org.eclipse.imp.parser.IParseController;
-import org.eclipse.imp.runtime.PluginBase;
-
-import foo.FooPlugin;
-import foo.safari.parser.FooParseController;
-*/
 /**
  * @author
  */
