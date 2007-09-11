@@ -29,12 +29,16 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.imp.WizardPlugin;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -59,9 +63,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
-import org.eclipse.imp.WizardPlugin;
-import org.eclipse.imp.core.ErrorHandler;
-import org.eclipse.imp.utils.StreamUtils;
 import org.osgi.framework.Bundle;
 
 
@@ -334,48 +335,123 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
     // SMS 13 Apr 2007
     // A step toward relaxing assumptions about the location
     // of source files within the project
-    public String getProjectSourceLocation() {
+    public static String getProjectSourceLocation() {
     		return "src/";
     }
     
     
+ 
     /**
-     * Creates a file of the given name from the named template in the given location in the
+     * Creates a file of the given name from the named template in the given folder in the
      * given project. Subjects the template's contents to meta-variable substitution.
-     * @param fileName
-     * @param templateName
-     * @param folder
-     * @param replacements a Map of meta-variable substitutions to apply to the template
-     * @param project
-     * @param monitor
-     * @return a handle to the file created
+     * 
+     * SMS 5 Sep 2007:  When working on NewPreferencesSpecificationWizard, I had occasion
+     * to override ExstensionPointWizard.createFileFromTemplate(..) because that rendition
+     * of the method had some elements specific to the creation of Java files and I wasn't
+     * creating a Java file (or package).  Later I changed NewPreferencesSpecificationWizard
+     * so that it did create a Java package, and I tried relying on createFileFromTemplate(..)
+     * from ExtensionPointWizard.  Strangely (it seemed to me) I found that that version of
+     * the method was creating a plain folder rather than a package folder.  I can't tell
+     * why that was happening, and it evidently doesn't happen when we invoke the method to
+     * generate Java files (which get generated into package folders).  In contrast, the
+     * version of createFileFromTemplate(..) that I'd adpated for NewPreferencesSpecificationWizard
+     * did create a package folder, even though I'd done nothing in particular to achieve that
+     * result(not suspecting that there was anything that needed to, or could, be done).
+     * On the assumption that we probably want to use ExtensionPointWizard to create Java
+     * packages even when we're not immediately creating Java classes, I've substituted the
+     * alternative version of createFileFromTemplate(..) here.
+     * 
+     * @param fileName		Unqualified name of the new file being created
+     * @param templateName	Short (unqualified) name of the template file to be used
+     * 						in creating the new file
+     * @param folder		Name of the folder in which the new file will be created
+     * 						(presumably a package folder)
+     * @param replacements  A Map of meta-variable substitutions to apply to the template
+     * @param project		The project in which the new file will be created
+     * @param monitor		A monitor
+     * @return 				A handle to the file created
      * @throws CoreException
      */
-    protected IFile createFileFromTemplate(
-    	String fileName, String templateName, String folder, Map replacements,
+	public static IFile createFileFromTemplate(
+		String fileName, String templateName, String folder, Map replacements,
 	    IProject project, IProgressMonitor monitor)
-    throws CoreException
+	throws CoreException
 	{
 		monitor.setTaskName("ExtensionPointWizard.createFileFromTemplate:  Creating " + fileName);
-		
-		final IFile file= project.getFile(new Path(getProjectSourceLocation() + folder + "/" + fileName));
-		String templateContents= new String(getTemplateFile(templateName));
+	
+		String packagePath = getProjectSourceLocation() + folder.replace('.', '/');
+		IPath specFilePath = new Path(packagePath + "/" + fileName);
+		final IFile file= project.getFile(specFilePath);
+	
+		String templateContents= new String(getTemplateFileContents(templateName));
 		String contents= performSubstitutions(templateContents, replacements);
 	
 		if (fileName.endsWith(".java")) {
-		    contents= formatJavaCode(contents);
+			contents= formatJavaCode(contents);
 		}
-	
+		
 		if (file.exists()) {
 		    file.setContents(new ByteArrayInputStream(contents.getBytes()), true, true, monitor);
 		} else {
-	        createSubFolders(getProjectSourceLocation() + folder, project, monitor);
+		    createSubFolders(packagePath, project, monitor);
 		    file.create(new ByteArrayInputStream(contents.getBytes()), true, monitor);
 		}
 	//	monitor.worked(1);
 		return file;
-    }
+	}
 
+    
+    /**
+     * Creates a file of the given name from the named template in the given folder in the
+     * given project.  The template is sought in the bundle identified by the given template
+     * bundle Id.  Subjects the template's contents to meta-variable substitution.
+	 *
+     * This version of the method allows for relaxation of the assumption that the templates
+     * are found in the bundle in which this class is found (org.eclipse.imp.metatooling).
+     * 
+     * @param fileName		Unqualified name of the new file being created
+     * @param templatePluginId	The id of the plugin that contains the "templates" folder
+     * 						in which the named template file is to be found
+     * @param templateName	Short (unqualified) name of the template file to be used
+     * 						in creating the new file
+     * @param folder		Name of the folder in which the new file will be created
+     * 						(presumably a package folder)
+     * @param replacements  A Map of meta-variable substitutions to apply to the template
+     * @param project		The project in which the new file will be created
+     * @param monitor		A monitor
+     * @return 				A handle to the file created
+     * @throws CoreException
+     * 	
+     */
+	public static IFile createFileFromTemplate(
+			String fileName, String templateBundleId, String templateName, String folder, Map replacements,
+		    IProject project, IProgressMonitor monitor)
+		throws CoreException
+		{
+			monitor.setTaskName("NewPreferencesSpecificationWizard.createFileFromTemplate:  Creating " + fileName);
+		
+			String packagePath = getProjectSourceLocation() + folder.replace('.', '/');
+			IPath specFilePath = new Path(packagePath + "/" + fileName);
+			final IFile file= project.getFile(specFilePath);
+		
+			String templateContents= new String(getTemplateFileContents(templateBundleId, templateName));
+			String contents= performSubstitutions(templateContents, replacements);
+		
+			if (fileName.endsWith(".java")) {
+				contents= formatJavaCode(contents);
+			}
+			
+			if (file.exists()) {
+			    file.setContents(new ByteArrayInputStream(contents.getBytes()), true, true, monitor);
+			} else {
+			    createSubFolders(packagePath, project, monitor);
+			    file.create(new ByteArrayInputStream(contents.getBytes()), true, monitor);
+			}
+		//	monitor.worked(1);
+			return file;
+		}
+	
+	
     
     /**
      * Extends a file of the given name from the named template in the given folder in the
@@ -408,7 +484,7 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
 		String fileContents = file.getContents().toString();
 		fileContents = fileContents.substring(0, fileContents.lastIndexOf("}")) + "\n";
 		
-		String extensionContents= new String(getTemplateFile(templateName));
+		String extensionContents= new String(getTemplateFileContents(templateName));
 		extensionContents = performSubstitutions(extensionContents, replacements);
 	
 		String newFileContents = fileContents + extensionContents + "\n\n}";
@@ -423,7 +499,7 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
     }
     
     
-    private String formatJavaCode(String contents) {
+    private static String formatJavaCode(String contents) {
 	CodeFormatter formatter= org.eclipse.jdt.core.ToolFactory.createCodeFormatter(JavaCore.getOptions());
 	TextEdit te= formatter.format(CodeFormatter.K_COMPILATION_UNIT, contents, 0, contents.length(), 0, "\n");
 
@@ -450,7 +526,7 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
 	monitor.setTaskName("Creating " + fileName);
 
 	final IFile file= project.getFile(new Path(folder + "/" + fileName));
-	byte[] fileContents= getTemplateFile(fileName);
+	byte[] fileContents= getTemplateFileContents(fileName);
 
 	if (file.exists()) {
 	    file.setContents(new ByteArrayInputStream(fileContents), true, true, monitor);
@@ -462,7 +538,7 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
 	return file;
     }
 
-    protected void createSubFolders(String folder, IProject project, IProgressMonitor monitor) throws CoreException {
+    protected static void createSubFolders(String folder, IProject project, IProgressMonitor monitor) throws CoreException {
         String[] subFolderNames= folder.split("[\\" + File.separator + "\\/]");
         String subFolderStr= "";
 
@@ -482,7 +558,7 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
 	    sb.replace(index, index + target.length(), substitute);
     }
 
-    protected String performSubstitutions(String contents, Map replacements) {
+    protected static String performSubstitutions(String contents, Map replacements) {
 	StringBuffer buffer= new StringBuffer(contents);
 
 	for(Iterator iter= replacements.keySet().iterator(); iter.hasNext();) {
@@ -495,11 +571,11 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
 	return buffer.toString();
     }
 
-    protected String getTemplateBundleID() {
-	return WizardPlugin.kPluginID;
+    protected static String getTemplateBundleID() {
+    	return WizardPlugin.kPluginID;
     }
 
-    protected byte[] getTemplateFile(String fileName) {
+    protected static byte[] getTemplateFileContents(String fileName) {
 	try {
 	    Bundle bundle= Platform.getBundle(getTemplateBundleID());
 	    URL templateURL= Platform.find(bundle, new Path("/templates/" + fileName));
@@ -523,6 +599,45 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
 	}
     }
 
+    /**
+     * Gets the contents of a named template file from the "templates" folder
+     * of a plugin with a given plugin id.  Created for use with the version of
+     * createFileFromTemplate(..) that also takes a plugin id.
+     * 
+     * @param templateBundleId	The id of the plugin that contains the templates
+     * 							folder in which the template is to be found
+     * @param fileName			The name of the template file for which contents
+     * 							are to be returned
+     * @return					The contents of the named template file
+     */
+    protected static byte[] getTemplateFileContents(String templateBundleId, String fileName) {
+    	try {
+    	    Bundle bundle= Platform.getBundle(templateBundleId);
+    	    URL templateURL= Platform.find(bundle, new Path("/templates/" + fileName));
+                if (templateURL == null) {
+                    ErrorHandler.reportError("Unable to find template file: " + fileName, true);
+                    return new byte[0];
+                }
+                URL url= Platform.asLocalURL(templateURL);
+    	    String path= url.getPath();
+    	    FileInputStream fis= new FileInputStream(path);
+    	    DataInputStream is= new DataInputStream(fis);
+    	    byte bytes[]= new byte[fis.available()];
+
+    	    is.readFully(bytes);
+    	    is.close();
+    	    fis.close();
+    	    return bytes;
+    	} catch (Exception e) {
+    	    e.printStackTrace();
+    	    return ("// missing template file: " + fileName).getBytes();
+    	}
+    }
+    
+    
+    
+    
+    
     protected abstract Map getStandardSubstitutions();
     
  
