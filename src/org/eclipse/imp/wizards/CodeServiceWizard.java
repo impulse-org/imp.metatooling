@@ -13,8 +13,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.pde.core.plugin.IPluginElement;
+import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginModel;
+import org.eclipse.pde.core.plugin.IPluginModelBase;
+import org.eclipse.pde.core.plugin.IPluginObject;
+import org.eclipse.pde.internal.core.PDECore;
+import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.bundle.WorkspaceBundleModel;
+import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.utils.ExtensionPointUtils;
 	
 /**
@@ -110,11 +119,11 @@ public abstract class CodeServiceWizard extends ExtensionPointWizard {
      * 						class, if there is one, or a name that could be used for the
      * 						plugin package, if there is none.
      */
-    public String getPluginPackageName(IProject project, String defaultName)
+    public static String getPluginPackageName(IProject project, String defaultName)
     {
     	String result = defaultName;
     	if (result == null)
-    		result = fLanguageName;
+    		result = discoverProjectLanguage(project);
        	if (project != null) {
             String activator = null;
             IPluginModel pm = ExtensionPointEnabler.getPluginModelForProject(project);
@@ -130,6 +139,63 @@ public abstract class CodeServiceWizard extends ExtensionPointWizard {
     	}
        	return result;
     }
+    
+    
+    
+    public static String discoverProjectLanguage(IProject project) {
+		if (project == null)
+		    return null;
+	
+		IPluginModelBase pluginModel= getPluginModel(project.getName());
+	
+		if (pluginModel != null) {
+	    	try {
+	    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
+	    	} catch (CoreException e) {
+	    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
+	    	} catch (ClassCastException e) {
+	    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  ClassCastExeption loading extensions model; may not succeed");
+	    	}
+	    	
+		    IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
+	
+		    for(int i= 0; i < extensions.length; i++) {
+				if (extensions[i].getPoint().endsWith(".languageDescription")) {
+				    IPluginObject[] children= extensions[i].getChildren();
+		
+				    for(int j= 0; j < children.length; j++) {
+						if (children[j].getName().equals("language")) {
+						    return (((IPluginElement) children[j]).getAttribute("language").getValue());
+						}
+				    }
+				}
+		    }
+		}
+		return null;
+    }	
+    
+
+    public static IPluginModelBase getPluginModel(String projectName) {
+        try {
+        	if (projectName == null)
+        		return null;
+            PluginModelManager pmm= PDECore.getDefault().getModelManager();
+            IPluginModelBase[] plugins= pmm.getAllPlugins();
+
+            for(int n= 0; n < plugins.length; n++) {
+                IPluginModelBase plugin= plugins[n];
+                IResource resource= plugin.getUnderlyingResource();
+                if (resource != null && projectName.equals(resource.getProject().getName())) {
+                    return plugin;
+                }
+            }
+        } catch (Exception e) {
+            ErrorHandler.reportError("Could not enable extension point for " + projectName, e);
+        }
+        return null;
+    }
+    
+    
     
     /**
      * Get the name of the plugin class for this project, or a default
