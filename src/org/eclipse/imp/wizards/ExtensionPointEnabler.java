@@ -610,7 +610,7 @@ public class ExtensionPointEnabler {
             // attributeValue can be empty if, well, an attribute has no value
             // (e.g., if it's an optional attribute for which a wizard provides a field
             // but which the user need not set)
-            if (attributeName.length() > 0 /* SMS 11 May 2006 */ && attributeValue.length() > 0) {
+            if (attributeName.length() > 0 && attributeValue != null && attributeValue.length() > 0) {
                 elt.setAttribute(attributeName, attributeValue);
             }
         }
