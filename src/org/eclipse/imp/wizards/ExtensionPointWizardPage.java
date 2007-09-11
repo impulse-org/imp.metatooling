@@ -831,7 +831,7 @@ public class ExtensionPointWizardPage extends WizardPage {
             page.setSuperInterfaces(interfaces, true);
 
             IFolder srcFolder= getProject().getFolder("src/");
-            String servicePackage= langPkg + ".safari." + fExtPointID.substring(fExtPointID.lastIndexOf('.')+1); // pkg the service belongs in
+            String servicePackage= langPkg + ".imp." + fExtPointID.substring(fExtPointID.lastIndexOf('.')+1); // pkg the service belongs in
 
             fOwningWizard.createSubFolders(servicePackage.replace('.', '\\'), getProject(), new NullProgressMonitor());
 
@@ -1159,6 +1159,8 @@ public class ExtensionPointWizardPage extends WizardPage {
 
             if (language.length() == 0)
                 return;
+            // Give language name an upper-case initial for this purpose
+            language = language.substring(0, 1).toUpperCase() + language.substring(1);
 
             WizardPageField nameField= getField("name");
 
@@ -1196,7 +1198,7 @@ public class ExtensionPointWizardPage extends WizardPage {
             	// but this method did not; I've added it
                 String pointID= fSchema != null ? fSchema.getPointId() : fExtPointID;
                 
-                idField.setText(langID + ".safari." + lowerCaseFirst(pointID));
+                idField.setText(langID + ".imp." + lowerCaseFirst(pointID));
 	            // SMS 10 May 2006:
 	            // Struggling with plural and singular for "builder" classes, ids, names, etc.
 	            if (pointID.endsWith("uilders") || pointID.endsWith("olvers")) {
@@ -1225,7 +1227,7 @@ public class ExtensionPointWizardPage extends WizardPage {
             // null, but fSchema was referenced three times below anyway.  I've substituted
             // pointID for those references
 
-            fPackageName= langPkg + ".safari." + lowerCaseFirst(pointID);
+            fPackageName= langPkg + ".imp." + lowerCaseFirst(pointID);
             
             if (classField != null) {
                 classField.setText(fPackageName + "." + langClass + upperCaseFirst(pointID));
