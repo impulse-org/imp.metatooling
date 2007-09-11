@@ -429,7 +429,7 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 	fProject= fEnablerPage.fProject;
 	fLangName= fEnablerPage.fLanguageText.getText();
 	// TODO Should try to find the builder package by looking at the builder extension
-	fBuilderPkgName= fLangName + ".safari.builders";
+	fBuilderPkgName= fLangName + ".imp.builders";
     }
 
     /**
@@ -613,7 +613,7 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
         String natureClassName= upperCaseFirst(language) + "Nature";
         String actionClassName= "EnableNature";
 
-        String actionPkgName= language + ".safari.actions";
+        String actionPkgName= language + ".imp.actions";
         String actionPkgFolder= actionPkgName.replace('.', '/');
 
         subs.put("$BUILDER_PKG_NAME$", fBuilderPkgName);
@@ -639,9 +639,9 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 		{ "objectContribution:adaptable", "false" },
 		{ "objectContribution:nameFilter", "*" },
 		{ "objectContribution:objectClass", "org.eclipse.jdt.core.IJavaProject" },
-		{ "objectContribution:id", fLangName + ".safari.projectContextMenu" },
-		{ "objectContribution.action:class", fLangName + ".safari.actions." + actionClassName },
-		{ "objectContribution.action:id", fLangName + ".safari.actions.enableNatureAction" },
+		{ "objectContribution:id", fLangName + ".imp.projectContextMenu" },
+		{ "objectContribution.action:class", fLangName + ".imp.actions." + actionClassName },
+		{ "objectContribution.action:id", fLangName + ".imp.actions.enableNatureAction" },
 		{ "objectContribution.action:label", "Enable " + fLangName + " Builder" },
 		{ "objectContribution.action:tooltip", "Enable the " + fLangName + " builder for this project" }
 	    },
