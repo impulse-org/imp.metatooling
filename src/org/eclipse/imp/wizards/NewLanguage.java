@@ -8,12 +8,14 @@
  */
 package org.eclipse.imp.wizards;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.pde.core.plugin.IPluginBase;
@@ -24,6 +26,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.imp.runtime.RuntimePlugin;
+import org.eclipse.imp.utils.StreamUtils;
 
 
 /*
@@ -90,7 +93,24 @@ public class NewLanguage extends CodeServiceWizard {
     	fSubs.put("$LANG_NAME$", fLanguageName);
 
         String pluginTemplateName = "plugin.java";
-        createFileFromTemplate((String)fSubs.get("$PLUGIN_CLASS$") + ".java", pluginTemplateName, pluginClassFolder, fSubs, fProject, mon);	
+        String pluginClassName = (String)fSubs.get("$PLUGIN_CLASS$");
+        createFileFromTemplate(pluginClassName + ".java", pluginTemplateName, pluginClassFolder, fSubs, fProject, mon);	
+        
+        // SMS 6 Aug 2007
+        // Assure that the bundle activator is recorded in the plugin manifest
+    	IFile manifestFile = fProject.getFile("META-INF/MANIFEST.MF");
+    	String manifestContents = null;
+    	if (manifestFile.exists()) {
+    		manifestContents = StreamUtils.readStreamContents(manifestFile.getContents(), manifestFile.getCharset());
+    		if (manifestContents.indexOf("Bundle-Activator") < 0) {
+    			if (!manifestContents.endsWith("\n"))
+    				manifestContents = manifestContents + "\n";
+    			manifestContents = manifestContents + 
+    				"Bundle-Activator: " + pluginPackage + "." + pluginClassName + "\n";
+    		}
+    	   	// Put the text back into the file
+    		manifestFile.setContents(new ByteArrayInputStream(manifestContents.getBytes()), true, true, null);
+    	}
     }
     
     
