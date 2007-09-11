@@ -495,7 +495,7 @@ public class GeneratedComponentWizardPage extends WizardPage
             page.setSuperInterfaces(interfaces, true);
 
             IFolder srcFolder= getProject().getFolder("src/");
-            String servicePackage= langPkg + ".safari." + fComponentID.substring(fComponentID.lastIndexOf('.')+1); // pkg the service belongs in
+            String servicePackage= langPkg + ".imp." + fComponentID.substring(fComponentID.lastIndexOf('.')+1); // pkg the service belongs in
 
             fOwningWizard.createSubFolders(servicePackage.replace('.', '\\'), getProject(), new NullProgressMonitor());
 
@@ -795,7 +795,7 @@ public class GeneratedComponentWizardPage extends WizardPage
             // null, but fSchema was referenced three times below anyway.  I've substituted
             // pointID for those references
 
-            fPackageName= langPkg + ".safari." + lowerCaseFirst(fComponentID);
+            fPackageName= langPkg + ".imp." + lowerCaseFirst(fComponentID);
             
             if (classField != null) {
                 classField.setText(fPackageName + "." + langClass + upperCaseFirst(fComponentID));
