@@ -30,7 +30,8 @@ public class NewBuilder extends CodeServiceWizard
     protected List getPluginDependencies() {
 		return Arrays.asList(new String[] {
 			"org.eclipse.core.runtime", "org.eclipse.core.resources",
-			"org.eclipse.imp.runtime", "com.ibm.watson.smapifier" });
+			// SMS 11 Sep 2007:  added "org.eclipse.platform.source"
+			"org.eclipse.imp.runtime", "org.eclipse.platform.source", "com.ibm.watson.smapifier" });
     }
 
     @Override
@@ -70,14 +71,14 @@ public class NewBuilder extends CodeServiceWizard
         
         ExtensionPointEnabler.enable(fProject, "org.eclipse.core.resources", "natures", new String[][] {
                 // RMF 10/18/2006: The nature ID should NOT have the plugin ID as a prefix (it's implicit)
-                { "extension:id", "safari.nature" },
+                { "extension:id", "imp.nature" },
                 { "extension:name", fLanguageName + " Nature" },
                 // SMS 28 Mar 2007:  updated builder id to be a combination of 
                 // plugin id plus value obtained from wizard (like it says)
                 { "builder:id", subs.get("$PLUGIN_ID$") + "." + fBuilderExtensionId },
                 { "runtime:", "" },
     	    	// SMS 9 May 2006:
-                { "runtime.run:class", fLanguageName + ".safari.builders." + fClassNamePrefix + "Nature" },
+                { "runtime.run:class", fLanguageName + ".imp.builders." + fClassNamePrefix + "Nature" },
         		},     
         		false,
         		getPluginDependencies(),
