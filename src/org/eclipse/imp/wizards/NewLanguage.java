@@ -47,7 +47,8 @@ public class NewLanguage extends CodeServiceWizard {
 	
 	// For sharing between methods here, to avoid recomputation
     Map<String, String> fSubs = null;
-	
+   
+    
     public void addPages() {
         addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.IMP_RUNTIME, "languageDescription") });
     }
@@ -114,6 +115,52 @@ public class NewLanguage extends CodeServiceWizard {
     }
     
     
+    protected String[] getFilesThatCouldBeClobbered()
+    {
+    	try {
+        	IFile manifestFile = fProject.getFile("META-INF/MANIFEST.MF");
+    	   	if (manifestFile.exists()) {
+        		String manifestContents = StreamUtils.readStreamContents(manifestFile.getContents(), manifestFile.getCharset());
+        		if (manifestContents.indexOf("Bundle-Activator") >= 0) {
+        			return new String[] { "Existing bundle activator class" };
+        		}
+    		}
+    	} catch (CoreException e) {
+    	}
+    	return new String[0];
+    }
+    
+    /**
+     * Check whether it's okay for the files to be generated to clobber
+     * any existing files--in this case, a bundle activator class.
+     * 
+     * The default implementation of this method is overridden here
+     * in order to simplify the method of checking for overwriting.
+     * 
+     * @param files		Nominally the names of files that would be clobbered by
+     * 					files to be generated, but here any non-empty array
+     * 					is taken as an indication that there exists some bundle
+     * 					activator class
+     * @return			True if there are no files that would be clobbered
+     * 					or if the users presses OK; false if there are
+     * 					files and the user presses CANCEL
+     */
+    protected boolean okToClobberFiles(String[] files) {
+    	if (files.length == 0)
+    		return true;
+    	String message = "This project already has a bundle activator class; do you want to overwrite it?\n";
+    	boolean askUser = true;
+    	Shell parent = this.getShell();
+    	MessageBox messageBox = new MessageBox(parent, (SWT.CANCEL | SWT.OK));
+    	messageBox.setMessage(message);
+    	int result = messageBox.open();
+    	if (result == SWT.CANCEL)
+    		return false;
+    	return true;
+    }
+    	
+    
+    
     // SMS 23 Apr 2007
     // Here we're concerned with whether the plugin id for the project
     // is a duplicate--Eclipse allows that, but the presence of duplicate
@@ -174,7 +221,5 @@ public class NewLanguage extends CodeServiceWizard {
     		return false;
     	return true;
     }
-
-
     
 }
