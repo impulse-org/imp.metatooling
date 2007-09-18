@@ -158,10 +158,10 @@ public class ExtensionPointEnabler {
 
 	    if (pluginModel != null) {
 	    	if (remove) {
-	    		System.out.println("ExtensionPointEnabler.enable(..):  removing previous extension for page = " + page.getName());
+	    		//System.out.println("ExtensionPointEnabler.enable(..):  removing previous extension for page = " + page.getName());
 	    		removeExtension(pluginModel, page);
 	    	} else {
-	    		System.out.println("ExtensionPointEnabler.enable(..):  not removing previous extension for page = " + page.getName());
+	    		//System.out.println("ExtensionPointEnabler.enable(..):  not removing previous extension for page = " + page.getName());
 	    	}
 	    	// This call to addExtension takes care of adding
 	    	// the appropriate extension id
@@ -181,11 +181,11 @@ public class ExtensionPointEnabler {
 	    if (pluginModel != null) {
 	    	if (replace) {
 	    		removeExtension(pluginModel, pluginID, pointID, attrNamesValues);
-	    		System.out.println("ExtensionPointEnabler.enable(..):  removing previous extension for pluginID = "
-	    				+ pluginID + " pointID = " + pointID);
+	    		//System.out.println("ExtensionPointEnabler.enable(..):  removing previous extension for pluginID = "
+	    		//		+ pluginID + " pointID = " + pointID);
 	    	} else {
-	    		System.out.println("ExtensionPointEnabler.enable(..):  not removing previous extension for pluginID = "
-	    				+ pluginID + " pointID = " + pointID);
+	    		//System.out.println("ExtensionPointEnabler.enable(..):  not removing previous extension for pluginID = "
+	    		//		+ pluginID + " pointID = " + pointID);
 	    	}
 	    	addExtension(project, pluginModel, pluginID, pointID, attrNamesValues, imports);
 	    }
