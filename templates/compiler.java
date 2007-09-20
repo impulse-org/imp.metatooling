@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.builder.MarkerCreator;
+import org.eclipse.imp.builder.BuilderUtils;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
@@ -241,22 +242,7 @@ public class $COMPILER_CLASS_NAME$ {
     }
 
     public String getFileContents(IFile file) {
-        char[] buf= null;
-        try {
-            File javaFile= new File(file.getLocation().toOSString());
-            FileReader fileReader= new FileReader(javaFile);
-            int len= (int) javaFile.length();
-
-            buf= new char[len];
-            fileReader.read(buf, 0, len);
-            return new String(buf);
-        } catch(FileNotFoundException fnf) {
-            System.err.println(fnf.getMessage());
-            return "";
-        } catch(IOException io) {
-            System.err.println(io.getMessage());
-            return "";
-        }
+    	return BuilderUtils.getFileContents(file);
     }
 
     public void compile(IFile file, IProgressMonitor mon) {
