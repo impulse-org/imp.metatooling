@@ -643,7 +643,7 @@ public class ExtensionPointEnabler {
 		}
     }
 
-    private static void addRequiredPluginImports(
+    public static void addRequiredPluginImports(
     	IPluginModel pluginModel, IProject project, List/*<String>*/ requires)
     	throws CoreException
    	{
