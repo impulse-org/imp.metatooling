@@ -833,8 +833,9 @@ public class ExtensionPointWizardPage extends WizardPage {
             IFolder srcFolder= getProject().getFolder("src/");
             String servicePackage= langPkg + ".imp." + fExtPointID.substring(fExtPointID.lastIndexOf('.')+1); // pkg the service belongs in
 
-            fOwningWizard.createSubFolders(servicePackage.replace('.', '\\'), getProject(), new NullProgressMonitor());
-
+            //fOwningWizard.createSubFolders(servicePackage.replace('.', '\\'), getProject(), new NullProgressMonitor());
+            WizardUtilities.createSubFolders(servicePackage.replace('.', '\\'), getProject(), new NullProgressMonitor());
+            
             IPackageFragmentRoot pkgFragRoot= javaProject.getPackageFragmentRoot(srcFolder);
             IPackageFragment pkgFrag= pkgFragRoot.getPackageFragment(servicePackage);
 
