@@ -61,7 +61,12 @@ public class WizardPageField {
      */
     public Hyperlink fLink;
 
-    WizardPageField(String schemaName, String name, String label, String value, int kind, boolean required, String description) {
+    // SMS 25 Sep 2007
+    // Changed visibility from package to public since some wizards that are outside
+    // of this package may need to create fields directly (e.g., the LPG related
+    // wizards, which are located in the LPG metatooling project and which create
+    // fields directly rather than relying on an extension schema)
+    public WizardPageField(String schemaName, String name, String label, String value, int kind, boolean required, String description) {
         fAttributeName= name;
         fLabel= label;
         fValue= value;
