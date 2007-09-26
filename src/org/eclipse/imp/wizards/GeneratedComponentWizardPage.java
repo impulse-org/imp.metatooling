@@ -47,6 +47,7 @@ import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
+import org.eclipse.pde.internal.core.ischema.IMetaAttribute;
 import org.eclipse.pde.internal.core.ischema.ISchemaAttribute;
 import org.eclipse.pde.internal.ui.util.SWTUtil;
 import org.eclipse.swt.SWT;
@@ -143,13 +144,14 @@ public class GeneratedComponentWizardPage extends WizardPage
 	}
     }
 
-    protected String fExtPluginID;
+
     
-    //protected String fExtPoinID;
     protected String fComponentID;
 
-    // SMS 26 Jul 2006:  no schema if no extension
+    // SMS 26 Jul 2006:  no schema if no extension	
     //protected Schema fSchema;
+    //protected String fExtPluginID;
+    //protected String fExtPoinID;
 
     //protected ExtensionPointWizard fOwningWizard;
     protected GeneratedComponentWizard fOwningWizard;	
@@ -201,26 +203,27 @@ public class GeneratedComponentWizardPage extends WizardPage
     }
 
     // SMS 4 Aug 2006:  Doesn't appear to be called from anywhere
-    // but retained for generality
-    public GeneratedComponentWizardPage(GeneratedComponentWizard owner, String pluginID, String pointID,
-    		GeneratedComponentAttribute[] attributes, String wizardName, String wizardDescription)
-    {
-    	this(owner, pluginID, pointID, true, attributes, wizardName, wizardDescription);
-    }
+//    public GeneratedComponentWizardPage(GeneratedComponentWizard owner, String pluginID, String pointID,
+//    		GeneratedComponentAttribute[] attributes, String wizardName, String wizardDescription)
+//    {
+//    	this(owner, pluginID, pointID, true, attributes, wizardName, wizardDescription);
+//    }
 
-    public GeneratedComponentWizardPage(GeneratedComponentWizard owner, String pluginID, String pointID, boolean omitIDName,
+    public GeneratedComponentWizardPage(
+    	GeneratedComponentWizard owner, /*String pluginID,*/ String componentID, boolean omitIDName,
     	GeneratedComponentAttribute[] attributes, String wizardName, String wizardDescription)
     {
-        this(owner, 0, 1, pluginID, pointID, false, attributes, wizardName, wizardDescription);
+        this(owner, 0, 1, /*pluginID,*/ componentID, false, attributes, wizardName, wizardDescription);
         fOmitExtensionIDName= omitIDName;
     }
 
-    public GeneratedComponentWizardPage(GeneratedComponentWizard owner, int pageNumber, int totalPages, String pluginID, String pointID, boolean isOptional,
-    		GeneratedComponentAttribute[] attributes, String wizardName, String wizardDescription)
+    public GeneratedComponentWizardPage(
+    	GeneratedComponentWizard owner, int pageNumber, int totalPages, /*String pluginID,*/ String componentID, boolean isOptional,
+    	GeneratedComponentAttribute[] attributes, String wizardName, String wizardDescription)
     {
         super("wizardPage");
-        this.fExtPluginID= pluginID;
-        this.fComponentID= pointID;
+        //this.fExtPluginID= pluginID;
+        this.fComponentID= componentID;
         this.fIsOptional= isOptional;
         this.fThisPageNumber= pageNumber;
         this.fTotalPages= totalPages;
@@ -288,7 +291,7 @@ public class GeneratedComponentWizardPage extends WizardPage
             createProjectLabelText(container);
             try {
 	        	createFirstControls(container);
-	        	//createControlsForSchema(fSchema, container);				// See below
+	        	//createControlsForSchema(fSchema, container);				// No schema for generated components
 	        	createControlsForAttributes(fAttributes, null, container);	// SMS 26 Jul 2006:  new
                 createAdditionalControls(container);
                 createDescriptionText(container);
@@ -315,6 +318,48 @@ public class GeneratedComponentWizardPage extends WizardPage
     	}
     }
     
+    
+    /**
+     * Directly create a text field for a wizard from given values rather than using an extension schema
+     * element or attributes.
+     * 
+     * @param container			The wizard page (or other container) in which the field will be placed
+     * @param fieldCategoryName	A name for a larger grouping of fields that might contain this one
+     * 							(used in place of the schema element name)
+     * @param fieldName			A name for the field (used in place of the schema attribute name)
+     * @param description		A description of the field (what it's for, how it should be filled, ...)
+     * @param value				A value that may be filled into the field by default (may be null)
+     * @param basedOn			For fields that represent a Java type, a value (such as the name of
+     * 							a parent type) used to evaluate or process the given value
+     * @param isRequired		Whether the field must be given a value before the containing wizard can
+     * 							be finished
+     */
+    public void createTextField(Composite container, String fieldCategoryName, String fieldName, String description, String value, String basedOn, boolean isRequired)
+    {
+        String valueStr= (value == null) ? "" : value;
+        String upName= upperCaseFirst(fieldName);
+
+        WizardPageField field= new WizardPageField(fieldCategoryName, fieldName, upName, valueStr, IMetaAttribute.STRING, isRequired, description);
+        Text text= createLabelTextBrowse(container, field, basedOn);
+
+        // SMS 13 Jun 2007:  added test for "Language"
+        // SMS 25 Sep 2007:  inherited from the original method in ExtensionPointWizardPage
+        // on which this one is based; may still be useful
+        if (fieldName.equals("language") || fieldName.equals("Language"))
+            fLanguageText= text;
+        else if (fieldName.equals("class"))
+            fQualClassText= text;
+
+        text.setData(field);
+        fFields.add(field);
+    }
+  
+    
+    
+    /*
+     * For creating an element from a schema attribute; "generated components" don't rely on extension schemas
+     * but some types of generated component may nevertheless define their fields using schema attributes.
+     */
     private void createElementAttributeTextField(Composite container, String schemaElementPrefix, ISchemaAttribute attribute)
     {
         String name= attribute.getName();
@@ -497,7 +542,8 @@ public class GeneratedComponentWizardPage extends WizardPage
             IFolder srcFolder= getProject().getFolder("src/");
             String servicePackage= langPkg + ".imp." + fComponentID.substring(fComponentID.lastIndexOf('.')+1); // pkg the service belongs in
 
-            fOwningWizard.createSubFolders(servicePackage.replace('.', '\\'), getProject(), new NullProgressMonitor());
+            //fOwningWizard.createSubFolders(servicePackage.replace('.', '\\'), getProject(), new NullProgressMonitor());
+            WizardUtilities.createSubFolders(servicePackage.replace('.', '\\'), getProject(), new NullProgressMonitor());
 
             IPackageFragmentRoot pkgFragRoot= javaProject.getPackageFragmentRoot(srcFolder);
             IPackageFragment pkgFrag= pkgFragRoot.getPackageFragment(servicePackage);
@@ -737,6 +783,12 @@ public class GeneratedComponentWizardPage extends WizardPage
         }
         return null;
     }
+    
+    
+    public String getProjectNameFromField() {
+    	return fProjectText.getText();
+    }
+    
 
     public void setVisible(boolean visible) {
         if (visible) {
