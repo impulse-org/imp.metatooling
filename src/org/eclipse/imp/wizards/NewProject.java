@@ -36,9 +36,12 @@ public class NewProject extends CodeServiceWizard {
         subs.put("$NATURE_ID$", fLanguageName + ".nature");
 
         String projectTemplateName = "newProjectWizard.java";
-        createFileFromTemplate(fClassNamePrefix + "ProjectWizard.java", projectTemplateName, fPackageFolder, subs, project, mon);
-        IFile projectFirstPageSrc= createFileFromTemplate(fClassNamePrefix + "ProjectWizardFirstPage.java", "newProjectWizardFirstPage.java", fPackageFolder, subs, project, mon);
-        IFile projectSecondPageSrc= createFileFromTemplate(fClassNamePrefix + "ProjectWizardSecondPage.java", "newProjectWizardSecondPage.java", fPackageFolder, subs, project, mon);
+        WizardUtilities.createFileFromTemplate(
+        	fClassNamePrefix + "ProjectWizard.java", projectTemplateName, fPackageFolder, getProjectSourceLocation(), subs, project, mon);
+        IFile projectFirstPageSrc= WizardUtilities.createFileFromTemplate(
+        	fClassNamePrefix + "ProjectWizardFirstPage.java", "newProjectWizardFirstPage.java", fPackageFolder, getProjectSourceLocation(), subs, project, mon);
+        IFile projectSecondPageSrc= WizardUtilities.createFileFromTemplate(
+        	fClassNamePrefix + "ProjectWizardSecondPage.java", "newProjectWizardSecondPage.java", fPackageFolder, getProjectSourceLocation(), subs, project, mon);
 
         editFile(mon, projectFirstPageSrc);
     }

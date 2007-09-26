@@ -34,17 +34,16 @@ public class NewCompiler extends GeneratedComponentWizard {
     protected static final String thisWizardName = "New Compiler Wizard";
     protected static final String thisWizardDescription = "Wizard for creating a simple compiler";
     
-    GeneratedComponentAttribute[] compilerAttributes;
 	
     public void addPages() {
-    	compilerAttributes = setupAttributes();
+    	fWizardAttributes = setupAttributes();
         addPages(new GeneratedComponentWizardPage[] { new NewCompilerPage(this) });
     }
 
     
     class NewCompilerPage extends GeneratedComponentWizardPage {
 		public NewCompilerPage(GeneratedComponentWizard owner) {
-		    super(owner, RuntimePlugin.IMP_RUNTIME, "compiler", false, compilerAttributes, thisWizardName, thisWizardDescription);
+		    super(owner, /*RuntimePlugin.IMP_RUNTIME,*/ "compiler", false, fWizardAttributes, thisWizardName, thisWizardDescription);
 		}
 
 		protected void createFirstControls(Composite parent) {
@@ -86,6 +85,9 @@ public class NewCompiler extends GeneratedComponentWizard {
     }
  
 
+    // SMS 25 Sep 2007
+    // Now provided in GeneratedComponentWizard; this override is left here
+    // for purposes of testing
     public GeneratedComponentAttribute[] setupAttributes()
     {
     	// Warning:  Returning an array with empty elements may cause problems,

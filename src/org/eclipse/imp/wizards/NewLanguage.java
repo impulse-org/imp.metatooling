@@ -95,7 +95,7 @@ public class NewLanguage extends CodeServiceWizard {
 
         String pluginTemplateName = "plugin.java";
         String pluginClassName = (String)fSubs.get("$PLUGIN_CLASS$");
-        createFileFromTemplate(pluginClassName + ".java", pluginTemplateName, pluginClassFolder, fSubs, fProject, mon);	
+        WizardUtilities.createFileFromTemplate(pluginClassName + ".java", pluginTemplateName, pluginClassFolder, getProjectSourceLocation(), fSubs, fProject, mon);	
         
         // SMS 6 Aug 2007
         // Assure that the bundle activator is recorded in the plugin manifest

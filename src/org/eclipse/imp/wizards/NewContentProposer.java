@@ -43,8 +43,8 @@ public class NewContentProposer extends CodeServiceWizard {
         subs.remove("$PACKAGE_NAME$");
         subs.put("$PACKAGE_NAME$", fPackageName);
 
-        IFile outlinerSrc= createFileFromTemplate(
-        	fFullClassName + ".java", "contentProposer.java", fPackageFolder, subs, fProject, mon);
+        IFile outlinerSrc= WizardUtilities.createFileFromTemplate(
+        	fFullClassName + ".java", "contentProposer.java", fPackageFolder, getProjectSourceLocation(), subs, fProject, mon);
  
         editFile(mon, outlinerSrc);
     }

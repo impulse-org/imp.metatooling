@@ -116,7 +116,7 @@ public class NewHoverHelper extends CodeServiceWizard {
 //		String docProviderTemplateName = "documentationProvider.java";
 //		String docPackageFolder = fDocProviderPackageName.replace('.', File.separatorChar);;
 		
-		IFile hoverHelperFile = createFileFromTemplate(fFullClassName + ".java", hoverHelperTemplateName, fPackageFolder, subs, fProject, monitor);
+		IFile hoverHelperFile = WizardUtilities.createFileFromTemplate(fFullClassName + ".java", hoverHelperTemplateName, fPackageFolder, getProjectSourceLocation(), subs, fProject, monitor);
 //		IFile docProviderFile = createFileFromTemplate(fDocProviderClassName + ".java", docProviderTemplateName, docPackageFolder, subs, fProject, monitor);
 		
 		// Need to enable documentationProvider extension "manually"

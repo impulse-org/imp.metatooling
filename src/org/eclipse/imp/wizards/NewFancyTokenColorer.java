@@ -166,7 +166,7 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
 
 //	String packageFolder= packageName.replace('.', File.separatorChar);
 	String colorerTemplateName = "colorer_fancy.java";
-	IFile colorerSrc= createFileFromTemplate(fFullClassName + ".java", colorerTemplateName, fPackageFolder, subs, fProject, mon);
+	IFile colorerSrc= WizardUtilities.createFileFromTemplate(fFullClassName + ".java", colorerTemplateName, fPackageFolder, getProjectSourceLocation(), subs, fProject, mon);
 
 	editFile(mon, colorerSrc);
     }
