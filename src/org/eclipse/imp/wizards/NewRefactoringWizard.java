@@ -30,7 +30,7 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 
     protected static final String thisWizardDescription= "Wizard for creating a new refactoring";
 
-    private List<GeneratedComponentAttribute> refactoringAttributes;
+    //private List<GeneratedComponentAttribute> refactoringAttributes;
 
     private WizardPageField fPrefixField;
 
@@ -53,18 +53,27 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
     }
 
     public void addPages() {
-	refactoringAttributes= setupAttributes();
+	//refactoringAttributes= setupAttributes();
+    fWizardAttributes = setupAttributes();
 	addPages(new GeneratedComponentWizardPage[] { new NewRefactoringPage(this) });
     }
 
-    private List<GeneratedComponentAttribute> setupAttributes() {
-	return Collections.emptyList();
-    }
+    // SMS 25 Sep 2007
+    // Changed handling of refactoring/wizard attributes
+    // to rely on field and method defined in GeneratedComponentWizard,
+    // where the field is currently defined as an array rather than a list
+    // (if desired can change that later for all types involved)
+    
+//    private List<GeneratedComponentAttribute> setupAttributes() {
+//	return Collections.emptyList();
+//    }
 
     class NewRefactoringPage extends GeneratedComponentWizardPage {
 	public NewRefactoringPage(GeneratedComponentWizard owner) {
-	    super(owner, RuntimePlugin.IMP_RUNTIME, "refactoring", false, refactoringAttributes.toArray(new GeneratedComponentAttribute[refactoringAttributes
-		    .size()]), thisWizardName, thisWizardDescription);
+	    super(owner, /*RuntimePlugin.IMP_RUNTIME,*/ "refactoring", false,
+    		//refactoringAttributes.toArray(new GeneratedComponentAttribute[refactoringAttributes.size()]), 
+	    	fWizardAttributes,	
+		    thisWizardName, thisWizardDescription);
 	}
 
 	protected void createFirstControls(Composite parent) {
