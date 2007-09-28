@@ -10,6 +10,7 @@ package org.eclipse.imp.wizards;
  * (c) Copyright IBM Corp. 2005  All Rights Reserved
  */
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -28,9 +30,12 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
+import org.eclipse.jdt.internal.ui.dialogs.PackageSelectionDialog;
 import org.eclipse.jdt.internal.ui.dialogs.TypeSelectionDialog2;
 import org.eclipse.jdt.internal.ui.wizards.NewClassCreationWizard;
+import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jdt.ui.wizards.NewClassWizardPage;
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -61,8 +66,11 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IEditorInput;
@@ -72,12 +80,12 @@ import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.ISelectionValidator;
+import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.internal.Workbench;
-import org.eclipse.imp.core.ErrorHandler;
 
 /**
  * The "New" wizard page allows setting the container for the new file as well as the file name. The page will only
@@ -424,8 +432,24 @@ public class GeneratedComponentWizardPage extends WizardPage
         text.setLayoutData(gd);
         text.setText(value);
         // SMS 27 Jul 2006:  added second condition:
-        if (basedOnSomething)
-            createClassBrowseButton(container, field, text);
+        //if (basedOnSomething)
+        //	createClassBrowseButton(container, field, text);
+        if (basedOn != null) {
+        	// SMS 5 May 2007
+        	if (basedOn.endsWith("FileBrowse")) {
+        		createFileBrowseButton(container, field, text);
+        	} else if (basedOn.endsWith("FolderBrowse")) {
+            	createFolderBrowseButton(container, field, text);
+        	} else if (basedOn.endsWith("ClassBrowse")) {
+	            createClassBrowseButton(container, field, text);
+        	} else if (basedOn.endsWith("PackageBrowse")) {
+	            createPackageBrowseButton(container, field, text);
+        	} else {
+	        	// This is the original action;
+        		// left until a better option can be identified
+	            createClassBrowseButton(container, field, text);
+        	}
+        }
         if (field != null)
             field.fText= text;
 
@@ -444,6 +468,8 @@ public class GeneratedComponentWizardPage extends WizardPage
 
         return text;
     }
+    
+    
 
     private Widget createNewClassHyperlink(WizardPageField field, String name, final String basedOn, Composite container) {
         Widget labelWidget;
@@ -479,6 +505,188 @@ public class GeneratedComponentWizardPage extends WizardPage
             field.fLink= link;
         return labelWidget;
     }
+    
+    ///////////////////////
+    
+    
+	
+    private void createFileBrowseButton(Composite container, WizardPageField field, Text text) {
+        Button button= new Button(container, SWT.PUSH);
+        button.setText("Browse...");
+        button.setData(text);
+        button.addSelectionListener(new FileBrowseSelectionAdapter(/*container,*/ field));
+        if (field != null)
+            field.fButton= button;
+    }
+    
+
+    protected class FileBrowseSelectionAdapter extends SelectionAdapter
+    {
+    	private WizardPageField field;
+    	
+    	public FileBrowseSelectionAdapter(WizardPageField field) {
+    		this.field = field;
+    	}
+
+    	public void widgetSelected(SelectionEvent e) {
+          String newValue = null;
+          File f = new File(field.getText());
+          if (!f.exists())
+              f = null;
+          File d = getFile(f);
+          if (d != null)
+              newValue = d.getAbsolutePath();
+          if (newValue != null) {	
+          	field.setText(newValue);
+          }
+    	}
+        
+        /**
+         * Helper to open the file chooser dialog.
+         * @param startingDirectory the directory to open the dialog on.
+         * @return File The File the user selected or <code>null</code> if they
+         * do not.
+         */
+        private File getFile(File startingDirectory) {
+            FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
+            dialog.setText("File Browse");
+            if (startingDirectory != null)
+                dialog.setFileName(startingDirectory.getPath());
+//            if (extensions != null)
+//                dialog.setFilterExtensions(extensions);
+            String file = dialog.open();
+            if (file != null) {
+                file = file.trim();
+                if (file.length() > 0)
+                    return new File(file);
+            }	
+            return null;
+        }	
+    }
+
+    
+    //
+    // SMS 10 May 2007
+    // Added following couple of classes to support addition
+    // of browse buttons for arbitrary folders.
+    //
+    	
+    private void createFolderBrowseButton(Composite container, WizardPageField field, Text text) {
+        Button button= new Button(container, SWT.PUSH);
+        button.setText("Browse...");
+        button.setData(text);
+        button.addSelectionListener(new FolderBrowseSelectionAdapter(/*container,*/ field));
+        if (field != null)
+            field.fButton= button;
+    }
+    
+
+    protected class FolderBrowseSelectionAdapter extends SelectionAdapter
+    {
+    	private WizardPageField field;
+    	
+    	public FolderBrowseSelectionAdapter(WizardPageField field) {
+    		this.field = field;
+    	}
+
+    	
+    	public void widgetSelected(SelectionEvent e) {
+    		
+          String newValue = null;
+          File f = new File(field.getText());
+          if (!f.exists()) {
+        	  IFolder srcFolder = getProject().getFolder("src");
+        	  if (srcFolder.exists()) {
+        		  f = srcFolder.getLocation().toFile();
+        	  } else {
+        		  f = getProject().getLocation().toFile();
+        	  }
+          }
+          File d = getDirectory(f);
+          if (d != null)
+              newValue = d.getAbsolutePath();
+          if (newValue != null) {	
+          	field.setText(newValue);
+          }
+    	}
+        
+        /**
+         * Helper that opens the folder chooser dialog.
+         * @param startingDirectory The directory the dialog will open in.
+         * @return File File or <code>null</code>.
+         * 
+         */
+        private File getDirectory(File startingDirectory) {
+            DirectoryDialog folderDialog = new DirectoryDialog(getShell(), SWT.OPEN);
+            folderDialog.setText("Folder Browse");
+            // Dialog should not return with a null value, although it might
+            // return with an invalid one
+            if (startingDirectory != null)
+            	folderDialog.setFilterPath(startingDirectory.getPath());
+            String dir = folderDialog.open();
+            if (dir != null) {
+	        	dir = dir.trim();
+	        	if (dir.length() > 0)
+	        	    return new File(dir);
+            }
+            return null;
+        }
+    }
+
+    
+    private void createPackageBrowseButton(Composite container, WizardPageField field, Text text) {
+        Button button= new Button(container, SWT.PUSH);
+
+        button.setText("Browse...");
+        button.setData(text);
+    	final Shell shell = container.getShell();
+    	
+        button.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                try {
+                    IRunnableContext context= PlatformUI.getWorkbench().getProgressService();
+                    IProject project = null;
+                    String projectName = fProjectText.getText();
+
+                    if (projectName != null) {
+                	project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+                    }
+                    if (project ==  null) {
+                	project= getProject();
+                    }
+                	
+                    if (project == null) {
+                        setErrorMessage("Please select a plug-in project to add this extension to");
+                        setPageComplete(false);
+                        return;
+                    }	
+                    
+                    JavaProject javaProject = (JavaProject) JavaCore.create(project);
+                    if (javaProject == null)
+                        // the project is not configured for Java (has no Java nature)
+                        throw new Exception("createPackageBrowseButton:  unable to open Java project = '" + project.getName() + "' for search scope");
+
+                    SelectionDialog dialog= JavaUI.createPackageDialog(shell, javaProject, 0);
+                    dialog.setTitle("Package Browser");
+
+                    if (dialog.open() == PackageSelectionDialog.OK) {
+                        Text text= (Text) e.widget.getData();
+                        IPackageFragment pack = (org.eclipse.jdt.internal.core.PackageFragment) dialog.getResult()[0];
+                        text.setText(pack.getElementName());
+                    }
+                } catch (Exception ee) {
+                    ErrorHandler.reportError("Could not browse package", ee);
+                }
+            }
+        });
+        if (field != null)
+            field.fButton= button;
+    }
+    
+    
+    /////////////////////////
+    
+    
 
     private void createClassBrowseButton(Composite container, WizardPageField field, Text text) {
         Button button= new Button(container, SWT.PUSH);
@@ -491,11 +699,19 @@ public class GeneratedComponentWizardPage extends WizardPage
                     IRunnableContext context= PlatformUI.getWorkbench().getProgressService();
                     IJavaSearchScope scope= new JavaWorkspaceScope();
                     TypeSelectionDialog2 dialog= new TypeSelectionDialog2(null, false, context, scope, IJavaSearchConstants.CLASS);
+                    dialog.setTitle("Class Browse");
 
                     if (dialog.open() == TypeSelectionDialog2.OK) {
                         Text text= (Text) e.widget.getData();
-                        BinaryType type= (BinaryType) dialog.getFirstResult();
-                        text.setText(type.getFullyQualifiedName());
+                        //BinaryType type= (BinaryType) dialog.getFirstResult();
+                        Object type = dialog.getFirstResult();
+                        if (type instanceof BinaryType) {
+                        	text.setText(((BinaryType)type).getFullyQualifiedName());
+                        } else if (type instanceof SourceType) {
+                        	text.setText(((SourceType)type).getFullyQualifiedName());
+                        } else {
+                        	throw new Exception("Type selected in dialog not of recognized type");
+                        }
                     }
                 } catch (Exception ee) {
                     ErrorHandler.reportError("Could not browse type", ee);
@@ -938,7 +1154,7 @@ public class GeneratedComponentWizardPage extends WizardPage
     public String getValue(String name) {
         for(int n= 0; n < fFields.size(); n++) {
             WizardPageField field= (WizardPageField) fFields.get(n);
-            if (field.fAttributeName.toLowerCase().equals(name)) {
+            if (field.fAttributeName.toLowerCase().equals(name.toLowerCase())) {
                 return field.fValue;
             }
         }
@@ -948,7 +1164,7 @@ public class GeneratedComponentWizardPage extends WizardPage
     public WizardPageField getField(String name) {
         for(int n= 0; n < fFields.size(); n++) {
             WizardPageField field= (WizardPageField) fFields.get(n);
-            if (field.fAttributeName.toLowerCase().equals(name)) {
+            if (field.fAttributeName.toLowerCase().equals(name.toLowerCase())) {
                 return field;
             }
         }
