@@ -153,6 +153,7 @@ public class WizardUtilities {
      * 						in creating the new file
      * @param folder		Name of the folder in which the new file will be created
      * 						(presumably a package folder)
+     * @param projectSourceLocation	The location of source packages/folders within the project
      * @param replacements  A Map of meta-variable substitutions to apply to the template
      * @param project		The project in which the new file will be created
      * @param monitor		A monitor
@@ -165,7 +166,7 @@ public class WizardUtilities {
 			Map replacements, IProject project, IProgressMonitor monitor)
 		throws CoreException
 	{
-		monitor.setTaskName("ExtensionPointWizard.createFileFromTemplate:  Creating " + fileName);
+		monitor.setTaskName("WizardUtilities.createFileFromTemplate:  Creating " + fileName);
 	
 		String packagePath = projectSourceLocation + folder.replace('.', '/');
 		IPath specFilePath = new Path(packagePath + "/" + fileName);
