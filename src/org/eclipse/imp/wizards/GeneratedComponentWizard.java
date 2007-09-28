@@ -56,7 +56,7 @@ import org.osgi.framework.Bundle;
  * This wizard supports the generation of one or more implementation
  * classes for language or IDE services that are not extensions
  */
-public abstract class GeneratedComponentWizard extends Wizard implements INewWizard {
+public abstract class GeneratedComponentWizard extends IMPWizard implements INewWizard {
     private static final String START_HERE= "// START_HERE";
 
     protected int currentPage;
