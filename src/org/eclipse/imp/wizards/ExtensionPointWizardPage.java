@@ -105,14 +105,16 @@ import org.osgi.framework.Bundle;
  * The "New" wizard page allows setting the container for the new file as well as the file name. The page will only
  * accept file name without the extension OR with the extension that matches the expected one (g).
  */
-public class ExtensionPointWizardPage extends WizardPage {
-    private final class FocusDescriptionListener extends FocusAdapter {
-	public void focusGained(FocusEvent e) {
-	    Text text= (Text) e.widget;
-	    WizardPageField field= (WizardPageField) text.getData();
-	    fDescriptionText.setText(field.fDescription);
-	}
-    }
+public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage	
+{
+	// Hoisted
+//	private final class FocusDescriptionListener extends FocusAdapter {
+//	public void focusGained(FocusEvent e) {
+//	    Text text= (Text) e.widget;
+//	    WizardPageField field= (WizardPageField) text.getData();
+//	    fDescriptionText.setText(field.fDescription);
+//	}
+//    }
 
     private final class ProjectTextModifyListener implements ModifyListener {
 	public void modifyText(ModifyEvent e) {
@@ -128,44 +130,45 @@ public class ExtensionPointWizardPage extends WizardPage {
 	}
     }
 
-    private final class ProjectBrowseSelectionListener extends SelectionAdapter {
-		private final IProject project;
-	
-		private ProjectBrowseSelectionListener(IProject project) {
-		    super();
-		    this.project= project;
-		}
-	
-		public void widgetSelected(SelectionEvent e) {
-		    ContainerSelectionDialog dialog= new ContainerSelectionDialog(getShell(), project, false,
-		            "Select a plug-in Project");
-		    // RMF Would have thought the following would set the initial selection,
-		    // but passing project as the initialRoot arg above seems to work...
-		    if (project != null)
-		        dialog.setInitialSelections(new Object[] { project.getFullPath() });
-		    dialog.setValidator(new ISelectionValidator() {
-		        public String isValid(Object selection) {
-		            try {
-		                IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(selection.toString());
-		                if (project.exists() && project.hasNature("org.eclipse.pde.PluginNature")) {
-		                    return null;
-		                }
-		            } catch (Exception e) {
-		            }
-		            return "The selected element \"" + selection + "\" is not a plug-in project";
-		        }
-		    });
-		    if (dialog.open() == ContainerSelectionDialog.OK) {
-		        Object[] result= dialog.getResult();
-		        IProject selectedProject= ResourcesPlugin.getWorkspace().getRoot().getProject(result[0].toString());
-		        if (result.length == 1) {
-		            // fProjectText.setText(((Path) result[0]).toOSString());
-		            fProjectText.setText(selectedProject.getName());
-		            sProjectName= selectedProject.getName();
-		        }
-		    }
-		}
-    }
+    // Hoisted
+//    private final class ProjectBrowseSelectionListener extends SelectionAdapter {
+//		private final IProject project;
+//	
+//		private ProjectBrowseSelectionListener(IProject project) {
+//		    super();
+//		    this.project= project;
+//		}
+//	
+//		public void widgetSelected(SelectionEvent e) {
+//		    ContainerSelectionDialog dialog= new ContainerSelectionDialog(getShell(), project, false,
+//		            "Select a plug-in Project");
+//		    // RMF Would have thought the following would set the initial selection,
+//		    // but passing project as the initialRoot arg above seems to work...
+//		    if (project != null)
+//		        dialog.setInitialSelections(new Object[] { project.getFullPath() });
+//		    dialog.setValidator(new ISelectionValidator() {
+//		        public String isValid(Object selection) {
+//		            try {
+//		                IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(selection.toString());
+//		                if (project.exists() && project.hasNature("org.eclipse.pde.PluginNature")) {
+//		                    return null;
+//		                }
+//		            } catch (Exception e) {
+//		            }
+//		            return "The selected element \"" + selection + "\" is not a plug-in project";
+//		        }
+//		    });
+//		    if (dialog.open() == ContainerSelectionDialog.OK) {
+//		        Object[] result= dialog.getResult();
+//		        IProject selectedProject= ResourcesPlugin.getWorkspace().getRoot().getProject(result[0].toString());
+//		        if (result.length == 1) {
+//		            // fProjectText.setText(((Path) result[0]).toOSString());
+//		            fProjectText.setText(selectedProject.getName());
+//		            sProjectName= selectedProject.getName();
+//		        }
+//		    }
+//		}
+//    }
 
     protected String fExtPluginID;
 
@@ -173,51 +176,52 @@ public class ExtensionPointWizardPage extends WizardPage {
 
     protected Schema fSchema;
 
-    protected ExtensionPointWizard fOwningWizard;
+//    protected ExtensionPointWizard fOwningWizard;
+//
+//    protected int fThisPageNumber;
+//
+//    protected int fTotalPages;
+//
+//    protected boolean fSkip= false;
+//
+//    protected boolean fIsOptional;
+//
+//    protected List<WizardPageField> fFields= new ArrayList<WizardPageField>();
+//    
+//    protected IProject fProject;
+//
+//    protected Text fProjectText;
+//
+//    protected Text fDescriptionText;
+//
+//    protected Text fLanguageText;
+//
+//    protected Text fQualClassText;
+//
+//    protected Button fAddThisExtensionPointButton;
+//
+//    protected boolean fOmitExtensionIDName= true;
+//
+//    protected String fPackageName;
+//
+//    protected List fRequiredPlugins= new ArrayList();
+//
+//    protected boolean fDone= true;
+//
+//    // shared between wizard pages
+//    protected static String sLanguage= "";
+//
+//    protected static String sProjectName= "";
 
-    protected int fThisPageNumber;
-
-    protected int fTotalPages;
-
-    protected boolean fSkip= false;
-
-    protected boolean fIsOptional;
-
-    protected List<WizardPageField> fFields= new ArrayList<WizardPageField>();
-    
-    protected IProject fProject;
-
-    protected Text fProjectText;
-
-    protected Text fDescriptionText;
-
-    protected Text fLanguageText;
-
-    protected Text fQualClassText;
-
-    protected Button fAddThisExtensionPointButton;
-
-    protected boolean fOmitExtensionIDName= true;
-
-    protected String fPackageName;
-
-    protected List fRequiredPlugins= new ArrayList();
-
-    protected boolean fDone= true;
-
-    // shared between wizard pages
-    protected static String sLanguage= "";
-
-    protected static String sProjectName= "";
-
-    public boolean canFlipToNextPage() {
-        return super.canFlipToNextPage();
-    }
+// Hoisted
+//    public boolean canFlipToNextPage() {
+//        return super.canFlipToNextPage();
+//    }
 
     public ExtensionPointWizardPage(ExtensionPointWizard owner, String pluginID, String pointID) {
-	this(owner, pluginID, pointID, true);
+    	this(owner, pluginID, pointID, true);
     }
-
+    
     public ExtensionPointWizardPage(ExtensionPointWizard owner, String pluginID, String pointID, boolean omitIDName) {
         this(owner, 0, 1, pluginID, pointID, false);
         fOmitExtensionIDName= omitIDName;
@@ -229,13 +233,14 @@ public class ExtensionPointWizardPage extends WizardPage {
     }
 
     public ExtensionPointWizardPage(ExtensionPointWizard owner, int pageNumber, int totalPages, String pluginID, String pointID, boolean isOptional) {
-        super("wizardPage");
+        //super("wizardPage");
+    	super("wizardPage", owner, pageNumber, totalPages, isOptional);
         this.fExtPluginID= pluginID;
         this.fExtPointID= pointID;
-        this.fIsOptional= isOptional;
-        this.fThisPageNumber= pageNumber;
-        this.fTotalPages= totalPages;
-        this.fOwningWizard= owner;
+//        this.fIsOptional= isOptional;
+//        this.fThisPageNumber= pageNumber;
+//        this.fTotalPages= totalPages;
+//        this.fOwningWizard= owner;
         try {
             IExtensionPoint ep= (IExtensionPoint) Platform.getExtensionRegistry().getExtensionPoint(pluginID, pointID);
             String schemaLoc;
@@ -277,14 +282,18 @@ public class ExtensionPointWizardPage extends WizardPage {
     }
 
     
-    public ExtensionPointWizardPage(ExtensionPointWizard owner, int pageNumber, int totalPages, String pluginID, String pointID, boolean isOptional, boolean local) {
-        super("wizardPage");
-        this.fExtPluginID= pluginID;
-        this.fExtPointID= pointID;
-        this.fIsOptional= isOptional;
-        this.fThisPageNumber= pageNumber;
-        this.fTotalPages= totalPages;
-        this.fOwningWizard= owner;
+    // SMS 27 Sep 2007:  "local" parameter (added some time ago) just to differentiate this consctructor from the previous one	
+    public ExtensionPointWizardPage(
+    	ExtensionPointWizard owner, int pageNumber, int totalPages, String pluginID, String pointID, boolean isOptional, boolean local)
+    {
+//    	super("wizardPage");
+    	super("wizardPage", owner, pageNumber, totalPages, isOptional);
+        fExtPluginID= pluginID;
+        fExtPointID= pointID;
+//        this.fIsOptional= isOptional;
+//        this.fThisPageNumber= pageNumber;
+//        this.fTotalPages= totalPages;
+//        this.fOwningWizard= owner;
         try {
             //IExtensionPoint ep= (IExtensionPoint) Platform.getExtensionRegistry().getExtensionPoint(pluginID, pointID);
             String schemaLoc;
@@ -910,25 +919,25 @@ public class ExtensionPointWizardPage extends WizardPage {
         fDescriptionText.setEditable(false);
         if (fSchema != null)
             fDescriptionText.setText(fSchema.getDescription());
-    }
+    }	
 
-    private void addServiceEnablerCheckbox(Composite container) {
-        Label label= new Label(container, SWT.NONE);
-        label.setText("Add this service:");
-        // label.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-        fAddThisExtensionPointButton= new Button(container, SWT.CHECK);
-        fAddThisExtensionPointButton.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                fSkip= !fAddThisExtensionPointButton.getSelection();
-                dialogChanged();
-            }
-        });
-        // fAddThisExtensionPointButton.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-        fAddThisExtensionPointButton.setSelection(true);
-        GridData gd= new GridData(GridData.FILL_HORIZONTAL);
-        gd.horizontalSpan= 2;
-        fAddThisExtensionPointButton.setLayoutData(gd);
-    }
+//    private void addServiceEnablerCheckbox(Composite container) {
+//        Label label= new Label(container, SWT.NONE);
+//        label.setText("Add this service:");
+//        // label.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+//        fAddThisExtensionPointButton= new Button(container, SWT.CHECK);
+//        fAddThisExtensionPointButton.addSelectionListener(new SelectionAdapter() {
+//            public void widgetSelected(SelectionEvent e) {
+//                fSkip= !fAddThisExtensionPointButton.getSelection();
+//                dialogChanged();
+//            }
+//        });
+//        // fAddThisExtensionPointButton.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+//        fAddThisExtensionPointButton.setSelection(true);
+//        GridData gd= new GridData(GridData.FILL_HORIZONTAL);
+//        gd.horizontalSpan= 2;
+//        fAddThisExtensionPointButton.setLayoutData(gd);
+//    }
 
     /*
      * This (original) version of discoverSelectedProject() is called by getProject().
@@ -940,18 +949,18 @@ public class ExtensionPointWizardPage extends WizardPage {
      * reason to try to discover a newly selected project.)
      * SMS 23 May 2007
      */
-    private IProject discoverSelectedProject() {
-        ISelectionService service= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
-        ISelection selection= service.getSelection();
-        IProject project= getProject(selection);
-
-        if (project != null) {
-        	fProject = project;
-            sProjectName= project.getName();
-            fProjectText.setText(sProjectName);
-        }
-        return project;
-    }
+//    private IProject discoverSelectedProject() {
+//        ISelectionService service= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
+//        ISelection selection= service.getSelection();
+//        IProject project= getProject(selection);
+//
+//        if (project != null) {
+//        	fProject = project;
+//            sProjectName= project.getName();
+//            fProjectText.setText(sProjectName);
+//        }
+//        return project;
+//    }
 
     
     /*
@@ -966,99 +975,99 @@ public class ExtensionPointWizardPage extends WizardPage {
      * SMS 25 May 2007
      * 
      */
-    private IProject discoverSelectedProjectWithoutUpdating() {
-    	try {
-    		IWorkbenchWindow activeWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		    if (activeWindow == null)
-		    	return null;
-    		ISelectionService service= activeWindow.getSelectionService();
-		    ISelection selection= service.getSelection();
-		    IProject project= getProject(selection);
-		    return project;
-    	} catch (NullPointerException e) {
-    		return null;
-    	}
-    }
+//    private IProject discoverSelectedProjectWithoutUpdating() {
+//    	try {
+//    		IWorkbenchWindow activeWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+//		    if (activeWindow == null)
+//		    	return null;
+//    		ISelectionService service= activeWindow.getSelectionService();
+//		    ISelection selection= service.getSelection();
+//		    IProject project= getProject(selection);
+//		    return project;
+//    	} catch (NullPointerException e) {
+//    		return null;
+//    	}
+//    }
     
     /**
      * Attempt to find the languageDescription extension for the specified project
      * (if any), and use the language name from that extension to populate the
      * language name field in the dialog.
      */
-    private void discoverProjectLanguage() {
-		if (fProjectText.getText().length() == 0)
-		    return;
-	
-		IPluginModelBase pluginModel= getPluginModel(fProjectText.getText());
-	
-		if (pluginModel != null) {
-		   	// SMS 26 Jul 2007
-	        // Load the extensions model in detail, using the adapted IMP representation,
-	        // to assure that the children of model elements are represented
-			if (fProject == null) {
-				discoverSelectedProject();
-			}
-	    	try {
-	    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, fProject);
-	    	} catch (CoreException e) {
-	    		//System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
-	    	} catch (ClassCastException e) {
-	    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  ClassCastExeption loading extensions model; may not succeed");
-	    	}
-	    	
-		    IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
-	
-		    for(int i= 0; i < extensions.length; i++) {
-				if (extensions[i].getPoint().endsWith(".languageDescription")) {
-				    IPluginObject[] children= extensions[i].getChildren();
-		
-				    for(int j= 0; j < children.length; j++) {
-					if (children[j].getName().equals("language")) {
-					    fLanguageText.setText(((IPluginElement) children[j]).getAttribute("language").getValue());
-					    return;
-					}
-				    }
-				}
-		    }
-		}
-    }	
+//    private void discoverProjectLanguage() {
+//		if (fProjectText.getText().length() == 0)
+//		    return;
+//	
+//		IPluginModelBase pluginModel= getPluginModel(fProjectText.getText());
+//	
+//		if (pluginModel != null) {
+//		   	// SMS 26 Jul 2007
+//	        // Load the extensions model in detail, using the adapted IMP representation,
+//	        // to assure that the children of model elements are represented
+//			if (fProject == null) {
+//				discoverSelectedProject();
+//			}
+//	    	try {
+//	    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, fProject);
+//	    	} catch (CoreException e) {
+//	    		//System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
+//	    	} catch (ClassCastException e) {
+//	    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  ClassCastExeption loading extensions model; may not succeed");
+//	    	}
+//	    	
+//		    IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
+//	
+//		    for(int i= 0; i < extensions.length; i++) {
+//				if (extensions[i].getPoint().endsWith(".languageDescription")) {
+//				    IPluginObject[] children= extensions[i].getChildren();
+//		
+//				    for(int j= 0; j < children.length; j++) {
+//					if (children[j].getName().equals("language")) {
+//					    fLanguageText.setText(((IPluginElement) children[j]).getAttribute("language").getValue());
+//					    return;
+//					}
+//				    }
+//				}
+//		    }
+//		}
+//    }	
 
-    private IProject getProject(ISelection selection) {
-        if (selection instanceof IStructuredSelection && !selection.isEmpty()) {
-            IStructuredSelection ssel= (IStructuredSelection) selection;
-            if (ssel.size() > 1)
-                return null;
-            Object obj= ssel.getFirstElement();
-            if (obj instanceof IJavaElement)
-                obj= ((IJavaElement) obj).getResource();
-            if (obj instanceof IResource) {
-                return ((IResource) obj).getProject();
-            }
-            if (obj instanceof JavaProject) {
-                return ((JavaProject) obj).getProject();
-            }
-        }
-        if (selection instanceof ITextSelection || selection == null) {
-            IEditorPart editorPart= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-            IEditorInput editorInput= editorPart.getEditorInput();
+//    private IProject getProject(ISelection selection) {
+//        if (selection instanceof IStructuredSelection && !selection.isEmpty()) {
+//            IStructuredSelection ssel= (IStructuredSelection) selection;
+//            if (ssel.size() > 1)
+//                return null;
+//            Object obj= ssel.getFirstElement();
+//            if (obj instanceof IJavaElement)
+//                obj= ((IJavaElement) obj).getResource();
+//            if (obj instanceof IResource) {
+//                return ((IResource) obj).getProject();
+//            }
+//            if (obj instanceof JavaProject) {
+//                return ((JavaProject) obj).getProject();
+//            }
+//        }
+//        if (selection instanceof ITextSelection || selection == null) {
+//            IEditorPart editorPart= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+//            IEditorInput editorInput= editorPart.getEditorInput();
+//
+//            if (editorInput instanceof IFileEditorInput) {
+//        	IFileEditorInput fileInput= (IFileEditorInput) editorInput;
+//
+//        	return fileInput.getFile().getProject();
+//            }
+//        }
+//        return null;
+//    }
 
-            if (editorInput instanceof IFileEditorInput) {
-        	IFileEditorInput fileInput= (IFileEditorInput) editorInput;
-
-        	return fileInput.getFile().getProject();
-            }
-        }
-        return null;
-    }
-
-    private void setProjectName(String newProjectName) {
-        if (newProjectName.startsWith("P\\"))
-            sProjectName= newProjectName.substring(1);
-        else if (newProjectName.startsWith("\\"))
-            sProjectName= newProjectName;
-        else
-            sProjectName= "\\" + newProjectName;
-    }
+//    private void setProjectName(String newProjectName) {
+//        if (newProjectName.startsWith("P\\"))
+//            sProjectName= newProjectName.substring(1);
+//        else if (newProjectName.startsWith("\\"))
+//            sProjectName= newProjectName;
+//        else
+//            sProjectName= "\\" + newProjectName;
+//    }
 
 //    private boolean newProjectSelected = true;
     
@@ -1088,33 +1097,33 @@ public class ExtensionPointWizardPage extends WizardPage {
      * which can happen if called when there is no active workbench
      * window.
      */
-    public IProject getProject() {
-        try {
-            IProject project= null;
-            boolean haveCurrentSelection = false;
-            project = discoverSelectedProjectWithoutUpdating();
-            if (project != null) {
-            	sProjectName = project.getName();
-            	haveCurrentSelection = true;
-            }
+//    public IProject getProject() {
+//        try {
+//            IProject project= null;
+//            boolean haveCurrentSelection = false;
+//            project = discoverSelectedProjectWithoutUpdating();
+//            if (project != null) {
+//            	sProjectName = project.getName();
+//            	haveCurrentSelection = true;
+//            }
+//            
+//            if (!haveCurrentSelection && sProjectName != null && sProjectName.length() > 0)
+//            	// get project based on name set with previous selection
+//            	project= ResourcesPlugin.getWorkspace().getRoot().getProject(sProjectName);
+//            if (project == null)
+//            	project= discoverSelectedProject();
+//
+//            if (project != null && project.exists())
+//                return project;
+//        } catch (Exception e) {
+//        }
+//        return null;
+//    }
 
-            if (!haveCurrentSelection && sProjectName != null && sProjectName.length() > 0)
-            	// get project based on name set with previous selection
-            	project= ResourcesPlugin.getWorkspace().getRoot().getProject(sProjectName);
-            if (project == null)
-            	project= discoverSelectedProject();
 
-            if (project != null && project.exists())
-                return project;
-        } catch (Exception e) {
-        }
-        return null;
-    }
-
-    
-    public String getProjectNameFromField() {
-    	return fProjectText.getText();
-    }
+//    public String getProjectNameFromField() {
+//    	return fProjectText.getText();
+//    }
     
 
     public void setVisible(boolean visible) {
@@ -1132,9 +1141,9 @@ public class ExtensionPointWizardPage extends WizardPage {
         dialogChanged();
     }
 
-    public boolean hasBeenSkipped() {
-        return fSkip;
-    }
+//    public boolean hasBeenSkipped() {
+//        return fSkip;
+//    }
 
     String stripHTML(String description) {
         StringBuffer buffer= new StringBuffer(description);
@@ -1255,140 +1264,142 @@ public class ExtensionPointWizardPage extends WizardPage {
     
     
 
-    protected String upperCaseFirst(String language) {
-	return Character.toUpperCase(language.charAt(0)) + language.substring(1);
-    }
+//    protected String upperCaseFirst(String language) {
+//	return Character.toUpperCase(language.charAt(0)) + language.substring(1);
+//    }
+//
+//    protected String lowerCaseFirst(String s) {
+//        return Character.toLowerCase(s.charAt(0)) + s.substring(1);
+//    }
 
-    protected String lowerCaseFirst(String s) {
-        return Character.toLowerCase(s.charAt(0)) + s.substring(1);
-    }
-
-    IPluginModelBase getPluginModel() {
-    	IProject project = null;
-        try {
-            PluginModelManager pmm= PDECore.getDefault().getModelManager();
-            IPluginModelBase[] plugins= pmm.getAllPlugins();
-            	project= getProject();
-
-            if (project == null)
-        	return null;
-            for(int n= 0; n < plugins.length; n++) {
-                IPluginModelBase plugin= plugins[n];
-                IResource resource= plugin.getUnderlyingResource();
-                if (resource != null && project.equals(resource.getProject())) {
-                    return plugin;
-                }
-            }
-        } catch (Exception e) {
-            ErrorHandler.reportError("Could not enable extension point for " + project.getName(), e);
-        }
-        return null;
-    }
-
+//    IPluginModelBase getPluginModel() {
+//    	IProject project = null;
+//        try {
+//            PluginModelManager pmm= PDECore.getDefault().getModelManager();
+//            IPluginModelBase[] plugins= pmm.getAllPlugins();
+//            	project= getProject();
+//
+//            if (project == null)
+//        	return null;
+//            for(int n= 0; n < plugins.length; n++) {
+//                IPluginModelBase plugin= plugins[n];
+//                IResource resource= plugin.getUnderlyingResource();
+//                if (resource != null && project.equals(resource.getProject())) {
+//                    return plugin;
+//                }
+//            }
+//        } catch (Exception e) {
+//            ErrorHandler.reportError("Could not enable extension point for " + project.getName(), e);
+//        }
+//        return null;
+//    }
+//
+//    
+//    IPluginModelBase getPluginModel(String projectName) {
+//        try {
+//        	if (projectName == null)
+//        		return null;
+//            PluginModelManager pmm= PDECore.getDefault().getModelManager();
+//            IPluginModelBase[] plugins= pmm.getAllPlugins();
+//
+//            for(int n= 0; n < plugins.length; n++) {
+//                IPluginModelBase plugin= plugins[n];
+//                IResource resource= plugin.getUnderlyingResource();
+//                if (resource != null && projectName.equals(resource.getProject().getName())) {
+//                    return plugin;
+//                }
+//            }
+//        } catch (Exception e) {
+//            ErrorHandler.reportError("Could not enable extension point for " + projectName, e);
+//        }
+//        return null;
+//    }
     
-    IPluginModelBase getPluginModel(String projectName) {
-        try {
-        	if (projectName == null)
-        		return null;
-            PluginModelManager pmm= PDECore.getDefault().getModelManager();
-            IPluginModelBase[] plugins= pmm.getAllPlugins();
-
-            for(int n= 0; n < plugins.length; n++) {
-                IPluginModelBase plugin= plugins[n];
-                IResource resource= plugin.getUnderlyingResource();
-                if (resource != null && projectName.equals(resource.getProject().getName())) {
-                    return plugin;
-                }
-            }
-        } catch (Exception e) {
-            ErrorHandler.reportError("Could not enable extension point for " + projectName, e);
-        }
-        return null;
-    }
     
-    
-    void dialogChanged() {
-        setErrorMessage(null);
-        if (fSkip)
-            setPageComplete(true);
-        else {
-        	// SMS 13 Jun 2007
-        	// Seem to need to check for a project that's set in the wizard
-        	// before going and getting a project otherwise, which can return
-        	// the current selection in the package explorer regardless
-        	// of what's set in the wizard
-            //IProject project= getProject();
-            IProject project = null;
-            String projectName = fProjectText.getText();
-            if (projectName != null && projectName.length() > 0) {
-        	project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-            }
-            if (project ==  null) {
-        	project= getProject();
-            }
-        	
-            if (project == null) {
-                setErrorMessage("Please select a plug-in project to add this extension to");
-                setPageComplete(false);
-                return;
-            }
-            boolean isPlugin= false;
-            try {
-                isPlugin= project.hasNature("org.eclipse.pde.PluginNature");
-            } catch (CoreException e) {
-            }
-            if (!isPlugin) {
-                setErrorMessage("\"" + sProjectName + "\" is not a plug-in project. Please select a plug-in project to add this extension to");
-                setPageComplete(false);
-                return;
-            }
-            WizardPageField field= getUncompletedField();
-            if (field != null) {
-                setErrorMessage("Please provide a value for the required attribute \"" + field.fLabel + "\"");
-                setPageComplete(false);
-                return;
-            }
-            setPageComplete(true);
-        }
-    }
+//    void dialogChanged() {
+//        setErrorMessage(null);
+//        if (fSkip)
+//            setPageComplete(true);
+//        else {
+//        	// SMS 13 Jun 2007
+//        	// Seem to need to check for a project that's set in the wizard
+//        	// before going and getting a project otherwise, which can return
+//        	// the current selection in the package explorer regardless
+//        	// of what's set in the wizard
+//            //IProject project= getProject();
+//            IProject project = null;
+//            String projectName = fProjectText.getText();
+//            if (projectName != null && projectName.length() > 0) {
+//        	project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+//            }
+//            if (project ==  null) {
+//        	project= getProject();
+//            }
+//        	
+//            if (project == null) {
+//                setErrorMessage("Please select a plug-in project to add this extension to");
+//                setPageComplete(false);
+//                return;
+//            }
+//            boolean isPlugin= false;
+//            try {
+//                isPlugin= project.hasNature("org.eclipse.pde.PluginNature");
+//            } catch (CoreException e) {
+//            }
+//            if (!isPlugin) {
+//                setErrorMessage("\"" + sProjectName + "\" is not a plug-in project. Please select a plug-in project to add this extension to");
+//                setPageComplete(false);
+//                return;
+//            }
+//            WizardPageField field= getUncompletedField();
+//            if (field != null) {
+//                setErrorMessage("Please provide a value for the required attribute \"" + field.fLabel + "\"");
+//                setPageComplete(false);
+//                return;
+//            }
+//            setPageComplete(true);
+//        }
+//    }
 
-    WizardPageField getUncompletedField() {
-	// BUG Prevents clicking "Finish" if an element is optional but one of its attributes isn't
-        for(int n= 0; n < fFields.size(); n++) {
-            WizardPageField field= (WizardPageField) fFields.get(n);
-            if (field.fRequired && field.fValue.length() == 0) {
-                return field;
-            }
-        }
-        return null;
-    }
+//    WizardPageField getUncompletedField() {
+//	// BUG Prevents clicking "Finish" if an element is optional but one of its attributes isn't
+//        for(int n= 0; n < fFields.size(); n++) {
+//            WizardPageField field= (WizardPageField) fFields.get(n);
+//            if (field.fRequired && field.fValue.length() == 0) {
+//                return field;
+//            }
+//        }
+//        return null;
+//    }
 
-    public List getFields() {
-        return fFields;
-    }
+//    public List getFields() {
+//        return fFields;
+//    }
 
-    public String getValue(String name) {
-        for(int n= 0; n < fFields.size(); n++) {
-            WizardPageField field= (WizardPageField) fFields.get(n);
-            // SMS 13 Jun 2007:  added toLowerCase of name
-            if (field.fAttributeName.toLowerCase().equals(name.toLowerCase())) {
-                return field.fValue;
-            }
-        }
-        return "No such field: " + name;
-    }
+    // Not used but retained for potential use
+//    public String getValue(String name) {
+//        for(int n= 0; n < fFields.size(); n++) {
+//            WizardPageField field= (WizardPageField) fFields.get(n);
+//            // SMS 13 Jun 2007:  added toLowerCase of name
+//            if (field.fAttributeName.toLowerCase().equals(name.toLowerCase())) {
+//                return field.fValue;
+//            }
+//        }
+//        return "No such field: " + name;
+//    }
 
-    public WizardPageField getField(String name) {
-        for(int n= 0; n < fFields.size(); n++) {
-            WizardPageField field= (WizardPageField) fFields.get(n);
-            // SMS 13 Jun 2007:  added toLowerCase of name
-            if (field.fAttributeName.toLowerCase().equals(name.toLowerCase())) {
-                return field;
-            }
-        }
-        return null;
-    }
+//    public WizardPageField getField(String name) {
+//        for(int n= 0; n < fFields.size(); n++) {
+//            WizardPageField field= (WizardPageField) fFields.get(n);
+//            // SMS 13 Jun 2007:  added toLowerCase of name
+//            if (field.fAttributeName.toLowerCase().equals(name.toLowerCase())) {
+//                return field;
+//            }
+//        }
+//        return null;
+//    }
 
+    // Subtype specific in use and logic
     public WizardPageField getFieldByFullName(String fullName) {
         for(int n= 0; n < fFields.size(); n++) {
             WizardPageField field= (WizardPageField) fFields.get(n);
@@ -1400,10 +1411,11 @@ public class ExtensionPointWizardPage extends WizardPage {
         return null;
     }
 
-    public List getRequires() {
-        return fRequiredPlugins;
-    }
+//    public List getRequires() {
+//        return fRequiredPlugins;
+//    }
 
+    // fExtPointID is wizard-subtype-specific
     protected void createLanguageFieldForPlatformSchema(Composite parent) {
         WizardPageField languageField= new WizardPageField(fExtPointID, "language", "Language", "", 0, true, "Language for which to create a " + fExtPointID);
     
