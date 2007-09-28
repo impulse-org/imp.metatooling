@@ -242,7 +242,12 @@ public class $COMPILER_CLASS_NAME$ {
     }
 
     public String getFileContents(IFile file) {
-    	return BuilderUtils.getFileContents(file);
+    	try {
+    		return BuilderUtils.getFileContents(file);
+    	} catch (Exception e) {
+            System.err.println("$COMPILER_CLASS_NAME$.getFileContents(..):  " + e.getMessage());
+    	}
+    	return "";
     }
 
     public void compile(IFile file, IProgressMonitor mon) {
