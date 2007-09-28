@@ -312,7 +312,9 @@ public abstract class GeneratedComponentWizard extends Wizard implements INewWiz
     		String fileName, String templateBundleID, String templateName, String folder,
     		Map replacements, IProject project, IProgressMonitor monitor) throws CoreException
     {
-    	return WizardUtilities.createFileFromTemplate(fileName, templateBundleID, templateName, folder, replacements, project, monitor);
+    	return WizardUtilities.createFileFromTemplate(
+    			fileName, templateBundleID, templateName, folder, getProjectSourceLocation(),
+    			replacements, project, monitor);
     }
     
     
