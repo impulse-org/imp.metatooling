@@ -70,11 +70,12 @@ import org.osgi.framework.Bundle;
  * This wizard creates a new file resource in the provided container. 
  * The wizard creates one file with the extension "g". 
  */
-public abstract class ExtensionPointWizard extends Wizard implements INewWizard
+public abstract class ExtensionPointWizard extends IMPWizard implements INewWizard
 {
     private static final String START_HERE= "// START_HERE";
 
-    protected int currentPage;
+    // Hoisted
+//    protected int currentPage;
     
     protected ExtensionPointWizardPage pages[];
 
@@ -259,9 +260,10 @@ public abstract class ExtensionPointWizard extends Wizard implements INewWizard
 		return true;
     }
 
-    public void setPage(int page) {
-	currentPage= page;
-    }
+// Hoisted
+//    public void setPage(int page) {
+//	currentPage= page;
+//    }
 
     public void init(IWorkbench workbench, IStructuredSelection selection) {}
 
