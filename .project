@@ -16,7 +16,7 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>com.ibm.watson.smapifier.SmapieBuilder</name>
+			<name>org.eclipse.imp.smapifier.SmapieBuilder</name>
 			<arguments>
 				<dictionary>
 					<key>exten</key>
@@ -39,6 +39,6 @@
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.imp.lpg.runtime.LPGNature</nature>
-		<nature>com.ibm.watson.smapifier.smapinature</nature>
+		<nature>org.eclipse.imp.smapifier.smapinature</nature>
 	</natures>
 </projectDescription>

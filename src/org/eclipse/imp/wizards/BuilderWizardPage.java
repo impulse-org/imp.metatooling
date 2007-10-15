@@ -46,8 +46,8 @@ public class BuilderWizardPage extends ExtensionPointWizardPage {
 	    @Override
 	    public void widgetSelected(SelectionEvent e) {
 		fAddSMAPSupport= ((Button) e.widget).getSelection();
-		if (!fRequiredPlugins.contains("com.ibm.watson.smapifier"))
-		    fRequiredPlugins.add("com.ibm.watson.smapifier");
+		if (!fRequiredPlugins.contains("org.eclipse.imp.smapifier"))
+		    fRequiredPlugins.add("org.eclipse.imp.smapifier");
 	    }
 	});
 	b.setSelection(true); // Turn on SMAP support by default

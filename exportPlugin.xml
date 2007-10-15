@@ -47,7 +47,7 @@
 		<javac destdir="${temp.folder}/${plugin.jar.name}.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="${javacSource}" target="${javacTarget}"		>
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
-				<pathelement path="../com.ibm.watson.smapifier/bin"/>
+				<pathelement path="../org.eclipse.imp.smapifier/bin"/>
 				<pathelement path="../org.eclipse.imp.runtime/bin"/>
 				<pathelement path="../org.eclipse.imp.lpg.runtime/bin"/>
 				<pathelement path="../lpg.runtime.java/bin"/>

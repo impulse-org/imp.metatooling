@@ -31,7 +31,7 @@ public class NewBuilder extends CodeServiceWizard
 		return Arrays.asList(new String[] {
 			"org.eclipse.core.runtime", "org.eclipse.core.resources",
 			// SMS 11 Sep 2007:  added "org.eclipse.platform.source"
-			"org.eclipse.imp.runtime", "org.eclipse.platform.source", "com.ibm.watson.smapifier" });
+			"org.eclipse.imp.runtime", "org.eclipse.platform.source", "org.eclipse.imp.smapifier" });
     }
 
     @Override
@@ -54,7 +54,7 @@ public class NewBuilder extends CodeServiceWizard
 
     private static final String k_SMAP_import=
 		"\n" + 
-		"import com.ibm.watson.smapifier.builder.SmapiProjectNature;\n";
+		"import org.eclipse.imp.smapifier.builder.SmapiProjectNature;\n";
 
     
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
