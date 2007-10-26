@@ -32,8 +32,9 @@ public class BuilderWizardPage extends ExtensionPointWizardPage {
         getFieldByFullName("extension.builder.run.parameter:value").fText.setText("bar");
     }
 
-    protected void createFirstControls(Composite parent) {
-        createLanguageFieldForPlatformSchema(parent);
+    
+    protected void createFirstControls(Composite parent, String componentID) {
+        createLanguageFieldForPlatformSchema(parent, fSchema.getPointId());
     }
 
     @Override
