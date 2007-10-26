@@ -23,6 +23,7 @@ import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.imp.runtime.RuntimePlugin;
@@ -53,7 +54,7 @@ public class NewLanguage extends CodeServiceWizard {
         addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.IMP_RUNTIME, "languageDescription") });
     }
 
-
+    
     protected List getPluginDependencies() {
         return Arrays.asList(new String[] {
             "org.eclipse.core.runtime", "org.eclipse.core.resources",
@@ -68,7 +69,7 @@ public class NewLanguage extends CodeServiceWizard {
      * @see org.eclipse.imp.wizards.ExtensionPointWizard#collectCodeParms()
      */
     protected void collectCodeParms() {
-    	fProject = pages[0].getProject();
+    	fProject = pages[0].getProjectOfRecord();
     	fProjectName = pages[0].fProjectText.getText();
         fLanguageName= pages[0].fLanguageText.getText();
         
@@ -80,7 +81,7 @@ public class NewLanguage extends CodeServiceWizard {
         fSubs = getStandardSubstitutions(fProject);
     	if (fProject == null) {
     		ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
-    		fProject = page.getProject();
+    		fProject = page.getProjectOfRecord();
     	}
         
         String pluginPackage = getPluginPackageName(fProject, null);
@@ -89,7 +90,8 @@ public class NewLanguage extends CodeServiceWizard {
         
         // SMS 23 Mar 2007:  Need to update this part of approach to preferences?
         String prefsPackage= pluginPackage + ".preferences";
-        String prefsFolder= prefsPackage.replace('.', File.separatorChar);
+        // SMS 9 Oct 2007:  apparently never read
+        //String prefsFolder= prefsPackage.replace('.', File.separatorChar);
         fSubs.put("$PREFS_PACKAGE_NAME$", prefsPackage);
     	fSubs.put("$LANG_NAME$", fLanguageName);
 
@@ -171,7 +173,7 @@ public class NewLanguage extends CodeServiceWizard {
     {
     	if (fProject == null || fSubs == null) {
     		ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
-    		fProject = page.getProject();
+    		fProject = page.getProjectOfRecord();
             fSubs = getStandardSubstitutions(fProject);
     	}
 
