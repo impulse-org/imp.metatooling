@@ -30,6 +30,8 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 
     protected static final String thisWizardDescription= "Wizard for creating a new refactoring";
 
+    protected static final String componentID = "refactoring";
+    
     //private List<GeneratedComponentAttribute> refactoringAttributes;
 
     private WizardPageField fPrefixField;
@@ -77,7 +79,7 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 	}
 
 	protected void createFirstControls(Composite parent) {
-	    super.createFirstControls(parent);
+	    super.createFirstControls(parent, componentID);
 	    fPrefixField= new WizardPageField(null, "refactoringPrefix", "Refactoring Name Prefix:", "InsertCrap", 0, true,
 	    				      "Prefix used for the various refactoring implementation classes");
 	    createLabelText(parent, fPrefixField);
@@ -161,7 +163,7 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 
     protected void generateCodeStubs(IProgressMonitor mon) throws CoreException {
 	GeneratedComponentWizardPage page= (GeneratedComponentWizardPage) pages[0];
-	IProject project= page.getProject();
+	IProject project= page.getProjectOfRecord();
 	Map<String,String> subs= getStandardSubstitutions();
 	String packageName= "imp." + page.sLanguage + ".refactoring";// qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
 	String packageFolder= packageName.replace('.', File.separatorChar);
@@ -182,7 +184,7 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 		ExtensionPointEnabler.addExtension(
 			// SMS 24 Jul 2007:  added project parameter reflecting change
 			// in ExtensionPointEnabler (evidently)
-			pages[0].getProject(),
+			pages[0].getProjectOfRecord(),
 			(IPluginModel) pages[0].getPluginModel().getAdapter(IPluginModel.class),
 			RuntimePlugin.IMP_RUNTIME,
 			"refactoringContributions",
