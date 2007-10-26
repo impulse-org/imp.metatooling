@@ -23,7 +23,10 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.utils.ExtensionPointUtils;
 
@@ -34,6 +37,8 @@ public class NewCompiler extends GeneratedComponentWizard {
     protected static final String thisWizardName = "New Compiler Wizard";
     protected static final String thisWizardDescription = "Wizard for creating a simple compiler";
     
+    protected static final String componentID = "compiler";
+    
 	
     public void addPages() {
     	fWizardAttributes = setupAttributes();
@@ -43,14 +48,42 @@ public class NewCompiler extends GeneratedComponentWizard {
     
     class NewCompilerPage extends GeneratedComponentWizardPage {
 		public NewCompilerPage(GeneratedComponentWizard owner) {
-		    super(owner, /*RuntimePlugin.IMP_RUNTIME,*/ "compiler", false, fWizardAttributes, thisWizardName, thisWizardDescription);
+		    super(owner, componentID, false, fWizardAttributes, thisWizardName, thisWizardDescription);
 		}
 
 		protected void createFirstControls(Composite parent) {
-		    super.createFirstControls(parent);
+		    super.createFirstControls(parent, componentID);
 		    createClassField(parent, "ClassBrowse");
 		}
 		
+	    protected void createAdditionalControls(Composite parent) {
+	    	createTextField(parent, "PoorMansCompiler", "class",
+	    		"The qualified name of the compiler class to be generated", 
+	    		"", "ClassBrowse", true);    	       	
+	    }
+	    
+	    public void createControl(Composite parent) {
+			super.createControl(parent);
+			// SMS 9 Oct 2007 
+			//discoverProjectLanguage();
+			try {
+				// SMS 10 May 2007
+				// setEnabled was called with "false"; I don't know why,
+				// but I want an enabled field (and enabling it here
+				// hasn't seemed to cause any problems)	
+				fQualClassText.setEnabled(true);
+				
+				// Set the class name based on the language name
+				fLanguageText.addModifyListener(new ModifyListener() {
+	                public void modifyText(ModifyEvent e) {	
+	                    setClassByLanguage();
+	                }
+	            });
+			} catch (Exception e) {
+			    ErrorHandler.reportError("NewParserWrapperWizardPage.createControl(..):  Internal error, extension point schema may have changed", e);
+			}
+	    }
+
     }
 
 
