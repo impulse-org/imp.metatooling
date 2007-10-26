@@ -184,7 +184,7 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
      * gather wizard-specific values.
      */
     protected void collectCodeParms() {
-    	fProject = pages[0].getProject();
+    	fProject = pages[0].getProjectOfRecord();
     	fProjectName = pages[0].fProjectText.getText();
         fLanguageName= pages[0].fLanguageText.getText();
         

@@ -30,7 +30,7 @@ public class NewProject extends CodeServiceWizard {
 
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
         ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
-        IProject project= page.getProject();
+        IProject project= page.getProjectOfRecord();
         Map subs= getStandardSubstitutions();
 
         subs.put("$NATURE_ID$", fLanguageName + ".nature");

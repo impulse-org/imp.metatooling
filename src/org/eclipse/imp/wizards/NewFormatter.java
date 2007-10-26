@@ -32,7 +32,7 @@ public class NewFormatter extends CodeServiceWizard {
 
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
         ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
-        IProject project= page.getProject();
+        IProject project= page.getProjectOfRecord();
         Map subs= getStandardSubstitutions();
 
         // SMS 9 Aug 2006 (but see following note of 21 Jul 2006)

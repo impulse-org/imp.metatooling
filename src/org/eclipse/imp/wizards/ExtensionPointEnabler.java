@@ -154,7 +154,7 @@ public class ExtensionPointEnabler {
     		ExtensionPointWizardPage page,
     		boolean remove, IProgressMonitor monitor) {
 	try {
-	    IPluginModel pluginModel= getPluginModel(page.getProject());
+	    IPluginModel pluginModel= getPluginModel(page.getProjectOfRecord());
 
 	    if (pluginModel != null) {
 	    	if (remove) {
@@ -363,7 +363,7 @@ public class ExtensionPointEnabler {
 //        extensions.setBundleModel(bpmb);	
 //        bpmb.setExtensionsModel(extensions);
 
-    	loadImpExtensionsModel(pluginModel, page.getProject());
+    	loadImpExtensionsModel(pluginModel, page.getProjectOfRecord());
         
         // Create the exstension, fill it out, and add it to the model if necessary
         IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
@@ -376,7 +376,7 @@ public class ExtensionPointEnabler {
 		if (!extension.isInTheModel())	
 			pluginModel.getPluginBase().add(extension);
 	
-		addRequiredPluginImports(pluginModel, page.getProject(), page.getRequires());
+		addRequiredPluginImports(pluginModel, page.getProjectOfRecord(), page.getRequires());
 		
 		saveAndRefresh(pluginModel);
 	}
@@ -547,7 +547,7 @@ public class ExtensionPointEnabler {
 		Map/*<String qualElemName, PluginElement>*/ elementMap= new HashMap(); // so we can find nested/parent elements after they've been created, somewhat regardless of the field ordering
 	
 		elementMap.put("extension", extension); // Let nested elements find the extension object itself by name
-	
+
 		for(int n= 0; n < fields.size(); n++) {
 		    WizardPageField field= (WizardPageField) fields.get(n);
 	            String schemaElementName= field.fSchemaElementName;

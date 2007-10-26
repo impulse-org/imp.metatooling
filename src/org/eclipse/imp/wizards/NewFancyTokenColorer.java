@@ -63,7 +63,7 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 		    try {
-			IProject project= getProject();
+			IProject project= getProjectOfRecord();
 			ISourceProject srcProject= ModelFactory.open(project);
 			IPath grammarPath= findGrammarPath(project);
 			if (grammarPath == null) {

@@ -37,14 +37,14 @@ public class GeneratedComponentEnabler
 	
     public static IPluginModel getPluginModel(final GeneratedComponentWizardPage page) {
 	try {
-	    final IProject project= page.getProject();
+	    final IProject project= page.getProjectOfRecord();
 
 	    if (project == null) return null;
 
             maybeCreatePluginXML(project);
             return getPluginModelForProject(project);
 	} catch (Exception e) {
-		ErrorHandler.reportError("Could not find plugin for project " + page.getProject().getName(), true, e);
+		ErrorHandler.reportError("Could not find plugin for project " + page.getProjectOfRecord().getName(), true, e);
 	    return null;
 	}
     }
