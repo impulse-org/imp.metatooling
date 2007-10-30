@@ -257,30 +257,6 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
     protected void editFile(IProgressMonitor monitor, final IFile file)
     {
     	WizardUtilities.editFile(monitor, file, getShell());
-    	
-//	monitor.setTaskName("Opening file for editing...");
-//	getShell().getDisplay().asyncExec(new Runnable() {
-//	    public void run() {
-//		IWorkbenchPage page= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-//		try {
-//		    IEditorPart editorPart= IDE.openEditor(page, file, true);
-//		    AbstractTextEditor editor= (AbstractTextEditor) editorPart;
-//		    IFileEditorInput fileInput= (IFileEditorInput) editorPart.getEditorInput();
-//		    String contents= StreamUtils.readStreamContents(file.getContents(), file.getCharset());
-//		    int cursor= contents.indexOf(START_HERE);
-//
-//		    if (cursor >= 0) {
-//			TextSelection textSel= new TextSelection(editor.getDocumentProvider().getDocument(fileInput), cursor, START_HERE.length());
-//			editor.getEditorSite().getSelectionProvider().setSelection(textSel);
-//		    }
-//		} catch (PartInitException e) {
-//		} catch (CoreException e) {
-//		    // TODO Auto-generated catch block
-//		    e.printStackTrace();
-//		}
-//	    }
-//	});
-//	monitor.worked(1);
     }
     
     
@@ -291,20 +267,6 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
     throws CoreException
 	{
     	return WizardUtilities.createFileFromTemplate(fileName, templateName, folder, getProjectSourceLocation(), replacements, project, monitor);
-//		monitor.setTaskName("Creating " + fileName);
-//	
-//		final IFile file= project.getFile(new Path(getProjectSourceLocation() + folder + "/" + fileName));
-//		String templateContents= new String(getTemplateFile(templateName));
-//		String contents= WizardUtilities.performSubstitutions(templateContents, replacements);
-//	
-//		if (file.exists()) {
-//		    file.setContents(new ByteArrayInputStream(contents.getBytes()), true, true, monitor);
-//		} else {
-//	        createSubFolders(getProjectSourceLocation() + folder, project, monitor);
-//		    file.create(new ByteArrayInputStream(contents.getBytes()), true, monitor);
-//		}
-//	//	monitor.worked(1);
-//		return file;
     }
     
     
@@ -339,39 +301,13 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
 	return file;
     }
     
-    
-//    protected void createSubFolders(String folder, IProject project, IProgressMonitor monitor) throws CoreException {
-//        String[] subFolderNames= folder.split("[\\" + File.separator + "\\/]");
-//        String subFolderStr= "";
-//
-//        for(int i= 0; i < subFolderNames.length; i++) {
-//            String childPath= subFolderStr + "/" + subFolderNames[i];
-//            Path subFolderPath= new Path(childPath);
-//            IFolder subFolder= project.getFolder(subFolderPath);
-//
-//            if (!subFolder.exists())
-//                subFolder.create(true, true, monitor);
-//            subFolderStr= childPath;
-//        }
-//    }
+
 
     public static void replace(StringBuffer sb, String target, String substitute) {
 	for(int index= sb.indexOf(target); index != -1; index= sb.indexOf(target))
 	    sb.replace(index, index + target.length(), substitute);
     }
 
-//    protected String performSubstitutions(String contents, Map replacements) {
-//	StringBuffer buffer= new StringBuffer(contents);
-//
-//	for(Iterator iter= replacements.keySet().iterator(); iter.hasNext();) {
-//	    String key= (String) iter.next();
-//	    String value= (String) replacements.get(key);
-//
-//	    if (value != null)
-//		replace(buffer, key, value);
-//	}
-//	return buffer.toString();
-//    }
 
     protected static String getTemplateBundleID() {
     	return WizardPlugin.kPluginID;
