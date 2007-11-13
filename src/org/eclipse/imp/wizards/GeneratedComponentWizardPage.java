@@ -10,58 +10,25 @@ package org.eclipse.imp.wizards;
  * (c) Copyright IBM Corp. 2005  All Rights Reserved
  */
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.core.ErrorHandler;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.core.BinaryType;
-import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.SourceType;
-import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
-import org.eclipse.jdt.internal.ui.dialogs.PackageSelectionDialog;
-import org.eclipse.jdt.internal.ui.dialogs.TypeSelectionDialog2;
-import org.eclipse.jdt.internal.ui.wizards.NewClassCreationWizard;
-import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jdt.ui.wizards.NewClassWizardPage;
 import org.eclipse.jface.dialogs.IDialogPage;
-import org.eclipse.jface.operation.IRunnableContext;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.pde.internal.core.ischema.IMetaAttribute;
 import org.eclipse.pde.internal.core.ischema.ISchemaAttribute;
-import org.eclipse.pde.internal.ui.util.SWTUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.ContainerSelectionDialog;
-import org.eclipse.ui.dialogs.ISelectionValidator;
-import org.eclipse.ui.dialogs.SelectionDialog;
-import org.eclipse.ui.internal.Workbench;
 
 /**
  * The "New" wizard page allows setting the container for the new file as well as the file name. The page will only
@@ -278,25 +245,11 @@ public class GeneratedComponentWizardPage extends IMPWizardPage	//WizardPage
     }
 
  
-    // fComponentID is wizard-subtype-specific
-    protected void createLanguageFieldForPlatformSchema(Composite parent) {
-        WizardPageField languageField= new WizardPageField(fComponentID, "language", "Language", "", 0, true, "Language for which to create " + fComponentID);
-    
-        fLanguageText= createLabelTextBrowse(parent, languageField, null);
-        fLanguageText.setData(languageField);
-        fFields.add(languageField);
-    
+    // SMS 13 Nov 2007:
+    // Removed method createLanguageFieldForPlatformSchema(Composite parent)
+    // that wasn't called and that is probably supplanted by a version now
+    // in IMPWizardPage.	
 
-        fLanguageText.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent e) {
-                Text text= (Text) e.widget;
-                WizardPageField field= (WizardPageField) text.getData();
-                field.fValue= text.getText();
-                sLanguage= field.fValue;
-                dialogChanged();
-            }
-        });
-    }
     
     // Not duplicated in practice, but not necessarily specific in logic?
     protected void createClassField(Composite parent, String basedOn) {
