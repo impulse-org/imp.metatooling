@@ -34,7 +34,7 @@ public class BuilderWizardPage extends ExtensionPointWizardPage {
 
     
     protected void createFirstControls(Composite parent, String componentID) {
-        createLanguageFieldForPlatformSchema(parent, fSchema.getPointId());
+        createLanguageFieldForComponent(parent, fSchema.getPointId());
     }
 
     @Override
