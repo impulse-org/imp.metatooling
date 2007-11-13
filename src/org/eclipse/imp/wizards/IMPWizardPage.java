@@ -233,11 +233,11 @@ public class IMPWizardPage extends WizardPage {
 		            fProjectText.setText(selectedProject.getName());
 		            sProjectName= selectedProject.getName();
                     // SMS 9 Oct 2007
-                    System.out.println("IMPWizardPage:projectBrowseSelectionAdapter:  updating fProject = " + sProjectName);	
+                    //System.out.println("IMPWizardPage:projectBrowseSelectionAdapter:  updating fProject = " + sProjectName);	
                     fProject = getProjectBasedOnNameField();
 		        } else {
                     // SMS 9 Oct 2007
-                    System.out.println("IMPWizardPage:projectBrowseSelectionAdapter:  not updating fProject (or other project data)");	
+                    //System.out.println("IMPWizardPage:projectBrowseSelectionAdapter:  not updating fProject (or other project data)");	
 		        }
 		    }
 		}
@@ -396,11 +396,11 @@ public class IMPWizardPage extends WizardPage {
 			// be null still, so we need to grab the selected project, if any
 			// (but how can thiw be when fProjectText has a non-zero length???)
 			if (fProject == null) {
-				System.out.println("IMPWIzardPage.discoverProjectLanguage():  fProject == null");
+				//System.out.println("IMPWIzardPage.discoverProjectLanguage():  fProject == null");
 				fProject = discoverSelectedProjectWithoutUpdating();
-				System.out.println("IMPWIzardPage.discoverProjectLanguage():  updated fProject == " + fProject.getName());
+				//System.out.println("IMPWIzardPage.discoverProjectLanguage():  updated fProject == " + fProject.getName());
 			} else {
-				System.out.println("IMPWIzardPage.discoverProjectLanguage():  fProject != null");
+				//System.out.println("IMPWIzardPage.discoverProjectLanguage():  fProject != null");
 			}
 	    	try {
 	    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, fProject);
@@ -887,28 +887,28 @@ public class IMPWizardPage extends WizardPage {
 
     protected void addLanguageListener() {
     	if (fLanguageText != null) {
-    		System.out.println("IMPWizardPage.addLanguageListener:  adding listener");
+    		//System.out.println("IMPWizardPage.addLanguageListener:  adding listener");
             fLanguageText.addModifyListener(new ModifyListener() {
                 public void modifyText(ModifyEvent e) {
-                	System.out.println("IMPWizardPage:languageModifyListener:  got modify event");
+                	//System.out.println("IMPWizardPage:languageModifyListener:  got modify event");
                     setClassByLanguage();
                     setIDByLanguage();
                     setNameByLanguage();
                 }
             });
     	} else {
-    		System.out.println("IMPWizardPage.addLanguageListener:  unable to add listener");
+    		System.err.println("IMPWizardPage.addLanguageListener:  unable to add listener");
     	}	
     }
 
     
     protected void addProjectListener() {
     	if (fProjectText != null) {
-    		System.out.println("IMPWizardPage.addProjectListener:  adding listener");
+    		//System.out.println("IMPWizardPage.addProjectListener:  adding listener");
     		ProjectTextModifyListener ptml = new ProjectTextModifyListener();
             fProjectText.addModifyListener(ptml);
     	} else {
-    		System.out.println("IMPWizardPage.addProjectListener:  unable to add listener");
+    		System.err.println("IMPWizardPage.addProjectListener:  unable to add listener");
     	}
     }
     
@@ -952,7 +952,7 @@ public class IMPWizardPage extends WizardPage {
      * @param parent
      */
     protected void createFirstControls(Composite parent, String componentID) {
-	    createLanguageFieldForPlatformSchema(parent, componentID);
+	    createLanguageFieldForComponent(parent, componentID);
 	    
     }
     
@@ -1055,144 +1055,68 @@ public class IMPWizardPage extends WizardPage {
 	    return text;
 	}
 
+	
+	/**
+	 * Create the language field for a wizard page for a component of the
+	 * IDE under construction. The component may or may not be an extension
+	 * of an extension point and so may or may not have a corresponding
+	 * extension point schema id.  The component id is a generalization of
+	 * the schema id that can be used with both extension and non-extension
+	 * components.
+	 * 
+	 * SMS 13 Nov 2007:  Field is created in a disabled state, on the theory
+	 * that most IMP wizards will be run with reference to a particular project
+	 * and that most projects will uniquely determine a language during most
+	 * stages of IDE construction.  Thus, there is usually no reason to allow
+	 * the IDE developer to set the language field independently.
+	 * 
+	 * May be overridden by derived types of wizard page.  One particular
+	 * reason to override is to have the langauage be enabled, as when the
+	 * language is first defined for a project.
+	 * 
+	 * @param parent		The page in which the field will reside
+	 * @param componentID	The id of the component (extension or otherwise)
+	 * 						to which the page and field are dedicated
+	 */
+    protected void createLanguageFieldForComponent(Composite parent, String componentID) {
+        WizardPageField languageField= new WizardPageField(
+        	componentID, "language", "Language", "", 0, true, "Language for which to create " + componentID);
 
-	//    protected String upperCaseFirst(String language) {
-	//	return Character.toUpperCase(language.charAt(0)) + language.substring(1);
-	//    }
-	//
-	//    protected String lowerCaseFirst(String s) {
-	//        return Character.toLowerCase(s.charAt(0)) + s.substring(1);
-	//    }
-	
-	//    IPluginModelBase getPluginModel() {
-	//        try {
-	//            PluginModelManager pmm= PDECore.getDefault().getModelManager();
-	//            IPluginModelBase[] plugins= pmm.getAllPlugins();
-	//            IProject project= getProject();
-	//
-	//            if (project == null)
-	//        	return null;
-	//            for(int n= 0; n < plugins.length; n++) {
-	//                IPluginModelBase plugin= plugins[n];
-	//                IResource resource= plugin.getUnderlyingResource();
-	//                if (resource != null && project.equals(resource.getProject())) {
-	//                    return plugin;
-	//                }
-	//            }
-	//        } catch (Exception e) {
-	//            ErrorHandler.reportError("Could not enable extension point for " + getProject(), e);
-	//        }
-	//        return null;
-	//    }
-	
-	//    void dialogChanged() {
-	//        setErrorMessage(null);
-	//        if (fSkip)
-	//            setPageComplete(true);
-	//        else {
-	//            IProject project= getProject();
-	//            if (project == null) {
-	//                setErrorMessage("Please select a plug-in project to add this extension to");
-	//                setPageComplete(false);
-	//                return;
-	//            }
-	//            boolean isPlugin= false;
-	//            try {
-	//                isPlugin= project.hasNature("org.eclipse.pde.PluginNature");
-	//            } catch (CoreException e) {
-	//            }
-	//            if (!isPlugin) {
-	//                setErrorMessage("\"" + sProjectName + "\" is not a plug-in project. Please select a plug-in project to add this extension to");
-	//                setPageComplete(false);
-	//                return;
-	//            }
-	//            WizardPageField field= getUncompletedField();
-	//            if (field != null) {
-	//                setErrorMessage("Please provide a value for the required attribute \"" + field.fLabel + "\"");
-	//                setPageComplete(false);
-	//                return;
-	//            }
-	//            setPageComplete(true);
-	//        }
-	//    }
-	
-	//    WizardPageField getUncompletedField() {
-	//	// BUG Prevents clicking "Finish" if an element is optional but one of its attributes isn't
-	//        for(int n= 0; n < fFields.size(); n++) {
-	//            WizardPageField field= (WizardPageField) fFields.get(n);
-	//            if (field.fRequired && field.fValue.length() == 0) {
-	//                return field;
-	//            }
-	//        }
-	//        return null;
-	//    }
-	
-	    // SMS 4 Aug 2006:  not called but retained for potential convenience
-	//    public List getFields() {
-	//        return fFields;
-	//    }
-	
-	//	    // SMS 4 Aug 2006:  not called but retained for potential convenience
-	//	    public String getValue(String name) {
-	//	        for(int n= 0; n < fFields.size(); n++) {
-	//	            WizardPageField field= (WizardPageField) fFields.get(n);
-	//	            if (field.fAttributeName.toLowerCase().equals(name)) {
-	//	                return field.fValue;
-	//	            }
-	//	        }
-	//	        return "No such field: " + name;
-	//	    }
-	
-	//    public WizardPageField getField(String name) {
-	//        for(int n= 0; n < fFields.size(); n++) {
-	//            WizardPageField field= (WizardPageField) fFields.get(n);
-	//            if (field.fAttributeName.toLowerCase().equals(name)) {
-	//                return field;
-	//            }
-	//        }
-	//        return null;
-	//    }
-	
-	//    public List getRequires() {
-	//        return fRequiredPlugins;
-	//    }
+        fLanguageText= createLabelTextBrowse(parent, languageField, null);
+        fLanguageText.setData(languageField);
 
-	    // fComponentID is wizard-subtype-specific
-	    protected void createLanguageFieldForPlatformSchema(Composite parent, String componentID) {
-	        WizardPageField languageField= new WizardPageField(componentID, "language", "Language", "", 0, true, "Language for which to create " + componentID);
-
-	        fLanguageText= createLabelTextBrowse(parent, languageField, null);
-	        fLanguageText.setData(languageField);
-	        fFields.add(languageField);
-	    
-	        // Listen to changes in value of language field in order to
-	        // reset dependent fields
-	        fLanguageText.addModifyListener(new ModifyListener() {
-	            public void modifyText(ModifyEvent e) {
-	                Text text= (Text) e.widget;
-	                WizardPageField field= (WizardPageField) text.getData();
-	                field.fValue= text.getText();
-	                sLanguage= field.fValue;
-	                dialogChanged();
-	            }
-	        });
-	        
-	        // SMS 9 Oct 2007
-	        // Listen to changes in the value of the project field in order to
-	        // reset the language field
-	        if (fProjectText != null) {
-//	        	System.out.println("IMPWizardPage.createLanguageField...:  fProjectText != null, adding listener");
-	        	fProjectText.addModifyListener(
-	        		new ModifyListener() {
-			            public void modifyText(ModifyEvent e) {
-			            	discoverProjectLanguage();
-			            }
-	        		});
-	        } else {
-//	        	System.out.println("IMPWizardPage.createLanguageField...:  fProjectText == null, not adding listener");	
-	        }
-	        
-	    }
+        fLanguageText.setEnabled(false);
+        
+        fFields.add(languageField);
+    
+        // Listen to changes in value of language field in order to
+        // reset dependent fields
+        fLanguageText.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                Text text= (Text) e.widget;
+                WizardPageField field= (WizardPageField) text.getData();
+                field.fValue= text.getText();
+                sLanguage= field.fValue;
+                dialogChanged();
+            }
+        });
+        
+        // SMS 9 Oct 2007
+        // Listen to changes in the value of the project field in order to
+        // reset the language field
+        if (fProjectText != null) {
+	        //System.out.println("IMPWizardPage.createLanguageField...:  fProjectText != null, adding listener");
+        	fProjectText.addModifyListener(
+        		new ModifyListener() {
+		            public void modifyText(ModifyEvent e) {
+		            	discoverProjectLanguage();
+		            }
+        		});
+        } else {
+	        System.err.println("IMPWizardPage.createLanguageField...:  fProjectText == null, not adding listener");	
+        }
+        
+    }
 
 
 	private Widget createNewClassHyperlink(WizardPageField field, String name, final String basedOn, Composite container) {
