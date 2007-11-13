@@ -42,6 +42,8 @@ import org.eclipse.imp.utils.StreamUtils;
  * SMS 19 Jun 2007:  Added $LANG_NAME$ substitution parameter
  * SMS 02 Jul 2007:  Realized that fProject is already defined
  *  in ExtensionPointWizard, so eliminating local declaration
+ * SMS 13 Nov 2007:  Change type of wizard page to newly created
+ *  type NewLanguageWizardPage
  */
 
 public class NewLanguage extends CodeServiceWizard {
@@ -51,7 +53,7 @@ public class NewLanguage extends CodeServiceWizard {
    
     
     public void addPages() {
-        addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.IMP_RUNTIME, "languageDescription") });
+        addPages(new ExtensionPointWizardPage[] { new NewLanguageWizardPage(this, RuntimePlugin.IMP_RUNTIME, "languageDescription") });
     }
 
     
