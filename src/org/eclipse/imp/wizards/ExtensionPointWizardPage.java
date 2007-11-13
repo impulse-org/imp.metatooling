@@ -217,6 +217,13 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
     /**
      * Creates controls that are to appear above the schema attributes
      * on the wizard page. Derived classes may override.
+     * 
+     * SMS 13 Nov 2007:  The only control we create here is the language
+     * field.  We look through the extension point schema to see if there
+     * is a "language" attribute.  We don't actually use the schema to
+     * create the field, but it is probably a good idea to create the
+     * field only if the attribute exists.
+     * 
      * @param parent
      */
     // SMS 10 Oct 2007:  was no componentID; used in place of fExtPointID
@@ -245,7 +252,10 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
 		    }
 		}
 		if (elt != null)
-		    createElementAttributeTextField(parent, "extension." + elt.getName(), elt.getAttribute("language"));
+			// SMS 13 Nov 2007:  Create language field using the
+			// method in IMPWizardPage (put there for that purpose)
+		    //createElementAttributeTextField(parent, "extension." + elt.getName(), elt.getAttribute("language"));
+			createLanguageFieldForComponent(parent, componentID);
     }
 
     /**
