@@ -10,10 +10,10 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 import $BUILDER_PKG_NAME$.$NATURE_CLASS_NAME$;
 
-public class EnableNature implements IWorkbenchWindowActionDelegate {
+public class $ENABLER_CLASS_NAME$ implements IWorkbenchWindowActionDelegate {
     private IProject fProject;
 
-    public EnableNature() {}
+    public $ENABLER_CLASS_NAME$() {}
 
     public void dispose() {}
 
