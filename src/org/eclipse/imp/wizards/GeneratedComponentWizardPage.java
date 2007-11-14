@@ -74,8 +74,12 @@ public class GeneratedComponentWizardPage extends IMPWizardPage	//WizardPage
 //        this.fThisPageNumber= pageNumber;
 //        this.fTotalPages= totalPages;
 //        this.fOwningWizard= owner;
-        for (int i = 0; i < attributes.length; i++) {
-        	this.fAttributes.add(attributes[i]);
+        
+        // SMS 14 Nov 2007 added null guard
+        if (attributes != null) {
+	        for (int i = 0; i < attributes.length; i++) {
+	        	this.fAttributes.add(attributes[i]);
+	        }
         }
         this.fWizardName = wizardName;
         this.fWizardDescription = wizardDescription;
