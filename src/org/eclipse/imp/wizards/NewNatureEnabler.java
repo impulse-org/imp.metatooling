@@ -5,7 +5,6 @@
  */
 package org.eclipse.imp.wizards;
 
-import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,29 +19,17 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.pde.core.plugin.IPluginElement;
-import org.eclipse.pde.core.plugin.IPluginExtension;
-import org.eclipse.pde.core.plugin.IPluginModel;
-import org.eclipse.pde.core.plugin.IPluginModelBase;
-import org.eclipse.pde.core.plugin.IPluginObject;
-import org.eclipse.pde.internal.core.PDECore;
-import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -51,17 +38,13 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
-import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.INewWizard;
-import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -70,12 +53,9 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.ISelectionValidator;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
-import org.eclipse.imp.WizardPlugin;
-import org.eclipse.imp.core.ErrorHandler;
-import org.eclipse.imp.utils.StreamUtils;
 import org.osgi.framework.Bundle;
 
-public class NewNatureEnabler extends Wizard implements INewWizard {
+public class NewNatureEnabler extends GeneratedComponentWizard /*Wizard*/ implements INewWizard {
     private static final String START_HERE= "// START_HERE";
 
     private NewNatureEnablerPage fEnablerPage;
@@ -89,8 +69,8 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
      * Cached from fEnablerPage field by collectCodeParms to avoid invalid SWT thread access when enabling extension
      */
     private String fLangName;
-
     private String fBuilderPkgName;
+    private String fQualClassName;
 
     public NewNatureEnabler() {
 	super();
@@ -102,313 +82,117 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
     }
 
     public void addPages() {
-	addPage(fEnablerPage= new NewNatureEnablerPage());
+    	// SMS 1 Nov 2007 adapted to call addPages in GCWP rather than addPage in Wizard
+    	addPages(new GeneratedComponentWizardPage[] {fEnablerPage= new NewNatureEnablerPage()} );
     }
 
-    class NewNatureEnablerPage extends WizardPage {
-	IProject fProject;
 
-	public NewNatureEnablerPage() {
-	    super("New Nature Enabler", "New Nature Enabler", null);
-	    setDescription("Create a new nature enabler pop-up action for your language");
-	}
-
-	private final class ProjectTextModifyListener implements ModifyListener {
-	    public void modifyText(ModifyEvent e) {
-		Text text= (Text) e.widget;
-
-		setProjectByName(text.getText());
-		discoverProjectLanguage();
-		dialogChanged();
-	    }
-	}
-
-	private final class FocusDescriptionListener extends FocusAdapter {
-	    public void focusGained(FocusEvent e) {
-		Text text= (Text) e.widget;
-		if (text == NewNatureEnablerPage.this.fProjectText)
-		    fDescriptionText.setText("Enter the name of a plug-in project");
-		else if (text == NewNatureEnablerPage.this.fLanguageText)
-		    fDescriptionText.setText("Enter the name of the language");
-	    }
-	}
-
-	private final class ProjectBrowseSelectionListener extends SelectionAdapter {
-	    private final IProject project;
-
-	    private ProjectBrowseSelectionListener(IProject project) {
-		super();
-		this.project= project;
-	    }
-
-	    public void widgetSelected(SelectionEvent e) {
-		ContainerSelectionDialog dialog= new ContainerSelectionDialog(getShell(), project, false,
-		"Select a plug-in Project");
-		// RMF Would have thought the following would set the initial selection,
-		// but passing project as the initialRoot arg above seems to work...
-		if (project != null)
-		    dialog.setInitialSelections(new Object[] { project.getFullPath() });
-		dialog.setValidator(new ISelectionValidator() {
-		    public String isValid(Object selection) {
-			try {
-			    IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(selection.toString());
-
-			    if (project.exists() && project.hasNature("org.eclipse.pde.PluginNature") && project.hasNature("org.eclipse.jdt.core.javanature")) {
-				return null;
-			    }
-			    // TODO Check that this project has a nature and a builder defined
-			} catch (Exception e) {
-			}
-			return "The selected project \"" + selection + "\" is not a plug-in project or is not a Java project.";
-		    }
-		});
-		if (dialog.open() == ContainerSelectionDialog.OK) {
-		    Object[] result= dialog.getResult();
-		    IProject selectedProject= ResourcesPlugin.getWorkspace().getRoot().getProject(result[0].toString());
-		    if (result.length == 1) {
-			fProjectText.setText(selectedProject.getName());
-		    }
-		}
-	    }
-	}
-
-	protected Text fProjectText;
-
-	protected Text fDescriptionText;
-
-	protected Text fLanguageText;
-
-	public void createControl(Composite parent) {
-	    try {
-		Composite container= new Composite(parent, SWT.NULL | SWT.BORDER);
-		// container.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-
-		GridLayout layout= new GridLayout();
-		container.setLayout(layout);
-		layout.numColumns= 3;
-		layout.verticalSpacing= 9;
-
-		createProjectLabelText(container);
-		createLanguageLabelText(container);
-		createDescriptionText(container);
-		discoverProjectLanguage();
-		dialogChanged();
-		setControl(container);
-		fProjectText.setFocus();
-		dialogChanged();
-	    } catch (Exception e) {
-		e.printStackTrace();
-	    }
-	}
-
-	private void createDescriptionText(Composite container) {
-	    fDescriptionText= new Text(container, SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
-	    fDescriptionText.setBackground(container.getBackground());
-	    GridData gd= new GridData(GridData.FILL_BOTH);
-	    gd.horizontalSpan= 3;
-	    gd.widthHint= 450;
-	    fDescriptionText.setLayoutData(gd);
-	    fDescriptionText.setEditable(false);
-	}
-
-	private void createProjectLabelText(Composite container) {
-	    Label label= new Label(container, SWT.NULL);
-
-	    label.setText("Project*:");
-	    label.setBackground(container.getBackground());
-	    label.setToolTipText("Select the plug-in project");
-	    fProjectText= new Text(container, SWT.BORDER | SWT.SINGLE);
-	    fProjectText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-	    final IProject project= getProject();
-
-	    if (project != null)
-		fProjectText.setText(project.getName());
-
-	    Button browseButton= new Button(container, SWT.PUSH);
-
-	    browseButton.setText("Browse...");
-	    browseButton.addSelectionListener(new ProjectBrowseSelectionListener(project));
-	    fProjectText.addModifyListener(new ProjectTextModifyListener());
-	    fProjectText.addFocusListener(new FocusAdapter() {
-		public void focusGained(FocusEvent e) {
-		    // Text text = (Text)e.widget;
-		    if (fDescriptionText != null)
-			fDescriptionText.setText("Select the plug-in project to add this extension to");
-		}
-	    });
-	}
-
-	private IProject discoverSelectedProject() {
-	    ISelectionService service= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
-	    ISelection selection= service.getSelection();
-	    IProject project= getProject(selection);
-
-	    if (project != null) {
-			fProject= project;
-			fProjectText.setText(fProject.getName());
-	    }
-	    return project;
-	}
-
-	/**
-	 * Attempt to find the languageDescription extension for the specified project
-	 * (if any), and use the language name from that extension to populate the
-	 * language name field in the dialog.
-	 */
-	private void discoverProjectLanguage() {
-	    if (fProjectText.getText().length() == 0)
-		return;
-
-	    IPluginModelBase pluginModel= getPluginModel();
-
-	    if (pluginModel != null) {
-	    	// SMS 26 Jul 2007
-	    	if (fProject == null) {
-	    		discoverSelectedProject();
-	    	}
-	    	try {
-	    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, fProject);
-	    	} catch (CoreException e) {
-	    		System.err.println("NewNatureEnabler.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
-	    	} catch (ClassCastException e) {
-	    		System.err.println("ExtensionPointUtils.findElementByName(..):  ClassCastExeption loading extensions model; may not succeed");
-	    	}
-	    	IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
-
-			for(int i= 0; i < extensions.length; i++) {
-			    if (extensions[i].getPoint().endsWith(".languageDescription")) {
-					IPluginObject[] children= extensions[i].getChildren();
+    class NewNatureEnablerPage extends GeneratedComponentWizardPage { 	//WizardPage {
 		
-					for(int j= 0; j < children.length; j++) {
-					    if (children[j].getName().equals("language")) {
-					    	fLanguageText.setText(((IPluginElement) children[j]).getAttribute("language").getValue());
-						return;
-					    }
-					}
-			    }
+		public NewNatureEnablerPage() {
+		    super(NewNatureEnabler.this, "NatureEnabler", true, null, "New Nature Enabler", "Creates an action to enable a nature on a project");
+		    setDescription("Create a new nature enabler pop-up action for your language");
+		}
+		
+		
+	    protected void createAdditionalControls(Composite parent) {
+	    	discoverProjectLanguage();
+	    	createTextField(parent, "newNatureEnabler", "class",
+	    		"The qualified name of the action class to be generated",
+	    		"",
+	    		"ClassBrowse", true);
+			try {
+				// SMS 10 May 2007
+				// setEnabled was called with "false"; I don't know why,
+				// but I want an enabled field (and enabling it here
+				// hasn't seemed to cause any problems)	
+				fQualClassText.setEnabled(true);
+				
+				// Set the class name based on the language name
+				fLanguageText.addModifyListener(new ModifyListener() {
+	                public void modifyText(ModifyEvent e) {	
+	                    setClassByLanguage();
+	                }
+	            });
+			} catch (Exception e) {
+			    ErrorHandler.reportError("NewParserWrapperWizardPage.createControl(..):  Internal error, extension point schema may have changed", e);
 			}
 	    }
-	}
+	
+	    // Overriden so as to customize the class and package name
+	    protected void setClassByLanguage() {
+	       	try {
+	                WizardPageField langField= getField("language");
+	                WizardPageField classField= getField("class");
+	                String language= langField.getText();
 
-	private void setProjectByName(String projName) {
-	    fProject= ResourcesPlugin.getWorkspace().getRoot().getProject(projName);
-	}
+	                if (language.length() == 0)
+	                    return;
+	                String langPkg= lowerCaseFirst(language);
+	                String langClass= upperCaseFirst(language);
 
-	private IProject getProject(ISelection selection) {
-	    if (selection instanceof IStructuredSelection && !selection.isEmpty()) {
-		IStructuredSelection ssel= (IStructuredSelection) selection;
-		if (ssel.size() > 1)
-		    return null;
-		Object obj= ssel.getFirstElement();
-		if (obj instanceof IPackageFragmentRoot)
-		    obj= ((IPackageFragmentRoot) obj).getResource();
-		if (obj instanceof IResource) {
-		    return ((IResource) obj).getProject();
-		}
-		if (obj instanceof JavaProject) {
-		    return ((JavaProject) obj).getProject();
-		}
-	    }
-	    if (selection instanceof ITextSelection || selection == null) {
-		IEditorPart editorPart= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-		IEditorInput editorInput= editorPart.getEditorInput();
+	                fPackageName= langPkg + ".imp.actions";
+	                
+	                if (classField != null) {
+	                    classField.setText(fPackageName + "." + "Enable" + langClass + "Nature");	//langClass + upperCaseFirst(fComponentID));
+	                }
+	                
+	            } catch (Exception e) {
+	                ErrorHandler.reportError("Cannot set class", e);
+	            }
+	        }
 
-		if (editorInput instanceof IFileEditorInput) {
-		    IFileEditorInput fileInput= (IFileEditorInput) editorInput;
-
-		    return fileInput.getFile().getProject();
-		}
-	    }
-	    return null;
-	}
-
-	public IProject getProject() {
-	    if (fProject == null)
-		fProject= discoverSelectedProject();
-
-	    return fProject;
-	}
-
-	IPluginModelBase getPluginModel() {
-	    try {
-		PluginModelManager pmm= PDECore.getDefault().getModelManager();
-		IPluginModelBase[] plugins= pmm.getAllPlugins();
-		IProject project= getProject();
-
-		if (project == null)
-		    return null;
-		for(int n= 0; n < plugins.length; n++) {
-		    IPluginModelBase plugin= plugins[n];
-		    IResource resource= plugin.getUnderlyingResource();
-		    if (resource != null && project.equals(resource.getProject())) {
-			return plugin;
+	
+		private final class FocusDescriptionListener extends FocusAdapter {
+		    public void focusGained(FocusEvent e) {
+			Text text= (Text) e.widget;
+			if (text == NewNatureEnablerPage.this.fProjectText)
+			    fDescriptionText.setText("Enter the name of a plug-in project");
+			else if (text == NewNatureEnablerPage.this.fLanguageText)
+			    fDescriptionText.setText("Enter the name of the language");
 		    }
 		}
-	    } catch (Exception e) {
-		ErrorHandler.reportError("Could not enable extension point for " + getProject(), e);
-	    }
-	    return null;
-	}
-
-	void dialogChanged() {
-	    setErrorMessage(null);
-
-	    IProject project= getProject();
-
-	    if (project == null) {
-		setErrorMessage("Please select a plug-in project to add this extension to");
-		setPageComplete(false);
-		return;
-	    }
-	    boolean isPlugin= false;
-	    try {
-		isPlugin= project.hasNature("org.eclipse.pde.PluginNature");
-	    } catch (CoreException e) {
-	    }
-	    if (!isPlugin) {
-		setErrorMessage("\"" + fProject.getName() + "\" is not a plug-in project. Please select a plug-in project to add this extension to");
-		setPageComplete(false);
-		return;
-	    }
-	    if (fLanguageText.getText().length() == 0) {
-		setErrorMessage("Please provide a language name.");
-		setPageComplete(false);
-		return;
-	    }
-	    setPageComplete(true);
-	}
-
-	protected void createLanguageLabelText(Composite parent) {
-	    fLanguageText= createLabelText(parent, "language", "The language for which to create a nature enabler");
-
-	    fLanguageText.addModifyListener(new ModifyListener() {
-		public void modifyText(ModifyEvent e) {
-		    dialogChanged();
+	
+			
+		public IProject getProject() {
+		    if (fProject == null)
+			fProject= discoverSelectedProject();
+	
+		    return fProject;
 		}
-	    });
-	}
+	
 
-	protected Text createLabelText(Composite container, String name, String description) {
-	    Widget labelWidget= null;
-
-	    name+= "*:";
-
-	    Label label= new Label(container, SWT.NULL);
-	    label.setText(name);
-	    label.setToolTipText(description);
-	    labelWidget= label;
-	    label.setBackground(container.getBackground());
-
-	    Text text= new Text(container, SWT.BORDER | SWT.SINGLE);
-	    labelWidget.setData(text);
-	    GridData gd= new GridData(GridData.FILL_HORIZONTAL);
-	    gd.horizontalSpan= 1;
-	    text.setLayoutData(gd);
-	    text.addFocusListener(new FocusDescriptionListener());
-
-	    return text;
-	}
+	
+		protected void createLanguageLabelText(Composite parent) {
+		    fLanguageText= createLabelText(parent, "language", "The language for which to create a nature enabler");
+	
+		    fLanguageText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+			    dialogChanged();
+			}
+		    });
+		}
+	
+		protected Text createLabelText(Composite container, String name, String description) {
+		    Widget labelWidget= null;
+	
+		    name+= "*:";
+	
+		    Label label= new Label(container, SWT.NULL);
+		    label.setText(name);
+		    label.setToolTipText(description);
+		    labelWidget= label;
+		    label.setBackground(container.getBackground());
+	
+		    Text text= new Text(container, SWT.BORDER | SWT.SINGLE);
+		    labelWidget.setData(text);
+		    GridData gd= new GridData(GridData.FILL_HORIZONTAL);
+		    gd.horizontalSpan= 1;
+		    text.setLayoutData(gd);
+		    text.addFocusListener(new FocusDescriptionListener());
+	
+		    return text;
+		}
     }
 
     protected Map getStandardSubstitutions() {
@@ -426,10 +210,11 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
      * to generate code.
      */
     protected void collectCodeParms() {
-	fProject= fEnablerPage.fProject;
-	fLangName= fEnablerPage.fLanguageText.getText();
-	// TODO Should try to find the builder package by looking at the builder extension
-	fBuilderPkgName= fLangName + ".imp.builders";
+		fProject= fEnablerPage.fProject;
+		fLangName= fEnablerPage.fLanguageText.getText();
+		fQualClassName = fEnablerPage.fQualClassText.getText();
+		// TODO Should try to find the builder package by looking at the builder extension
+		fBuilderPkgName= fLangName + ".imp.builders";
     }
 
     /**
@@ -506,36 +291,7 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 	monitor.worked(1);
     }
 
-    protected IFile createFileFromTemplate(String fileName, String templateName, String folder, Map replacements,
-	    IProject project, IProgressMonitor monitor) throws CoreException {
-	monitor.setTaskName("Creating " + fileName);
 
-	final IFile file= project.getFile(new Path("src/" + folder + "/" + fileName));
-	String templateContents= new String(getTemplateFile(templateName));
-	String contents= performSubstitutions(templateContents, replacements);
-
-	if (file.exists()) {
-	    file.setContents(new ByteArrayInputStream(contents.getBytes()), true, true, monitor);
-	} else {
-            createSubFolders("src/" + folder, project, monitor);
-	    file.create(new ByteArrayInputStream(contents.getBytes()), true, monitor);
-	}
-//	monitor.worked(1);
-	return file;
-    }
-    
-    protected IFile createFile(String fileName, String folder, IProject project, IProgressMonitor monitor) throws CoreException {
-	monitor.setTaskName("Creating " + fileName);
-
-	final IFile file= project.getFile(new Path("src/" + folder + "/" + fileName));
-
-	if (!file.exists()) {
-            createSubFolders("src/" + folder, project, monitor);
-	    file.create(new ByteArrayInputStream("".getBytes()), true, monitor);
-	}
-//	monitor.worked(1);
-	return file;
-    }
 
     protected IFile getFile(String fileName, String folder, IProject project) throws CoreException {
 	IFile file= project.getFile(new Path("src/" + folder + "/" + fileName));
@@ -576,9 +332,6 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 	return buffer.toString();
     }
 
-    protected String getTemplateBundleID() {
-	return WizardPlugin.kPluginID;
-    }
 
     protected byte[] getTemplateFile(String fileName) {
 	try {
@@ -611,14 +364,16 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
 
         String language= fLangName;
         String natureClassName= upperCaseFirst(language) + "Nature";
-        String actionClassName= "EnableNature";
-
-        String actionPkgName= language + ".imp.actions";
+        
+        String actionClassName = fQualClassName.substring(fQualClassName.lastIndexOf('.')+1);	//"EnableNature";
+        String actionPkgName = fQualClassName.substring(0, fQualClassName.lastIndexOf('.'));	//language + ".imp.actions";
+        
         String actionPkgFolder= actionPkgName.replace('.', '/');
 
         subs.put("$BUILDER_PKG_NAME$", fBuilderPkgName);
         subs.put("$NATURE_CLASS_NAME$", natureClassName);
         subs.put("$PACKAGE_NAME$", actionPkgName);
+        subs.put("$ENABLER_CLASS_NAME$", actionClassName);
 
         createFileFromTemplate(actionClassName + ".java", "natureEnabler.java", actionPkgFolder, subs, project, mon);
     }
@@ -628,40 +383,20 @@ public class NewNatureEnabler extends Wizard implements INewWizard {
     }	
 
     private void addEnablerAction(IProgressMonitor mon) {
-	String actionClassName= "EnableNature";
-
-	// SMS 26 Jul 2007:  Done within ExtensionPointEnabler.enable(..)
-    //ExtensionPointEnabler.addImports(fProject, getPluginDependencies());
-
-	// This one makes the action show up for Java projects
-	ExtensionPointEnabler.enable(fProject, "org.eclipse.ui", "popupMenus",
-	    new String[][] {
-		{ "objectContribution:adaptable", "false" },
-		{ "objectContribution:nameFilter", "*" },
-		{ "objectContribution:objectClass", "org.eclipse.jdt.core.IJavaProject" },
-		{ "objectContribution:id", fLangName + ".imp.projectContextMenu" },
-		{ "objectContribution.action:class", fLangName + ".imp.actions." + actionClassName },
-		{ "objectContribution.action:id", fLangName + ".imp.actions.enableNatureAction" },
-		{ "objectContribution.action:label", "Enable " + fLangName + " Builder" },
-		{ "objectContribution.action:tooltip", "Enable the " + fLangName + " builder for this project" }
-	    },
-	    false,
-	    getPluginDependencies(),
-	    mon);
-	// RMF 10/19/2006 - disabled for now, since ExtensionPointEnabler.enable()
-	// assumes only one extension per extension point.
-	// This one makes the action show up for ordinary projects
-//	ExtensionPointEnabler.enable(fProject, "org.eclipse.ui", "popupMenus",
-//		    new String[][] {
-//			{ "objectContribution:adaptable", "false" },
-//			{ "objectContribution:nameFilter", "*" },
-//			{ "objectContribution:objectClass", "org.eclipse.core.resources.IProject" },
-//			{ "objectContribution:id", fLangName + ".safari.projectContextMenu" },
-//			{ "objectContribution.action:class", fLangName + ".safari.actions." + actionClassName },
-//			{ "objectContribution.action:id", fLangName + ".safari.actions.enableNatureAction" },
-//			{ "objectContribution.action:label", "Enable " + fLangName + " Builder" },
-//			{ "objectContribution.action:tooltip", "Enable the " + fLangName + " builder for this project" }
-//		    },
-//		mon);
-    }
+  		// This one makes the action show up for Java projects
+		ExtensionPointEnabler.enable(fProject, "org.eclipse.ui", "popupMenus",
+		    new String[][] {
+			{ "objectContribution:adaptable", "false" },
+			{ "objectContribution:nameFilter", "*" },
+			{ "objectContribution:objectClass", "org.eclipse.jdt.core.IJavaProject" },
+			{ "objectContribution:id", fLangName + ".imp.projectContextMenu" },
+			{ "objectContribution.action:class", fQualClassName },			//fLangName + ".imp.actions." + actionClassName },
+			{ "objectContribution.action:id", fLangName + ".imp.actions.enableNatureAction" },
+			{ "objectContribution.action:label", "Enable " + fLangName + " Builder" },
+			{ "objectContribution.action:tooltip", "Enable the " + fLangName + " builder for this project" }
+		    },
+		    false,
+		    getPluginDependencies(),
+		    mon);
+	    }
 }
