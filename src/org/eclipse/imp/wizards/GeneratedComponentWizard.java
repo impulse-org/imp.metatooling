@@ -59,8 +59,9 @@ import org.osgi.framework.Bundle;
 public abstract class GeneratedComponentWizard extends IMPWizard implements INewWizard {
     private static final String START_HERE= "// START_HERE";
 
-    protected int currentPage;
-
+    // SMS 14 Nov 2007:  	now declared in IMPWizard
+    //protected int currentPage;
+    
     protected GeneratedComponentWizardPage pages[];
     protected GeneratedComponentAttribute[] fWizardAttributes;
 
