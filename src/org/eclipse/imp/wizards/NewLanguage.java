@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.imp.runtime.RuntimePlugin;
+import org.eclipse.imp.ui.dialogs.validators.SelectionValidatorForPluginProjects;
 import org.eclipse.imp.utils.StreamUtils;
 
 
@@ -35,15 +36,17 @@ import org.eclipse.imp.utils.StreamUtils;
  * 	- Introduced use of $PLUGIN_CLASS$ parameter
  *  - eliminated generation of PreferencesConstants class
  * SMS 23 Apr 2007:
- * 	- Made fProject and fSubs top-level fields so that
- * 	  they can be shared by gatherCodeParms and performFinish.
- * 	- Added code to check for duplicate plugin ids and confirm
- *    whether the user wants that
+ * 	- Made fProject and fSubs top-level fields so that they can be shared
+ *    by gatherCodeParms and performFinish.
+ * 	- Added code to check for duplicate plugin ids and confirm whether the
+ *    user wants that
  * SMS 19 Jun 2007:  Added $LANG_NAME$ substitution parameter
- * SMS 02 Jul 2007:  Realized that fProject is already defined
- *  in ExtensionPointWizard, so eliminating local declaration
+ * SMS 02 Jul 2007:  Realized that fProject is already defined in
+ *  ExtensionPointWizard, so eliminating local declaration
  * SMS 13 Nov 2007:  Change type of wizard page to newly created
  *  type NewLanguageWizardPage
+ * SMS 24 Nov 2007:  Modified creation of page to add appropriate selection
+ *  validator (new feature of IMPWizardPage)
  */
 
 public class NewLanguage extends CodeServiceWizard {
@@ -53,17 +56,19 @@ public class NewLanguage extends CodeServiceWizard {
    
     
     public void addPages() {
-        addPages(new ExtensionPointWizardPage[] { new NewLanguageWizardPage(this, RuntimePlugin.IMP_RUNTIME, "languageDescription") });
+    	NewLanguageWizardPage page = new NewLanguageWizardPage(this, RuntimePlugin.IMP_RUNTIME, "languageDescription");
+    	page.setSelectionValidatorForProjects(new SelectionValidatorForPluginProjects());
+        addPages(new ExtensionPointWizardPage[] { page });
     }
 
-    
+
     protected List getPluginDependencies() {
         return Arrays.asList(new String[] {
             "org.eclipse.core.runtime", "org.eclipse.core.resources",
     	    "org.eclipse.imp.runtime", "org.eclipse.ui" });
     }
 
-    
+
     /*
      * Overrides the method in CodeServiceWizard because fewer parameters
      * are needed and available at this point in the creation of an IDE
