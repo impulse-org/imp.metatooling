@@ -103,7 +103,7 @@ public class GeneratedComponentWizardPage extends IMPWizardPage	//WizardPage
             if (fTotalPages > 1 && fIsOptional) {	
                 addServiceEnablerCheckbox(container);
             }
-            createProjectLabelText(container);
+            createProjectField(container);
             try {
             	// Controls that are to appear by default above any
             	// wizard-specific controls
