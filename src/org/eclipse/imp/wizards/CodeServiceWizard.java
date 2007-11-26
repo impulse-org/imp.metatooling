@@ -15,6 +15,9 @@ import java.util.Map;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.utils.ExtensionPointUtils;
+import org.eclipse.pde.core.plugin.IPluginAttribute;
 import org.eclipse.pde.core.plugin.IPluginElement;
 import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginModel;
@@ -23,8 +26,6 @@ import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.bundle.WorkspaceBundleModel;
-import org.eclipse.imp.core.ErrorHandler;
-import org.eclipse.imp.utils.ExtensionPointUtils;
 	
 /**
  * An ExtensionPointWizard that also generates source code from one or more template files.
@@ -165,6 +166,10 @@ public abstract class CodeServiceWizard extends ExtensionPointWizard {
 		
 				    for(int j= 0; j < children.length; j++) {
 						if (children[j].getName().equals("language")) {
+						    //return (((IPluginElement) children[j]).getAttribute("language").getValue());
+							IPluginAttribute attr = ((IPluginElement) children[j]).getAttribute("language");
+							if (attr == null)
+								return null;
 						    return (((IPluginElement) children[j]).getAttribute("language").getValue());
 						}
 				    }
