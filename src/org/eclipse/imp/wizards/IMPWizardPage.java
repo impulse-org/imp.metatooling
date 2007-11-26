@@ -3,7 +3,7 @@ package org.eclipse.imp.wizards;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-	
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -11,6 +11,11 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.ui.dialogs.ListSelectionDialog;
+import org.eclipse.imp.ui.dialogs.filters.ViewerFilterForIDEProjects;
+import org.eclipse.imp.ui.dialogs.providers.ContentProviderForAllProjects;
+import org.eclipse.imp.ui.dialogs.providers.LabelProviderForProjects;
+import org.eclipse.imp.ui.dialogs.validators.SelectionValidatorForIDEProjects;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -34,6 +39,7 @@ import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.pde.core.plugin.IPluginElement;
@@ -54,7 +60,6 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
@@ -122,7 +127,10 @@ public class IMPWizardPage extends WizardPage {
     protected static String sLanguage= "";
 
     protected static String sProjectName= "";
-
+    
+    // SMS 23 Nov 2007
+    protected List<ISelectionValidator> projectValidators = new ArrayList();
+    
     
     
 	public IMPWizardPage(String pageName) {
@@ -194,47 +202,65 @@ public class IMPWizardPage extends WizardPage {
 		    
 		    // RMF Don't add imports yet; wait for user to press "Finish"
 		    // ExtensionPointEnabler.addImports(ExtensionPointWizardPage.this);
+		    
+	        String errorMessage = validateProjectField();
+	        if (errorMessage != null && errorMessage.length() > 0) {
+	        	setPageComplete(false);
+	        	setErrorMessage(errorMessage);
+	        	return;
+	        }
+		    
 		    dialogChanged();
 		}
     }
 
-    protected final class ProjectBrowseSelectionListener extends SelectionAdapter {
-		private final IProject project;
-	
+    
+    /*
+     *  Creates a ContainerSelectionDialog for selecting projects.  Selected projects
+     *  are optionally subject to validation as plug-in or IMP IDE projects.
+     */
+    protected class ProjectBrowseSelectionListener extends SelectionAdapter {
+		private IProject project;
+		
 		protected ProjectBrowseSelectionListener(IProject project) {
-		    super();
-		    this.project= project;
+			this(project, false, false);
 		}
-	
+		
+		protected ProjectBrowseSelectionListener(
+			IProject project, boolean validateForPluginProject, boolean validateForIDEProject)
+		{
+			super();
+			this.project = project;
+		}
+
 		public void widgetSelected(SelectionEvent e) {
-		    ContainerSelectionDialog dialog= new ContainerSelectionDialog(getShell(), project, false,
-		            "Select a plug-in Project");
-		    // RMF Would have thought the following would set the initial selection,
-		    // but passing project as the initialRoot arg above seems to work...
+			ListSelectionDialog dialog = new ListSelectionDialog(
+				getShell(), 
+				ResourcesPlugin.getWorkspace().getRoot(), //project, 
+				new ContentProviderForAllProjects(), new LabelProviderForProjects(),
+				"Select a project");
+
 		    if (project != null)
 		        dialog.setInitialSelections(new Object[] { project.getFullPath() });
-		    dialog.setValidator(new ISelectionValidator() {
-		        public String isValid(Object selection) {
-		            try {
-		                IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(selection.toString());
-		                if (project.exists() && project.hasNature("org.eclipse.pde.PluginNature")) {
-		                    return null;
-		                }
-		            } catch (Exception e) {
-		            }
-		            return "The selected element \"" + selection + "\" is not a plug-in project";
-		        }
-		    });
+		    
+		    // Add a viewer filter and/or selection validator to the dialog.
+		    // If the filter is sufficiently specific, then the validator
+		    // will be redundant.
+		    addFilterToDialog(dialog);
+		    addValidatorToDialog(dialog);
+		    
 		    if (dialog.open() == ContainerSelectionDialog.OK) {
 		        Object[] result= dialog.getResult();
-		        IProject selectedProject= ResourcesPlugin.getWorkspace().getRoot().getProject(result[0].toString());
-		        if (result.length == 1) {
+		        //IProject selectedProject= ResourcesPlugin.getWorkspace().getRoot().getProject(result[0].toString());
+		        
+		        if (result.length >= 1 && result[0] instanceof IProject) {
+		        	IProject selectedProject = (IProject) result[0];
 		            // fProjectText.setText(((Path) result[0]).toOSString());
 		            fProjectText.setText(selectedProject.getName());
 		            sProjectName= selectedProject.getName();
                     // SMS 9 Oct 2007
                     //System.out.println("IMPWizardPage:projectBrowseSelectionAdapter:  updating fProject = " + sProjectName);	
-                    fProject = getProjectBasedOnNameField();
+                    fProject = selectedProject;		//getProjectBasedOnNameField();  // probably wrong!
 		        } else {
                     // SMS 9 Oct 2007
                     //System.out.println("IMPWizardPage:projectBrowseSelectionAdapter:  not updating fProject (or other project data)");	
@@ -244,49 +270,177 @@ public class IMPWizardPage extends WizardPage {
     }
     
     
+    /**
+     * Add a ViewerFilter to a given dialog.
+     * 
+     * The viewer filter that is added is the one provided by
+     * a call to getViewerFilterForProjects(), which returns
+     * (in effect) a default viewer filter for IMP wizard pages.
+     * Wizard pages that require a different viewer filter can
+     * override this method or that one, as seems most appropriate.
+     * Wizard pages that wish to omit viewer filtering can override
+     * this method so that it has no effect.
+     * 
+     * @param dialog 	The dialog to which the ViewerFilter
+     * 					is to be added
+     */
+    protected void addFilterToDialog(ListSelectionDialog dialog) {
+        dialog.addFilter(getViewerFilterForProjects());
+    }
+    
+    /**
+     * Add a SelectionValidator to the given dialog.
+     * 
+     * This method does nothing, on the assumption that viewer
+     * filtering will eliminate any potentially invalid selections.
+     * Wizard pages that wish to enable selection validation can
+     * override this method so that it has the desired effect.
+     * The particular selection validator to be used in that case
+     * can be specified in the overriding method.  Alternatively,
+     * the overriding mehtod can call getSelectionValidatorForProjects()
+     * (and that method can be overridden as needed to return the
+     * appropriate validator).
+     * 
+     * @param dialog	The dialog to which the SelectionValidator
+     * 					is to be added.
+     */
+    protected void addValidatorToDialog(ListSelectionDialog dialog) {
+        dialog.addValdator(getSelectionValidatorForProjects());
+    }
+
+    
+
+    /**
+     * Returns a ViewerFilter for filtering views of projects
+     * opened by this wizard page.  In effect this is the default
+     * project-viewer filter for IMP wizard pages.  The viewer filter
+     * returned passes IDE projects, on the assumption that this
+     * will be the most common kind of filtering needed for these
+     * pages.  Wizard pages that require other filtering criteria
+     * should override this method.
+     * 
+     * The filter has one anticipated use, that is, in filtering
+     * the values that appear in a project selection dialog.  As
+     * a result, it is not strictly necessary, as the desired viewer
+     * can be constructed in place of a call to this method.  This
+     * method is provided mainly to keep the treatment of viewer
+     * filters consistent with that of selection validators.  (And
+     * maybe it will be of some unanticipated use someday.)
+     * 
+     * @return	a ViewerFilter for filtering views of projects
+     * 			opened by this wizard page
+     */
+    protected ViewerFilter getViewerFilterForProjects() {
+    	return new ViewerFilterForIDEProjects();
+    }
+    
+
+    
+	/**
+	 * Return a ISelectionValidator to use in validating projects
+	 * selected or specified on this page.  In effect this is the
+	 * default project-validator for IMP wizard pages.  The validator
+	 * accepts IDE projects, on the assumption that this will be the
+	 * most common kind of valid project for these wizard pages.
+	 * Wizard pages that require other validation criteria should
+	 * override this method.
+	 * 
+	 * Note that this validator has two potential uses.  One is by
+	 * the page in validating values assigned to a project field. 
+	 * The other is by project-selection dialogs opened by the page,
+	 * in validating values selected in those dialogs.  This method
+	 * provides a single source of validators to help assure their
+	 * consistency across those roles.
+	 * 
+	 * Note that, if desired, different validators can be used for
+	 * field values on the page and selections in a dialog.  The
+	 * validator to be used on pages can be set by overriding this
+	 * method.  A different validator to be used in selection dialogs
+	 * can be set by overriding addValidatorToDialog().
+	 * 
+	 * @return	A project-selection validator to use on this page.
+	 */
+	protected ISelectionValidator getSelectionValidatorForProjects() {
+		return new SelectionValidatorForIDEProjects();
+	}
+
+
+    /**
+	 * Replaces the current list of validators for projects with
+	 * a new one.  If the given validator is not null then it is
+	 * added to the new list.
+	 * 
+	 * Assumes that there is just one project-valued field.
+     * 
+     * @param validator A selection validator (may be null)
+     */
+    public void setSelectionValidatorForProjects(ISelectionValidator validator) {
+    	projectValidators = new ArrayList();
+    	if (validator != null)
+    		projectValidators.add(validator);
+    }
+    
+    
+    /**
+     * Adds a given validator to the current list of validators.
+	 * Creates the list if it does not already exist.  If the
+	 * given validator is null then no validator is added (but
+	 * this is not an error).
+     * 
+     * @param validator		The validator to be added
+     */
+    public void addSelectionValdatorForProjects(ISelectionValidator validator) {
+    	if (projectValidators == null) {
+    		projectValidators = new ArrayList();
+    	}
+    	projectValidators.add(validator);
+    }
+    
+    
+    
     protected class FileBrowseSelectionAdapter extends SelectionAdapter
-	    {
-	    	private WizardPageField field;
-	    	
-	    	public FileBrowseSelectionAdapter(WizardPageField field) {
-	    		this.field = field;
-	    	}
-	
-	    	public void widgetSelected(SelectionEvent e) {
-	          String newValue = null;
-	          File f = new File(field.getText());
-	          if (!f.exists())
-	              f = null;
-	          File d = getFile(f);
-	          if (d != null)
-	              newValue = d.getAbsolutePath();
-	          if (newValue != null) {	
-	          	field.setText(newValue);
-	          }
-	    	}
-	        
-	        /**
-	         * Helper to open the file chooser dialog.
-	         * @param startingDirectory the directory to open the dialog on.
-	         * @return File The File the user selected or <code>null</code> if they
-	         * do not.
-	         */
-	        private File getFile(File startingDirectory) {
-	            FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
-	            dialog.setText("File Browse");
-	            if (startingDirectory != null)
-	                dialog.setFileName(startingDirectory.getPath());
-	//            if (extensions != null)
-	//                dialog.setFilterExtensions(extensions);
-	            String file = dialog.open();
-	            if (file != null) {
-	                file = file.trim();
-	                if (file.length() > 0)
-	                    return new File(file);
-	            }	
-	            return null;
-	        }	
-	    }
+    {
+    	private WizardPageField field;
+    	
+    	public FileBrowseSelectionAdapter(WizardPageField field) {
+    		this.field = field;
+    	}
+
+    	public void widgetSelected(SelectionEvent e) {
+          String newValue = null;
+          File f = new File(field.getText());
+          if (!f.exists())
+              f = null;
+          File d = getFile(f);
+          if (d != null)
+              newValue = d.getAbsolutePath();
+          if (newValue != null) {	
+          	field.setText(newValue);
+          }
+    	}
+        
+        /**
+         * Helper to open the file chooser dialog.
+         * @param startingDirectory the directory to open the dialog on.
+         * @return File The File the user selected or <code>null</code> if they
+         * do not.
+         */
+        private File getFile(File startingDirectory) {
+            FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
+            dialog.setText("File Browse");
+            if (startingDirectory != null)
+                dialog.setFileName(startingDirectory.getPath());
+//            if (extensions != null)
+//                dialog.setFilterExtensions(extensions);
+            String file = dialog.open();
+            if (file != null) {
+                file = file.trim();
+                if (file.length() > 0)
+                    return new File(file);
+            }	
+            return null;
+        }	
+    }
 
     
 
@@ -394,7 +548,7 @@ public class IMPWizardPage extends WizardPage {
 			// SMS 9 Oct 2007
 			// For some reason, when a wizard is started (it seems), fProject will
 			// be null still, so we need to grab the selected project, if any
-			// (but how can thiw be when fProjectText has a non-zero length???)
+			// (but how can this be when fProjectText has a non-zero length???)
 			if (fProject == null) {
 				//System.out.println("IMPWIzardPage.discoverProjectLanguage():  fProject == null");
 				fProject = discoverSelectedProjectWithoutUpdating();
@@ -428,61 +582,6 @@ public class IMPWizardPage extends WizardPage {
     }	
 
     
-    /*
-     * Get the project most recently selected in whatever wizard
-     * has been run.  This method may be called when the wizard
-     * is still active or after it is disposed.  In the former
-     * case it returns the project, if any, that is currently
-     * selected.  If the latter case, or if there is no current
-     * selection, it returns the project that was most recently
-     * selected (if any).
-     * 
-     * SMS 23 May 2007
-     * Updated to use an alternative method to test for the
-     * selected project, i.e., one that doesn't trigger an update
-     * of the corresponding text field, thus not triggering a
-     * callback to this method.  Nonterminating cycles were not a
-     * problem with the previous implementation of this method,
-     * but the test that prevented cycles caused subsequent project
-     * selections to be missed.  This approach seems to both to preclude
-     * nonterminating cycles and recognize updates of the selected
-     * project.
-     * 
-     * SMS 24 May 2007
-     * Updated to check for null project at first "discover" call,
-     * which can happen if called when there is no active workbench
-     * window.
-     */
-//    public IProject getProject() {
-//        try {
-//            IProject project= null;
-//            boolean haveCurrentSelection = false;
-//            project = discoverSelectedProjectWithoutUpdating();
-//            if (project != null) {
-//            	sProjectName = project.getName();
-//            	haveCurrentSelection = true;
-//            }
-//
-//            if (!haveCurrentSelection && sProjectName != null && sProjectName.length() > 0)
-//            	// get project based on name set with previous selection
-//            	project= ResourcesPlugin.getWorkspace().getRoot().getProject(sProjectName);
-//            if (project == null)
-//            	project= discoverSelectedProject();
-//
-//            if (project != null && project.exists())
-//                return project;
-//        } catch (Exception e) {
-//        }
-//        return null;
-//    }
-    
-    // SMS 8 Oct 2007
-    // Replaced the above with the below, which seems to work now
-    // May need to distinguish two "get project" methods:  one to get
-    // the currently named project, one to get the currently selected
-    // project.  To have various methods that "get project" in various
-    // ways corresponding to various implicit senses is silly.
-    
     
     // SMS 9 Oct 2007
     public IProject discoverSelectedProject() {
@@ -497,25 +596,6 @@ public class IMPWizardPage extends WizardPage {
     	}
     	return project;
 	}
-    
-    // SMS 9 Oct 2007 replaced with more specific forms
-//    public IProject getProject() {
-//        try {
-//            IProject project= null;
-//
-//            if (sProjectName != null && sProjectName.length() > 0)
-//        	project= ResourcesPlugin.getWorkspace().getRoot().getProject(sProjectName);
-//
-//            if (project == null)
-//            	// SMS 9 Oct 2007
-//            	//project= discoverSelectedProject();
-//
-//            if (project != null && project.exists())
-//                return project;
-//        } catch (Exception e) {
-//        }
-//        return null;
-//    }
 
 
     public IProject getProjectBasedOnNameField() {
@@ -548,32 +628,7 @@ public class IMPWizardPage extends WizardPage {
         }
         return project;
     }
-    
-    
-    
-    
-    /*
-     * This (original) version of discoverSelectedProject() is called by getProject().
-     * It updates fProjectText, which triggers a further call to getProject().
-     * The potential cycle has been broken by a test in getProject() for a change
-     * to sProjectName.  That test allows the whole thing to work for the first
-     * project selected, but it meant that later selections of a different
-     * project would go unrecognized.  (Since sProjectName was set, there was no
-     * reason to try to discover a newly selected project.)
-     * SMS 23 May 2007
-     */
-//    protected IProject discoverSelectedProject() {
-//        ISelectionService service= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
-//        ISelection selection= service.getSelection();
-//        IProject project= getProject(selection);
-//
-//        if (project != null) {
-//        	fProject = project;
-//            sProjectName= project.getName();
-//            fProjectText.setText(sProjectName);
-//        }
-//        return project;
-//    }
+
 
     
     /*
@@ -676,58 +731,49 @@ public class IMPWizardPage extends WizardPage {
     }
     
     
+    // SMS 23 Nov 2007
+    // Rewritten to make use of dynamically determined
+    // validators for the project field
     protected void dialogChanged() {
         setErrorMessage(null);
-        if (fSkip)
+        if (fSkip) {
             setPageComplete(true);
-        else {
-        	// SMS 13 Jun 2007
-        	// Seem to need to check for a project that's set in the wizard
-        	// before going and getting a project otherwise, which can return
-        	// the current selection in the package explorer regardless
-        	// of what's set in the wizard
-            //IProject project= getProject();
-//            IProject project = null;
-//            String projectName = fProjectText.getText();
-//            if (projectName != null && projectName.length() > 0) {
-//        	project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-//            }
-//            if (project ==  null) {
-//        	project= getProject();
-//            }
-        	
-        	// SMS 9 Oct 2007
-            IProject project = null;
-            if (fProject != null)
-            	project = fProject;
-            else
-            	project = getProjectBasedOnNameField();
-            
-            
-            if (project == null) {
-                setErrorMessage("Please select a plug-in project to add this extension to");
-                setPageComplete(false);
-                return;
-            }
-            boolean isPlugin= false;
-            try {
-                isPlugin= project.hasNature("org.eclipse.pde.PluginNature");
-            } catch (CoreException e) {
-            }
-            if (!isPlugin) {
-                setErrorMessage("\"" + sProjectName + "\" is not a plug-in project. Please select a plug-in project to add this extension to");
-                setPageComplete(false);
-                return;
-            }
-            WizardPageField field= getUncompletedField();
-            if (field != null) {
-                setErrorMessage("Please provide a value for the required attribute \"" + field.fLabel + "\"");
-                setPageComplete(false);
-                return;
-            }
-            setPageComplete(true);
+            return;
         }
+        String errorMessage = validateProjectField();
+        if (errorMessage != null && errorMessage.length() > 0) {
+        	setPageComplete(false);
+        	setErrorMessage(errorMessage);
+        	return;
+        }
+        WizardPageField field= getUncompletedField();
+        if (field != null) {
+            setErrorMessage("Please provide a value for the required field \"" + field.fLabel + "\"");
+            setPageComplete(false);
+            return;
+        }
+        setPageComplete(true);
     }
+    
+    
+    protected String validateProjectField()
+    {
+      IProject project = getProjectBasedOnNameField();
+      if (project == null) {
+          setPageComplete(false);
+          return "Please select a project";
+      }
+      String errorMessage = null;
+      for (int i = 0; i < projectValidators.size(); i++) {
+    	  errorMessage = projectValidators.get(i).isValid(project);
+    	  if (errorMessage == null || errorMessage.length() == 0)
+    		  continue;
+    	  return errorMessage;
+      }
+      return null;
+    }
+    
+    
     
     protected WizardPageField getUncompletedField() {
     	// BUG Prevents clicking "Finish" if an element is optional but one of its attributes isn't
@@ -859,7 +905,7 @@ public class IMPWizardPage extends WizardPage {
 	    // convenience, so check to see whether we have already created it.
 	    if (name.equals("language") && fLanguageText != null)
 	        return;
-	
+
 	    String basedOn= attribute.getBasedOn();
 	    String description= stripHTML(attribute.getDescription());
 	    Object value= attribute.getValue();
@@ -927,18 +973,6 @@ public class IMPWizardPage extends WizardPage {
 	}
 
 
-	// SMS 4 Aug 2006:  Not an extension, no schema
-	/*    
-	    private URL locateSchema(IExtensionPoint ep, String srcBundle) {
-		Bundle platSrcPlugin= Platform.getBundle(srcBundle);
-		Bundle extProviderPlugin= Platform.getBundle(ep.getNamespace());
-		String extPluginVersion= (String) extProviderPlugin.getHeaders().get("Bundle-Version");
-		Path schemaPath= new Path("src/" + ep.getNamespace() + "_" + extPluginVersion + "/" + ep.getSchemaReference());
-		URL schemaURL= Platform.find(platSrcPlugin, schemaPath);
-	
-		return schemaURL;
-	    }
-	*/
 	    
     /**
      * Creates controls that are to appear by default above controls that
@@ -1233,16 +1267,6 @@ public class IMPWizardPage extends WizardPage {
 	    button.addSelectionListener(new SelectionAdapter() {
 	        public void widgetSelected(SelectionEvent e) {
 	            try {
-//	                IRunnableContext context= PlatformUI.getWorkbench().getProgressService();
-//	                IProject project = null;
-//	                String projectName = fProjectText.getText();
-//	
-//	                if (projectName != null) {
-//	            	project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-//	                }
-//	                if (project ==  null) {
-//	            	project= getProject();
-//	                }
 	            	IProject project = fProject;
 	            	if (project == null)
 	            		project = getProjectBasedOnNameField();
@@ -1277,7 +1301,7 @@ public class IMPWizardPage extends WizardPage {
 	}
 
 
-	protected void createProjectLabelText(Composite container) {
+	protected void createProjectField(Composite container) {
 	    Label label= new Label(container, SWT.NULL);
 	
 	    label.setText("Project*:");
@@ -1286,12 +1310,21 @@ public class IMPWizardPage extends WizardPage {
 	    fProjectText= new Text(container, SWT.BORDER | SWT.SINGLE);
 	    fProjectText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 	
+	    // SMS 23 Nov 2007
+	    // Add a default validator for the project field.
+	    // Add it here since we've just created the field.
+	    // Make the default case the most common one we expect
+	    // (pages that don't require an IDE project will have to override).
+	    setSelectionValidatorForProjects(getSelectionValidatorForProjects());
+	    
 	    // SMS 9 Oct 2007
 	    // Here we've just created the project text, so we can't
 	    // expect that it has any value; to find a value, get the
-	    // project that is currently selected
+	    // project that is currently selected.
+	    // Don't validate it here; validation will occur as part
+	    // of validation of whole page in dialogChanged().
 	    final IProject project= discoverSelectedProject(); //getProject();
-
+	    
 	    if (project != null) {
 	    	// Try setting fProject directly rather than waiting for a listener
 	        fProjectText.setText(project.getName());
@@ -1300,17 +1333,19 @@ public class IMPWizardPage extends WizardPage {
 	    Button browseButton= new Button(container, SWT.PUSH);
 	
 	    browseButton.setText("Browse...");
-	    browseButton.addSelectionListener(new ProjectBrowseSelectionListener(project));
+	    browseButton.addSelectionListener(new ProjectBrowseSelectionListener(project, true, true));
 	    fProjectText.addModifyListener(new ProjectTextModifyListener());
 	    fProjectText.addFocusListener(new FocusAdapter() {
 	        public void focusGained(FocusEvent e) {
 	            // Text text = (Text)e.widget;
 	    	if (fDescriptionText != null)
-	    	    fDescriptionText.setText("Select the plug-in project to add this extension to");
+	    	    fDescriptionText.setText("Select the project to use for this wizard");
 	        }	
 	    });
 	}
 
+	
+	
 	/**
 	 * Set the name of the "extension" based on the language.  "Extension name" is
 	 * a concept that applies (as you would expect) to components that implement
