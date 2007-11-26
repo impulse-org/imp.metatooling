@@ -224,6 +224,15 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
      * create the field, but it is probably a good idea to create the
      * field only if the attribute exists.
      * 
+     * SMS 26 Nov 2007:  We assume here that if a language field is present
+     * in the schema then it is located under the elements extension.<elementName>.
+     * We've designed all of our schemas that way, but this is potentially a
+     * point of brittleness.  Given that we have agreed informally that we
+     * want to move away from the use of schemas as the basis for creating
+     * fields on wizard pages, there may not be much point to implementing
+     * a more flexible mechanism here.  But be aware of the possibility of
+     * problems from "non-standard" schemas.
+     * 
      * @param parent
      */
     // SMS 10 Oct 2007:  was no componentID; used in place of fExtPointID
@@ -236,7 +245,9 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
     	// SMS 9 Oct 2007
     	// As a consequence of this approach, it may be a bad idea to have
     	// more than one element or attribute in the schema that is named
-    	// "language"
+    	// "language" (but that may be a bad idea for other reasons, too).
+    	// 
+    	
 		if (fSchema == null)
 		    return;
 	
@@ -255,9 +266,13 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
 			// SMS 13 Nov 2007:  Create language field using the
 			// method in IMPWizardPage (put there for that purpose)
 		    //createElementAttributeTextField(parent, "extension." + elt.getName(), elt.getAttribute("language"));
-			createLanguageFieldForComponent(parent, componentID);
+			// SMS 26 Nov 2007:  Added "extension" prefix and used elt name rather than componentID
+			// (those are often, but not always, the same, and the elt name is required)
+			createLanguageFieldForComponent(parent, "extension." + elt.getName());
     }
 
+    
+    
     /**
      * Creates additional controls that are to appear below the schema
      * attributes on the wizard page. Derived classes may override.
@@ -294,7 +309,7 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
             if (fTotalPages > 1 && fIsOptional) {
                 addServiceEnablerCheckbox(container);
             }
-            createProjectLabelText(container);
+            createProjectField(container);
             try {              
                	// Controls that are to appear by default above any
             	// wizard-specific controls
