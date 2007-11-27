@@ -1432,7 +1432,8 @@ public class IMPWizardPage extends WizardPage {
 
                 if (language.length() == 0)
                     return;
-                String langPkg= lowerCaseFirst(language);
+                // SMS 26 Nov 2007  re:  bug #296
+                String langPkg= language.toLowerCase(); //lowerCaseFirst(language);
                 String langClass= upperCaseFirst(language);
                 //String pointID= fSchema != null ? fSchema.getPointId() : fComponentID;
 

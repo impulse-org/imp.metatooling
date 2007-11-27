@@ -154,7 +154,7 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 
     @Override
     protected void collectCodeParms() {
-        super.collectCodeParms();
+    super.collectCodeParms();
 	fRefactoringName= fNameField.getText();
 	fRefactoringPrefix= fPrefixField.getText();
 	fToolTip= fToolTipField.getText();
@@ -165,7 +165,8 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 	GeneratedComponentWizardPage page= (GeneratedComponentWizardPage) pages[0];
 	IProject project= page.getProjectOfRecord();
 	Map<String,String> subs= getStandardSubstitutions();
-	String packageName= "imp." + page.sLanguage + ".refactoring";// qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
+	// SMS 27 Nov 2007:  added .toLowerCase() re:  bug #296
+	String packageName= "imp." + page.sLanguage.toLowerCase() + ".refactoring";// qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
 	String packageFolder= packageName.replace('.', File.separatorChar);
 
 	subs.put("$LANG_NAME$", page.sLanguage);

@@ -128,7 +128,8 @@ public class NewNatureEnabler extends GeneratedComponentWizard /*Wizard*/ implem
 
 	                if (language.length() == 0)
 	                    return;
-	                String langPkg= lowerCaseFirst(language);
+	                // SMS 27 Nov 2007 re:  bug #296
+	                String langPkg= language.toLowerCase(); //lowerCaseFirst(language);
 	                String langClass= upperCaseFirst(language);
 
 	                fPackageName= langPkg + ".imp.actions";
@@ -214,7 +215,8 @@ public class NewNatureEnabler extends GeneratedComponentWizard /*Wizard*/ implem
 		fLangName= fEnablerPage.fLanguageText.getText();
 		fQualClassName = fEnablerPage.fQualClassText.getText();
 		// TODO Should try to find the builder package by looking at the builder extension
-		fBuilderPkgName= fLangName + ".imp.builders";
+		// SMS 27 Nov 2007 added toLowerCase() re:  bug #296
+		fBuilderPkgName= fLangName.toLowerCase() + ".imp.builders";
     }
 
     /**

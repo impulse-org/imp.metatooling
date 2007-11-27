@@ -123,8 +123,12 @@ public abstract class CodeServiceWizard extends ExtensionPointWizard {
     public static String getPluginPackageName(IProject project, String defaultName)
     {
     	String result = defaultName;
-    	if (result == null)
+    	if (result == null) {
     		result = discoverProjectLanguage(project);
+    		// SMS 26 Nov 2007 re:  bug #296
+    		if (result != null)
+    			result = result.toLowerCase();
+    	}
        	if (project != null) {
             String activator = null;
             IPluginModel pm = ExtensionPointEnabler.getPluginModelForProject(project);
