@@ -30,7 +30,11 @@ import org.eclipse.pde.internal.core.plugin.PluginImport;
 import org.eclipse.imp.core.ErrorHandler;
 
 /**
- * @author ssutton, adapted from ExtensionPointEnabler by claffra
+ * @author ssutton, based on ExtensionPointEnabler by claffra
+ * 
+ * SMS 28 Nov 2007
+ * Changed showDialog parameter in ErrorHandler.reportError to false on 
+ *the assumption that a lot of error management will occur within dialogs
  */
 public class GeneratedComponentEnabler
 {
@@ -44,7 +48,7 @@ public class GeneratedComponentEnabler
             maybeCreatePluginXML(project);
             return getPluginModelForProject(project);
 	} catch (Exception e) {
-		ErrorHandler.reportError("Could not find plugin for project " + page.getProjectOfRecord().getName(), true, e);
+		ErrorHandler.reportError("Could not find plugin for project " + page.getProjectOfRecord().getName(), false, e);
 	    return null;
 	}
     }
@@ -66,6 +70,9 @@ public class GeneratedComponentEnabler
     }
 
     
+    // SMS 28 Nov 2007
+    // Changed showDialog parameter in ErrorHandler.reportError to false on 
+    // the assumption that a lot of error management will occur within dialogs
     private static IPluginModel getPluginModelForProject(final IProject project) {
 //      WorkspaceModelManager wmm = PDECore.getDefault().getWorkspaceModelManager();
 //      IPluginModelBase[] wsPlugins= wmm.getFeatureModel(project).getWorkspaceModels();
@@ -73,7 +80,7 @@ public class GeneratedComponentEnabler
 	IPluginModelBase[] wsPlugins= pmm.getWorkspaceModels();
 
 	if (wsPlugins.length == 0) {
-	    ErrorHandler.reportError("Project " + project.getName() + " is not a plugin project (no plugin projects)?", true);
+	    ErrorHandler.reportError("Project " + project.getName() + " is not a plugin project (no plugin projects)?", false);
 	    return null;
 	}
 	for(int i= 0; i < wsPlugins.length; i++) {
@@ -102,7 +109,7 @@ public class GeneratedComponentEnabler
 //	    IPluginModelBase thePluginModel= pmm.findModel(project);
 //
 //	    return (IPluginModel) thePluginModel;
-	ErrorHandler.reportError("Could not find plugin for project " + project.getName(), true);
+	ErrorHandler.reportError("Could not find plugin for project " + project.getName(), false);
 	return null;
     }
     
