@@ -67,7 +67,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
     }
 
     private IToken getToken(IParseController controller, int offset) {
-        PrsStream stream = (PrsStream) controller.getParser();
+        PrsStream stream = controller.getParser().getParseStream();
         int index = stream.getTokenIndexAtCharacter(offset),
             token_index = (index < 0 ? -(index - 1) : index),
             previous_index = stream.getPrevious(token_index);
