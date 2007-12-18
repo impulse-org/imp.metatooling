@@ -181,11 +181,6 @@ public class ExtensionPointEnabler {
 	    if (pluginModel != null) {
 	    	if (replace) {
 	    		removeExtension(pluginModel, pluginID, pointID, attrNamesValues);
-	    		//System.out.println("ExtensionPointEnabler.enable(..):  removing previous extension for pluginID = "
-	    		//		+ pluginID + " pointID = " + pointID);
-	    	} else {
-	    		//System.out.println("ExtensionPointEnabler.enable(..):  not removing previous extension for pluginID = "
-	    		//		+ pluginID + " pointID = " + pointID);
 	    	}
 	    	addExtension(project, pluginModel, pluginID, pointID, attrNamesValues, imports);
 	    }
