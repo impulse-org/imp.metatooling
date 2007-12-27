@@ -3,10 +3,12 @@ package $PACKAGE_NAME$;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.services.ITokenColorer;
 import org.eclipse.imp.services.base.TokenColorerBase;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 
+import tmp1.imp.parser.$CLASS_NAME_PREFIX$ParseController;
 import $PARSER_PKG$.$CLASS_NAME_PREFIX$Parsersym;
 
 import lpg.runtime.IToken;
@@ -15,22 +17,25 @@ public class $COLORER_CLASS_NAME$ extends TokenColorerBase implements $CLASS_NAM
 
     TextAttribute commentAttribute, keywordAttribute, stringAttribute, numberAttribute, doubleAttribute, identifierAttribute;
 
-    public TextAttribute getColoring(IParseController controller, IToken token) {
+	public TextAttribute getColoring(IParseController controller, Object o) {
+        IToken token= (IToken) o;
+        if (token.getKind() == TK_EOF_TOKEN)
+            return null;
+        
         switch (token.getKind()) {
-            // START_HERE
-            case TK_IDENTIFIER:
-                 return identifierAttribute;
-            case TK_NUMBER:
-                return numberAttribute;
-            case TK_DoubleLiteral:
-                return doubleAttribute;
+        // START_HERE
+        case TK_IDENTIFIER:
+             return identifierAttribute;
+        case TK_NUMBER:
+            return numberAttribute;
+        case TK_DoubleLiteral:
+            return doubleAttribute;
 //          case TK_StringLiteral:
 //               return stringAttribute;
-            default:
-            	//if (controller.isKeyword(token.getKind()))
-                //     return keywordAttribute;
-            	//else return null;
-            	return super.getColoring(controller, token);
+        default:
+		    if ((($CLASS_NAME_PREFIX$ParseController) controller).isKeyword(token.getKind()))
+				return keywordAttribute;
+        	return super.getColoring(controller, token);
         }
     }
 
@@ -47,4 +52,9 @@ public class $COLORER_CLASS_NAME$ extends TokenColorerBase implements $CLASS_NAM
         keywordAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_MAGENTA), null, SWT.BOLD);
     }
 
+    
+    public IRegion calculateDamageExtent(IRegion seed) {
+        return seed;
+    }
+    
 }
