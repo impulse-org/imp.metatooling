@@ -141,7 +141,7 @@ public class $BUILDER_CLASS_NAME$ extends BuilderBase {
 
             // If we have a kind of parser that might be receptive, tell it
             // what types of problem marker the builder will create
-            parseController.addProblemMarkerType(getErrorMarkerID());
+            parseController.getAnnotationTypeInfo().addProblemMarkerType(getErrorMarkerID());
             
             // Need to tell the parse controller which file in which project to parse
             // and also the message handler to which to report errors
