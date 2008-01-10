@@ -72,7 +72,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
             token_index = (index < 0 ? -(index - 1) : index),
             previous_index = stream.getPrevious(token_index);
         return stream.getIToken(((stream.getKind(previous_index) == $CLASS_NAME_PREFIX$Lexer.TK_IDENTIFIER ||
-                                  controller.isKeyword(stream.getKind(previous_index))) &&
+                                  (($CLASS_NAME_PREFIX$ParseController) controller).isKeyword(stream.getKind(previous_index))) &&
                                  offset == stream.getEndOffset(previous_index) + 1)
                                          ? previous_index
                                          : token_index);
