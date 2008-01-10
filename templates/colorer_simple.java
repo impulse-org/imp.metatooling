@@ -8,7 +8,7 @@ import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 
-import tmp1.imp.parser.$CLASS_NAME_PREFIX$ParseController;
+import $PARSER_PKG$.$CLASS_NAME_PREFIX$ParseController;
 import $PARSER_PKG$.$CLASS_NAME_PREFIX$Parsersym;
 
 import lpg.runtime.IToken;
