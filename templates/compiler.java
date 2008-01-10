@@ -275,7 +275,7 @@ public class $COMPILER_CLASS_NAME$ {
 
         // If we have a kind of parser that might be receptive, tell it
         // what types of problem marker the builder will create
-        parseController.addProblemMarkerType(PROBLEM_MARKER_ID);
+        parseController.getAnnotationTypeInfo().addProblemMarkerType(PROBLEM_MARKER_ID);
         
         parseController.initialize(file.getProjectRelativePath(), sourceProject, markerCreator);
     	
