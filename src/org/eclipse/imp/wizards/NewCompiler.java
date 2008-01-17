@@ -80,7 +80,7 @@ public class NewCompiler extends GeneratedComponentWizard {
 	                }
 	            });
 			} catch (Exception e) {
-			    ErrorHandler.reportError("NewParserWrapperWizardPage.createControl(..):  Internal error, extension point schema may have changed", e);
+			    ErrorHandler.reportError("NewCompilerWizardPage.createControl(..):  Internal error", e);
 			}
 	    }
 
