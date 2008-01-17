@@ -1475,7 +1475,7 @@ public class IMPWizardPage extends WizardPage {
 	 * @param isRequired		Whether the field must be given a value before the containing wizard can
 	 * 							be finished
 	 */
-	public void createTextField(Composite container, String fieldCategoryName, String fieldName, String description, String value, String basedOn, boolean isRequired)
+	public WizardPageField createTextField(Composite container, String fieldCategoryName, String fieldName, String description, String value, String basedOn, boolean isRequired)
 	{
 	    String valueStr= (value == null) ? "" : value;
 	    String upName= upperCaseFirst(fieldName);
@@ -1493,6 +1493,8 @@ public class IMPWizardPage extends WizardPage {
 	
 	    text.setData(field);
 	    fFields.add(field);
+	    
+	    return field;
 	}
     
 	
