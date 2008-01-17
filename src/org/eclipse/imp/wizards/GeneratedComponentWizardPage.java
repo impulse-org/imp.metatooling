@@ -22,9 +22,12 @@ import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -147,7 +150,7 @@ public class GeneratedComponentWizardPage extends IMPWizardPage	//WizardPage
     
     
     /**
-     * Directly create a text field for a wizard from given values rather than using an extension schema
+     * Create a texst field using given values rather than using an extension schema
      * element or attributes.
      * 
      * @param container			The wizard page (or other container) in which the field will be placed
@@ -162,8 +165,9 @@ public class GeneratedComponentWizardPage extends IMPWizardPage	//WizardPage
      * 							a parent type) used to evaluate or process the given value
      * @param isRequired		Whether the field must be given a value before the containing wizard can
      * 							be finished
+     * @return					The field that has been created.
      */
-    public void createTextField(Composite container, String fieldCategoryName, String fieldName, String description, String value, String basedOn, boolean isRequired)
+    public WizardPageField createTextField(Composite container, String fieldCategoryName, String fieldName, String description, String value, String basedOn, boolean isRequired)
     {
         String valueStr= (value == null) ? "" : value;
         String upName= upperCaseFirst(fieldName);
@@ -181,8 +185,50 @@ public class GeneratedComponentWizardPage extends IMPWizardPage	//WizardPage
 
         text.setData(field);
         fFields.add(field);
+        
+        return field;
     }
 
+    
+    /**
+     * Create a boolean field in the form of a checkbox.
+     * 
+     * The checkbox and its label will take up two consecutive spaces in
+     * a grid layout.  This method allows the specification of a padding
+     * parameter that can be used to specify a number of invisible labels
+     * that are created to fill the grid following the checkbox.  This can
+     * be used, for instance, to fill out the row on which the checkbox
+     * appears or to otherwise create "whitespace" following the checkbox.
+     * 
+     * @param parent		The element in which the field will be created
+     * @param fieldLabel	The label for the field
+     * @param description	A description of the function of the field, popped up
+     * 						when hovering over the label
+     * @param toolTip		A description of the function of the field, popped up
+     * 						when hovering over the field
+     * @param initialValue	The initial value for the field
+     * @param padding		The number of "blank" elements to be added to the parent
+     * 						following the label and the field
+     * @return				The Button that represents the created field
+     */
+    public Button createBooleanField(
+		Composite parent, String fieldLabel, String description, String toolTip, boolean initialValue, int padding)
+    {
+    		Label boxLabel= new Label(parent, SWT.NULL);
+    		boxLabel.setText(fieldLabel);
+    		boxLabel.setToolTipText(description);
+    	
+    		final Button boxContent= new Button(parent, SWT.CHECK);
+    		boxContent.setToolTipText(toolTip);
+            boxContent.setSelection(initialValue);
+
+            // Put some whitespace into the layout
+            for (int i = 0; i < padding; i++) {
+            	new Label(parent, SWT.NULL).setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+            }
+            
+    		return boxContent;	
+    }
 
     protected Text createLabelText(Composite container, WizardPageField field) {
         Widget labelWidget= null;
