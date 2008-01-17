@@ -115,7 +115,7 @@ public class NewNatureEnabler extends GeneratedComponentWizard /*Wizard*/ implem
 	                }
 	            });
 			} catch (Exception e) {
-			    ErrorHandler.reportError("NewParserWrapperWizardPage.createControl(..):  Internal error, extension point schema may have changed", e);
+			    ErrorHandler.reportError("NewNatureEnablerWizardPage.createControl(..):  Internal error, extension point schema may have changed", e);
 			}
 	    }
 	
