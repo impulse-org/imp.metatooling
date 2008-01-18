@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
@@ -119,8 +120,9 @@ public class WizardUtilities {
 		IPath specFilePath = new Path(packagePath + "/" + fileName);
 		
 		final IFile file= project.getFile(specFilePath);
-		String templateContents= new String(getTemplateFileContents(templateName));
-		String contents= performSubstitutions(templateContents, replacements);
+//		String templateContents= new String(getTemplateFileContents(templateName));
+//		String contents= performSubstitutions(templateContents, replacements);
+		String contents = createFileContentsFromTemplate(templateName, replacements, monitor);
 	
 		if (fileName.endsWith(".java")) {
 			contents= formatJavaCode(contents);
@@ -134,6 +136,33 @@ public class WizardUtilities {
 		}
 	//	monitor.worked(1);
 		return file;
+	}
+	
+	
+    /**
+     * Returns a String consisting of the contents of a named template file
+     * subsitited with meta-variable values provided by a given map.
+     * 
+     * @param templateName	Short (unqualified) name of the template file to be used
+     * 						in creating the String
+     * @param replacements  A Map of meta-variable substitutions to apply to the template
+     * @param monitor		A monitor
+     * @return 				A String consisting of the template contents with meta-variables
+     * 						substituted from the replacements
+     * @throws CoreException
+     */
+	public static String createFileContentsFromTemplate(
+			String templateName,
+			Map replacements,
+			IProgressMonitor monitor)
+	{
+		monitor.setTaskName("ExtensionPointWizard.createFileContentsFromTemplate:  template = " + templateName);
+
+		String templateContents= new String(getTemplateFileContents(templateName));
+		String contents= performSubstitutions(templateContents, replacements);
+	
+	//	monitor.worked(1);
+		return contents;
 	}
 	
 	
@@ -208,24 +237,35 @@ public class WizardUtilities {
      * 					 with elements related to the preference service--which isn't actually
      * 					 done yet, but which might reasonably be introduced)
      */
-    protected IFile extendFileFromTemplate(
+    protected static IFile extendFileFromTemplate(
     	String fileName, String templateName, String folder, String projectSourceLocation, Map replacements,
 	    IProject project, IProgressMonitor monitor)
-    throws CoreException
+    throws CoreException	
 	{
-		monitor.setTaskName("ExtensionPointWizard.extendFileFromTemplate:  Extending " + fileName);
+		monitor.setTaskName("WizardUtilities.extendFileFromTemplate:  Extending " + fileName);
 		
 		final IFile file= project.getFile(new Path(projectSourceLocation + folder + "/" + fileName));
 		if (!file.exists()) {
 			throw new IllegalArgumentException();	
 		}
-		String fileContents = file.getContents().toString();
+		file.refreshLocal(1, monitor);
+		
+		byte[] fileBytes = null;
+	    try {
+	    	fileBytes = new byte[file.getContents().available()];
+	    	file.getContents().read(fileBytes);
+	    } catch (IOException e) {
+	    	ErrorHandler.reportError(
+	    		"WizardUtilities.extendFileFromTemplate(..):  IOException gettting contents of file = " + fileName, false, e);
+	    }
+		String fileContents = new String(fileBytes);
 		fileContents = fileContents.substring(0, fileContents.lastIndexOf("}")) + "\n";
 		
 		String extensionContents= new String(WizardUtilities.getTemplateFileContents(templateName));
 		extensionContents = WizardUtilities.performSubstitutions(extensionContents, replacements);
 	
-		String newFileContents = fileContents + extensionContents + "\n\n}";
+		// Assume that the extension will properly close the class
+		String newFileContents = fileContents + extensionContents;
 		
 		if (fileName.endsWith(".java")) {
 			newFileContents= WizardUtilities.formatJavaCode(newFileContents);
@@ -241,6 +281,7 @@ public class WizardUtilities {
     /**
      * Like createFileFromTemplate, but does not attempt to perform any meta-variable substitutions.
      * Useful for binary files (e.g. images) that are to be copied as-is to the user's workspace.
+     * The name of the source file is used for that of the target file.
      */
     protected static IFile copyLiteralFile(
     	String fileName, String folder, IProject project, IProgressMonitor monitor)
@@ -261,6 +302,31 @@ public class WizardUtilities {
 		return file;
     }
 	
+    
+    /**
+     * Like createFileFromTemplate, but does not attempt to perform any meta-variable substitutions.
+     * Useful for binary files (e.g. images) that are to be copied as-is to the user's workspace.
+     * This version allows the name of the target file to be specified independently of the source file.
+     */
+    protected static IFile copyLiteralFile(
+    	String inFileName, String outFileName, String folder, IProject project, IProgressMonitor monitor)
+    throws CoreException
+    {
+		monitor.setTaskName("Creating " + outFileName + " as a copy of " + inFileName);
+	
+		final IFile file= project.getFile(new Path(folder + "/" + outFileName));
+		byte[] fileContents= WizardUtilities.getTemplateFileContents(inFileName);
+	
+		if (file.exists()) {
+		    file.setContents(new ByteArrayInputStream(fileContents), true, true, monitor);
+		} else {
+			WizardUtilities.createSubFolders(folder, project, monitor);
+		    file.create(new ByteArrayInputStream(fileContents), true, monitor);
+		}
+	//	monitor.worked(1);
+		return file;
+    }
+    
 	
     public static void addBuilder(IProject project, String id) throws CoreException {
 		IProjectDescription desc= project.getDescription();
@@ -425,10 +491,13 @@ public class WizardUtilities {
     public static String formatJavaCode(String contents) {
     	CodeFormatter formatter= org.eclipse.jdt.core.ToolFactory.createCodeFormatter(JavaCore.getOptions());
     	TextEdit te= formatter.format(CodeFormatter.K_COMPILATION_UNIT, contents, 0, contents.length(), 0, "\n");
-
+    	// SMS 15 Jan 2007:  this seems to happen sometimes; not sure why
+    	if (te == null)
+    		return contents;
+    	
     	IDocument l_doc= new Document(contents);
     	try {
-    	    te.apply(l_doc);
+	    	    te.apply(l_doc);
     	} catch (MalformedTreeException e) {
     	    e.printStackTrace();
     	} catch (BadLocationException e) {
