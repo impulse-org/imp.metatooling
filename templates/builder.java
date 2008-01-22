@@ -41,8 +41,6 @@ public class $BUILDER_CLASS_NAME$ extends BuilderBase {
     // SMS 11 May 2006
     public static final String LANGUAGE_NAME = "$LANG_NAME$";
     public static final Language LANGUAGE = LanguageRegistry.findLanguage(LANGUAGE_NAME);
-    public static final String[] EXTENSIONS = LANGUAGE.getFilenameExtensions();
-
 
     protected PluginBase getPlugin() {
         //return $CLASS_NAME_PREFIX$Plugin.getInstance();
@@ -72,10 +70,7 @@ public class $BUILDER_CLASS_NAME$ extends BuilderBase {
         String pathString = path.toString();
         if (pathString.indexOf("/bin/") != -1) return false;
         
-        for (int i = 0; i < EXTENSIONS.length; i++) {
-            if (EXTENSIONS[i].equals(path.getFileExtension())) return true;
-        }
-        return false;
+        return LANGUAGE.hasExtension(path.getFileExtension());
     }
 
 
