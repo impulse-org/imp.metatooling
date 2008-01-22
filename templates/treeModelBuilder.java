@@ -9,6 +9,8 @@ public class $TREE_MODEL_BUILDER_CLASS_NAME$ extends TreeModelBuilderBase
 {
     @Override
     public void visitTree(Object root) {
+    	if (root == null)
+    		return;
         ASTNode rootNode= (ASTNode) root;
         $CLASS_NAME_PREFIX$ModelVisitor visitor= new $CLASS_NAME_PREFIX$ModelVisitor();
 
