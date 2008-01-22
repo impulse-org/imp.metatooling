@@ -6,8 +6,9 @@ import lpg.runtime.IToken;
 
 import org.eclipse.imp.editor.AnnotationHoverBase;
 import org.eclipse.imp.language.ILanguageService;
-import org.eclipse.imp.parser.IASTNodeLocator;
+import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.IDocumentationProvider;
 import org.eclipse.imp.services.IHoverHelper;
 import org.eclipse.imp.services.IReferenceResolver;
@@ -54,7 +55,7 @@ public class $HOVER_HELPER_CLASS_NAME$ extends HoverHelperBase implements IHover
         String msg = null;           // the help message for helpNode
         
         // Get the node at the given offset; no node implies no message
-        IASTNodeLocator nodeLocator= parseController.getNodeLocator();
+        ISourcePositionLocator nodeLocator= parseController.getNodeLocator();
         sourceNode = nodeLocator.findNode(ast, offset);
         if (sourceNode == null)
             return null;
@@ -115,7 +116,8 @@ public class $HOVER_HELPER_CLASS_NAME$ extends HoverHelperBase implements IHover
     }
 
     public static String getSubstring(IParseController parseController, int start, int end) {
-        return new String(parseController.getLexer().getLexStream().getInputChars(), start, end-start+1);
+        return new String(
+        		((SimpleLPGParseController)parseController).getLexer().getLexStream().getInputChars(), start, end-start+1);
     }
 
     public static String getSubstring(IParseController parseController, IToken token) {
