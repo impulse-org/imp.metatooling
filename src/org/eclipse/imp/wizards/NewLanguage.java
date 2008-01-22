@@ -118,9 +118,14 @@ public class NewLanguage extends CodeServiceWizard {
     			manifestContents = manifestContents + 
     				"Bundle-Activator: " + pluginPackage + "." + pluginClassName + "\n";
     		}
+    		
+    		if (manifestContents.indexOf("Eclipse-LazyStart: true") < 0) {
+    			manifestContents = manifestContents + "Eclipse-LazyStart: true\n";
+    		}
     	   	// Put the text back into the file
     		manifestFile.setContents(new ByteArrayInputStream(manifestContents.getBytes()), true, true, null);
     	}
+    	
     }
     
     
