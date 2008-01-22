@@ -76,7 +76,10 @@ public class IMPPerspectiveFactory implements IPerspectiveFactory {
 	layout.addNewWizardShortcut("org.eclipse.imp.lpg.NewLPGGrammarWizard");
 	layout.addNewWizardShortcut("org.eclipse.imp.lpg.NewParserWrapperWizard");	
 	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewTokenColorer");
-	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewOutliner");
+	// SMS 22 Jan 2008:  replaced NewOutliner with NewTreeModelBuilder
+	// (which includes support for a new Label Provider)
+//	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewOutliner");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewTreeModelBuilder");
 	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewFoldingUpdater");
 //	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewHoverHelper");
 //	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewAnnotationHover");
