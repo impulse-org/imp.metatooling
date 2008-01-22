@@ -2,7 +2,9 @@ package $PACKAGE_NAME$;
 
 import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.IReferenceResolver;
+
 
 import $PARSER_PKG$.$CLASS_NAME_PREFIX$Parser;
 import $PARSER_PKG$.Ast.*;
@@ -42,7 +44,7 @@ public class $CLASS_NAME_PREFIX$ReferenceResolver implements IReferenceResolver,
 		
         if (node instanceof Iidentifier && controller.getCurrentAst() != null) {
             identifier id = (identifier) node;
-            $CLASS_NAME_PREFIX$Parser parser = ($CLASS_NAME_PREFIX$Parser) controller.getParser();
+            $CLASS_NAME_PREFIX$Parser parser = ($CLASS_NAME_PREFIX$Parser) ((SimpleLPGParseController)controller).getParser();
             $CLASS_NAME_PREFIX$Parser.SymbolTable symtab = parser.getEnclosingSymbolTable(id);
             return symtab.findDeclaration(id.toString());
         }
