@@ -11,6 +11,7 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.imp.services.IContentProposer;
 import org.eclipse.imp.editor.SourceProposal;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.parser.SimpleLPGParseController;
 
 
 public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
@@ -67,7 +68,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
     }
 
     private IToken getToken(IParseController controller, int offset) {
-        PrsStream stream = controller.getParser().getParseStream();
+        PrsStream stream = ((SimpleLPGParseController)controller).getParser().getParseStream();
         int index = stream.getTokenIndexAtCharacter(offset),
             token_index = (index < 0 ? -(index - 1) : index),
             previous_index = stream.getPrevious(token_index);
@@ -116,7 +117,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
                 (node.getParent() instanceof Iexpression ||
                  node.getParent() instanceof assignmentStmt ||
                  node.getParent() instanceof BadAssignment)) {
-            	HashMap symbols = getVisibleVariables(($CLASS_NAME_PREFIX$Parser) controller.getParser(), node);
+            	HashMap symbols = getVisibleVariables(($CLASS_NAME_PREFIX$Parser) ((SimpleLPGParseController)controller).getParser(), node);
             	ArrayList vars = filterSymbols(symbols, prefix);
                 for (int i = 0; i < vars.size(); i++) {
                     IAst decl = (IAst) vars.get(i);
