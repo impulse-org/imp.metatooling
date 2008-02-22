@@ -2,9 +2,10 @@ package $PREFS_PACKAGE_NAME$;
 
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.imp.preferences.PreferencesInitializer;
 import org.eclipse.imp.preferences.PreferencesTab;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
-import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;	// SMS 27 Mar 2007
+import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 
 /**
  * The IMP-based tabbed preferences page for language $CLASS_NAME_PREFIX$.
@@ -46,5 +47,11 @@ public class $PREFS_CLASS_NAME$ extends TabbedPreferencesPage {
 		
 		return tabs;
 	}
+	
+	
+	public PreferencesInitializer getPreferenceInitializer() {
+		return new $PREFS_CLASS_NAME$Initializer();
+	}
+	
 
 }
