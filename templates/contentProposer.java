@@ -36,22 +36,25 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
         return "";
     }
     
-    private String getVariableProposal(IAst decl){
-        String string = "";
+    private SourceProposal getDeclProposal(IAst decl, String prefix, int offset) {
         if (decl instanceof declaration) {
-            string = ((declaration) decl).getprimitiveType().toString() + " " +
-                     ((declaration) decl).getidentifier().toString();
-        }
-        else if (decl instanceof functionHeader) {
-            functionHeader fdecl = (functionHeader) decl;
-            declarationList parameters = fdecl.getparameters();
-            string = fdecl.getType().toString() + " " + fdecl.getidentifier().toString() + "(";
+            String s = ((declaration) decl).getprimitiveType().toString() + " " +
+                       ((declaration) decl).getidentifier().toString();
+            return new SourceProposal(s, s, prefix, offset);
+        } else if (decl instanceof functionDeclaration) {
+            functionDeclaration fdecl = (functionDeclaration) decl;
+            declarationList parameters = fdecl.getfunctionHeader().getparameters();
+            String newText;
+
+            newText= fdecl.getfunctionHeader().getidentifier().toString() + "(";
             for (int i = 0; i < parameters.size(); i++)
-                string += ((declaration) parameters.getdeclarationAt(i)).getprimitiveType()
-                          + (i < parameters.size() - 1 ? ", " : "");
-            string += ")";
+                newText += ((declaration) parameters.getdeclarationAt(i)).getprimitiveType() +
+                           (i < parameters.size() - 1 ? ", " : "");
+            newText += ")";
+            String proposal = fdecl.getfunctionHeader().getType().toString() + " " + newText;
+            return new SourceProposal(proposal, newText, prefix, offset);
         }
-        return string;
+        return null;
     }
 
     private ArrayList filterSymbols(HashMap in_symbols, String prefix)
@@ -121,10 +124,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
             	ArrayList vars = filterSymbols(symbols, prefix);
                 for (int i = 0; i < vars.size(); i++) {
                     IAst decl = (IAst) vars.get(i);
-                    list.add(new SourceProposal(getVariableProposal(decl),
-                                                getVariableName(decl) + (decl instanceof functionHeader ? "()" : ""),
-                                                prefix,
-                                                offset));
+                    list.add(getDeclProposal(decl, prefix, offset));
                 }
             }
             else list.add(new SourceProposal("no completion exists for that prefix", "", offset));
