@@ -3,9 +3,7 @@
  * 
  * This file is part of the Eclipse IMP.
  */
-/**
- * 
- */
+
 package org.eclipse.imp.wizards;
 
 import java.io.File;
