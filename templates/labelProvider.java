@@ -15,18 +15,18 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.imp.editor.ModelTreeNode;
+import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.imp.language.ILanguageService;
 import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 import $PLUGIN_PACKAGE$.$RESOURCES_CLASS$;
 import org.eclipse.imp.utils.MarkerUtils;
 import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 
 import $AST_PKG$.*;
 
-public class $LABEL_PROVIDER_CLASS_NAME$ implements ILabelProvider, ILanguageService
+public class $LABEL_PROVIDER_CLASS_NAME$ implements ILabelProvider
 {
     private Set<ILabelProviderListener> fListeners= new HashSet<ILabelProviderListener>();
 
