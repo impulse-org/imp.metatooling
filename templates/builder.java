@@ -20,30 +20,34 @@ import org.eclipse.imp.runtime.PluginBase;
 import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 import $PARSER_PKG$.$CLASS_NAME_PREFIX$ParseController;
 
-
 /**
- * @author
+ * A builder may be activated on a file containin $LANG_NAME$ code every time it
+ * has changed (when "Build automatically" is on), or when the programmer
+ * chooses to "Build" a project.
+ * 
+ * TODO This default implementation was generated from a template, it needs to
+ * be completed manually.
  */
 public class $BUILDER_CLASS_NAME$ extends BuilderBase {
     /**
-     * Extension ID of the $CLASS_NAME_PREFIX$ builder. Must match the ID in the corresponding
-     * extension definition in plugin.xml.
-     * SMS 22 Mar 2007:  If that ID is set through the NewBuilder wizard, then so must this one be.
+     * Extension ID of the $CLASS_NAME_PREFIX$ builder, which matches the ID in
+     * the corresponding extension definition in plugin.xml..
      */
-        // SMS 28 Mar 2007:  Make plugin class name totally parameterized
-        public static final String BUILDER_ID= $PLUGIN_CLASS$.kPluginID + ".$BUILDER_ID$";
-        // SMS 28 Mar 2007:  Make problem id parameterized (rather than just ".problem") so that
-        // it can be given a builde-specific value (not simply composed here using the builder id
-        // because the problem id is also needed in ExtensionPointEnabler for adding the marker
-        // extension to the plugin.xml file)
-    public static final String PROBLEM_MARKER_ID= $PLUGIN_CLASS$.kPluginID + ".$PROBLEM_ID$";
-    
-    // SMS 11 May 2006
+    public static final String BUILDER_ID = $PLUGIN_CLASS$.kPluginID
+            + ".$BUILDER_ID$";
+
+    /**
+     * A marker ID that identifies problems detected by the builder
+     */
+    public static final String PROBLEM_MARKER_ID = $PLUGIN_CLASS$.kPluginID
+            + ".$PROBLEM_ID$";
+
     public static final String LANGUAGE_NAME = "$LANG_NAME$";
-    public static final Language LANGUAGE = LanguageRegistry.findLanguage(LANGUAGE_NAME);
+
+    public static final Language LANGUAGE = LanguageRegistry
+            .findLanguage(LANGUAGE_NAME);
 
     protected PluginBase getPlugin() {
-        //return $CLASS_NAME_PREFIX$Plugin.getInstance();
         return $PLUGIN_CLASS$.getInstance();
     }
 
@@ -59,32 +63,36 @@ public class $BUILDER_CLASS_NAME$ extends BuilderBase {
         return PROBLEM_MARKER_ID;
     }
 
-
-    // SMS 11 May 2006
-    // Incorporated realisitic handling of filename extensions
-    // using information recorded in the language registry
+    /**
+     * Decide whether a file needs to be build using this builder. Note that
+     * <code>isNonRootSourceFile()</code> and <code>isSourceFile()</code>
+     * should never return true for the same file.
+     * 
+     * @return true iff an arbitrary file is a $LANG_NAME$ source file.
+     */
     protected boolean isSourceFile(IFile file) {
-        IPath path= file.getRawLocation();
-        if (path == null) return false;
+        IPath path = file.getRawLocation();
+        if (path == null)
+            return false;
 
         String pathString = path.toString();
-        if (pathString.indexOf("/bin/") != -1) return false;
-        
+        if (pathString.indexOf("/bin/") != -1)
+            return false;
+
         return LANGUAGE.hasExtension(path.getFileExtension());
     }
 
-
     /**
-     * @return true iff the given file is a source file that this builder should scan
-     * for dependencies, but not compile as a top-level compilation unit.<br>
-     * <code>isNonRootSourceFile()</code> and <code>isSourceFile()</code> should never
-     * return true for the same file.
+     * Decide whether or not to scan a file for dependencies. Note:
+     * <code>isNonRootSourceFile()</code> and <code>isSourceFile()</code>
+     * should never return true for the same file.
+     * 
+     * @return true iff the given file is a source file that this builder should
+     *         scan for dependencies, but not compile as a top-level compilation
+     *         unit.
+     * 
      */
-    protected boolean isNonRootSourceFile(IFile resource)
-    {
-            // TODO:  If your language has non-root source files (e.g., header files), then
-            // reimplement this method to test for those
-        System.err.println("$BUILDER_CLASS_NAME$.isNonRootSourceFile(..) returning FALSE by default");
+    protected boolean isNonRootSourceFile(IFile resource) {
         return false;
     }
 
@@ -92,73 +100,65 @@ public class $BUILDER_CLASS_NAME$ extends BuilderBase {
      * Collects compilation-unit dependencies for the given file, and records
      * them via calls to <code>fDependency.addDependency()</code>.
      */
-    protected void collectDependencies(IFile file)
-    {   
-            // TODO:  If your langauge has inter-file dependencies then reimplement
-            // this method to collect those
-        System.err.println("$BUILDER_CLASS_NAME$.collectDependencies(..) doing nothing by default");
-        return;
+    protected void collectDependencies(IFile file) {
+        String fromPath = file.getFullPath().toString();
+        
+        getPlugin().writeInfoMsg("Collecting dependencies from ${LANG_NAME} file: " + file.getName());
+        
+        // TODO: implement dependency collector
+        // E.g. for each dependency:
+        // fDependencyInfo.addDependency(fromPath, uponPath);
     }
 
-    
+    /**
+     * @return true iff this resource identifies the output folder
+     */
     protected boolean isOutputFolder(IResource resource) {
         return resource.getFullPath().lastSegment().equals("bin");
     }
 
-    
+    /**
+     * Compile one $LANG_NAME$ file.
+     */
     protected void compile(final IFile file, IProgressMonitor monitor) {
         try {
+            getPlugin().writeInfoMsg("Building ${LANG_NAME}$ file: " + file.getName());
+
             // START_HERE
-            System.out.println("Builder.compile with file = " + file.getName());
-            //$CLASS_NAME_PREFIX$Compiler compiler= new $CLASS_NAME_PREFIX$Compiler(PROBLEM_MARKER_ID);
-            //compiler.compile(file, monitor);
-            // Here we provide a substitute for the compile method that simply
-            // runs the parser in place of the compiler but creates problem
-            // markers for errors that will show up in the problems view
+            // TODO replace this example method call with an actual call to a compiler
             runParserForCompiler(file, monitor);
 
             doRefresh(file.getParent());
         } catch (Exception e) {
-            getPlugin().writeErrorMsg(e.getMessage());
-
-            e.printStackTrace();
+            // catch Exception, because any exception could break the
+            // builder infra-structure.
+            getPlugin().logException(e.getMessage(), e);
         }
     }
 
+    /**
+     * This is an example compiler, which simply uses the $LANG_NAME$ parse controller
+     * to parse a file.
+     * 
+     * TODO remove or rename this method once an actual compiler is being called. 
+     * 
+     * @param file    input source file
+     * @param monitor progress monitor
+     */
     protected void runParserForCompiler(final IFile file, IProgressMonitor monitor) {
         try {
-            // Parse controller is the "compiler" here; parses and reports errors
             IParseController parseController = new $CLASS_NAME_PREFIX$ParseController();
 
-            // Marker creator handles error messages from the parse controller (and
-            // uses the parse controller to get additional information about the errors)
-            MarkerCreator markerCreator = new MarkerCreator(file, parseController,         PROBLEM_MARKER_ID);
-
-            // If we have a kind of parser that might be receptive, tell it
-            // what types of problem marker the builder will create
+            MarkerCreator markerCreator = new MarkerCreator(file, parseController, PROBLEM_MARKER_ID);
             parseController.getAnnotationTypeInfo().addProblemMarkerType(getErrorMarkerID());
-            
-            // Need to tell the parse controller which file in which project to parse
-            // and also the message handler to which to report errors
-            IProject project= file.getProject();
-            ISourceProject sourceProject = null;
-            try {
-        	sourceProject = ModelFactory.open(project);
-            } catch (ModelException me){
-        	System.err.println("$CLASS_NAME_PREFIX$ParseController.runParserForComplier(..):  Model exception:\n" + me.getMessage() + "\nReturning without parsing");
-                return;
-            }
+
+            ISourceProject sourceProject = ModelFactory.open(file.getProject());
             parseController.initialize(file.getProjectRelativePath(), sourceProject, markerCreator);
 
             String contents = BuilderUtils.getFileContents(file);
-                
-            // Finally parse it
             parseController.parse(contents, false, monitor);
-
-            doRefresh(file.getParent());
-        } catch (Exception e) {
-            getPlugin().writeErrorMsg(e.getMessage());
-            e.printStackTrace();
+        } catch (ModelException e) {
+            getPlugin().logException("Example builder returns without parsing due to a ModelException", e)
         }
     }
 }
