@@ -592,11 +592,19 @@ public class ExtensionPointEnabler {
     	IPluginModel pluginModel, IProject project, List/*<String>*/ requires)
     	throws CoreException
    	{
+    	if (!project.exists()) {
+		    ErrorHandler.reportError("Project does not exist:  " + project);
+		    return;
+    	}
+    	
     	// SMS 24 Jul 2007	
     	IFile manifestFile = project.getFile("META-INF/MANIFEST.MF");
     	String manifestContents = null;
     	if (manifestFile.exists()) {
     		manifestContents = StreamUtils.readStreamContents(manifestFile.getContents(), manifestFile.getCharset());
+    	} else {
+		    ErrorHandler.reportError("Could read manifest file for project = " + project);
+		    return;
     	}
     	
     	List importsList = new ArrayList();	
@@ -711,6 +719,109 @@ public class ExtensionPointEnabler {
 		manifestFile.setContents(new ByteArrayInputStream(updatedNewManifestContents.getBytes()), true, true, null);
 
     }
+    
+    
+    public static boolean hasRequiredPluginImport(IProject project, String bundleName)
+    {
+    	if (!project.exists()) {
+		    ErrorHandler.reportError("Project does not exist:  " + project);
+			return false;
+    	}
+    	IFile manifestFile = project.getFile("META-INF/MANIFEST.MF");
+    	String manifestContents = null;
+    	if (manifestFile.exists()) {
+    		try {
+    			manifestContents = StreamUtils.readStreamContents(manifestFile.getContents(), manifestFile.getCharset());
+    		} catch (CoreException e) {
+    		    ErrorHandler.reportError("Could read manifest file for project = " + project, e);
+    			return false;
+    		}
+    	} else {
+		    ErrorHandler.reportError("Manifest file does not exist for project = " + project);
+    		return false;
+    	}
+    	
+    	int requireBundleOffset = manifestContents.indexOf("Require-Bundle:");
+    	if (requireBundleOffset < 0)
+    		return false;
+    	
+    	int followingFieldOffset = manifestContents.indexOf(':', requireBundleOffset+15);
+    	if (followingFieldOffset < 0)
+    		followingFieldOffset = manifestContents.length();
+    	
+    	int bundleNameOffset = manifestContents.indexOf(bundleName);
+    	if (bundleNameOffset < 0)
+    		return false;
+    	
+    	if (bundleNameOffset > requireBundleOffset && bundleNameOffset < followingFieldOffset)
+    		return true;
+    	
+    	return false;
+    }
+    
+    
+    
+    public static void removeRequiredPluginImport(IProject project, String bundleName)
+    {
+    	if (!project.exists()) {
+		    ErrorHandler.reportError("Project does not exist:  " + project);
+			return;
+    	}
+    	IFile manifestFile = project.getFile("META-INF/MANIFEST.MF");
+    	String manifestContents = null;
+    	if (manifestFile.exists()) {
+    		try {
+    			manifestContents = StreamUtils.readStreamContents(manifestFile.getContents(), manifestFile.getCharset());
+    		} catch (CoreException e) {
+    		    ErrorHandler.reportError("Could read manifest file for project = " + project, e);
+    		    return;
+    		}
+    	} else {
+		    ErrorHandler.reportError("Manifest file does not exist for project = " + project);
+		    return;
+    	}
+    	
+    	int requireBundleOffset = manifestContents.indexOf("Require-Bundle:");
+    	if (requireBundleOffset < 0)
+    		return;
+    	
+    	int followingFieldOffset = manifestContents.indexOf(':', requireBundleOffset+15);
+    	if (followingFieldOffset < 0)
+    		followingFieldOffset = manifestContents.length();
+    	
+    	int bundleNameOffset = manifestContents.indexOf(bundleName);
+    	if (bundleNameOffset < 0)
+    		return;
+    	
+    	String newManifestContents = null;
+    	if (bundleNameOffset > requireBundleOffset && bundleNameOffset < followingFieldOffset) {
+        	int previousNewLineOffset = manifestContents.lastIndexOf('\n', bundleNameOffset);
+        	int nextNewLineOffset = manifestContents.indexOf('\n', bundleNameOffset);
+        	int nextCommaOffset = manifestContents.indexOf(',', bundleNameOffset);
+        	if (nextCommaOffset < 0)
+        		nextCommaOffset = manifestContents.length();
+        	boolean commaAfterBundleName = nextCommaOffset < nextNewLineOffset;
+        	int previousCommaOffset = manifestContents.lastIndexOf(',', bundleNameOffset);
+
+        	int firstTruncationOffset = commaAfterBundleName ? previousNewLineOffset : previousCommaOffset;
+        	
+        	newManifestContents = manifestContents.substring(0, firstTruncationOffset);
+        	if (nextNewLineOffset > -1)
+        		newManifestContents+= manifestContents.substring(nextNewLineOffset);
+        	else
+        		newManifestContents+= "\n";
+    	}
+
+    	// Put the text back into the file
+    	try {
+    		manifestFile.setContents(new ByteArrayInputStream(newManifestContents.getBytes()), true, true, null);
+		} catch (CoreException e) {
+		    ErrorHandler.reportError("Could not write updated manifest file for project = " + project, e);
+		    return;
+		}
+    }
+    
+    
     
     
     private static void saveAndRefresh(IPluginModel pluginModel) throws CoreException {
