@@ -811,11 +811,15 @@ public class IMPWizardPage extends WizardPage {
 
     
     protected String upperCaseFirst(String language) {
-    	return Character.toUpperCase(language.charAt(0)) + language.substring(1);
+    	return (language == null || language.length() == 0) ?
+    		null :
+    		Character.toUpperCase(language.charAt(0)) + language.substring(1);
     }
 
     protected String lowerCaseFirst(String s) {
-        return Character.toLowerCase(s.charAt(0)) + s.substring(1);
+        return (s == null || s.length() == 0) ?
+        	null :
+        	Character.toLowerCase(s.charAt(0)) + s.substring(1);
     }
 
 
@@ -1165,16 +1169,42 @@ public class IMPWizardPage extends WizardPage {
 	                if (getProjectNameFromField() == null)
 	                    MessageDialog.openError(null, "IMP Wizard", "Please select a project first");
 	                else {
-	            	// BUG Should pick up info from wizard page, rather than using defaults.
+	                	// BUG Should pick up info from wizard page, rather than using defaults.
+	                	// SMS 2 Mar 2008:  we generally do that now, but the wizard page doesn't necessarily
+	                	// have relevant values; these links may sometimes amount to a way of filling in default
+	                	// values
+	                	
                     	// SMS 28 Sep 2007:  Why add imports here?  Omitting doesn't seem to cause problems ...
 	                    //GeneratedComponentEnabler.addImports(GeneratedComponentWizardPage.this);
 	                    String basedOnQualName= basedOn;
 	                    String basedOnTypeName= basedOn.substring(basedOnQualName.lastIndexOf('.') + 1);
 	                    String superClassName= "";
 	
+	                    // SMS 2 Mar 2008
+	                    // I'm not entirely sure what's going on here; initially the superclass name was
+	                    // assigned only if basedOn had a type name that began with an "I", otherwise
+	                    // superClassName was left emtpy.  That seems to imply 1) that all of our interfaces
+	                    // will have names beginning with "I"; 2) that the superclass name is based directly
+	                    // on the interface name (i.e., just lacking the initial "I"); 3) that the superclasses
+	                    // are found in a particular package ("org.eclipse.imp.defaults") and that their
+	                    // names all begin with "Default; and 4) that basedOn won't be a class.  The problem
+	                    // that I've run into at the moment (working on the New Language wizard) is that some
+	                    // of our basedOn values designate superclasses.
+	                    // TODO:  add some more sophisticated checking for whether the basedOn type is
+	                    // a class or an interface
+	                    // But I don't really want to add the more sophisticated checking for that right
+	                    // at the moment (too busy tryig to fix other problems) so I'm just going to
+	                    // treat the basedOn as a superclass in the event that its name doesn't begin
+	                    // with an "I."
+	                    
+	                    
+	                    
 	                    if (basedOnTypeName.charAt(0) == 'I' && Character.isUpperCase(basedOnTypeName.charAt(1))) {
 	                        superClassName= "org.eclipse.imp.defaults.Default" + basedOnTypeName.substring(1);
-	                    }	
+	                    } else {
+	                    	superClassName = basedOn;
+	                    	basedOnQualName = "";
+	                    }
 	                    openClassDialog(fComponentID, basedOnQualName, superClassName, text);
 	                }
 	            } catch (Exception ee) {
@@ -1188,60 +1218,100 @@ public class IMPWizardPage extends WizardPage {
 	        field.fLink= link;
 	    return labelWidget;
 	}
-	
-	
 
-    protected void openClassDialog(String componentID, String interfaceQualName, String superClassName, Text text) {
+
+    protected WizardDialog openClassDialog(String componentID, String interfaceQualName, String superClassName, Text text) {
         try	 {
             String intfName= interfaceQualName.substring(interfaceQualName.lastIndexOf('.') + 1);
             IJavaProject javaProject= JavaCore.create(getProjectOfRecord());
             
+            if (javaProject == null) {
+        		ErrorHandler.reportError("Java project is null", true);
+        		return null;
+            }
+            
             // RMF 7/5/2005 - If the project doesn't yet have the necessary plug-in
             // dependency for this reference to be satisfiable, an error ensues.
-            IType basedOnClass= javaProject.findType(interfaceQualName);
-
-            if (basedOnClass == null) {
-                ErrorHandler.reportError("Base interface '" + interfaceQualName
-                        + "' does not exist in project's build path; be sure to add the appropriate plugin to the dependencies.", true);
+            
+            if (interfaceQualName != null && interfaceQualName.length() > 0) {
+            	if (javaProject.findType(interfaceQualName) == null) {
+            		ErrorHandler.reportError("Base interface '" + interfaceQualName
+            				+ "' does not exist in project's build path; be sure to add the appropriate plugin to the dependencies.", true);
+            		return null;
+            		// TODO:  Do we want to continue from this point, or should we just throw an exception?
+            	}
             }
 
+            if (superClassName != null && superClassName.length() > 0) {
+            	if (javaProject.findType(superClassName) == null) {
+                    ErrorHandler.reportError("Base class '" + superClassName
+                            + "' does not exist in project's build path; be sure to add the appropriate plugin to the dependencies.", true);
+                    return null;
+                    // TODO:  Do we want to continue from this point, or should we just throw an exception?
+	            }
+            }
+            
             NewClassCreationWizard wizard= new NewClassCreationWizard();
-
             wizard.init(Workbench.getInstance(), null);
-
             WizardDialog dialog= new WizardDialog(null, wizard);
-
             dialog.create();
-
             NewClassWizardPage page= (NewClassWizardPage) wizard.getPages()[0];
-            String langName= fLanguageText.getText();
+            
             // TODO RMF Should either fix and use fPackageName (sometimes null at this point) or get rid of it altogether.
-            String langPkg= fQualClassText.getText().substring(0, fQualClassText.getText().indexOf('.'));// fPackageName; // Character.toLowerCase(langName.charAt(0)) + langName.substring(1);
-
+            if (fQualClassText == null)
+            	throw new ClassNotFoundException("IMPWizardPage.openClassDialog(..):  qualified class name is null");
+            //String langPkg= fQualClassText.getText().substring(0, fQualClassText.getText().indexOf('.'));// fPackageName; // Character.toLowerCase(langName.charAt(0)) + langName.substring(1);
+            // SMS 1 Mar 2008:  revised on the assumption that wizards can set fQualClassText automatically if not set by user
+            String givenPackageName = fQualClassText.getText().substring(0, fQualClassText.getText().lastIndexOf('.'));
+            String givenClassName = fQualClassText.getText().substring(fQualClassText.getText().lastIndexOf('.')+1);
+            
             page.setSuperClass(superClassName, true);
 
             ArrayList<String> interfaces= new ArrayList<String>();
 
-            interfaces.add(interfaceQualName);
-            page.setSuperInterfaces(interfaces, true);
+            if (interfaceQualName != null && interfaceQualName.length() > 0) {
+            	interfaces.add(interfaceQualName);
+            	page.setSuperInterfaces(interfaces, true);
+            }
 
-            IFolder srcFolder= getProjectOfRecord().getFolder("src/");
-            String servicePackage= langPkg + ".imp." + componentID.substring(componentID.lastIndexOf('.')+1); // pkg the service belongs in
 
-            //fOwningWizard.createSubFolders(servicePackage.replace('.', '\\'), getProject(), new NullProgressMonitor());
-            WizardUtilities.createSubFolders(servicePackage.replace('.', '\\'), getProjectOfRecord(), new NullProgressMonitor());
+            String langName = fLanguageText.getText();
+            String langClassName = upperCaseFirst(langName);
+            String langPackageName = lowerCaseFirst(langName);
             
+            // Compute name of package for new service class
+            String servicePackageName = givenPackageName;
+            if (servicePackageName == null || servicePackageName.length() == 0) {
+            	servicePackageName = "org.eclipse.imp."  + 
+            	((langPackageName == null || langPackageName.length() == 0) ? "" : langPackageName) +
+            	componentID.substring(componentID.lastIndexOf('.')+1);
+            }
+            	
+            // Compute unqualified name of new service class
+            String serviceClassName = givenClassName;
+            if (serviceClassName == null || serviceClassName.length() == 0) {
+            	serviceClassName = ((langClassName == null || langClassName.length() == 0) ? "" : langClassName);
+                if (intfName.charAt(0) == 'I' && Character.isUpperCase(intfName.charAt(1)))
+                	serviceClassName = serviceClassName + intfName.substring(1);
+                else
+                	serviceClassName = serviceClassName + intfName;
+            }
+            
+            
+            //fOwningWizard.createSubFolders(servicePackage.replace('.', '\\'), getProject(), new NullProgressMonitor());
+            WizardUtilities.createSubFolders(servicePackageName.replace('.', '\\'), getProjectOfRecord(), new NullProgressMonitor());
+            
+            // SMS 2 Mar 2008:  Setting of srcFolder could be more sophisticated
+            // TODO:  set srcFolder with a properly computed value
+            IFolder srcFolder= getProjectOfRecord().getFolder("src/");
             IPackageFragmentRoot pkgFragRoot= javaProject.getPackageFragmentRoot(srcFolder);
-            IPackageFragment pkgFrag= pkgFragRoot.getPackageFragment(servicePackage);
+            IPackageFragment pkgFrag= pkgFragRoot.getPackageFragment(servicePackageName);
 
             page.setPackageFragmentRoot(pkgFragRoot, true);
             page.setPackageFragment(pkgFrag, true);
 
-            String langClass= upperCaseFirst(langName);
-            if (intfName.charAt(0) == 'I' && Character.isUpperCase(intfName.charAt(1)))
-                page.setTypeName(langClass + intfName.substring(1), true);
-            else
-                page.setTypeName(langClass + intfName, true);
+            page.setTypeName(serviceClassName, true);
+            
             SWTUtil.setDialogSize(dialog, 400, 500);
             if (dialog.open() == WizardDialog.OK) {
                 String name= page.getTypeName();
@@ -1251,9 +1321,12 @@ public class IMPWizardPage extends WizardPage {
                 text.setText(name);
                 fPackageName= pkg;
             }
+            
+            return dialog;
         } catch (Exception e) {
             ErrorHandler.reportError("Could not create class implementing " + interfaceQualName, true, e);
         }
+        return null;
     }
 
 
@@ -1270,7 +1343,6 @@ public class IMPWizardPage extends WizardPage {
 	            	IProject project = fProject;
 	            	if (project == null)
 	            		project = getProjectBasedOnNameField();
-	                
 	                
 	                if (project == null) {
 	                    setErrorMessage("Please select a plug-in project to add this extension to");
