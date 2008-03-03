@@ -176,11 +176,11 @@ public class IMPWizardPage extends WizardPage {
     
     protected void setProjectName(String newProjectName) {
         if (newProjectName.startsWith("P\\"))
-            sProjectName= newProjectName.substring(1);
+            sProjectName= newProjectName.substring(2);
         else if (newProjectName.startsWith("\\"))
-            sProjectName= newProjectName;
+            sProjectName= newProjectName.substring(1);
         else
-            sProjectName= "\\" + newProjectName;
+            sProjectName= newProjectName;
     }
     
 	protected final class FocusDescriptionListener extends FocusAdapter {
