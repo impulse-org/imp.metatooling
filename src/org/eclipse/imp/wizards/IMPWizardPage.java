@@ -2,6 +2,7 @@ package org.eclipse.imp.wizards;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 import org.eclipse.core.resources.IFolder;
@@ -10,12 +11,14 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.ui.dialogs.ListSelectionDialog;
 import org.eclipse.imp.ui.dialogs.filters.ViewerFilterForIDEProjects;
 import org.eclipse.imp.ui.dialogs.providers.ContentProviderForAllProjects;
 import org.eclipse.imp.ui.dialogs.providers.LabelProviderForProjects;
 import org.eclipse.imp.ui.dialogs.validators.SelectionValidatorForIDEProjects;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -83,6 +86,7 @@ import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.internal.Workbench;
+import org.osgi.framework.Bundle;
 
 public class IMPWizardPage extends WizardPage {
 
@@ -1174,38 +1178,78 @@ public class IMPWizardPage extends WizardPage {
 	                	// have relevant values; these links may sometimes amount to a way of filling in default
 	                	// values
 	                	
-                    	// SMS 28 Sep 2007:  Why add imports here?  Omitting doesn't seem to cause problems ...
-	                    //GeneratedComponentEnabler.addImports(GeneratedComponentWizardPage.this);
 	                    String basedOnQualName= basedOn;
 	                    String basedOnTypeName= basedOn.substring(basedOnQualName.lastIndexOf('.') + 1);
 	                    String superClassName= "";
-	
-	                    // SMS 2 Mar 2008
-	                    // I'm not entirely sure what's going on here; initially the superclass name was
-	                    // assigned only if basedOn had a type name that began with an "I", otherwise
-	                    // superClassName was left emtpy.  That seems to imply 1) that all of our interfaces
-	                    // will have names beginning with "I"; 2) that the superclass name is based directly
-	                    // on the interface name (i.e., just lacking the initial "I"); 3) that the superclasses
-	                    // are found in a particular package ("org.eclipse.imp.defaults") and that their
-	                    // names all begin with "Default; and 4) that basedOn won't be a class.  The problem
-	                    // that I've run into at the moment (working on the New Language wizard) is that some
-	                    // of our basedOn values designate superclasses.
-	                    // TODO:  add some more sophisticated checking for whether the basedOn type is
-	                    // a class or an interface
-	                    // But I don't really want to add the more sophisticated checking for that right
-	                    // at the moment (too busy tryig to fix other problems) so I'm just going to
-	                    // treat the basedOn as a superclass in the event that its name doesn't begin
-	                    // with an "I."
-	                    
-	                    
-	                    
-	                    if (basedOnTypeName.charAt(0) == 'I' && Character.isUpperCase(basedOnTypeName.charAt(1))) {
-	                        superClassName= "org.eclipse.imp.defaults.Default" + basedOnTypeName.substring(1);
-	                    } else {
-	                    	superClassName = basedOn;
-	                    	basedOnQualName = "";
+	                    String interfaceName = "";
+
+	                    IJavaProject javaProject= JavaCore.create(getProjectOfRecord());
+	                    IType basedOnType = javaProject.findType(basedOnQualName);
+	                    boolean isInterface = false;
+	                    if (basedOnType != null) {
+	                    	isInterface = basedOnType.isInterface();
 	                    }
-	                    openClassDialog(fComponentID, basedOnQualName, superClassName, text);
+	                    
+	                    if (isInterface) {
+	                    	// Assign the interface name
+	                    	interfaceName = basedOnQualName;
+	                    	
+	                    	// Attempt to determine a superclass name
+	                    	// First contrive a service name based on the interface name
+	                    	String serviceName = null;
+	                    	if (basedOnTypeName.startsWith("I") && Character.isUpperCase(basedOnTypeName.charAt(1)))
+	                    	{   // Assume that the interface name begins with an "I" that won't be found
+	                    		// in the service name
+	                    		serviceName = basedOnTypeName.substring(1);
+	                    	} else
+	                    		// Just use the basedOnTypeName
+	                    		serviceName = basedOnTypeName;
+	                    	
+	                    	// Now look for a base class with a name that includes that service name
+	                	    Bundle irb = Platform.getBundle("org.eclipse.imp.runtime");
+	                    	if (irb != null) {
+		                    	Enumeration entries = irb.getEntryPaths("/src/org/eclipse/imp/services/base/");
+	                    		// Look for class names that includes to the service name; might be
+		                    	// more than one, so will make a best guess at the correct one
+	                    		String entry = null;
+	                    		String className = null;
+	                    		// Get candidate class names
+	                    		List<String> candidateNames = new ArrayList();
+	                    		while (entries.hasMoreElements()) {
+		                    		entry = (String) entries.nextElement();
+		                    		int lastIndexOfSlash = entry.lastIndexOf("/");
+		                    		int classNameStart = lastIndexOfSlash > 0 ? lastIndexOfSlash+1 : 0;
+		                    		className = entry.substring(classNameStart);
+
+	                    			if (className.indexOf(serviceName) > -1) 
+	                    				candidateNames.add(className);
+	                    		}
+	                    		// Select best candidate class name, based on length
+	                    		className = null;
+	                    		for (String s:  candidateNames) {
+	                    			if (className == null) {
+	                    				className = s;
+	                    				continue;
+	                    			}
+	                    			if (s.length() < className.length())
+	                    				className = s;
+	                    		}
+	                    		// Build qualified superclass name
+                    			if (className != null) {
+                    				String pakageName = "org.eclipse.imp.services.base.";
+                    				int indexOfDot = className.indexOf('.');
+                    				if (indexOfDot > 0)
+                    					superClassName = pakageName + className.substring(0, indexOfDot);
+                    				else
+                    					superClassName = pakageName + className;
+                    			}
+	                    	}
+	                    } else {
+	                    	// The basedOnQualName is the superclass name and there is no interface
+	                    	superClassName = basedOnQualName;
+	                    	interfaceName = "";
+	                    }
+	                    openClassDialog(fComponentID, interfaceName, superClassName, text);
 	                }
 	            } catch (Exception ee) {
 	                ErrorHandler.reportError("Could not open dialog to find type", true, ee);
@@ -1296,9 +1340,7 @@ public class IMPWizardPage extends WizardPage {
                 else
                 	serviceClassName = serviceClassName + intfName;
             }
-            
-            
-            //fOwningWizard.createSubFolders(servicePackage.replace('.', '\\'), getProject(), new NullProgressMonitor());
+
             WizardUtilities.createSubFolders(servicePackageName.replace('.', '\\'), getProjectOfRecord(), new NullProgressMonitor());
             
             // SMS 2 Mar 2008:  Setting of srcFolder could be more sophisticated
