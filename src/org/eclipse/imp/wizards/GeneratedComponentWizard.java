@@ -207,14 +207,6 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
     }
     
     
-    // SMS 17 Apr 2007	
-    // A step toward relaxing assumptions about the location
-    // of source files within the project
-    public static String getProjectSourceLocation() {
-    		return "src/";
-    }
-    
-    
     /**
      * This method is called when 'Finish' button is pressed in the wizard.
      * We will create an operation and run it using wizard as execution context.
@@ -267,7 +259,7 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
 	    IProject project, IProgressMonitor monitor)
     throws CoreException
 	{
-    	return WizardUtilities.createFileFromTemplate(fileName, templateName, folder, getProjectSourceLocation(), replacements, project, monitor);
+    	return WizardUtilities.createFileFromTemplate(fileName, templateName, folder, getProjectSourceLocation(project), replacements, project, monitor);
     }
     
     
@@ -276,7 +268,7 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
     		Map replacements, IProject project, IProgressMonitor monitor) throws CoreException
     {
     	return WizardUtilities.createFileFromTemplate(
-    			fileName, templateBundleID, templateName, folder, getProjectSourceLocation(),
+    			fileName, templateBundleID, templateName, folder, getProjectSourceLocation(project),
     			replacements, project, monitor);
     }
     
@@ -286,10 +278,10 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
     protected static IFile createFile(String fileName, String folder, IProject project, IProgressMonitor monitor) throws CoreException {
 	monitor.setTaskName("Creating " + fileName);
 
-	final IFile file= project.getFile(new Path(getProjectSourceLocation() + folder + "/" + fileName));
+	final IFile file= project.getFile(new Path(getProjectSourceLocation(project) + folder + "/" + fileName));
 
 	if (!file.exists()) {
-            WizardUtilities.createSubFolders(getProjectSourceLocation() + folder, project, monitor);
+            WizardUtilities.createSubFolders(getProjectSourceLocation(project) + folder, project, monitor);
 	    file.create(new ByteArrayInputStream("".getBytes()), true, monitor);
 	}
 //	monitor.worked(1);
@@ -297,7 +289,7 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
     }
 
     protected IFile getFile(String fileName, String folder, IProject project) throws CoreException {
-	IFile file= project.getFile(new Path(getProjectSourceLocation() + folder + "/" + fileName));
+	IFile file= project.getFile(new Path(getProjectSourceLocation(fProject) + folder + "/" + fileName));
 
 	return file;
     }
@@ -547,7 +539,7 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
     	
     	// In the usual case that there is ...
     	
-    	String prefix = fProject.getLocation().toString() + '/' + getProjectSourceLocation();
+    	String prefix = fProject.getLocation().toString() + '/' + getProjectSourceLocation(fProject);
     	// getProjectSourceLocation should return a "/"-terminated string
     	String prefixTail = (fPackageName == null ? "/" : fPackageName.replace('.', '/') + "/");
 
