@@ -10,50 +10,34 @@ package org.eclipse.imp.wizards;
  * (c) Copyright IBM Corp. 2005  All Rights Reserved
  */
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.imp.WizardPlugin;
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.utils.StreamUtils;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
-import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.text.edits.MalformedTreeException;
-import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.INewWizard;
@@ -63,7 +47,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
-import org.osgi.framework.Bundle;
+
+import sun.misc.FpUtils;
 
 
 /**
@@ -192,7 +177,7 @@ public abstract class ExtensionPointWizard extends IMPWizard implements INewWiza
     	
     	// In the usual case that there is ...
     	
-    	String prefix = fProject.getLocation().toString() + '/' + getProjectSourceLocation();
+    	String prefix = fProject.getLocation().toString() + '/' + getProjectSourceLocation(fProject);
     	// getProjectSourceLocation should return a "/"-terminated string
     	String prefixTail = (fPackageName == null ? "/" : fPackageName.replace('.', '/') + "/");
 
@@ -291,12 +276,7 @@ public abstract class ExtensionPointWizard extends IMPWizard implements INewWiza
     }
      
     
-    // SMS 13 Apr 2007
-    // A step toward relaxing assumptions about the location
-    // of source files within the project
-    public static String getProjectSourceLocation() {
-    		return "src/";
-    }
+
 
     
     protected abstract Map getStandardSubstitutions();
