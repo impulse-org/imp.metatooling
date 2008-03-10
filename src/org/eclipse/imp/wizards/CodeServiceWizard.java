@@ -85,7 +85,7 @@ public abstract class CodeServiceWizard extends ExtensionPointWizard {
     	
     	// In the usual case that there is ...
     	
-    	String prefix = fProject.getLocation().toString() + '/' + getProjectSourceLocation();
+    	String prefix = fProject.getLocation().toString() + '/' + getProjectSourceLocation(fProject);
     	// getProjectSourceLocation should return a "/"-terminated string
     	String prefixTail = (fPackageName == null ? "/" : fPackageName.replace('.', '/') + "/");
     	prefix = prefix + prefixTail; 

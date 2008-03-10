@@ -37,11 +37,11 @@ public class NewProject extends CodeServiceWizard {
 
         String projectTemplateName = "newProjectWizard.java";
         WizardUtilities.createFileFromTemplate(
-        	fClassNamePrefix + "ProjectWizard.java", projectTemplateName, fPackageFolder, getProjectSourceLocation(), subs, project, mon);
+        	fClassNamePrefix + "ProjectWizard.java", projectTemplateName, fPackageFolder, getProjectSourceLocation(fProject), subs, project, mon);
         IFile projectFirstPageSrc= WizardUtilities.createFileFromTemplate(
-        	fClassNamePrefix + "ProjectWizardFirstPage.java", "newProjectWizardFirstPage.java", fPackageFolder, getProjectSourceLocation(), subs, project, mon);
+        	fClassNamePrefix + "ProjectWizardFirstPage.java", "newProjectWizardFirstPage.java", fPackageFolder, getProjectSourceLocation(fProject), subs, project, mon);
         IFile projectSecondPageSrc= WizardUtilities.createFileFromTemplate(
-        	fClassNamePrefix + "ProjectWizardSecondPage.java", "newProjectWizardSecondPage.java", fPackageFolder, getProjectSourceLocation(), subs, project, mon);
+        	fClassNamePrefix + "ProjectWizardSecondPage.java", "newProjectWizardSecondPage.java", fPackageFolder, getProjectSourceLocation(fProject), subs, project, mon);
 
         editFile(mon, projectFirstPageSrc);
     }

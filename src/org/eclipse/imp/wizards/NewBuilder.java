@@ -106,13 +106,13 @@ public class NewBuilder extends CodeServiceWizard
 
         String builderTemplateName = "builder.java";
         IFile builderSrc= WizardUtilities.createFileFromTemplate(	
-        	fFullClassName + ".java", builderTemplateName, fPackageFolder, getProjectSourceLocation(), subs, fProject, mon);
+        	fFullClassName + ".java", builderTemplateName, fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
         // SMS 18 May 2006:
         // Note that we generate the Nature class and extension regardless of whether
         // the user has indicated in the wizard that the builder has a nature.
         String natureTemplateName = "nature.java";
         WizardUtilities.createFileFromTemplate(
-        	fClassNamePrefix + "Nature.java", natureTemplateName, fPackageFolder, getProjectSourceLocation(), subs, fProject, mon);
+        	fClassNamePrefix + "Nature.java", natureTemplateName, fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
 
         editFile(mon, builderSrc);
     }
@@ -126,7 +126,7 @@ public class NewBuilder extends CodeServiceWizard
      * 			the new files to be generated
      */
     protected String[] getFilesThatCouldBeClobbered() {
-    	String prefix = fProject.getLocation().toString() + '/' + getProjectSourceLocation() + fPackageName.replace('.', '/') + '/';
+    	String prefix = fProject.getLocation().toString() + '/' + getProjectSourceLocation(fProject) + fPackageName.replace('.', '/') + '/';
 		return new String[] {prefix + fFullClassName + ".java" , prefix + fClassNamePrefix + "Nature.java" };
     }
     

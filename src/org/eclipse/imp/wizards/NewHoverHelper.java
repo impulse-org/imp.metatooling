@@ -116,7 +116,7 @@ public class NewHoverHelper extends CodeServiceWizard {
 //		String docProviderTemplateName = "documentationProvider.java";
 //		String docPackageFolder = fDocProviderPackageName.replace('.', File.separatorChar);;
 		
-		IFile hoverHelperFile = WizardUtilities.createFileFromTemplate(fFullClassName + ".java", hoverHelperTemplateName, fPackageFolder, getProjectSourceLocation(), subs, fProject, monitor);
+		IFile hoverHelperFile = WizardUtilities.createFileFromTemplate(fFullClassName + ".java", hoverHelperTemplateName, fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, monitor);
 //		IFile docProviderFile = createFileFromTemplate(fDocProviderClassName + ".java", docProviderTemplateName, docPackageFolder, subs, fProject, monitor);
 		
 		// Need to enable documentationProvider extension "manually"
@@ -159,7 +159,7 @@ public class NewHoverHelper extends CodeServiceWizard {
     	
     	// In case there is	
     	
-    	String prefix = fProject.getLocation().toString() + '/' + getProjectSourceLocation();
+    	String prefix = fProject.getLocation().toString() + '/' + getProjectSourceLocation(fProject);
     	// getProjectSourceLocation should return a "/"-terminated string
     	String prefixTail = (fPackageName == null ? "/" : fPackageName.replace('.', '/') + "/");
     	prefix = prefix + prefixTail; 

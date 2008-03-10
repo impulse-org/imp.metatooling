@@ -39,7 +39,7 @@ public class NewReferenceResolver extends CodeServiceWizard {
         
         String resolverTemplateName = "reference_resolver.java";
         IFile resolverSrc = WizardUtilities.createFileFromTemplate(
-        	fClassNamePrefix + "ReferenceResolver.java", resolverTemplateName, fPackageFolder,  getProjectSourceLocation(), subs, fProject, mon);
+        	fClassNamePrefix + "ReferenceResolver.java", resolverTemplateName, fPackageFolder,  getProjectSourceLocation(fProject), subs, fProject, mon);
 
         editFile(mon, resolverSrc);
     }

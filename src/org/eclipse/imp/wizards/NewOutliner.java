@@ -49,10 +49,10 @@ public class NewOutliner extends CodeServiceWizard {
         subs.put("$PACKAGE_NAME$", fPackageName);
 
         String outlinerTemplateName = "outliner.java";
-        IFile outlinerSrc= WizardUtilities.createFileFromTemplate(fFullClassName + ".java", outlinerTemplateName, fPackageFolder, getProjectSourceLocation(), subs, fProject, mon);
+        IFile outlinerSrc= WizardUtilities.createFileFromTemplate(fFullClassName + ".java", outlinerTemplateName, fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
         
         String imagesTemplateName = "images.java";
-        WizardUtilities.createFileFromTemplate(fClassNamePrefix + "Images.java", imagesTemplateName, fPackageFolder, getProjectSourceLocation(), subs, fProject, mon);
+        WizardUtilities.createFileFromTemplate(fClassNamePrefix + "Images.java", imagesTemplateName, fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
         WizardUtilities.copyLiteralFile("../icons/outline_item.gif", "icons", fProject, mon);
 
         editFile(mon, outlinerSrc);

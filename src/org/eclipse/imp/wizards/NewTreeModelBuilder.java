@@ -130,7 +130,7 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
 	        String treeModelBuilderTemplateName = "treeModelBuilder.java";
 	        IFile outlinerSrc= WizardUtilities.createFileFromTemplate(
 	        		fFullBuilderClassName + ".java", treeModelBuilderTemplateName,
-	        		fPackageFolder, getProjectSourceLocation(), subs, fProject, mon);
+	        		fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
 	        editFile(mon, outlinerSrc);
         }
  
@@ -139,7 +139,7 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
 	        String labelProviderTemplateName = "labelProvider.java";
 	        IFile labelProviderSrc = WizardUtilities.createFileFromTemplate(
 	        		fFullProviderClassName + ".java", labelProviderTemplateName,
-	        		fPackageFolder, getProjectSourceLocation(), subs, fProject, mon);
+	        		fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
 	        editFile(mon, labelProviderSrc);
         }
         
@@ -157,18 +157,18 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
         // may be used in the label provider
         String resourcesClassFileName = "I" + fClassNamePrefix + "Resources.java";
         String resourcesFilePath =
-        	fProject.getLocation().toString() + "/" + getProjectSourceLocation() + "/" + pluginFolderName + "/" + resourcesClassFileName;
+        	fProject.getLocation().toString() + "/" + getProjectSourceLocation(fProject) + "/" + pluginFolderName + "/" + resourcesClassFileName;
         File file = new File(resourcesFilePath);
         if (!file.exists()) {
         	// Create in any case
         	WizardUtilities.createFileFromTemplate(
             		resourcesClassFileName, "labelResources.java",
-            		pluginFolderName, getProjectSourceLocation(), subs, fProject, mon);
+            		pluginFolderName, getProjectSourceLocation(fProject), subs, fProject, mon);
         } else if (((NewTreeModelBuilderPage)pages[0]).getResourcesAppend()) {
         	// Append only if the user has indicated so
         	WizardUtilities.extendFileFromTemplate(
             	resourcesClassFileName, "labelResourcesAddendum.java",
-            	pluginFolderName, getProjectSourceLocation(), subs, fProject, mon); 
+            	pluginFolderName, getProjectSourceLocation(fProject), subs, fProject, mon); 
         }
 
         // Append the plug-in activator class with members related to image management
@@ -176,7 +176,7 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
         if (((NewTreeModelBuilderPage)pages[0]).getActivatorAppend()) {
 	        WizardUtilities.extendFileFromTemplate(
 	        	pluginClassName, "plugin_addendum_for_images.java",
-	        	pluginFolderName, getProjectSourceLocation(), subs, fProject, mon);  
+	        	pluginFolderName, getProjectSourceLocation(fProject), subs, fProject, mon);  
         }
         
         // Make the appropriate generic icons available for the label provider
@@ -340,8 +340,6 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
 	                //dialogChanged();
 	            }
 	        });
-	    	
-	  
 	    }
 	    
 	    
