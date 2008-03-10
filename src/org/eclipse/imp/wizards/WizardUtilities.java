@@ -26,8 +26,13 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.WizardPlugin;
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.utils.StreamUtils;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -65,18 +70,36 @@ public class WizardUtilities {
     }
 
 
-	/**
-	 * Provide a means to get some presumed, default value for the
-	 * source location in an unspecified project.  This is really a
-	 * stopgap measure until or unless better approaches are available.	
-	 * 
-	 * @return 	A default value for the source location in an
-	 * 			unspecified project
-	 */
-    public static String getProjectSourceLocation() {
-    		return "src/";
+    
+    public static String getProjectSourceLocation(IProject project) {
+		try {
+			if (project == null)
+				return null;
+			JavaModel jm = JavaModelManager.getJavaModelManager().getJavaModel();
+			IJavaProject jp = jm.getJavaProject(project);
+			if (jp == null)
+				return null;
+			else {
+				IPackageFragmentRoot[] roots = jp.getPackageFragmentRoots();
+				for (int i = 0; i < roots.length; i++) {
+					if (roots[i].getCorrespondingResource() instanceof IFolder) {
+						IPath lcnPath = roots[i].getPath();
+						lcnPath = lcnPath.removeFirstSegments(1);
+						String lcn = lcnPath.toString();
+						if (lcn.startsWith("/"))
+							lcn = lcn.substring(1);
+						if (!lcn.endsWith("/"))
+							lcn = lcn + "/";
+						return lcn;
+					}
+				}
+			}
+		} catch (JavaModelException e) {
+			
+		}
+		return null;
     }
-	
+    
     
     /**
      * Creates a file of the given name from the named template in the given folder in the
