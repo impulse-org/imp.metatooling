@@ -171,6 +171,11 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
 		    		((languageName == null || languageName.length() == 0) ? "" : languageName + ".") +
 		    		"languageDescription.Validator";
 		    	fQualClassText.setText(qualifiedClassName);
+		    	if (fQualClassText != text &&
+		    		text != null && (text.getText() == null || text.getText().length() == 0))
+		    	{
+		    		text.setText(qualifiedClassName);
+		    	}
 		    }
     	}
     	
@@ -187,8 +192,8 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
     	
     	return dialog;
     }
-	
 
+    
 	/**
 	 * Listens for changes in the setting of the project in this wizard
 	 * and manages the occurrence of the required plugin import accordingly
