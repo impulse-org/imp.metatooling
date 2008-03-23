@@ -1282,7 +1282,7 @@ public class IMPWizardPage extends WizardPage {
 	    // At one point it was useful to make this a separately named class;
 	    // the reason for that no longer pertains, but it didn't seem worthwhile
 	    // to turn this back into an anonymous class
-	    class TreeModelBuilderWizardHyperlinkAdapter extends HyperlinkAdapter {
+	    class NewClassHyperlinkAdapter extends HyperlinkAdapter {
 	        public void linkActivated(HyperlinkEvent e) {
 	            Text text= (Text) e.widget.getData();
 	            try {
@@ -1298,8 +1298,8 @@ public class IMPWizardPage extends WizardPage {
 	                    String interfaceName = "";
 	                	
 	                	if (basedOn == null || basedOn.length() == 0) {
-	                		superClassName = "";
-	                		interfaceName = "";
+	                		superClassName = getWizardSpecificSuperclass();
+	                		interfaceName = getWizardSpecificInterface();
 	                	} else {
 		                    String basedOnQualName= basedOn;
 		                    String basedOnTypeName= basedOn.substring(basedOnQualName.lastIndexOf('.') + 1);
@@ -1382,7 +1382,7 @@ public class IMPWizardPage extends WizardPage {
 	        }
 	    }
 	    
-	    TreeModelBuilderWizardHyperlinkAdapter listener = new TreeModelBuilderWizardHyperlinkAdapter();
+	    NewClassHyperlinkAdapter listener = new NewClassHyperlinkAdapter();
 	    link.addHyperlinkListener(listener);
 	    
 	    link.setToolTipText(field.fDescription);
@@ -1391,6 +1391,21 @@ public class IMPWizardPage extends WizardPage {
 	    if (field != null)
 	        field.fLink= link;
 	    return labelWidget;
+	}
+	
+	
+	/*
+	 * Methods to allow an IMP wizard to provide superclass and interface names
+	 * to the New Class Wizard (e.g., in the event that these aren't available
+	 * from an extension-point schema)
+	 */
+	
+	protected String getWizardSpecificSuperclass() {
+		return "";
+	}
+	
+	protected String getWizardSpecificInterface() {
+		return "";
 	}
 
 
