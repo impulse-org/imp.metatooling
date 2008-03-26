@@ -87,10 +87,10 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 
 	protected void createFirstControls(Composite parent) {
 	    super.createFirstControls(parent, componentID);
-	    fPrefixField= new WizardPageField(null, "refactoringPrefix", "Refactoring Name Prefix:", "InsertCrap", 0, true,
+	    fPrefixField= new WizardPageField(null, "refactoringPrefix", "Refactoring Name Prefix:", "Insert Crud", 0, true,
 	    				      "Prefix used for the various refactoring implementation classes");
 	    createLabelText(parent, fPrefixField);
-	    fNameField= new WizardPageField(null, "refactoringName", "Refactoring Name:", "Insert Crap", 0, true,
+	    fNameField= new WizardPageField(null, "refactoringName", "Refactoring Name:", "Insert Crud", 0, true,
 		    			    "Human-readable name of the refactoring");
 	    createLabelText(parent, fNameField);
 	    fToolTipField= new WizardPageField(null, "toolTip", "Refactoring tooltip:", "something suitably pithy", 0, true,
