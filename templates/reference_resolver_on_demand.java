@@ -11,9 +11,9 @@ import lpg.runtime.*;
 import $PARSER_PKG$.Ast.*;
 
 
-public class $CLASS_NAME_PREFIX$ReferenceResolver implements IReferenceResolver, ILanguageService {
+public class $REFERENCE_RESOLVER_CLASS_NAME$ implements IReferenceResolver, ILanguageService {
 
-	public $CLASS_NAME_PREFIX$ReferenceResolver () {
+	public $REFERENCE_RESOLVER_CLASS_NAME$ () {
 	}
 	
 	/**

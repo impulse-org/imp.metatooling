@@ -25,6 +25,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.runtime.RuntimePlugin;
 
 public class NewReferenceResolver extends CodeServiceWizard {
+	
+	protected String fRefResolverClassName = null;
+	
     public void addPages() {
         addPages(new ExtensionPointWizardPage[] {
         	new ExtensionPointWizardPage(this, RuntimePlugin.IMP_RUNTIME, "referenceResolvers"), });
@@ -35,7 +38,18 @@ public class NewReferenceResolver extends CodeServiceWizard {
     	    "org.eclipse.imp.runtime" });
     }
 
-    public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
+    
+    protected void collectCodeParms() {
+    	super.collectCodeParms();
+    	ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
+    	WizardPageField field = page.getField("class");
+    	fRefResolverClassName = field.getText();
+    	fRefResolverClassName = fRefResolverClassName.substring(fRefResolverClassName.lastIndexOf('.')+1);
+    	
+    }
+    
+    
+    protected void generateCodeStubs(IProgressMonitor mon) throws CoreException {
     	
         Map subs= getStandardSubstitutions();
 
@@ -44,9 +58,13 @@ public class NewReferenceResolver extends CodeServiceWizard {
         subs.remove("$PACKAGE_NAME$");
         subs.put("$PACKAGE_NAME$", fPackageName);
         
+        subs.remove("$REFERENCE_RESOLVER_CLASS_NAME$");
+        subs.put("$REFERENCE_RESOLVER_CLASS_NAME$", fRefResolverClassName);
+        
         String resolverTemplateName = "reference_resolver.java";
         IFile resolverSrc = WizardUtilities.createFileFromTemplate(
-        	fClassNamePrefix + "ReferenceResolver.java", resolverTemplateName, fPackageFolder,  getProjectSourceLocation(fProject), subs, fProject, mon);
+        	//fClassNamePrefix + "ReferenceResolver.java"
+        	fRefResolverClassName + ".java", resolverTemplateName, fPackageFolder,  getProjectSourceLocation(fProject), subs, fProject, mon);
 
         editFile(mon, resolverSrc);
     }
