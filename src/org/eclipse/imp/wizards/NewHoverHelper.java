@@ -16,30 +16,40 @@
 package org.eclipse.imp.wizards;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 
 public class NewHoverHelper extends CodeServiceWizard {
 
     protected String fHoverHelperFileName = null;
     protected boolean fResolveReferences = false;
+    protected String fRefResolverQualifiedClassName = null;
+    protected String fRefResolverPackageName = null;
+    protected String fRefResolverClassName = null;
     protected boolean fCustomizeContent = false;
     protected String fDocProviderQualifiedClassName = null;
     protected String fDocProviderPackageName = null;
     protected String fDocProviderClassName = null;
     protected String fLexerClassName = null;
+    
+    protected NewHoverHelperWizardPage fPage = null;
 	
     public void addPages() {
         //addPages(new ExtensionPointWizardPage[] { new ExtensionPointWizardPage(this, RuntimePlugin.IMP_RUNTIME, "hoverHelper"), });
     	addPages(new ExtensionPointWizardPage[] { new NewHoverHelperWizardPage(this) } );
+    	fPage = (NewHoverHelperWizardPage) pages[0];
     }
 
     protected List getPluginDependencies() {
@@ -51,57 +61,28 @@ public class NewHoverHelper extends CodeServiceWizard {
     protected void collectCodeParms() {
     	super.collectCodeParms();
     	NewHoverHelperWizardPage page= (NewHoverHelperWizardPage) pages[0];
-        
-        //fProject=page.getProject();
-//    	IProject project = null;	
-//    	String projectName = page.getProjectNameFromField();
-//    	if (projectName != null) {
-//    		project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-//    	}
-//    	if (project ==  null) {
-//    		project= page.getProject();
-//    	}
-//        if (project == null) {
-//        	throw new IllegalStateException(
-//        		"NewHoverHelperWizardPage.collectCodeParms():  project cannot be identified.");
-//        }
-//    	fProject = project;
-//        fLanguageName = page.getValue("language");
-//        String qualifiedClassName = page.getValue("class");
-//	    fPackageName= qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
-//        fPackageFolder= fPackageName.replace('.', File.separatorChar);
-//        fClassNamePrefix = Character.toUpperCase(fLanguageName.charAt(0)) + fLanguageName.substring(1);
-//        //fControllerFileName = fClassNamePrefix + "ParseController.java";
-//        //fLocatorFileName = fClassNamePrefix + "ASTNodeLocator.java";
-//		fHoverHelperFileName = fClassNamePrefix + "HoverHelper.java";
     	
-    	fResolveReferences = page.getResolveReferences();
+    	fResolveReferences = page.getUseReferenceResolver();
+    	if (!fPage.getUseReferenceResolver()) {
+    		fRefResolverQualifiedClassName = page.getReferenceResolver();
+    	    fRefResolverPackageName = fRefResolverQualifiedClassName.substring(0, fRefResolverQualifiedClassName.lastIndexOf('.'));
+    	    fRefResolverClassName = fRefResolverQualifiedClassName.substring(fRefResolverQualifiedClassName.lastIndexOf('.') + 1);
+    	}
     	
-    	fCustomizeContent = page.getCustomizeContent();
-//    	if (fCustomizeContent) {
-//    		fDocProviderQualifiedClassName = page.getDocumentationProvider();
-//    	    fDocProviderPackageName = fDocProviderQualifiedClassName.substring(0, fDocProviderQualifiedClassName.lastIndexOf('.'));
-//    	    fDocProviderClassName = fDocProviderQualifiedClassName.substring(fDocProviderQualifiedClassName.lastIndexOf('.') + 1);
-//    	}
+    	fCustomizeContent = page.getUseCustomProvider();
+    	if (!fPage.getUseCustomProvider()) {
+    		fDocProviderQualifiedClassName = page.getDocumentationProvider();
+    	    fDocProviderPackageName = fDocProviderQualifiedClassName.substring(0, fDocProviderQualifiedClassName.lastIndexOf('.'));
+    	    fDocProviderClassName = fDocProviderQualifiedClassName.substring(fDocProviderQualifiedClassName.lastIndexOf('.') + 1);
+    	}
     }
 
     
     public void generateCodeStubs(IProgressMonitor monitor) throws CoreException
     {	
-//		boolean hasKeywords= fGrammarOptions.getHasKeywords();
-//		boolean requiresBacktracking= fGrammarOptions.getRequiresBacktracking();
-//		boolean autoGenerateASTs= fGrammarOptions.getAutoGenerateASTs();
-//		String templateKind= fGrammarOptions.getTemplateKind();
-//
-//	    String parseCtlrTemplateName= "SeparateParseController.java";
-//		String locatorTemplateName = "SeparateASTNodeLocator.java";
+    	// (needed for update in hover-helper template)
+    	Map subs= getStandardSubstitutions(fProject);
 
-    		Map subs= getStandardSubstitutions();
-
-//		subs.put("$AST_PKG_NODE$", fPackageName + "." + astDirectory + "." + astNode);
-//		subs.put("$AST_NODE$", astNode);
-//		subs.put("$PARSER_TYPE$", fClassNamePrefix + "Parser");
-		
 		subs.remove("$PACKAGE_NAME$");
 		subs.put("$PACKAGE_NAME$", fPackageName);
 		subs.put("$LEXER_CLASS_NAME$", fClassNamePrefix + "Lexer");
@@ -112,32 +93,77 @@ public class NewHoverHelper extends CodeServiceWizard {
 		subs.put("$USE_REFERENCE_RESOLVER$", fResolveReferences ? "true" : "false");
 		subs.put("$USE_DOCUMENTATION_PROVIDER$", fCustomizeContent ? "true" : "false");	
 		
-//		if (fCustomizeContent) {
-//			subs.put("$DOCUMENTATION_PROVIDER_CLASS_NAME$", fDocProviderClassName);
-//			subs.put("$DOCUMENTATION_PROVIDER_PACKAGE_NAME$", fDocProviderPackageName);
-//		}
 		
 		subs.put("$PARSER_PKG$", fParserPackage);
 
 		String hoverHelperTemplateName = "hoverHelper.java";
-//		String docProviderTemplateName = "documentationProvider.java";
-//		String docPackageFolder = fDocProviderPackageName.replace('.', File.separatorChar);;
-		
 		IFile hoverHelperFile = WizardUtilities.createFileFromTemplate(fFullClassName + ".java", hoverHelperTemplateName, fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, monitor);
-//		IFile docProviderFile = createFileFromTemplate(fDocProviderClassName + ".java", docProviderTemplateName, docPackageFolder, subs, fProject, monitor);
+//		ExtensionPointEnabler.enable(pages[0], false, monitor);
+		ExtensionPointEnabler.enable(
+				fProject, "org.eclipse.imp.runtime", "hoverHelper",
+				 new String[][] {
+		                { "extension:id", fProject.getName() + ".hoverHelper" },
+		                { "extension:name", fLanguageName + " Hover Helper" },
+		                { "hoverHelper:class", fPackageName + "." + fFullClassName },
+		                { "hoverHelper:language", fLanguageName} },
+		         false, getPluginDependencies(), new NullProgressMonitor());
+
 		
-		// Need to enable documentationProvider extension "manually"
-//		ExtensionPointEnabler.enable(
-//			fProject, "org.eclipse.imp.runtime", "documentationProvider",
-//			 new String[][] {
-//	                { "extension:id", fProject.getName() + ".documentationProvider" },
-//	                { "extension:name", fLanguageName + " Documentation Provider" },
-//	                { "docProvider:class", fDocProviderPackageName + "." + fDocProviderClassName },
-//	                { "docProvider:language", fLanguageName} },
-//	         false, getPluginDependencies(), new NullProgressMonitor());
+		IFile docProviderFile = null;
+		IFile refResolverFile = null;
+
+		if (!fPage.getGenReferenceResolver()) {
+			String refResolverTemplateName = "reference_resolver.java";
+			String refResolverPackageFolder = fRefResolverPackageName.replace('.', File.separatorChar);
+			
+			subs.remove("$PACKAGE_NAME$");
+			subs.put("$PACKAGE_NAME$", fRefResolverPackageName);
+	        subs.remove("$REFERENCE_RESOLVER_CLASS_NAME$");
+	        subs.put("$REFERENCE_RESOLVER_CLASS_NAME$", fRefResolverClassName);
+			
+			refResolverFile = WizardUtilities.createFileFromTemplate(fRefResolverClassName + ".java", refResolverTemplateName, refResolverPackageFolder, getProjectSourceLocation(fProject), subs, fProject, monitor);
+			
+			// Need to enable documentationProvider extension "manually"
+			ExtensionPointEnabler.enable(
+				fProject, "org.eclipse.imp.runtime", "referenceResolvers",
+				 new String[][] {
+		                { "extension:id", fProject.getName() + ".referenceResolver" },
+		                { "extension:name", fLanguageName + " Reference Resolver" },
+		                { "docProvider:class", fRefResolverPackageName + "." + fRefResolverClassName },
+		                { "docProvider:language", fLanguageName} },
+		         false, getPluginDependencies(), new NullProgressMonitor());
+		}
+		
+		
+		// SMS 28 Mar 2008:  uncommented line and added conditional
+		if (!fPage.getGenCustomProvider()) {
+			// SMS 28 Mar 2008:  uncommented 2 lines
+			String docProviderTemplateName = "documentationProvider.java";
+			String docPackageFolder = fDocProviderPackageName.replace('.', File.separatorChar);
+			
+			subs.put("$DOCUMENTATION_PROVIDER_CLASS_NAME$", fDocProviderClassName);
+			subs.put("$DOCUMENTATION_PROVIDER_PACKAGE_NAME$", fDocProviderPackageName);
+			
+			docProviderFile = WizardUtilities.createFileFromTemplate(fDocProviderClassName + ".java", docProviderTemplateName, docPackageFolder, getProjectSourceLocation(fProject), subs, fProject, monitor);
+			
+			// Need to enable documentationProvider extension "manually"
+			ExtensionPointEnabler.enable(
+				fProject, "org.eclipse.imp.runtime", "documentationProvider",
+				 new String[][] {
+		                { "extension:id", fProject.getName() + ".documentationProvider" },
+		                { "extension:name", fLanguageName + " Documentation Provider" },
+		                { "docProvider:class", fDocProviderPackageName + "." + fDocProviderClassName },
+		                { "docProvider:language", fLanguageName} },
+		         false, getPluginDependencies(), new NullProgressMonitor());
+		}
+		
 		
 		editFile(monitor, hoverHelperFile);
-//		editFile(monitor, docProviderFile);
+		if (docProviderFile != null)
+			editFile(monitor, docProviderFile);
+		if (refResolverFile != null)
+			editFile(monitor, refResolverFile);
+
     }
     
     
@@ -179,5 +205,45 @@ public class NewHoverHelper extends CodeServiceWizard {
     	result[superFiles.length] = fullDocProivderFileName;
     	return result;
     }	
+    
+    
+    
+    
+    public boolean performFinish() {
+    	collectCodeParms(); // Do this in the UI thread while the wizard fields are still accessible
+    	
+    	IRunnableWithProgress op= new IRunnableWithProgress() {
+    	    public void run(IProgressMonitor monitor) throws InvocationTargetException {
+    		IWorkspaceRunnable wsop= new IWorkspaceRunnable() {
+    		    public void run(IProgressMonitor monitor) throws CoreException {
+    			try {
+    			    generateCodeStubs(monitor);
+    			} catch (Exception e) {
+    			    ErrorHandler.reportError("Could not add extension points", e);
+    			} finally {
+    			    monitor.done();
+    			}
+    		    }
+    		};
+    		try {
+    		    ResourcesPlugin.getWorkspace().run(wsop, monitor);
+    		} catch (Exception e) {
+    		    ErrorHandler.reportError("Could not add extension points", e);
+    		}
+    	    }
+    	};
+    	try {
+    	    getContainer().run(true, false, op);
+    	} catch (InvocationTargetException e) {
+    	    Throwable realException= e.getTargetException();
+    	    ErrorHandler.reportError("Error", realException);
+    	    return false;
+    	} catch (InterruptedException e) {
+    	    return false;
+    	}
+    	return true;
+        }
+    
+    
     
 }
