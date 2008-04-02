@@ -5,18 +5,20 @@ import java.util.List;
 import lpg.runtime.IToken;
 
 import org.eclipse.imp.editor.AnnotationHoverBase;
-import org.eclipse.imp.language.ILanguageService;
-import org.eclipse.imp.parser.ISourcePositionLocator;
+import org.eclipse.imp.language.ServiceFactory;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.IDocumentationProvider;
 import org.eclipse.imp.services.IHoverHelper;
 import org.eclipse.imp.services.IReferenceResolver;
 import org.eclipse.imp.services.base.HoverHelperBase;
-import org.eclipse.imp.utils.ExtensionPointFactory;
+import org.eclipse.imp.utils.ExtensionException;
+import org.eclipse.imp.utils.ExtensionFactory;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.source.ISourceViewer;
 
+import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 import $PARSER_PKG$.Ast.*;
 
 public class $HOVER_HELPER_CLASS_NAME$ extends HoverHelperBase implements IHoverHelper
@@ -64,9 +66,16 @@ public class $HOVER_HELPER_CLASS_NAME$ extends HoverHelperBase implements IHover
         // source node; if so, attempt to get the node that is referenced by
         // the source node, on the assumption that the referenced node should
         // be the basis for the help message (e.g., as a decl for an identifier)
-        if ($USE_REFERENCE_RESOLVER$) {
+        if ( $USE_REFERENCE_RESOLVER$ ) {
             if (fResolver == null && fLanguage != null) {
-                fResolver = (IReferenceResolver) ExtensionPointFactory.createExtensionPoint(fLanguage, ILanguageService.REFERENCE_RESOLVER_SERVICE);
+				try {
+					fResolver = (IReferenceResolver) ExtensionFactory
+						.createServiceExtension(fLanguage,
+								ServiceFactory.REFERENCE_RESOLVER_SERVICE);
+				} catch (ExtensionException e) {
+					$PLUGIN_CLASS$.getInstance().writeErrorMsg("ExtensionException getting REFERENCE_RESOLVER_SERVICE");
+					fResolver = null;
+				}
             }        
             if (fResolver != null) {
                 targetNode = fResolver.getLinkTarget(sourceNode, parseController);
@@ -88,9 +97,15 @@ public class $HOVER_HELPER_CLASS_NAME$ extends HoverHelperBase implements IHover
         // if so, check whether it provides documentation for the help node;
         // if so, return that documentation
         IDocumentationProvider docProvider = null;
-        if (fLanguage != null && $USE_DOCUMENTATION_PROVIDER$) {
-            docProvider = 
-                (IDocumentationProvider) ExtensionPointFactory.createExtensionPoint(fLanguage, ILanguageService.DOCUMENTATION_PROVIDER_SERVICE);
+        if (fLanguage != null && $USE_DOCUMENTATION_PROVIDER$ ) {
+			try {
+				docProvider = (IDocumentationProvider) ExtensionFactory
+					.createServiceExtension(fLanguage,
+							ServiceFactory.DOCUMENTATION_PROVIDER_SERVICE);
+			} catch (ExtensionException e) {
+				$PLUGIN_CLASS$.getInstance().writeErrorMsg("ExtensionException getting DOCUMENTATION_PROVIDER_SERVICE");
+				fResolver = null;
+			}
         }
         if (docProvider != null) {
                 msg = (docProvider != null) ? docProvider.getDocumentation(helpNode, parseController) : null;
