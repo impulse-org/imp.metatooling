@@ -31,7 +31,12 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.extensionsmodel.ImpWorkspaceExtensionsModel;
+import org.eclipse.imp.runtime.RuntimePlugin;
+import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.pde.core.IEditableModel;
 import org.eclipse.pde.core.plugin.IExtensions;
 import org.eclipse.pde.core.plugin.IPluginBase;
@@ -48,10 +53,6 @@ import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModel;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModelBase;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
-import org.eclipse.imp.core.ErrorHandler;
-import org.eclipse.imp.extensionsmodel.ImpWorkspaceExtensionsModel;
-import org.eclipse.imp.runtime.RuntimePlugin;
-import org.eclipse.imp.utils.StreamUtils;
 
 
 /**
@@ -779,6 +780,12 @@ public class ExtensionPointEnabler {
     	if (manifestFile.exists()) {
     		try {
     			manifestContents = StreamUtils.readStreamContents(manifestFile.getContents(), manifestFile.getCharset());
+    			if (manifestContents == null) {
+    				ErrorHandler.reportError("Read of manifest file contents returned null for project = " + project, null);
+    				return;
+    			} else if (manifestContents.length() == 0) {
+    				return;
+    			}
     		} catch (CoreException e) {
     		    ErrorHandler.reportError("Could read manifest file for project = " + project, e);
     		    return;
