@@ -121,6 +121,12 @@
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             name="Annotation hover"
             id="org.eclipse.imp.wizards.NewAnnotationHover"/>
+	  <wizard
+            class="org.eclipse.imp.wizards.NewDocumentationProvider"
+            icon="icons/sample.gif"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
+            name="Documentation provider"
+            id="org.eclipse.imp.wizards.NewDocumentationProvider"/>
       <wizard
             class="org.eclipse.imp.wizards.NewFoldingUpdater"
             icon="icons/sample.gif"
