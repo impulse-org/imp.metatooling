@@ -88,19 +88,21 @@ public class IMPPerspectiveFactory implements IPerspectiveFactory {
 //	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewOutliner");
 	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewTreeModelBuilder");
 	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewFoldingUpdater");
-//	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewHoverHelper");
 //	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewAnnotationHover");
 	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewReferenceResolver");
+    layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewDocumentationProvider");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewHoverHelper");
 	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewContentProposer");
 //	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewAutoEditStrategy");
 //	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewFormatter");
+	layout.addNewWizardShortcut("org.eclipse.imp.formatting.wizards.NewFormattingSpecification");
 //	layout.addNewWizardShortcut("org.eclipse.imp.fancyTokenColorerWizard");
 //	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewProjectWizard");
 	layout.addNewWizardShortcut("org.eclipse.imp.newBuilder");
 	layout.addNewWizardShortcut("org.eclipse.imp.natureEnablerWizard");
 	layout.addNewWizardShortcut("org.eclipse.imp.newCompiler");
 //	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewIndexer");
-	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewPreferencesDialog");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.PreferencesSpecification");
 	layout.addNewWizardShortcut("org.eclipse.imp.newRefactoring");
 
 	layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");//$NON-NLS-1$
