@@ -1273,10 +1273,11 @@ public class IMPWizardPage extends WizardPage {
     }
 
 
-	private Widget createNewClassHyperlink(WizardPageField field, String name, final String basedOn, Composite container) {
+	protected Widget createNewClassHyperlink(WizardPageField field, String name, final String basedOn, Composite container) {
 	    Widget labelWidget;
 	    FormToolkit toolkit= new FormToolkit(Display.getDefault());
 	    Hyperlink link= toolkit.createHyperlink(container, name, SWT.NULL);
+	    link.setBackground(container.getBackground());
 
 	    // SMS 7 Mar 2007
 	    // At one point it was useful to make this a separately named class;
