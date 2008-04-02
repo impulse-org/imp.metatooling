@@ -21,8 +21,8 @@ public class $DOCUMENTATION_PROVIDER_CLASS_NAME$ implements IDocumentationProvid
             return null;
         
         if (node instanceof ASTNode) {
-        	
-        	// START HERE
+
+        	// START_HERE
         	// Create a case for each kind of node or token for which you
         	// want to provide help text and return the text corresponding
         	// to that entity (such as in the following examples)
