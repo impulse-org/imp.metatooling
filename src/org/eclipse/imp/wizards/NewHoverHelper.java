@@ -112,7 +112,7 @@ public class NewHoverHelper extends CodeServiceWizard {
 		IFile docProviderFile = null;
 		IFile refResolverFile = null;
 
-		if (!fPage.getGenReferenceResolver()) {
+		if (fPage.getGenReferenceResolver()) {
 			String refResolverTemplateName = "reference_resolver.java";
 			String refResolverPackageFolder = fRefResolverPackageName.replace('.', File.separatorChar);
 			
@@ -136,7 +136,7 @@ public class NewHoverHelper extends CodeServiceWizard {
 		
 		
 		// SMS 28 Mar 2008:  uncommented line and added conditional
-		if (!fPage.getGenCustomProvider()) {
+		if (fPage.getGenCustomProvider()) {
 			// SMS 28 Mar 2008:  uncommented 2 lines
 			String docProviderTemplateName = "documentationProvider.java";
 			String docPackageFolder = fDocProviderPackageName.replace('.', File.separatorChar);
