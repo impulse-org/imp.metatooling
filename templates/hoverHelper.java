@@ -69,11 +69,9 @@ public class $HOVER_HELPER_CLASS_NAME$ extends HoverHelperBase implements IHover
         if ( $USE_REFERENCE_RESOLVER$ ) {
             if (fResolver == null && fLanguage != null) {
 				try {
-					fResolver = (IReferenceResolver) ExtensionFactory
-						.createServiceExtension(fLanguage,
-								ServiceFactory.REFERENCE_RESOLVER_SERVICE);
-				} catch (ExtensionException e) {
-					$PLUGIN_CLASS$.getInstance().writeErrorMsg("ExtensionException getting REFERENCE_RESOLVER_SERVICE");
+					fResolver = ServiceFactory.getInstance().getReferenceResolver(fLanguage);
+				} catch (Exception e) {
+					$PLUGIN_CLASS$.getInstance().writeErrorMsg("Exception getting Reference Resolver service from service factory");
 					fResolver = null;
 				}
             }        
@@ -99,11 +97,10 @@ public class $HOVER_HELPER_CLASS_NAME$ extends HoverHelperBase implements IHover
         IDocumentationProvider docProvider = null;
         if (fLanguage != null && $USE_DOCUMENTATION_PROVIDER$ ) {
 			try {
-				docProvider = (IDocumentationProvider) ExtensionFactory
-					.createServiceExtension(fLanguage,
-							ServiceFactory.DOCUMENTATION_PROVIDER_SERVICE);
-			} catch (ExtensionException e) {
-				$PLUGIN_CLASS$.getInstance().writeErrorMsg("ExtensionException getting DOCUMENTATION_PROVIDER_SERVICE");
+				docProvider = ServiceFactory.getInstance().getDocumentationProvider(fLanguage);
+
+			} catch (Exception e) {
+				$PLUGIN_CLASS$.getInstance().writeErrorMsg("Exception getting Documentation Provider Service from service factory");
 				fResolver = null;
 			}
         }
