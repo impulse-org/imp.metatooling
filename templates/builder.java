@@ -158,7 +158,7 @@ public class $BUILDER_CLASS_NAME$ extends BuilderBase {
             String contents = BuilderUtils.getFileContents(file);
             parseController.parse(contents, false, monitor);
         } catch (ModelException e) {
-            getPlugin().logException("Example builder returns without parsing due to a ModelException", e)
+            getPlugin().logException("Example builder returns without parsing due to a ModelException", e);
         }
     }
 }
