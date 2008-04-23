@@ -43,6 +43,10 @@ public class $COMPILER_CLASS_NAME$ {
     	PROBLEM_MARKER_ID = problem_marker_id;
     }
     
+    // private so that the caller always has to provide
+    // a problem marker id
+    private $COMPILER_CLASS_NAME$() { }
+ 
     
     private final class TranslatorVisitor extends AbstractVisitor {
     	SymbolTable innerScope;
@@ -237,9 +241,6 @@ public class $COMPILER_CLASS_NAME$ {
         //*/
     }
 
-    public $COMPILER_CLASS_NAME$() {
-        super();
-    }
 
     public String getFileContents(IFile file) {
     	try {
