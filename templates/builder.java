@@ -122,10 +122,14 @@ public class $BUILDER_CLASS_NAME$ extends BuilderBase {
      */
     protected void compile(final IFile file, IProgressMonitor monitor) {
         try {
-            getPlugin().writeInfoMsg("Building ${LANG_NAME}$ file: " + file.getName());
+            getPlugin().writeInfoMsg("Building $LANG_NAME$ file: " + file.getName());
 
             // START_HERE
-            // TODO replace this example method call with an actual call to a compiler
+            //$CLASS_NAME_PREFIX$Compiler compiler= new $CLASS_NAME_PREFIX$Compiler(PROBLEM_MARKER_ID);
+            //compiler.compile(file, monitor);
+            // Here we provide a substitute for the compile method that simply
+            // runs the parser in place of the compiler but creates problem
+            // markers for errors that will show up in the problems view
             runParserForCompiler(file, monitor);
 
             doRefresh(file.getParent());
