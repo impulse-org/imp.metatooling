@@ -23,6 +23,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.utils.ExtensionPointUtils;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
@@ -33,9 +35,6 @@ import org.eclipse.pde.internal.core.plugin.PluginElement;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.imp.core.ErrorHandler;
-import org.eclipse.imp.runtime.RuntimePlugin;
-import org.eclipse.imp.utils.ExtensionPointUtils;
 
 public class NewCompiler extends GeneratedComponentWizard {
     // Need a variant of CodeServiceWizard that doesn't actually create an extension, just generates code...
@@ -109,6 +108,7 @@ public class NewCompiler extends GeneratedComponentWizard {
 
         String parseControllerClassName = getParseControllerClassName(fProject);
         subs.put("$ParseControllerClassName$", parseControllerClassName);
+        
         
         // SMS 21 Jul 2006
         // NOTE:  The template also makes reference to "$CLASS_NAME_PREFIX$ParseController();"
@@ -225,4 +225,5 @@ public class NewCompiler extends GeneratedComponentWizard {
         // Didn't find it :-(
         return null;
     }
+    
 }
