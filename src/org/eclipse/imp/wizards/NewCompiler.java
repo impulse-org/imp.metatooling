@@ -29,8 +29,10 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.pde.core.plugin.IPluginElement;
 import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
+import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -109,14 +111,11 @@ public class NewCompiler extends GeneratedComponentWizard {
         String parseControllerClassName = getParseControllerClassName(fProject);
         subs.put("$ParseControllerClassName$", parseControllerClassName);
         
-        
-        // SMS 21 Jul 2006
-        // NOTE:  The template also makes reference to "$CLASS_NAME_PREFIX$ParseController();"
-        // which may *not* be the name of the par	se controller if the user has change that
-        // from the default.  So some provision should be made to identify the correct name
-        // for the parse controller (e.g., adding a field to the new compiler wizard).
-        // Otherwise, the generated code will not compile, but that can be easily repaired
-        // by the user.
+        String problemMarkerID = getProblemMarkerID(fProject);
+        if (problemMarkerID != null)
+        	subs.put("$PROBLEM_MARKER_ID$", problemMarkerID);
+        else
+        	subs.put("$PROBLEM_MARKER_ID$", "org.eclipse.core.resources.problemmarker");
         
         String compilerTemplateName = "compiler.java";
         IFile compilerSrc= createFileFromTemplate(fFullClassName + ".java", compilerTemplateName, fPackageFolder, subs, fProject, mon);
@@ -225,5 +224,28 @@ public class NewCompiler extends GeneratedComponentWizard {
         // Didn't find it :-(
         return null;
     }
+    
+    
+    public String getProblemMarkerID(IProject project)
+    {
+    	IPluginModelBase pluginModelBase = pages[0].getPluginModel();
+        IPluginExtension[] markerExtensions = ExtensionPointUtils.findExtensionsByName("org.eclipse.core.resources.markers", pluginModelBase);
+    	
+        for (int i = 0; i < markerExtensions.length; i++) {
+        	IPluginExtension ext = markerExtensions[i];
+        	IPluginObject[] children = ext.getChildren();
+        	
+		    for(int j= 0; j < children.length; j++) {
+				if (children[j].getName().equals("super")) {
+					String typeValue = ((IPluginElement) children[j]).getAttribute("type").getValue();
+					if (typeValue.equals("org.eclipse.core.resources.problemmarker")) {
+						return ext.getId().toString();
+					}
+				}
+		    }
+        }
+        return null;
+    }
+    
     
 }
