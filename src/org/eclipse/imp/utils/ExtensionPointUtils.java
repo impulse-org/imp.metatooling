@@ -12,12 +12,15 @@
 
 package org.eclipse.imp.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.imp.wizards.ExtensionPointEnabler;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -30,25 +33,75 @@ import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
-import org.eclipse.imp.wizards.ExtensionPointEnabler;
 
 public class ExtensionPointUtils {
     private ExtensionPointUtils() { }
 
-    public static IPluginExtension findExtensionByName(String name, IPluginModelBase pluginModel) {
-        IExtensions extensionsThing = pluginModel.getExtensions();
-        IPluginExtension[] extensions = extensionsThing.getExtensions();
-        IPluginExtension parserExtension = null;
+
+    /**
+     * Return an extension with a given name in a given plug-in model.
+     * 
+     * Limitation:  Returns only one extension, even if there may be more than
+     * one, so this method is most suitable for finding extensions that are
+     * expected to be unique in their plug-in.  As a practical matter, this
+     * method returns the first extension found, if any, that matches the
+     * given name.
+     * 
+     * @param extName		The name of the extension sought; actually,
+     * 						an extension point id
+     * @param pluginModel	The model of the plug-in in which the extension is sought
+     * @return				An exstension from the given plug-in model that extends
+     * 						the extension point identified by the given name
+     */
+
+    public static IPluginExtension findExtensionByName(String extName, IPluginModelBase pluginModel)
+    {
+        IPluginExtension[] extensions = pluginModel.getExtensions().getExtensions();
+        IPluginExtension extension = null;
     
         for (int i = 0; i < extensions.length; i++) {
-        	if(extensions[i].getPoint().equals(name)) {
-        		parserExtension = extensions[i];
+        	if(extensions[i].getPoint().equals(extName)) {
+        		extension = extensions[i];
         		break;
         	}
         }
-        return parserExtension;
+        return extension;
     }
 
+    
+    
+    /**
+     * Return an array of extensions with a given name in a given plug-in model.
+     * 
+     * @param extName		The name of the extensions sought; actually,
+     * 						an extension point id
+     * @param pluginModel	The model of the plug-in in which the extensions are sought
+     * @return				An array of exstensions from the given plug-in model that
+     * 						extend the extension point identified by the given name
+     */
+
+    public static IPluginExtension[] findExtensionsByName(String extName, IPluginModelBase pluginModel)
+    {
+        IPluginExtension[] extensions = pluginModel.getExtensions().getExtensions();
+        List extensionsList = new ArrayList();
+
+    
+        for (int i = 0; i < extensions.length; i++) {
+        	if(extensions[i].getPoint().equals(extName)) {
+        		extensionsList.add(extensions[i]);
+        	}
+        }
+        
+        IPluginExtension[] namedExtensions = new IPluginExtension[extensionsList.size()];
+        for (int i = 0; i < namedExtensions.length; i++)
+        	namedExtensions[i] = (IPluginExtension) extensionsList.get(i);
+        return namedExtensions;
+    }
+
+    
+    
+    
+    
     public static IPackageFragment findPackageByName(IProject project, String parserPackageName) {
         IWorkspace workspace = project.getWorkspace();
         IJavaModel javaModel = JavaCore.create(workspace.getRoot());
