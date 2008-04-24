@@ -37,15 +37,17 @@ public class $COMPILER_CLASS_NAME$ {
     Stack/*<String>*/ fTranslationStack= new Stack();
     
     //public static final String PROBLEM_MARKER_ID= $PLUGIN_CLASS$.kPluginID + ".$PROBLEM_ID$";
-    public String PROBLEM_MARKER_ID;
+    public String PROBLEM_MARKER_ID = "$PROBLEM_MARKER_ID$";
     
     public $COMPILER_CLASS_NAME$(String problem_marker_id) {
-    	PROBLEM_MARKER_ID = problem_marker_id;
+    	if (problem_marker_id != null)
+    		PROBLEM_MARKER_ID = problem_marker_id;
     }
     
-    // private so that the caller always has to provide
-    // a problem marker id
-    private $COMPILER_CLASS_NAME$() { }
+
+    public $COMPILER_CLASS_NAME$() {
+    	this("$PROBLEM_MARKER_ID$");
+    }
  
     
     private final class TranslatorVisitor extends AbstractVisitor {
@@ -70,7 +72,9 @@ public class $COMPILER_CLASS_NAME$ {
         public void endVisit(assignmentStmt n) {
             String rhs= (String) fTranslationStack.pop();
             String lhs= (String) fTranslationStack.pop();
-            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + "\n\t\t" + lhs + " = " + rhs + ";" + "\n\t\tSystem.out.println(\"" + lhs + " = \" + " + lhs + ");");
+            fTranslationStack.push("//#line " + n.getRightIToken().getEndLine() + 
+            	"\n\t\t" + lhs + " = " + rhs + ";" + 
+            	"\n\t\tSystem.out.println(\"" + lhs + " = \" + " + lhs + ");");
         }
         public void endVisit(expression0 n) {
             String right= (String) fTranslationStack.pop();
