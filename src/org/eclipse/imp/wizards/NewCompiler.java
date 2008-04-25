@@ -15,6 +15,7 @@
  */
 package org.eclipse.imp.wizards;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.extensionsmodel.ImpWorkspaceExtensionsModel;
 import org.eclipse.imp.utils.ExtensionPointUtils;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -31,12 +33,18 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.pde.core.plugin.IPluginElement;
 import org.eclipse.pde.core.plugin.IPluginExtension;
+import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 
 public class NewCompiler extends GeneratedComponentWizard {
     // Need a variant of CodeServiceWizard that doesn't actually create an extension, just generates code...
@@ -46,6 +54,8 @@ public class NewCompiler extends GeneratedComponentWizard {
     protected static final String thisWizardDescription = "Wizard for creating a simple compiler";
     
     protected static final String componentID = "compiler";
+    
+    protected String fProblemMarkerID = null;
     
 	
     public void addPages() {
@@ -64,10 +74,51 @@ public class NewCompiler extends GeneratedComponentWizard {
 		    createClassField(parent, "ClassBrowse");
 		}
 		
-	    protected void createAdditionalControls(Composite parent) {
+	    protected void createAdditionalControls(Composite parent)
+	    {
 	    	createTextField(parent, "PoorMansCompiler", "class",
 	    		"The qualified name of the compiler class to be generated", 
-	    		"", "ClassBrowse", true);    	       	
+	    		"", "ClassBrowse", true);
+
+	        fillColumns(parent, 3);
+	        
+	        final Button cb = createBooleanField(parent, "Customize problem\nmarker id?",
+	        	"Enable or disable the field to set a custom problem marker id",
+	        	"Click to enable or disable the field to set a custom problem marker id",
+	        	false, 0);
+	        fillColumns(parent, 1);
+	        
+	    	final WizardPageField problemID = createTextField(parent, "PoorMansCompiler", "Problem\nmarker id",
+		    		"The internal identifier used for markers for problems reported by the compiler", 
+		    		"", "NoBrowse", true);
+	        
+	        String problemMarkerID = getProblemMarkerID(fProject);
+	        if (problemMarkerID != null)
+	        	problemID.setText(problemMarkerID);
+	        else
+	        	problemID.setText("org.eclipse.core.resources.problemmarker");
+	    	problemID.setEnabled(false);
+	        fillColumns(parent, 1);
+
+	        // To enable the enabled state of the problem marker id field
+	        // to follow the settings of the (enabling) checkbox
+			cb.addSelectionListener(new SelectionListener() {
+			    public void widgetSelected(SelectionEvent e) {
+			    	problemID.setEnabled(cb.getSelection());
+			    }
+			    public void widgetDefaultSelected(SelectionEvent e) {}
+			});	    	
+	    }
+	    
+	    
+	    private void fillColumns(Composite parent, int numCols) {
+	    	for (int i = 0; i < numCols; i++) {
+		        Label label= new Label(parent, SWT.NULL);
+		        label.setText("");
+		        label.setBackground(parent.getBackground());
+	    	}
+	    	
+	    	
 	    }
 	    
 	    public void createControl(Composite parent) {
@@ -100,6 +151,14 @@ public class NewCompiler extends GeneratedComponentWizard {
         return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
                 "org.eclipse.imp.runtime" });
     }
+    
+    
+    protected void collectCodeParms() {
+    	super.collectCodeParms();
+    	
+    	fProblemMarkerID = pages[0].getField("Problem\nmarker id").getText();
+    }
+    
 
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException
     {	
@@ -108,14 +167,12 @@ public class NewCompiler extends GeneratedComponentWizard {
         subs.remove("$COMPILER_CLASS_NAME$");
         subs.put("$COMPILER_CLASS_NAME$", fFullClassName);
 
+        subs.remove("$ParseControllerClassName$");
         String parseControllerClassName = getParseControllerClassName(fProject);
         subs.put("$ParseControllerClassName$", parseControllerClassName);
         
-        String problemMarkerID = getProblemMarkerID(fProject);
-        if (problemMarkerID != null)
-        	subs.put("$PROBLEM_MARKER_ID$", problemMarkerID);
-        else
-        	subs.put("$PROBLEM_MARKER_ID$", "org.eclipse.core.resources.problemmarker");
+        subs.remove("$PROBLEM_MARKER_ID$");
+        subs.put("$PROBLEM_MARKER_ID$", fProblemMarkerID);
         
         String compilerTemplateName = "compiler.java";
         IFile compilerSrc= createFileFromTemplate(fFullClassName + ".java", compilerTemplateName, fPackageFolder, subs, fProject, mon);
@@ -132,38 +189,7 @@ public class NewCompiler extends GeneratedComponentWizard {
     	// Warning:  Returning an array with empty elements may cause problems,
     	// so be sure to only allocate as many elements as there are actual	attributes
     	GeneratedComponentAttribute[] attributes = new GeneratedComponentAttribute[0];
-
-    	// SMS 10 Aug 2006
-    	// Ignore these--they're for testing the attribute mechanism.  The compiler
-    	// doesn't have any attributes that are specific to it, but it's the only
-    	// generated component we have that isn't an extension, so for testing I've
-    	// given it some made-up attributes just so see how things work
-    	// 
-    	/*
-		GeneratedComponentAttribute languageAttr = new GeneratedComponentAttribute();
-		languageAttr.setName("name");
-		languageAttr.setBasedOn("");
-		languageAttr.setDescription("What is the compiler's name?");
-		languageAttr.setValue(null);
-		languageAttr.setUse(ISchemaAttribute.REQUIRED);
-		attributes[0] = languageAttr;
-
-		GeneratedComponentAttribute classAttr = new GeneratedComponentAttribute();
-		classAttr.setName("quest");
-		classAttr.setBasedOn("");
-		classAttr.setDescription("What is the compiler's quest?");
-		classAttr.setValue(null);
-		classAttr.setUse(ISchemaAttribute.REQUIRED);
-		attributes[1] = classAttr;
-
-		GeneratedComponentAttribute colorAttr = new GeneratedComponentAttribute();
-		colorAttr.setName("color");
-		colorAttr.setBasedOn("");
-		colorAttr.setDescription("What is the compiler's favourite color?");
-		colorAttr.setValue(null);
-		colorAttr.setUse(ISchemaAttribute.OPTIONAL);
-		attributes[2] = colorAttr;
-		*/
+    	
     	return attributes;
     }
     
@@ -228,11 +254,24 @@ public class NewCompiler extends GeneratedComponentWizard {
     
     public String getProblemMarkerID(IProject project)
     {
-    	IPluginModelBase pluginModelBase = pages[0].getPluginModel();
-        IPluginExtension[] markerExtensions = ExtensionPointUtils.findExtensionsByName("org.eclipse.core.resources.markers", pluginModelBase);
-    	
-        for (int i = 0; i < markerExtensions.length; i++) {
-        	IPluginExtension ext = markerExtensions[i];
+    	ImpWorkspaceExtensionsModel iwem = null;
+    	try {
+    		iwem = ExtensionPointEnabler.loadImpExtensionsModel(
+	    			(IPluginModel)pages[0].getPluginModel(), project);
+    	} catch (CoreException e) {
+		    ErrorHandler.reportError("CoreException getting problem marker id; returning null", e);
+    	}
+
+	    IPluginExtension[] extensions = iwem.getExtensions().getExtensions();
+        List<IPluginExtension> markerExtensions =  new ArrayList();
+        
+        for (int i = 0; i < extensions.length; i++) {
+        	if(extensions[i].getPoint().equals("org.eclipse.core.resources.markers")) {
+        		markerExtensions.add(extensions[i]);
+        	}
+        }
+        
+        for (IPluginExtension ext:  markerExtensions) {
         	IPluginObject[] children = ext.getChildren();
         	
 		    for(int j= 0; j < children.length; j++) {
