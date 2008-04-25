@@ -588,8 +588,12 @@ public class IMPWizardPage extends WizardPage {
 		
 				    for(int j= 0; j < children.length; j++) {
 					if (children[j].getName().equals("language")) {
-					    fLanguageText.setText(((IPluginElement) children[j]).getAttribute("language").getValue());
-					    return;
+						try {
+							fLanguageText.setText(((IPluginElement) children[j]).getAttribute("language").getValue());
+						} catch (Exception e) {
+							ErrorHandler.reportError("Exception getting language attribute; returning", e);
+						}
+						return;
 					}
 				    }
 				}
@@ -1050,7 +1054,7 @@ public class IMPWizardPage extends WizardPage {
 	// BUG Prevents clicking "Finish" if an element is optional but one of its attributes isn't
 	    boolean required= field.fRequired;
 
-	    boolean basedOnSomething = (basedOn != null) && (basedOn.length() > 0);
+	    boolean basedOnSomething = (basedOn != null) && (basedOn.length() > 0 && !basedOn.endsWith("NoBrowse"));
 	    
 	    if (required)
 	        name+= "*";
@@ -1087,9 +1091,10 @@ public class IMPWizardPage extends WizardPage {
 	            createClassBrowseButton(container, field, text);
 	    	} else if (basedOn.endsWith("PackageBrowse")) {
 	            createPackageBrowseButton(container, field, text);
+	    	} else if (basedOn.endsWith("ClassBrowse")){
+	            createClassBrowseButton(container, field, text);
 	    	} else {
-	        	// This is the original action;
-	    		// left until a better option can be identified
+	    		// Assume that it's a Java type
 	            createClassBrowseButton(container, field, text);
 	    	}
 	    }
