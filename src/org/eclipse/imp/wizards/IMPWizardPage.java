@@ -711,7 +711,8 @@ public class IMPWizardPage extends WizardPage {
     	IProject project = null;
         try {
             PluginModelManager pmm= PDECore.getDefault().getModelManager();
-            IPluginModelBase[] plugins= pmm.getAllPlugins();
+            // SMS 28 Apr 2008
+            IPluginModelBase[] plugins= pmm.getWorkspaceModels();	//getAllPlugins();
             project= getProjectOfRecord();
 
             if (project == null)
@@ -735,7 +736,8 @@ public class IMPWizardPage extends WizardPage {
         	if (projectName == null)
         		return null;
             PluginModelManager pmm= PDECore.getDefault().getModelManager();
-            IPluginModelBase[] plugins= pmm.getAllPlugins();
+            // SMS 28 Apr 2008
+            IPluginModelBase[] plugins= pmm.getWorkspaceModels();	//getAllPlugins();
 
             for(int n= 0; n < plugins.length; n++) {
                 IPluginModelBase plugin= plugins[n];
