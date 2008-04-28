@@ -196,7 +196,8 @@ public abstract class CodeServiceWizard extends ExtensionPointWizard {
         	if (projectName == null)
         		return null;
             PluginModelManager pmm= PDECore.getDefault().getModelManager();
-            IPluginModelBase[] plugins= pmm.getAllPlugins();
+            // SMS 28 Apr 2008
+            IPluginModelBase[] plugins= pmm.getWorkspaceModels();	//getAllPlugins();
 
             for(int n= 0; n < plugins.length; n++) {
                 IPluginModelBase plugin= plugins[n];
