@@ -28,35 +28,24 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.text.TextSelection;
+import org.eclipse.imp.WizardPlugin;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.utils.ExtensionPointUtils;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
-import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.internal.core.bundle.WorkspaceBundleModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.texteditor.AbstractTextEditor;
-import org.eclipse.imp.WizardPlugin;
-import org.eclipse.imp.core.ErrorHandler;
-import org.eclipse.imp.utils.ExtensionPointUtils;
-import org.eclipse.imp.utils.StreamUtils;
 import org.osgi.framework.Bundle;
 
 /**
