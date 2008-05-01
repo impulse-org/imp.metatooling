@@ -31,7 +31,6 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.extensionsmodel.ImpWorkspaceExtensionsModel;
@@ -50,6 +49,9 @@ import org.eclipse.pde.core.plugin.IPluginParent;
 import org.eclipse.pde.core.plugin.ISharedExtensionsModel;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
+import org.eclipse.pde.internal.core.bundle.BundlePluginModel;
+import org.eclipse.pde.internal.core.bundle.WorkspaceBundleModel;
+import org.eclipse.pde.internal.core.ibundle.IBundleModel;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModel;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModelBase;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
@@ -163,6 +165,15 @@ public class ExtensionPointEnabler {
     		boolean remove, IProgressMonitor monitor) {
 	try {
 	    IPluginModel pluginModel= getPluginModel(page.getProjectOfRecord());
+	    
+	    // SMS 10 Apr 2008
+	    if (pluginModel instanceof BundlePluginModel) {
+	    	BundlePluginModel bpm = (BundlePluginModel) pluginModel;
+	    	IBundleModel bm = bpm.getBundleModel();
+	    	if (bm instanceof WorkspaceBundleModel) {
+	    		((WorkspaceBundleModel)bm).setEditable(true);
+	    	}
+	    }
 
 	    if (pluginModel != null) {
 	    	if (remove) {
@@ -539,6 +550,7 @@ public class ExtensionPointEnabler {
     	else {
             // Handle all other elements - create on first reference
             PluginElement elt= (PluginElement) elementMap.get(schemaElementName);
+            
 
             if (elt == null) {
                 int lastDotIdx= schemaElementName.lastIndexOf('.');
