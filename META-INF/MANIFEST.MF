@@ -27,4 +27,7 @@ Require-Bundle: org.eclipse.core.resources,
  org.eclipse.imp.runtime,
  org.eclipse.imp.lpg.runtime,
  org.eclipse.imp.smapifier
+Require-Bundle-comment: Removed 'org.eclipse.core.resources.source;bundle-version="3.4.0"'
+ trying to make a bundle manifest that is as version-independent as possible
+ (not present in 3.3, and, even if it were, it's version wouldn't be 3.4.0)
 Bundle-ManifestVersion: 2
