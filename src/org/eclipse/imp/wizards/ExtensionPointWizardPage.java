@@ -90,10 +90,17 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
                 // platform plugins: attempts to find them in org.eclipse.platform.source,
             	// or, failing that, org.eclipse.rcp.source
             	
-                URL schemaURL= locateSchema(ep, "org.eclipse.platform.source");
+                URL schemaURL = locateSchema(ep, "org.eclipse.platform.source");
 
                 if (schemaURL == null)
-                    schemaURL= locateSchema(ep, "org.eclipse.rcp.source");
+                    schemaURL = locateSchema(ep, "org.eclipse.rcp.source");
+                
+                if (schemaURL == null)
+                	schemaURL = locateSchema(ep, "org.eclipse.core.resources");
+                
+                if (schemaURL == null)
+                	schemaURL = locateSchema(ep, "org.eclipse.core.resources.source");
+                
                 if (schemaURL == null)
                     throw new Exception("Cannot find schema source for " + ep.getSchemaReference());
 
@@ -155,6 +162,17 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
 		Path schemaPath= new Path("src/" + ep.getContributor().getName() + "_" + extPluginVersion + "/" + ep.getSchemaReference());
 		URL schemaURL= FileLocator.find(platSrcPlugin, schemaPath, null);
 	
+		if (schemaURL == null) {
+			// Special case for Eclipse 3.4 M5
+			// Schemas are not located in the same sort place as in released for
+			// Eclipse 3.2 and 3.3.  In 3.4 M5 the builder schema is found in
+			// org.eclipse.core.resources.source_3.4.0.v20080205.jar/schema/builder.exsd
+			// (along with schemas for natures, markers, and a few others)
+			// This block is formulated to find schemas in jar files (at least that one)
+			schemaPath = new Path(ep.getSchemaReference());
+			schemaURL = FileLocator.find(platSrcPlugin, schemaPath, null);
+		}
+		
 		return schemaURL;
     }
 
