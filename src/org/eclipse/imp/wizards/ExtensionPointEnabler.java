@@ -165,7 +165,7 @@ public class ExtensionPointEnabler {
     		boolean remove, IProgressMonitor monitor) {
 	try {
 	    IPluginModel pluginModel= getPluginModel(page.getProjectOfRecord());
-	    
+
 	    // SMS 10 Apr 2008
 	    if (pluginModel instanceof BundlePluginModel) {
 	    	BundlePluginModel bpm = (BundlePluginModel) pluginModel;
@@ -174,7 +174,8 @@ public class ExtensionPointEnabler {
 	    		((WorkspaceBundleModel)bm).setEditable(true);
 	    	}
 	    }
-
+        
+	    
 	    if (pluginModel != null) {
 	    	if (remove) {
 	    		//System.out.println("ExtensionPointEnabler.enable(..):  removing previous extension for page = " + page.getName());
@@ -204,7 +205,8 @@ public class ExtensionPointEnabler {
 	    	addExtension(project, pluginModel, pluginID, pointID, attrNamesValues, imports);
 	    }
 	} catch (Exception e) {
-	    ErrorHandler.reportError("Could not enable extension point for " + project.getName(), e);
+	    ErrorHandler.reportError("Could not enable extension point for project = " + 
+	    	project == null ? "null" : project.getName(), e);
 	}
     }
 
@@ -550,7 +552,6 @@ public class ExtensionPointEnabler {
     	else {
             // Handle all other elements - create on first reference
             PluginElement elt= (PluginElement) elementMap.get(schemaElementName);
-            
 
             if (elt == null) {
                 int lastDotIdx= schemaElementName.lastIndexOf('.');
