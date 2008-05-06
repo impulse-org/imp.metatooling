@@ -36,6 +36,29 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
         return "";
     }
     
+    // SMS 23 Apr 2008:  original
+    private String getVariableProposal(IAst decl){
+        String string = "";
+        if (decl instanceof declaration) {
+        	// SMS 6 May 2008:  modified to put type in parens after identifier
+//            string = ((declaration) decl).getprimitiveType().toString() + " " +
+//                     ((declaration) decl).getidentifier().toString();
+            string = ((declaration) decl).getidentifier().toString() +
+            	"  (" + ((declaration) decl).getprimitiveType().toString() + ")";
+        }
+        else if (decl instanceof functionHeader) {
+            functionHeader fdecl = (functionHeader) decl;
+            declarationList parameters = fdecl.getparameters();
+            string = fdecl.getType().toString() + " " + fdecl.getidentifier().toString() + "(";
+            for (int i = 0; i < parameters.size(); i++)
+                string += ((declaration) parameters.getdeclarationAt(i)).getprimitiveType()
+                          + (i < parameters.size() - 1 ? ", " : "");
+            string += ")";
+        }
+        return string;
+    }
+    
+    // SMS 23 Apr 2008:  which had been replaced by ...
     private SourceProposal getDeclProposal(IAst decl, String prefix, int offset) {
         if (decl instanceof declaration) {
             String s = ((declaration) decl).getprimitiveType().toString() + " " +
@@ -124,6 +147,12 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
             	ArrayList vars = filterSymbols(symbols, prefix);
                 for (int i = 0; i < vars.size(); i++) {
                     IAst decl = (IAst) vars.get(i);
+                    // SMS 23 Apr 2008:  This is the original, which adds identifiers to the list
+                    list.add(new SourceProposal(getVariableProposal(decl),
+                            getVariableName(decl) + (decl instanceof functionHeader ? "()" : ""),
+                    		prefix,
+                            offset));
+                    // SMS 23 Apr 2008:  and which was replaced by this, which adds declarations
                     list.add(getDeclProposal(decl, prefix, offset));
                 }
             }
