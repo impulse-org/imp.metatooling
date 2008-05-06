@@ -29,10 +29,11 @@ import org.eclipse.pde.core.plugin.IPluginExtensionPoint;
 import org.eclipse.pde.internal.core.PDEState;
 import org.eclipse.pde.internal.core.plugin.AbstractExtensions;
 import org.eclipse.pde.internal.core.plugin.Extensions;
+import org.eclipse.pde.internal.core.plugin.ImpAbstractExtensions;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class ImpExtensions extends AbstractExtensions {
+public class ImpExtensions extends ImpAbstractExtensions {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -61,17 +62,17 @@ public class ImpExtensions extends AbstractExtensions {
 		fValid = hasRequiredAttributes();
 	}
 	
-	void load(PDEState state, long bundleID) {
-		Node[] nodes = state.getAllExtensions(bundleID);
-		for (int i = 0; i < nodes.length; i++) {
-			Node child = nodes[i];
-			if (child.getNodeType() == Node.ELEMENT_NODE) {
-				processChild(child);
-			}
-		}
-		fValid = hasRequiredAttributes();	
-		fSchemaVersion = state.getSchemaVersion(bundleID);
-	}
+//	void load(PDEState state, long bundleID) {
+//		Node[] nodes = state.getAllExtensions(bundleID);
+//		for (int i = 0; i < nodes.length; i++) {
+//			Node child = nodes[i];
+//			if (child.getNodeType() == Node.ELEMENT_NODE) {
+//				processChild(child);
+//			}
+//		}
+//		fValid = hasRequiredAttributes();	
+//		fSchemaVersion = state.getSchemaVersion(bundleID);
+//	}
 
 	public void reset() {
 		super.reset();
