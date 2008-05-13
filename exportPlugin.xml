@@ -8,13 +8,6 @@
 	<target name="plugin.jar" depends="init,javaInit" unless="${plugin.jar.name}" description="Create jar: ${plugin.jar.name}.">
 		<delete dir="${temp.folder}/${plugin.jar.name}.bin"/>
 		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin"/>
-		<!-- run lpg to generate the parser and lexer -->
-		<echo message="Running LPG to generate parser and lexer"/>
-		<exec executable="${lpg.executable}" dir="src/org/eclipse/imp/presentation"
-		      failonerror="true" output="LangSpec.log">
-			<arg line="-include-directory=${lpg.templates};${lpg.metatooling.templates}"/>
-			<arg line="LangSpec.g"/>
-		</exec>
 		<echo message="eclipse.build.path = ${eclipse.build.path}"/>
 		<!-- compile the source code -->
 		<javac destdir="${temp.folder}/${plugin.jar.name}.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="${javacSource}" target="${javacTarget}"		>
