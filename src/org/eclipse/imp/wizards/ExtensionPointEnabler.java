@@ -198,6 +198,15 @@ public class ExtensionPointEnabler {
 	try {
 	    IPluginModel pluginModel= getPluginModelForProject(project);
 
+	    // SMS 27 May 2008
+	    if (pluginModel instanceof BundlePluginModel) {
+	    	BundlePluginModel bpm = (BundlePluginModel) pluginModel;
+	    	IBundleModel bm = bpm.getBundleModel();
+	    	if (bm instanceof WorkspaceBundleModel) {
+	    		((WorkspaceBundleModel)bm).setEditable(true);
+	    	}
+	    }
+	    
 	    if (pluginModel != null) {
 	    	if (replace) {
 	    		removeExtension(pluginModel, pluginID, pointID, attrNamesValues);
