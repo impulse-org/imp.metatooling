@@ -42,6 +42,14 @@ public class ImpExtensions extends ImpAbstractExtensions {
 
 	public ImpExtensions() {
 	}
+	
+	// SMS 1 May 2008:  tried during backporting from 3.4 but
+	// there's no such constructor in 3.3
+//	// SMS 10 Apr 2008
+//	public ImpExtensions(boolean readonly) {
+//		super(readonly);
+//	}
+	
 
 	void load(Extensions srcPluginBase) {
 		super.load(srcPluginBase);
