@@ -37,7 +37,6 @@ public class NewBuilder extends CodeServiceWizard
     protected List getPluginDependencies() {
 		return Arrays.asList(new String[] {
 			"org.eclipse.core.runtime", "org.eclipse.core.resources",
-			// SMS 11 Sep 2007:  added "org.eclipse.platform.source"
 			"org.eclipse.imp.runtime", "org.eclipse.platform.source", "org.eclipse.imp.smapifier" });
     }
 
