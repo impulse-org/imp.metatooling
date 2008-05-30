@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.parser.IModelListener;
 import org.eclipse.imp.ui.dialogs.ListSelectionDialog;
 import org.eclipse.imp.ui.dialogs.filters.ViewerFilterForIDEProjects;
 import org.eclipse.imp.ui.dialogs.providers.ContentProviderForAllProjects;
@@ -75,6 +76,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
@@ -1046,6 +1048,35 @@ public class IMPWizardPage extends WizardPage {
 	    return text;
 	}
 
+	
+	
+	protected Combo createLabelCombo(Composite container, WizardPageField field, String[] values)
+	{	
+		final Label levelLabel= new Label(container, SWT.NULL);
+		levelLabel.setText("Analysis level required*:");
+		levelLabel.setToolTipText("Specify the level of analysis required as a precondition to this service.");
+		levelLabel.setBackground(container.getBackground());
+    	
+    	Combo combo = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
+    	for (int i = 0; i < values.length; i++) {
+    		combo.add(values[i]);
+    	}
+    	
+        // Put some whitespace into the layout
+	    new Label(container, SWT.NULL).setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+    	
+	    // Add a modify listener to at least signal that the field has changed
+	    // (can't be sure here what the value of the field represents, so
+	    // can't do anything constructive with that)
+//    	combo.addModifyListener(new ModifyListener() {
+//    		public void modifyText(ModifyEvent e) {
+//	            dialogChanged();
+//    		}
+//    	});
+
+    	return combo;
+	}
+	
 
 	protected Text createLabelTextBrowse(Composite container, WizardPageField field, final String basedOn) {
 	    Widget labelWidget= null;
