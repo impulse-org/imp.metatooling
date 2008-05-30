@@ -151,6 +151,13 @@
             icon="icons/sample.gif"
             id="org.eclipse.imp.fancyTokenColorerWizard"
             name="Fancy New Token Colorer  (unfinished)"/>
+	<wizard
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
+            class="org.eclipse.imp.wizards.NewEditorService"
+            icon="icons/sample.gif"
+            id="org.eclipse.imp.newEditorServiceWizard"
+            name="Introduced editor service"/>
+           
             
       <category
             id="org.eclipse.imp.wizards.parser"
