@@ -28,6 +28,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -38,6 +39,7 @@ import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.pde.core.IEditableModel;
 import org.eclipse.pde.core.plugin.IExtensions;
+import org.eclipse.pde.core.plugin.IPluginAttribute;
 import org.eclipse.pde.core.plugin.IPluginBase;
 import org.eclipse.pde.core.plugin.IPluginElement;
 import org.eclipse.pde.core.plugin.IPluginExtension;
@@ -54,6 +56,7 @@ import org.eclipse.pde.internal.core.bundle.WorkspaceBundleModel;
 import org.eclipse.pde.internal.core.ibundle.IBundleModel;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModel;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModelBase;
+import org.eclipse.pde.internal.core.plugin.ImpPluginElement;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
 
 
@@ -160,63 +163,150 @@ public class ExtensionPointEnabler {
 	return null;
     }
 
+    
+    /**
+     * Remove previous extensions of a given extension point, within
+     * the given project, matching the given extension id, if any.
+     * 
+     * @param project		A project within which extensions are to be removed
+     * @param pluginId		The id of the plug-in of the extension point for which
+     * 						extensions are to be removed
+     * @param pointId		The id of the extension point for extensions to be removed
+     * @param extensionId	The id of extensions to be removed; may be null, in which
+     * 						case all extensions of the given point are removed
+     * @param mon			A progress monitor
+     */
+	public static void cleanPreviousExtensions(
+		final IProject project,
+		final String pluginId,
+		final String pointId,
+		final String extensionId,
+		final IProgressMonitor mon)
+	{
+		// Remove previous extensions of this point, but only if
+		// they have the same extension id
+		// (extension "id" is an attribute of the "page" child
+		// of the "preferencePage" extension)
+		try {
+			IPluginModel pluginModel = ExtensionPointEnabler.getPluginModel(project);
+			// Load the IMP way to get the complete model
+			ExtensionPointEnabler.loadImpExtensionsModel(pluginModel, project);
+			IExtensions pmExtensions = pluginModel.getExtensions();
+			IPluginExtension[] pluginExtensions = pmExtensions.getExtensions();
+			for (int i = 0; i < pluginExtensions.length; i++) {
+				IPluginExtension pluginExtension = pluginExtensions[i];
+				if (pluginExtension == null) continue;
+				if (pluginExtension.getPoint() == null) continue;
+				String point = pluginId + "." + pointId;
+				if (pluginExtension.getPoint() == null) continue;
+				if (pluginExtension.getPoint().equals(point)) {
+					if (extensionId == null) {
+						// If no extension id is given, just remove any
+						// existing extension of the given extension point
+	    				pmExtensions.remove(pluginExtension);
+					} else {
+						// Check that the extension id is matched by an
+						// existing extension before removing it.
+						IPluginObject[] children = pluginExtension.getChildren();
+						for (int j = 0; j < children.length; j++) {
+				            if(children[j].getName().equals("page")) {
+				            	ImpPluginElement ipe = (ImpPluginElement) children[j];
+				            	IPluginAttribute pa = ipe.getAttribute("id");
+				            	if (pa != null && pa.getValue().equals(extensionId)) {
+				    				pmExtensions.remove(pluginExtension);
+				            	}
+				            }
+						}
+					}
+				}
+			}
+			ExtensionPointEnabler.saveAndRefresh(pluginModel);
+		} catch (CoreException e) {
+			String msg = "ExtensionPointEnabler.cleanPreviousExtensions(..):  CoreException when removing extension\n" + 
+				"\textension id = " + extensionId + ",\n" +
+				"\textension point = " + pluginId + "." + pointId + "\n" +
+				"    Previous instances of this extension may not have been removed\n";
+		    ErrorHandler.reportError(msg, e);
+		}
+	}
+    
+    
+    
+    
     public static void enable(
     		ExtensionPointWizardPage page,
-    		boolean remove, IProgressMonitor monitor) {
-	try {
-	    IPluginModel pluginModel= getPluginModel(page.getProjectOfRecord());
-
-	    // SMS 10 Apr 2008
-	    if (pluginModel instanceof BundlePluginModel) {
-	    	BundlePluginModel bpm = (BundlePluginModel) pluginModel;
-	    	IBundleModel bm = bpm.getBundleModel();
-	    	if (bm instanceof WorkspaceBundleModel) {
-	    		((WorkspaceBundleModel)bm).setEditable(true);
-	    	}
-	    }
-        
+    		boolean remove, IProgressMonitor monitor)
+    {
+		try {
+		    IPluginModel pluginModel= getPluginModel(page.getProjectOfRecord());
+	
+		    // SMS 10 Apr 2008
+		    if (pluginModel instanceof BundlePluginModel) {
+		    	BundlePluginModel bpm = (BundlePluginModel) pluginModel;
+		    	IBundleModel bm = bpm.getBundleModel();
+		    	if (bm instanceof WorkspaceBundleModel) {
+		    		((WorkspaceBundleModel)bm).setEditable(true);
+		    	}
+		    }
 	    
-	    if (pluginModel != null) {
-	    	if (remove) {
-	    		//System.out.println("ExtensionPointEnabler.enable(..):  removing previous extension for page = " + page.getName());
-	    		removeExtension(pluginModel, page);
-	    	} else {
-	    		//System.out.println("ExtensionPointEnabler.enable(..):  not removing previous extension for page = " + page.getName());
-	    	}
-	    	// This call to addExtension takes care of adding
-	    	// the appropriate extension id
-	    	addExtension(pluginModel, page);
-	    }
-	} catch (Exception e) {
-	    ErrorHandler.reportError("Could not enable extension point for " + page, e);
-	}
+		    cleanPreviousExtensions(
+		    	page.getProjectBasedOnNameField(),
+		    	page.fExtPluginID,
+		    	page.fExtPointID,
+		    	page.getExtensionID(),
+		    	monitor);
+
+		    if (pluginModel != null) {
+	//	    	if (remove) {
+	//	    		//System.out.println("ExtensionPointEnabler.enable(..):  removing previous extension for page = " + page.getName());
+	//	    		removeExtension(pluginModel, page);
+	//	    	} else {
+	//	    		//System.out.println("ExtensionPointEnabler.enable(..):  not removing previous extension for page = " + page.getName());
+	//	    	}
+		    	// This call to addExtension takes care of adding
+		    	// the appropriate extension id
+		    	addExtension(pluginModel, page);
+		    }
+		} catch (Exception e) {
+		    ErrorHandler.reportError("Could not enable extension point for " + page, e);
+		}
     }
    
     public static void enable(
     		IProject project, String pluginID, String pointID, String[][] attrNamesValues, boolean replace, 
-    		List imports, IProgressMonitor monitor) {
-	try {
-	    IPluginModel pluginModel= getPluginModelForProject(project);
-
-	    // SMS 27 May 2008
-	    if (pluginModel instanceof BundlePluginModel) {
-	    	BundlePluginModel bpm = (BundlePluginModel) pluginModel;
-	    	IBundleModel bm = bpm.getBundleModel();
-	    	if (bm instanceof WorkspaceBundleModel) {
-	    		((WorkspaceBundleModel)bm).setEditable(true);
-	    	}
-	    }
-	    
-	    if (pluginModel != null) {
-	    	if (replace) {
-	    		removeExtension(pluginModel, pluginID, pointID, attrNamesValues);
-	    	}
-	    	addExtension(project, pluginModel, pluginID, pointID, attrNamesValues, imports);
-	    }
-	} catch (Exception e) {
-	    ErrorHandler.reportError("Could not enable extension point for project = " + 
-	    	project == null ? "null" : project.getName(), e);
-	}
+    		List imports, IProgressMonitor monitor)
+    {
+		try {
+		    IPluginModel pluginModel= getPluginModelForProject(project);
+	
+		    // SMS 27 May 2008
+		    if (pluginModel instanceof BundlePluginModel) {
+		    	BundlePluginModel bpm = (BundlePluginModel) pluginModel;
+		    	IBundleModel bm = bpm.getBundleModel();
+		    	if (bm instanceof WorkspaceBundleModel) {
+		    		((WorkspaceBundleModel)bm).setEditable(true);
+		    	}
+		    }
+		    
+		    String extensionID = null;
+		    for (int i = 0; i < attrNamesValues.length; i++) {
+		    	if (attrNamesValues[i][0].equals("id")) {
+		    		extensionID = attrNamesValues[i][1];
+		    		break;
+		    	}
+		    }
+		    cleanPreviousExtensions(project, pluginID, pointID, extensionID, monitor);
+		    
+		    if (pluginModel != null) {
+	//	    	if (replace) {
+	//	    		removeExtension(pluginModel, pluginID, pointID, attrNamesValues);
+	//	    	}
+		    	addExtension(project, pluginModel, pluginID, pointID, attrNamesValues, imports);
+		    }
+		} catch (Exception e) {
+		    ErrorHandler.reportError("Could not enable extension point for project = " + 
+		    	project == null ? "null" : project.getName(), e);
+		}
     }
 
     // SMS 28 Nov 2007
@@ -860,7 +950,7 @@ public class ExtensionPointEnabler {
     
     
     
-    private static void saveAndRefresh(IPluginModel pluginModel) throws CoreException {
+    public static void saveAndRefresh(IPluginModel pluginModel) throws CoreException {
 		if (pluginModel instanceof IBundlePluginModel) {
 		    IBundlePluginModel bundlePluginModel= (IBundlePluginModel) pluginModel;
 		    ISharedExtensionsModel extModel= bundlePluginModel.getExtensionsModel();
