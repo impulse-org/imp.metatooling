@@ -31,3 +31,5 @@ Require-Bundle-comment: Removed 'org.eclipse.core.resources.source;bundle-versio
  trying to make a bundle manifest that is as version-independent as possible
  (not present in 3.3, and, even if it were, it's version wouldn't be 3.4.0)
 Bundle-ManifestVersion: 2
+Export-Package: org.eclipse.imp.extensionsmodel,
+ org.eclipse.pde.internal.core.plugin
