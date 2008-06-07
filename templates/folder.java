@@ -52,6 +52,8 @@ public class $FOLDER_CLASS_NAME$ extends FolderBase {
     private void makeAdjunctAnnotations(ASTNode theAST)
     {
         ILexStream lexStream = prsStream.getLexStream();
+        if (lexStream == null)
+        	return;
 		ArrayList adjuncts = (ArrayList) prsStream.getAdjuncts();
         for (int i = 0; i < adjuncts.size();)
         {
