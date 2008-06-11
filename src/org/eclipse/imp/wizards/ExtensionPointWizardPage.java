@@ -99,7 +99,7 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
                 	schemaURL = locateSchema(ep, "org.eclipse.core.resources");
                 
                 if (schemaURL == null)
-                	schemaURL = locateSchema(ep, "org.eclipse.core.resources.source");
+                	schemaURL = locateSchema(ep, "org.eclipse.core.resources.source");	// <= builders.exsd is here in 3.4
                 
                 if (schemaURL == null)
                     throw new Exception("Cannot find schema source for " + ep.getSchemaReference());
@@ -157,11 +157,15 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
     
     private URL locateSchema(IExtensionPoint ep, String srcBundle) {
 		Bundle platSrcPlugin= Platform.getBundle(srcBundle);
+		if (platSrcPlugin == null)
+			return null;
 		Bundle extProviderPlugin= Platform.getBundle(ep.getContributor().getName());
+		if (extProviderPlugin == null)
+			return null;
 		String extPluginVersion= (String) extProviderPlugin.getHeaders().get("Bundle-Version");
 		Path schemaPath= new Path("src/" + ep.getContributor().getName() + "_" + extPluginVersion + "/" + ep.getSchemaReference());
 		URL schemaURL= FileLocator.find(platSrcPlugin, schemaPath, null);
-	
+
 		if (schemaURL == null) {
 			// Special case for Eclipse 3.4 M5
 			// Schemas are not located in the same sort place as in released for
