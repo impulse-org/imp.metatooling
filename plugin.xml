@@ -98,6 +98,12 @@
             name="Tree Model Builder / Label Provider"
             id="org.eclipse.imp.wizards.NewTreeModelBuilder"/>
       <wizard
+            class="org.eclipse.imp.wizards.NewEditorActionsContributor"
+            icon="icons/sample.gif"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
+            name="Editor Actions Contributor"
+            id="org.eclipse.imp.wizards.NewEditorActionsContributor"/>
+      <wizard
             class="org.eclipse.imp.wizards.NewHoverHelper"
             icon="icons/sample.gif"
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
