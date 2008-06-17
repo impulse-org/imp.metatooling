@@ -341,7 +341,6 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
     	Map<String, String> result = getStandardSubstitutions();
     	result.remove("$PLUGIN_PACKAGE$");
         result.put("$PLUGIN_PACKAGE$", getPluginPackageName(project, null));
-        // SMS 27 Mar 2007
     	result.remove("$PLUGIN_CLASS$");
         result.put("$PLUGIN_CLASS$", getPluginClassName(project, null));
         result.remove("$PLUGIN_ID$");
@@ -352,30 +351,21 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
     
     
     protected Map<String, String> getStandardSubstitutions() {
-        Map<String,String> result = new HashMap();
+        Map<String,String> result = new HashMap<String,String>();
         
-        // SMS 17 May 2006
-        // Need to get a name for the AST package and AST node type for use in
-        // the NewFoldingUpdater wizard
-        // Note:  The method used assumes that these are the default values
-        // (if that assumption is wrong, then the generated folding service won't
-        // compile, but if we don't provide any values then it won't compile in
-        // any case--specifically because substitutions for these parameters will
-        // not have been made)
         result = ExtensionPointUtils.getASTInformation((IPluginModel)pages[0].getPluginModel(), fProject);
-        
-        // continuing with original:
+
         result.put("$LANG_NAME$", fLanguageName);
         result.put("$CLASS_NAME_PREFIX$", fClassNamePrefix);
         result.put("$PACKAGE_NAME$", fPackageName);
-        // SMS 22 Mar 2007
         result.put("$PROJECT_NAME$", fProjectName);
-        // SMS 23 Mar 2007
-        // Not the greatest solution, but if we don't have the
-        // project then we may as well assume that $PLUGIN_PACKAGE$
-        // has a default value
+
+        // NOTE:  These are default values for plug-in substitutions;
+        // they should typically be overridden by real values obtained
+        // from getStandardSubstitutions(IProject).  That means that
+        // that method should be called after this one (or that one
+        // should call this one before setting those values).
         result.put("$PLUGIN_PACKAGE$", getPluginPackageName(null, null));
-        // SMS 27 Mar 2007:  ditto
         result.put("$PLUGIN_CLASS$", getPluginClassName(null, null));
         result.put("$PLUGIN_ID$", getPluginID(null, null));
 
