@@ -404,6 +404,23 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
     }
     
 
+    
+    public String getExtensionName() {
+        WizardPageField nameField = getField("name");
+        if (nameField == null) return null;
+	       if (nameField.getText() == null) setNameByLanguage();
+        return nameField.getText();
+    }
+    
+    
+    
+    public String getExtensionClass() {
+        WizardPageField classField = getField("class");
+        if (classField == null) return null;
+	       if (classField.getText() == null) setClassByLanguage();
+        return classField.getText();
+    }
+    
 
     // Subtype specific in use and logic
     public WizardPageField getFieldByFullName(String fullName) {
