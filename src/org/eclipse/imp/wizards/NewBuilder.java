@@ -15,13 +15,19 @@
  */
 package org.eclipse.imp.wizards;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 
 public class NewBuilder extends CodeServiceWizard
 {
@@ -29,6 +35,8 @@ public class NewBuilder extends CodeServiceWizard
     
     // SMS 20 Mar 2007:  for holding the entered value of the builder id
     private String fBuilderExtensionId = null;
+    private String fBuilderExtensionName = null;
+    private String fBuilderExtensionClass = null;
     
     public void addPages() {
         addPages(new ExtensionPointWizardPage[] { new BuilderWizardPage(this) });
@@ -44,8 +52,10 @@ public class NewBuilder extends CodeServiceWizard
     protected void collectCodeParms() {
         super.collectCodeParms();
         fAddSMAPSupport= ((BuilderWizardPage) pages[0]).fAddSMAPSupport;
-        // SMS 20 Mar 2007:  for getting the entered value of the builder id:
         fBuilderExtensionId = ((BuilderWizardPage) pages[0]).getExtensionID();
+        fBuilderExtensionName = ((BuilderWizardPage) pages[0]).getExtensionName();
+        fBuilderExtensionClass = ((BuilderWizardPage) pages[0]).getExtensionClass();
+        
     }
 
     private static final String k_IProject_import=
@@ -135,5 +145,78 @@ public class NewBuilder extends CodeServiceWizard
     	String prefix = fProject.getLocation().toString() + '/' + getProjectSourceLocation(fProject) + fPackageName.replace('.', '/') + '/';
 		return new String[] {prefix + fFullClassName + ".java" , prefix + fClassNamePrefix + "Nature.java" };
     }
+    
+    
+    
+    /**
+     * This method is called when 'Finish' button is pressed in the wizard.
+     * We will create an operation and run it using wizard as execution context.
+     * 
+     * This overrides, and is an adaptation of, the corresponding method in
+     * ExtensionPointWizard.  We need to override it here because the super
+     * method both does the enabling in a thread and uses an enable method that
+     * refers back to the wizard page.  That leads to an access of the extension
+     * id field on the page from a thread that is not the thread that created the
+     * page.  In turn that leads to an SWTException for invalid thread access.
+     * So here we have to either not fork a separate thread or use the version
+     * of the enable method that doesn't rely on the wizard page.  I've chosen
+     * the latter approach since it may
+     */
+    public boolean performFinish() {
+		collectCodeParms();
+    	if (!okToClobberFiles(getFilesThatCouldBeClobbered()))
+    		return false;
+    	
+		IRunnableWithProgress op= new IRunnableWithProgress() {
+		    public void run(IProgressMonitor monitor) throws InvocationTargetException {
+			IWorkspaceRunnable wsop= new IWorkspaceRunnable() {
+			    public void run(IProgressMonitor monitor) throws CoreException {
+				try {
+				    for(int n= 0; n < pages.length; n++) {
+					ExtensionPointWizardPage page= pages[n];
+
+					if (!page.hasBeenSkipped() && page.fSchema != null)
+//					    ExtensionPointEnabler.enable(page, false, monitor);
+						ExtensionPointEnabler.enable(
+							fProject, "org.eclipse.core.resources", "builders",
+							new String[][] {
+			                { "extension:id", fBuilderExtensionId },
+			                { "extension:name", fBuilderExtensionName },
+			                { "builder:", "" },
+			                { "builder.run:class", fBuilderExtensionClass },
+			                { "builder.run.parameter:", "" },
+			                { "builder.run.parameter:name", "foo" },
+			                { "builder.run.parameter:value", "bar" }
+			        		},
+							true, getPluginDependencies(), monitor);
+				    }
+				    generateCodeStubs(monitor);
+				} catch (Exception e) {
+				    ErrorHandler.reportError("Could not add extension points", e);
+				} finally {
+				    monitor.done();
+				}
+			    }
+			};
+			try {
+			    ResourcesPlugin.getWorkspace().run(wsop, monitor);
+			} catch (Exception e) {
+			    ErrorHandler.reportError("Could not add extension points", e);
+			}
+		    }
+		};
+		try {
+		    getContainer().run(true, false, op);
+		} catch (InvocationTargetException e) {
+		    Throwable realException= e.getTargetException();
+		    ErrorHandler.reportError("Error", realException);
+		    return false;
+		} catch (InterruptedException e) {
+		    return false;
+		}
+		return true;
+    }
+
+    
     
 }	
