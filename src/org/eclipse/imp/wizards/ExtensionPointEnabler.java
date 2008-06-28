@@ -484,9 +484,18 @@ public class ExtensionPointEnabler {
         }
 		extension.setPoint(page.fExtPluginID + "." + page.fExtPointID);
 		setElementAttributes(pluginModel, page, extension);
-		if (!extension.isInTheModel())	
+		if (!extension.isInTheModel())	{
+			// SMS 28 Jun 2008:  added code to test and editability of model
+			if (pluginModel instanceof BundlePluginModel) {
+		    	BundlePluginModel bpm = (BundlePluginModel) pluginModel;
+		    	IBundleModel bm = bpm.getBundleModel();
+		    	if (bm instanceof WorkspaceBundleModel) {
+		    		((WorkspaceBundleModel)bm).setEditable(true);
+		    	}
+		    }
 			pluginModel.getPluginBase().add(extension);
-	
+		}
+		
 		addRequiredPluginImports(pluginModel, page.getProjectOfRecord(), page.getRequires());
 		
 		saveAndRefresh(pluginModel);
@@ -555,8 +564,17 @@ public class ExtensionPointEnabler {
 		extension.setPoint(pluginID + "." + pointID);
 		setElementAttributes(pluginModel, extension, attrNamesValues);
         
-		if (!extension.isInTheModel())	
+		if (!extension.isInTheModel())	{
+			// SMS 28 Jun 2008:  added code to test and editability of model
+			if (pluginModel instanceof BundlePluginModel) {
+		    	BundlePluginModel bpm = (BundlePluginModel) pluginModel;
+		    	IBundleModel bm = bpm.getBundleModel();
+		    	if (bm instanceof WorkspaceBundleModel) {
+		    		((WorkspaceBundleModel)bm).setEditable(true);
+		    	}
+		    }
 			pluginModel.getPluginBase().add(extension);	
+		}
 
 		addRequiredPluginImports(pluginModel, project, imports);
 		saveAndRefresh(pluginModel);
