@@ -75,7 +75,7 @@
             name="Creation Services"
             parentCategory="org.eclipse.imp.wizards"/>
 	<wizard
-            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.create	"
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.create"
             name="New Project Wizard  (unfinished)"
             icon="icons/sample.gif"
             class="org.eclipse.imp.wizards.NewProject"
@@ -157,13 +157,18 @@
             icon="icons/sample.gif"
             id="org.eclipse.imp.fancyTokenColorerWizard"
             name="Fancy New Token Colorer  (unfinished)"/>
-	<wizard
+	  <wizard
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             class="org.eclipse.imp.wizards.NewEditorService"
             icon="icons/sample.gif"
             id="org.eclipse.imp.newEditorServiceWizard"
             name="Introduced editor service"/>
-           
+      <wizard
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
+            class="org.eclipse.imp.wizards.NewOccurrenceIdentifier"
+            icon="icons/sample.gif"
+            id="org.eclipse.imp.newOccurrenceIdentifierWizard"
+            name="Occurrence identifier"/>
             
       <category
             id="org.eclipse.imp.wizards.parser"
