@@ -86,8 +86,10 @@ public class GeneratedComponentWizardPage extends IMPWizardPage	//WizardPage
 	        	this.fAttributes.add(attributes[i]);
 	        }
         }
-        this.fWizardName = wizardName;
-        this.fWizardDescription = wizardDescription;
+        this.fWizardName = wizardName;		// does gets title onto wizard page
+        setTitle(wizardName);				// doesn't get title on wizard page
+        this.fWizardDescription = wizardDescription;	// doesn't get description onto wizard page
+        setDescription(wizardDescription);				// does get description onto wizard page
 
     }
 
