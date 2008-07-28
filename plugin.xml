@@ -145,12 +145,21 @@
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             name="Auto-Edit Strategy  (unfinished)"
             id="org.eclipse.imp.wizards.NewAutoEditStrategy"/>
+
+      <wizard
+            class="org.eclipse.imp.wizards.NewFormattingSpecification"
+            icon="icons/sample.gif"
+            category="org.eclipse.imp.wizards"
+            name="Box-based formatting specification"
+            id="org.eclipse.imp.wizards.NewFormattingSpecification"/>
+   
       <wizard
             class="org.eclipse.imp.wizards.NewFormatter"
             icon="icons/sample.gif"
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             name="Source Formatter"
             id="org.eclipse.imp.wizards.NewFormatter"/>
+
       <wizard
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             class="org.eclipse.imp.wizards.NewFancyTokenColorer"
