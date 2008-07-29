@@ -1,7 +1,7 @@
 Bundle-SymbolicName: org.eclipse.imp.metatooling;singleton:=true
 Bundle-Name: IMP Language Support Meta-Tooling (Incubation)
 Bundle-Vendor: rfuhrer@watson.ibm.com
-Bundle-Version: 0.1.76
+Bundle-Version: 0.1.77
 Bundle-Activator: org.eclipse.imp.WizardPlugin
 Eclipse-LazyStart: true
 Provide-Package: org.eclipse.imp,
