@@ -87,7 +87,7 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
 
             if (ep.getUniqueIdentifier().startsWith("org.eclipse.") && !ep.getUniqueIdentifier().startsWith("org.eclipse.imp")) {
                 // RMF 1/5/2006 - Hack to get schema for extension points defined by Eclipse
-                // platform plugins: attempts to find them in org.eclipse.platform.source,
+                // platform plug-ins: attempts to find them in org.eclipse.platform.source,
             	// or, failing that, org.eclipse.rcp.source
             	
                 URL schemaURL = locateSchema(ep, "org.eclipse.platform.source");
@@ -100,6 +100,9 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
                 
                 if (schemaURL == null)
                 	schemaURL = locateSchema(ep, "org.eclipse.core.resources.source");	// <= builders.exsd is here in 3.4
+                
+                if (schemaURL == null)
+                	schemaURL = locateSchema(ep, "org.eclipse.imp.metatooling");		// local backup for schemas we can't find elsewhere
                 
                 if (schemaURL == null)
                     throw new Exception("Cannot find schema source for " + ep.getSchemaReference());
@@ -236,7 +239,6 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
 			// (those are often, but not always, the same, and the elt name is required)
 			createLanguageFieldForComponent(parent, "extension." + elt.getName());
     }
-
     
     
     /**
@@ -245,7 +247,7 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
      * @param parent
      */
     protected void createAdditionalControls(Composite parent) {
-        // Noop here; optionally overridden in derived classes
+        // Optionally overridden in derived classes
     }
 
     /**
@@ -288,6 +290,9 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
 	        	// Don't use "artificially" constructed set of schema attributes
 	        	// in lieu of a schema as in GeneratedComponentWizardPage
 	        	//createControlsForAttributes(fAttributes, null, container);
+	        	
+                // SMS 28 Jul 2008
+                //createTemplateBrowseField(container, fComponentID);
 	        	
 	        	// To create any remaining wizard-specific controls in addition to
 	        	// those based on the schema
