@@ -89,13 +89,13 @@
             class="org.eclipse.imp.wizards.NewOutliner"
             icon="icons/sample.gif"
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
-            name="Outliner"
+            name="Outliner (deprecated)"
             id="org.eclipse.imp.wizards.NewOutliner"/>
       <wizard
             class="org.eclipse.imp.wizards.NewTreeModelBuilder"
             icon="icons/sample.gif"
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
-            name="Tree Model Builder / Label Provider"
+            name="Tree Model Builder / Label Provider (supports outlining)"
             id="org.eclipse.imp.wizards.NewTreeModelBuilder"/>
       <wizard
             class="org.eclipse.imp.wizards.NewEditorActionsContributor"
