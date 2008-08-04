@@ -74,7 +74,7 @@ public class ExtensionPointEnabler {
 
     public static String findServiceAttribute(String servicePointID, String lang, String childElementName, String attributeName, String defaultValue) {
         if (lang != null && lang.length() > 0) {
-            // TODO Handle case where base-language plugin exists but not as workspace project
+            // TODO Handle case where base-language plug-in exists but not as workspace project
             IProject project= findProjectForLanguage(lang);
             IPluginExtension extension= getServiceExtension(servicePointID, project);
             IPluginElement element= findChildElement(childElementName, extension);
@@ -341,7 +341,7 @@ public class ExtensionPointEnabler {
 
     // SMS 23 Mar 2007
     // Changed visibility to public so as to make available to CodeServiceWizard
-    // for prospective changes to enable wizards to get the plugin package name
+    // for prospective changes to enable wizards to get the plug-in package name
     // SMS 28 Nov 2007
     // Changed showDialog parameter in ErrorHandler.reportError to false on 
     // the assumption that a lot of error management will occur within dialogs
@@ -633,15 +633,19 @@ public class ExtensionPointEnabler {
 
 		for(int n= 0; n < fields.size(); n++) {
 		    WizardPageField field= (WizardPageField) fields.get(n);
-	            String schemaElementName= field.fSchemaElementName;
-	            String attributeName= field.fAttributeName;
-	            String attributeValue= field.fValue;
+		    
+            String schemaElementName= field.fSchemaElementName;
+            String attributeName= field.fAttributeName;
+            String attributeValue= field.fValue;
 	
-	        // SMS 26 Jul 2007
-	        // Here we used to have a little bit of code that adjusted the extension id according to
-	        // to whether it began with the plugin id.  Now we just trust whoever or whatever set the
-	        // extension id and leave it at that.
-	            
+		    // SMS 30 Jul 2008
+		    // Hack to address the recent circumstance that these wizards, although
+		    // based on extension points, may have additional fields that don't belong
+		    // in the extension specification.
+            // TODO:  Will need some way to address this more generally.
+		    if (attributeName.equals("template"))
+		    	continue;
+
 		    setElementAttribute(schemaElementName, attributeName, attributeValue, extension, elementMap, pluginModel);
 		}
     }
