@@ -12,8 +12,6 @@
 
 package org.eclipse.imp.wizards;
 
-import java.awt.event.ActionListener;
-
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
@@ -26,6 +24,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.Hyperlink;
@@ -43,6 +42,10 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
 	protected boolean fUseCustomProvider = false;
 	protected boolean fGenCustomProvider = false;
 	protected String fDocumentationProvider = null;
+	protected WizardPageField resolverTemplateField = null;
+	protected String fReferenceResolverTemplate = null;
+	protected WizardPageField providerTemplateField = null;
+	protected String fDocumentationProviderTemplate = null;
 	
 	public NewHoverHelperWizardPage(ExtensionPointWizard wizard) {
 		super(wizard, RuntimePlugin.IMP_RUNTIME, "hoverHelper");
@@ -54,9 +57,11 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
     	Button urb = createUseResolverButton(parent);
     	Button grb = createGenResolverButton(parent, urb);
     	createRefResolverClassField(parent, grb);
+    	createRefResolverTemplateField(parent, grb);
 		Button upb = createUseProviderButton(parent);
 		Button gpb = createGenProviderButton(parent, upb);
 		createDocProviderClassField(parent, gpb);
+		createDocProviderTemplateField(parent, gpb);
     }	
 
 
@@ -70,6 +75,27 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
     
     public String getReferenceResolver() {
     	return fReferenceResolver;
+    }
+    
+    
+    public String getHoverHelperTemplateName() {
+    	if (fFirstTemplateField != null) {
+    		return fFirstTemplateField.getText();
+    	}
+    	return null;
+    }
+    
+    
+    public String getReferenceResolverTemplateName() {
+    	if (resolverTemplateField != null)
+    		return fReferenceResolverTemplate;
+    	return null;
+    }
+    
+    public String getDocumentationProviderTemplateName() {
+    	if (providerTemplateField != null)
+    		return fDocumentationProviderTemplate;
+    	return null;
     }
     
     public Button createUseResolverButton(Composite parent)
@@ -107,9 +133,10 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
 		final Button cbGenResolver = new Button(parent, SWT.CHECK);
 		cbGenResolver.setToolTipText(
 			"Check this to generate a new reference resolver for use in determining hover-help messages.");
+		
 		cbGenResolver.addSelectionListener(new SelectionListener() {
 		    public void widgetSelected(SelectionEvent e) {
-		    	fUseReferenceResolver = cbGenResolver.getSelection();
+		    	fGenReferenceResolver = cbGenResolver.getSelection();
 		    }
 		    public void widgetDefaultSelected(SelectionEvent e) {}
 		});
@@ -127,7 +154,7 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
 		    public void widgetSelected(SelectionEvent e) {
 		    	boolean selected = cbUseResolver.getSelection();
 				genResolverLabel.setEnabled(selected);
-				//cbGenResolver.setSelection(selected);		// leave as whatever it was
+				cbGenResolver.setSelection(!selected ? false : fGenReferenceResolver);	// or leave as it was?
 				cbGenResolver.setEnabled(selected);
 				// Notify listeners (i.e., Resolver class field) so that they
 				// can change their enabled state in sync with ours (can't find
@@ -135,7 +162,7 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
 				// so send them a fictitious selection event instead to prod them
 				// to check their state against ours)
 				cbGenResolver.notifyListeners(SWT.Selection, null);
-		        fGenReferenceResolver = selected;
+		        fGenReferenceResolver = !selected ? false : fGenReferenceResolver;
 		    }
 		    public void widgetDefaultSelected(SelectionEvent e) {
 		    	widgetSelected(e);
@@ -172,6 +199,7 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
     	boolean enabled = cbGenResolver.getEnabled();
     	boolean selected = cbGenResolver.getSelection();
 		resolverText.setEditable(enabled && selected);
+		resolverText.setEnabled(enabled && selected);
 		resolverText.setEnabled(enabled && selected);
 		resolverLink.setEnabled(enabled && selected);
 		resolverLink.setForeground((enabled && selected) ? black : gray); 
@@ -219,6 +247,92 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
             }
         });
     }
+    
+    
+    // SMS 31 Jul 2008
+    // We really need to create a composite label/text/browse type
+    // from which this information can be obtained directly.
+    // Until then ...
+    public Label getLabelFromLabeledText(Composite parent, Text text) {
+    	
+    	if (parent == null || text == null)
+    		return null;
+    	
+    	Control[] controls = parent.getChildren();
+    	int textIndex = -1;
+    	for (int i = 0; i < controls.length; i++) {
+    		if (controls[i].equals(text)) {
+    			textIndex = i;
+    			break;
+    		}
+    	}
+    	
+    	Label candidateLabel = null;
+    	if (textIndex == -1)
+    		return null;
+    	if (textIndex > 0 && controls[textIndex-1] instanceof Label)
+    		candidateLabel = (Label) controls[textIndex-1];
+    	if (textIndex < controls.length-1 && controls[textIndex+1] instanceof Label)
+    		candidateLabel = (Label) controls[textIndex=1];
+    	
+    	if (candidateLabel == null || candidateLabel.getText() == null || candidateLabel.getText().length() ==0)
+    		return null;
+    	return candidateLabel;
+    }
+    
+    
+    
+    
+    private void createRefResolverTemplateField(Composite parent, final Button cbGenResolver)
+    {	   	
+    	resolverTemplateField = createTemplateBrowseField(parent, "ReferenceResolver");
+    	
+		final Text resolverTemplateText = resolverTemplateField.fText;
+		final Label resolverTemplateLabel = getLabelFromLabeledText(parent, resolverTemplateText);
+		final Button browseButton = resolverTemplateField.fButton;
+    	
+    	boolean enabled = cbGenResolver.getEnabled();
+    	boolean selected = cbGenResolver.getSelection();
+		resolverTemplateText.setEditable(enabled && selected);
+		resolverTemplateText.setEnabled(enabled && selected);
+		resolverTemplateField.setEnabled(enabled && selected);
+		resolverTemplateLabel.setEnabled(enabled && selected);
+		browseButton.setEnabled(enabled && selected);
+		fReferenceResolverTemplate = resolverTemplateText.getText();
+
+		resolverTemplateText.addModifyListener(
+			new ModifyListener() {
+				public void modifyText(ModifyEvent e) {
+				    Text text= (Text) e.widget;
+				    fReferenceResolverTemplate = text.getText();
+				}
+			}
+		);
+
+		cbGenResolver.addSelectionListener(new SelectionListener() {
+		    public void widgetSelected(SelectionEvent e) {
+		       	boolean enabled = cbGenResolver.getEnabled();
+		    	boolean selected = cbGenResolver.getSelection();
+				resolverTemplateText.setEditable(enabled && selected);
+				resolverTemplateText.setEnabled(enabled && selected);
+				resolverTemplateField.setEnabled(enabled && selected);
+				resolverTemplateLabel.setEnabled(enabled && selected); 
+				browseButton.setEnabled(enabled && selected);
+				fReferenceResolverTemplate = resolverTemplateText.getText();
+		    }
+		    public void widgetDefaultSelected(SelectionEvent e) {}
+		});		
+		
+		
+        resolverTemplateText.addFocusListener(new FocusAdapter() {
+            public void focusGained(FocusEvent e) {	
+        	if (fDescriptionText != null)
+        	    fDescriptionText.setText(resolverTemplateField.fDescription);	//toolTip);
+            }
+        });
+    }
+    
+    
     
     
     /**
@@ -273,7 +387,7 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
     
     
     
-    private Button createGenProviderButton(Composite parent, final Button cbUseResolver)
+    private Button createGenProviderButton(Composite parent, final Button cbUseProvider)
     {
 		final Label genProviderLabel= new Label(parent, SWT.NULL);
 		genProviderLabel.setText("Generate a new\ndocumentation provider:");
@@ -283,14 +397,15 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
 		final Button cbGenProvider = new Button(parent, SWT.CHECK);
 		cbGenProvider.setToolTipText(
 			"Check this to generate a new documentation provider for text in hover-help messages.");
+		
 		cbGenProvider.addSelectionListener(new SelectionListener() {
 		    public void widgetSelected(SelectionEvent e) {
-		    	fUseCustomProvider = cbGenProvider.getSelection();
+		    	fGenCustomProvider = cbGenProvider.getSelection();
 		    }
 		    public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		
-		boolean selected = cbUseResolver.getSelection();
+		boolean selected = cbUseProvider.getSelection();
 		genProviderLabel.setEnabled(selected);
 		cbGenProvider.setSelection(false);
 		cbGenProvider.setEnabled(selected);
@@ -299,11 +414,11 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
         // Put some whitespace into the layout
 	    new Label(parent, SWT.NULL).setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 	
-	    cbUseResolver.addSelectionListener(new SelectionListener() {
+	    cbUseProvider.addSelectionListener(new SelectionListener() {
 		    public void widgetSelected(SelectionEvent e) {
-		    	boolean selected = cbUseResolver.getSelection();
+		    	boolean selected = cbUseProvider.getSelection();
 				genProviderLabel.setEnabled(selected);
-				//cbGenProvider.setSelection(selected);				// leave as whatever it was
+				cbGenProvider.setSelection(!selected ? false : fGenCustomProvider);	// leave as whatever it was
 				cbGenProvider.setEnabled(selected);
 				// Notify listeners (i.e., Provider class field) so that they
 				// can change their enabled state in sync with ours (can't find
@@ -311,7 +426,7 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
 				// so send them a fictitious selection event instead to prod them
 				// to check their state against ours)
 				cbGenProvider.notifyListeners(SWT.Selection, null);
-				fGenCustomProvider = selected;
+				fGenCustomProvider = !selected ? false : fGenCustomProvider;
 		    }
 		    public void widgetDefaultSelected(SelectionEvent e) {
 		    	widgetSelected(e);
@@ -356,8 +471,6 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
 		fLanguageText.addModifyListener(
 		    new ModifyListener() {
 				public void modifyText(ModifyEvent e) {
-//				    Text text= (Text) e.widget;	
-//				    String languageName = text.getText();
 				    providerText.setText(getDefaultDocProviderName());
 				}
 			}
@@ -385,6 +498,57 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
         });
     }
 
+    
+    private void createDocProviderTemplateField(Composite parent, final Button cbGenProvider)
+    {	
+    	providerTemplateField = createTemplateBrowseField(parent, "DocumentationProvider");
+    	
+		final Text providerTemplateText = providerTemplateField.fText;
+		final Label providerTemplateLabel = getLabelFromLabeledText(parent, providerTemplateText);
+		final Button browseButton = providerTemplateField.fButton;
+    	
+    	boolean enabled = cbGenProvider.getEnabled();
+    	boolean selected = cbGenProvider.getSelection();
+    	providerTemplateText.setEditable(enabled && selected);
+    	providerTemplateText.setEnabled(enabled && selected);
+		providerTemplateField.setEnabled(enabled && selected);
+		providerTemplateLabel.setEnabled(enabled && selected);
+		browseButton.setEnabled(enabled && selected);
+		fDocumentationProviderTemplate = providerTemplateText.getText();
+
+		providerTemplateText.addModifyListener(
+			new ModifyListener() {
+				public void modifyText(ModifyEvent e) {
+				    Text text= (Text) e.widget;
+				    fDocumentationProviderTemplate = text.getText();
+				}
+			}
+		);
+		
+
+		cbGenProvider.addSelectionListener(new SelectionListener() {
+		    public void widgetSelected(SelectionEvent e) {
+		       	boolean enabled = cbGenProvider.getEnabled();
+		    	boolean selected = cbGenProvider.getSelection();
+		    	providerTemplateText.setEditable(enabled && selected);
+		    	providerTemplateText.setEnabled(enabled && selected);
+				providerTemplateField.setEnabled(enabled && selected);
+				providerTemplateLabel.setEnabled(enabled && selected);
+				browseButton.setEnabled(enabled && selected);
+				fDocumentationProviderTemplate = providerTemplateText.getText();
+		    }
+		    public void widgetDefaultSelected(SelectionEvent e) {}
+		});		
+		
+		
+		providerTemplateText.addFocusListener(new FocusAdapter() {
+            public void focusGained(FocusEvent e) {	
+        	if (fDescriptionText != null)
+        	    fDescriptionText.setText(providerTemplateField.fDescription);	//toolTip);
+            }
+        });
+    }
+    
     
     /**
      * @return The default name of the hover-helper documentation provider class
