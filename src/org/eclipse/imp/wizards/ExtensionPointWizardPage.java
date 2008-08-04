@@ -54,6 +54,8 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
     protected String fExtPluginID;
     protected String fExtPointID;
     protected Schema fSchema;
+    protected WizardPageField fFirstTemplateField = null;
+    
 
     public ExtensionPointWizardPage(ExtensionPointWizard owner, String pluginID, String pointID) {
     	this(owner, pluginID, pointID, true);
@@ -292,7 +294,9 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
 	        	//createControlsForAttributes(fAttributes, null, container);
 	        	
                 // SMS 28 Jul 2008
-                //createTemplateBrowseField(container, fComponentID);
+	        	// Note:  this isn't very convenient for wizards
+	        	// that may nave more than one template
+                fFirstTemplateField = createTemplateBrowseField(container, fComponentID);
 	        	
 	        	// To create any remaining wizard-specific controls in addition to
 	        	// those based on the schema
