@@ -26,6 +26,11 @@ public class IMPWizard extends Wizard {
 
     protected int currentPage;
 	
+    // Name of template for generating implementation skeleton;
+    // most wizards of various types (extension point and other)
+    // use exactly one.  If a wizard needs more than one, it
+    // will have to define those itself.
+    protected String fTemplateName;
 	
 	@Override
 	public boolean performFinish() {
