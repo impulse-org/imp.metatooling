@@ -130,6 +130,8 @@ public class IMPWizardPage extends WizardPage {
     protected Text fLanguageText;
 
     protected Text fQualClassText;
+    
+    protected Text fTemplateText = null;
 
     protected Button fAddThisExtensionPointButton;
 
@@ -852,11 +854,43 @@ public class IMPWizardPage extends WizardPage {
 	 * @param parent
 	 */
 	protected void createAdditionalControls(Composite parent) {
-	    // Noop here; optionally overridden in derived classes
+		
 	}
 
 
-	/////////////////////////
+    // SMS 28 Jul 2008:  experimenting with adding field to select the template
+	// (not appropriate for all wizard pages, but maybe for enough to try it here)
+	// Note:  needs to be overridden where there is no template or more than one template
+	public WizardPageField createTemplateBrowseField(Composite parent, String componentID) {
+		// Get the default template path
+		String templatePath = WizardUtilities.getStandardTemplateFolderLocation();
+		if (templatePath != null) {
+			if (templatePath.indexOf("/") > -1 && !templatePath.endsWith("/"))
+				templatePath = templatePath + "/";
+			else if (templatePath.indexOf("\\") > -1 && !templatePath.endsWith("\\"))
+				templatePath = templatePath + "\\";
+			String templateName = WizardUtilities.getStandardTemplateFileName(fOwningWizard, componentID);
+			if (templateName != null) {
+				templatePath = templatePath + templateName;
+			}
+		}
+
+		
+        WizardPageField templateField= new WizardPageField(
+            	componentID, "template", "template",
+            	templatePath,
+            	0, true, "The template flie to use in generating the initial implementation of " + componentID);
+
+        
+        fTemplateText= createLabelTextBrowse(parent, templateField, "FileBrowse");
+        fTemplateText.setData(templateField);
+
+        fTemplateText.setEnabled(true);
+        
+        fFields.add(templateField);
+		
+		return templateField;
+	}
 	
 	
 	
