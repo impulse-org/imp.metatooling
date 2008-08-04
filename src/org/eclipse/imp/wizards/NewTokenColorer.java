@@ -49,7 +49,7 @@ public class NewTokenColorer extends CodeServiceWizard {
 		subs.remove("$PACKAGE_NAME$");
 		subs.put("$PACKAGE_NAME$", fPackageName);
 	
-		String colorerTemplateName = "colorer_simple.java";
+		String colorerTemplateName = fTemplateName;	//"colorer_simple.java";
 		IFile colorerSrc= WizardUtilities.createFileFromTemplate(fFullClassName + ".java", colorerTemplateName, fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
 	
 		editFile(mon, colorerSrc);
