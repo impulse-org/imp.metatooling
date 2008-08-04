@@ -61,7 +61,7 @@ public class NewReferenceResolver extends CodeServiceWizard {
         subs.remove("$REFERENCE_RESOLVER_CLASS_NAME$");
         subs.put("$REFERENCE_RESOLVER_CLASS_NAME$", fRefResolverClassName);
         
-        String resolverTemplateName = "reference_resolver.java";
+        String resolverTemplateName = "referenceResolver.java";
         IFile resolverSrc = WizardUtilities.createFileFromTemplate(
         	//fClassNamePrefix + "ReferenceResolver.java"
         	fRefResolverClassName + ".java", resolverTemplateName, fPackageFolder,  getProjectSourceLocation(fProject), subs, fProject, mon);
