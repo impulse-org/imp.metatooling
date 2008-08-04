@@ -38,6 +38,12 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
 	protected String fFullBuilderClassName = "";
 	protected String fFullProviderClassName = "";
 	
+	protected String fBuilderTemplateName = null;
+	protected String fProviderTemplateName = null;
+	
+	protected WizardPageField treeModelBuilderField = null;
+	protected WizardPageField labelProviderField = null;
+	
     protected static final String thisWizardName = "New Tree Model Builder";
     protected static final String thisWizardDescription =
     	"Create a skeleton tree-model builder, e.g., for use in constructing a document outline";
@@ -76,6 +82,9 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
 		
 		qualifiedClassName= pages[0].getField("provider").fValue;
 		fFullProviderClassName = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.') + 1);
+		
+		fBuilderTemplateName = treeModelBuilderField.getText();
+		fProviderTemplateName = labelProviderField.getText();
 		
         String[] subPkgs= fPackageName.split("\\.");
         StringBuffer buff= new StringBuffer();
@@ -134,18 +143,18 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
         
         // Generate the tree-model-builder implementation, if requested
         if (thePage.fGenerateTreeModelBuilder) {
-	        String treeModelBuilderTemplateName = "treeModelBuilder.java";
+//	        String treeModelBuilderTemplateName = "treeModelBuilder.java";
 	        IFile outlinerSrc= WizardUtilities.createFileFromTemplate(
-	        		fFullBuilderClassName + ".java", treeModelBuilderTemplateName,
+	        		fFullBuilderClassName + ".java", fBuilderTemplateName,
 	        		fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
 	        editFile(mon, outlinerSrc);
         }
  
         // Generate the label-provider implementation, if requested
         if (thePage.fGenerateLabelProvider) {
-	        String labelProviderTemplateName = "labelProvider.java";
+//	        String labelProviderTemplateName = "labelProvider.java";
 	        IFile labelProviderSrc = WizardUtilities.createFileFromTemplate(
-	        		fFullProviderClassName + ".java", labelProviderTemplateName,
+	        		fFullProviderClassName + ".java", fProviderTemplateName,
 	        		fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
 	        editFile(mon, labelProviderSrc);
         }
@@ -249,6 +258,9 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
 	    		    	if (field != null) {
 	    		    		field.setEnabled(fGenerateTreeModelBuilder);
 	    		    	}
+	    		    	if (treeModelBuilderField != null) {
+	    		    		treeModelBuilderField.setEnabled(fGenerateTreeModelBuilder);
+	    		    	}
 	    		    }
 	    		    public void widgetDefaultSelected(SelectionEvent e) {}
 	    		});
@@ -258,6 +270,9 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
 	    		"", "ClassBrowse", true);
 	    	
 
+	        treeModelBuilderField = createTemplateBrowseField(parent, "TreeModelBuilder");
+	    	
+	    	
             // Put some whitespace into the layout
     	    new Label(parent, SWT.NULL).setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
     	    new Label(parent, SWT.NULL).setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -273,6 +288,9 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
 	    		    	if (field != null) {
 	    		    		field.setEnabled(fGenerateLabelProvider);
 	    		    	}
+	    		    	if (labelProviderField != null) {
+	    		    		labelProviderField.setEnabled(fGenerateLabelProvider);
+	    		    	}
 	    		    }
 	    		    public void widgetDefaultSelected(SelectionEvent e) {}
 	    		});
@@ -281,6 +299,9 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
 		    		"The qualified name of the label-provider class to be generated", 
 		    		"", "ClassBrowse", true);
 	    		
+	        labelProviderField = createTemplateBrowseField(parent, "LabelProvider");
+	    	
+	    	
             // Put some whitespace into the layout
     	    new Label(parent, SWT.NULL).setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
     	    new Label(parent, SWT.NULL).setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
