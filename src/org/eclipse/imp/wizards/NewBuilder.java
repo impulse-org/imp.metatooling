@@ -39,22 +39,22 @@ public class NewBuilder extends CodeServiceWizard
     private String fBuilderExtensionClass = null;
     
     public void addPages() {
-        addPages(new ExtensionPointWizardPage[] { new BuilderWizardPage(this) });
+        addPages(new ExtensionPointWizardPage[] { new NewBuilderWizardPage(this) });
     }
 
     protected List getPluginDependencies() {
 		return Arrays.asList(new String[] {
 			"org.eclipse.core.runtime", "org.eclipse.core.resources",
-			"org.eclipse.imp.runtime", "org.eclipse.platform.source", "org.eclipse.imp.smapifier" });
+			"org.eclipse.imp.runtime", "org.eclipse.imp.smapifier" });
     }
 
     @Override
     protected void collectCodeParms() {
         super.collectCodeParms();
-        fAddSMAPSupport= ((BuilderWizardPage) pages[0]).fAddSMAPSupport;
-        fBuilderExtensionId = ((BuilderWizardPage) pages[0]).getExtensionID();
-        fBuilderExtensionName = ((BuilderWizardPage) pages[0]).getExtensionName();
-        fBuilderExtensionClass = ((BuilderWizardPage) pages[0]).getExtensionClass();
+        fAddSMAPSupport= ((NewBuilderWizardPage) pages[0]).fAddSMAPSupport;
+        fBuilderExtensionId = ((NewBuilderWizardPage) pages[0]).getExtensionID();
+        fBuilderExtensionName = ((NewBuilderWizardPage) pages[0]).getExtensionName();
+        fBuilderExtensionClass = ((NewBuilderWizardPage) pages[0]).getExtensionClass();
         
     }
 
