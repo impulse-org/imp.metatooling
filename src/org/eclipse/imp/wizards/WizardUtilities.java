@@ -442,17 +442,30 @@ public class WizardUtilities {
     }
     
     
-    protected static byte[] getTemplateFileContents(String fileName)
+    public static byte[] getTemplateFileContents(String fileName)
     {
     	try {
-    	    Bundle bundle= Platform.getBundle(getTemplateBundleID());
-    	    URL templateURL= Platform.find(bundle, new Path("/templates/" + fileName));
-                if (templateURL == null) {
-                    ErrorHandler.reportError("Unable to find template file: " + fileName, true);
-                    return new byte[0];
-                }
-                URL url= Platform.asLocalURL(templateURL);
-    	    String path= url.getPath();
+    		// SMS 29 Jul 2008:  This is a big hack until we sort out
+    		// how we want to handle paths for templates, given that
+    		// the templates may be in non-standard locations and the
+    		// given file names may be absolute or relative
+    		String path = null;
+    		if (fileName.indexOf(':') == -1) {
+    			// Assume that the given filename is relative to the
+    			// standard templates directory
+        	    Bundle bundle= Platform.getBundle(getTemplateBundleID());
+        	    URL templateURL= Platform.find(bundle, new Path("/templates/" + fileName));
+                    if (templateURL == null) {
+                        ErrorHandler.reportError("Unable to find template file: " + fileName, true);
+                        return new byte[0];
+                    }
+                    URL url= Platform.asLocalURL(templateURL);
+        	    path= url.getPath();
+    		} else {
+    			path = fileName;
+    		}
+    		
+
     	    FileInputStream fis= new FileInputStream(path);
     	    DataInputStream is= new DataInputStream(fis);
     	    byte bytes[]= new byte[fis.available()];
@@ -467,6 +480,92 @@ public class WizardUtilities {
     	}
     }
 
+    
+    
+    public static String getStandardTemplateFolderLocation()
+    {
+    	try {
+    	    Bundle bundle= Platform.getBundle(getTemplateBundleID());
+    	    URL templateURL= Platform.find(bundle, new Path("/templates/"));
+                if (templateURL == null) {
+                    ErrorHandler.reportError("Unable to find template folder", true);
+                    return null;
+                }
+                URL url= Platform.asLocalURL(templateURL);
+    	    String path= url.getPath();
+    	    
+    	    if (path.startsWith("/"))
+    	    	path = path.substring(1);
+    	    path = path.replace('/', '\\');
+    	    
+    	    return path;
+    	} catch (Exception e) {
+    	    e.printStackTrace();
+    	    ErrorHandler.reportError("Exception finding template folder", true);
+    	    return null;
+    	}
+    }
+    
+    
+    
+    public static String getStandardTemplateFileName(IMPWizard wizard, String componentID) {
+    	if (wizard instanceof NewTokenColorer) {
+    		return "colorer_simple.java";
+    	}
+    	if (wizard instanceof NewTreeModelBuilder) {
+    		if (componentID.equals("TreeModelBuilder")) {
+    			return "treeModelBuilder.java";
+    		} else if (componentID.equals("LabelProvider")) {
+    			return ("labelProvider.java");
+    		}
+    	}
+    	if (wizard instanceof NewFoldingUpdater) {
+    		return "folder.java";
+    	}
+    	if (wizard instanceof NewHoverHelper) {
+    		if (componentID.equals("ReferenceResolver")) {
+    			return "referenceResolver.java";
+    		} else if (componentID.equals("DocumentationProvider")) {
+    			return "documentationProvider.java";
+    		} else {
+    			return "hoverHelper.java";
+    		}
+    	}
+    	if (wizard instanceof NewReferenceResolver) {
+    		return "referenceResolver.java";
+    	}
+    	if (wizard instanceof NewDocumentationProvider) {
+    		return "documentationProvider.java";
+    	}
+    	if (wizard instanceof NewContentProposer) {
+    		return "contentProposer.java";
+    	}
+    	if (wizard instanceof NewOccurrenceIdentifier) {
+    		return "occurrenceIdentifier.java";
+    	}
+    	if (wizard instanceof NewEditorActionsContributor) {
+    		return "editorActionsContributor.java";
+    	}
+    	if (wizard instanceof NewEditorService) {
+    		return "editorService.java";
+    	}
+    	if (wizard instanceof NewBuilder) {
+    		return "builder.java";
+    	}
+    	if (wizard instanceof NewNatureEnabler) {
+    		return "natureEnabler.java";
+    	}
+    	if (wizard instanceof NewCompiler) {
+    		return "compiler.java";
+    	}
+    	
+    	return null;
+    }
+
+    
+    
+    
+    
     
     /**
      * Gets the contents of a named template file from the "templates" folder
