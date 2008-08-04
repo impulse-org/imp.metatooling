@@ -64,8 +64,13 @@ public class NewOccurrenceIdentifier extends GeneratedComponentWizard {
     	fProjectName = pages[0].fProjectText.getText();
         fLanguageName= pages[0].fLanguageText.getText();
         
+        if (pages[0].fTemplateText != null)
+        	fTemplateName = pages[0].fTemplateText.getText();
+        
         fClassNamePrefix= Character.toUpperCase(fLanguageName.charAt(0)) + fLanguageName.substring(1);
         
+        // The following line is different from the method in the superclass;
+        // the usual field of "class" is replaced by one called "identifier"
 		String qualifiedClassName= pages[0].getField("identifier").fValue;
 		fFullClassName = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.') + 1);
 		fPackageName= qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
@@ -87,7 +92,7 @@ public class NewOccurrenceIdentifier extends GeneratedComponentWizard {
     	// Enable the first extension provided through this wizard
     	// (enable the second one later, to accommodate timing issues)
         ExtensionPointEnabler.enable(
-        	fProject, "org.eclipse.imp.runtime", "markOccurrences",
+        	fProject, "org.eclipse.imp.runtime", "occurrenceIdentifier", 			//"markOccurrences",
         	new String[][] {
         			{ "occurrenceIdentifier:class", fPackageName + "." + fFullClassName },
         			{ "occurrenceIdentifier:language", fLanguageName }
@@ -120,11 +125,11 @@ public class NewOccurrenceIdentifier extends GeneratedComponentWizard {
 //        subs.put("$CLASS_NAME_PREFIX_LOWER$", fClassNamePrefix.toLowerCase());
         
         // Generate the tree-model-identifier implementation, if requested
-        String occurrenceIdentifierTemplateName = "occurrenceIdentifier.java";
-        IFile outlinerSrc= WizardUtilities.createFileFromTemplate(
-        		fFullClassName + ".java", occurrenceIdentifierTemplateName,
+//        String occurrenceIdentifierTemplateName = "occurrenceIdentifier.java";
+        IFile src= WizardUtilities.createFileFromTemplate(
+        		fFullClassName + ".java", fTemplateName,
         		fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
-        editFile(mon, outlinerSrc);
+        editFile(mon, src);
     }
  
 	    
@@ -173,6 +178,7 @@ public class NewOccurrenceIdentifier extends GeneratedComponentWizard {
 	    		"The qualified name of the occurrence-identifier class to be generated", 
 	    		"", "ClassBrowse", true);
 	    	
+	        createTemplateBrowseField(parent, "OccurrenceIdentifier");
 
 //            // Put some whitespace into the layout
 //    	    new Label(parent, SWT.NULL).setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
