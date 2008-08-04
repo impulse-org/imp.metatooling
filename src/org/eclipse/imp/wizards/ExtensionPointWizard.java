@@ -62,18 +62,15 @@ public abstract class ExtensionPointWizard extends IMPWizard implements INewWiza
     protected int NPAGES;
     protected IProject fProject;
 
+    // SMS 28 Jul 2008:  Not sure why these are here and not
+    // in IMPWizard TODO:  check out
 	protected String fProjectName;
     protected String fLanguageName;
     protected String fPackageName;
     protected String fPackageFolder;
     protected String fParserPackage;
-    // SMS 	13 Apr 2007:  refactored fClassName -> fClassNamePrefix
-    // to better reflect actual use
     protected String fClassNamePrefix;
-    protected String fFullClassName;
-
-    
-    
+    protected String fFullClassName;    
     
     public ExtensionPointWizard() {
 	super();
