@@ -185,6 +185,9 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
     	fProjectName = pages[0].fProjectText.getText();
         fLanguageName= pages[0].fLanguageText.getText();
         
+        if (pages[0].fTemplateText != null)
+        	fTemplateName = pages[0].fTemplateText.getText();
+        
         fClassNamePrefix= Character.toUpperCase(fLanguageName.charAt(0)) + fLanguageName.substring(1);
         
 		String qualifiedClassName= pages[0].getField("class").fValue;
