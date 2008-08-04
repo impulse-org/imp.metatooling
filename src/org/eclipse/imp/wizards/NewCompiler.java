@@ -79,8 +79,10 @@ public class NewCompiler extends GeneratedComponentWizard {
 	    	createTextField(parent, "PoorMansCompiler", "class",
 	    		"The qualified name of the compiler class to be generated", 
 	    		"", "ClassBrowse", true);
+	        
+	        createTemplateBrowseField(parent, "PoorMansCompiler");
 
-	        fillColumns(parent, 3);
+	        fillColumns(parent, 3);	// skip line on page
 	        
 	        final Button cb = createBooleanField(parent, "Customize problem\nmarker id?",
 	        	"Enable or disable the field to set a custom problem marker id",
@@ -107,7 +109,8 @@ public class NewCompiler extends GeneratedComponentWizard {
 			    	problemID.setEnabled(cb.getSelection());
 			    }
 			    public void widgetDefaultSelected(SelectionEvent e) {}
-			});	    	
+			});
+			
 	    }
 	    
 	    
@@ -123,6 +126,10 @@ public class NewCompiler extends GeneratedComponentWizard {
 	    
 	    public void createControl(Composite parent) {
 			super.createControl(parent);
+			
+            // SMS 28 Jul 2008
+            createTemplateBrowseField(parent, fComponentID);
+			
 			// SMS 9 Oct 2007 
 			//discoverProjectLanguage();
 			try {
@@ -174,8 +181,8 @@ public class NewCompiler extends GeneratedComponentWizard {
         subs.remove("$PROBLEM_MARKER_ID$");
         subs.put("$PROBLEM_MARKER_ID$", fProblemMarkerID);
         
-        String compilerTemplateName = "compiler.java";
-        IFile compilerSrc= createFileFromTemplate(fFullClassName + ".java", compilerTemplateName, fPackageFolder, subs, fProject, mon);
+//        String compilerTemplateName = "compiler.java";
+        IFile compilerSrc= createFileFromTemplate(fFullClassName + ".java", fTemplateName, fPackageFolder, subs, fProject, mon);
 
         editFile(mon, compilerSrc);
     }
