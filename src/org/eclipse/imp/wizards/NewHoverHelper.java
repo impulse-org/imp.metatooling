@@ -43,6 +43,9 @@ public class NewHoverHelper extends CodeServiceWizard {
     protected String fDocProviderPackageName = null;
     protected String fDocProviderClassName = null;
     protected String fLexerClassName = null;
+    protected String fHoverHelperTemplateName = null;
+    protected String fReferenceResolverTemplateName = null;
+    protected String fDocProviderTemplateName = null;
     
     protected NewHoverHelperWizardPage fPage = null;
 	
@@ -62,15 +65,20 @@ public class NewHoverHelper extends CodeServiceWizard {
     	super.collectCodeParms();
     	NewHoverHelperWizardPage page= (NewHoverHelperWizardPage) pages[0];
     	
+    	fHoverHelperTemplateName = fPage.getHoverHelperTemplateName();
+    	fReferenceResolverTemplateName = fPage.getReferenceResolverTemplateName();
+    	fDocProviderTemplateName = fPage.getDocumentationProviderTemplateName();
+    	
+    	
     	fResolveReferences = page.getUseReferenceResolver();
-    	if (!fPage.getUseReferenceResolver()) {
+    	if (fResolveReferences) {
     		fRefResolverQualifiedClassName = page.getReferenceResolver();
     	    fRefResolverPackageName = fRefResolverQualifiedClassName.substring(0, fRefResolverQualifiedClassName.lastIndexOf('.'));
     	    fRefResolverClassName = fRefResolverQualifiedClassName.substring(fRefResolverQualifiedClassName.lastIndexOf('.') + 1);
     	}
     	
     	fCustomizeContent = page.getUseCustomProvider();
-    	if (!fPage.getUseCustomProvider()) {
+    	if (fCustomizeContent) {
     		fDocProviderQualifiedClassName = page.getDocumentationProvider();
     	    fDocProviderPackageName = fDocProviderQualifiedClassName.substring(0, fDocProviderQualifiedClassName.lastIndexOf('.'));
     	    fDocProviderClassName = fDocProviderQualifiedClassName.substring(fDocProviderQualifiedClassName.lastIndexOf('.') + 1);
@@ -96,8 +104,8 @@ public class NewHoverHelper extends CodeServiceWizard {
 		
 		subs.put("$PARSER_PKG$", fParserPackage);
 
-		String hoverHelperTemplateName = "hoverHelper.java";
-		IFile hoverHelperFile = WizardUtilities.createFileFromTemplate(fFullClassName + ".java", hoverHelperTemplateName, fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, monitor);
+//		String hoverHelperTemplateName = "hoverHelper.java";
+		IFile hoverHelperFile = WizardUtilities.createFileFromTemplate(fFullClassName + ".java", fHoverHelperTemplateName, fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, monitor);
 //		ExtensionPointEnabler.enable(pages[0], false, monitor);
 		ExtensionPointEnabler.enable(
 				fProject, "org.eclipse.imp.runtime", "hoverHelper",
@@ -113,7 +121,6 @@ public class NewHoverHelper extends CodeServiceWizard {
 		IFile refResolverFile = null;
 
 		if (fPage.getGenReferenceResolver()) {
-			String refResolverTemplateName = "reference_resolver.java";
 			String refResolverPackageFolder = fRefResolverPackageName.replace('.', File.separatorChar);
 			
 			subs.remove("$PACKAGE_NAME$");
@@ -121,7 +128,7 @@ public class NewHoverHelper extends CodeServiceWizard {
 	        subs.remove("$REFERENCE_RESOLVER_CLASS_NAME$");
 	        subs.put("$REFERENCE_RESOLVER_CLASS_NAME$", fRefResolverClassName);
 			
-			refResolverFile = WizardUtilities.createFileFromTemplate(fRefResolverClassName + ".java", refResolverTemplateName, refResolverPackageFolder, getProjectSourceLocation(fProject), subs, fProject, monitor);
+			refResolverFile = WizardUtilities.createFileFromTemplate(fRefResolverClassName + ".java", fReferenceResolverTemplateName, refResolverPackageFolder, getProjectSourceLocation(fProject), subs, fProject, monitor);
 			
 			// Need to enable documentationProvider extension "manually"
 			ExtensionPointEnabler.enable(
@@ -137,14 +144,12 @@ public class NewHoverHelper extends CodeServiceWizard {
 		
 		// SMS 28 Mar 2008:  uncommented line and added conditional
 		if (fPage.getGenCustomProvider()) {
-			// SMS 28 Mar 2008:  uncommented 2 lines
-			String docProviderTemplateName = "documentationProvider.java";
 			String docPackageFolder = fDocProviderPackageName.replace('.', File.separatorChar);
 			
 			subs.put("$DOCUMENTATION_PROVIDER_CLASS_NAME$", fDocProviderClassName);
 			subs.put("$DOCUMENTATION_PROVIDER_PACKAGE_NAME$", fDocProviderPackageName);
 			
-			docProviderFile = WizardUtilities.createFileFromTemplate(fDocProviderClassName + ".java", docProviderTemplateName, docPackageFolder, getProjectSourceLocation(fProject), subs, fProject, monitor);
+			docProviderFile = WizardUtilities.createFileFromTemplate(fDocProviderClassName + ".java", fDocProviderTemplateName, docPackageFolder, getProjectSourceLocation(fProject), subs, fProject, monitor);
 			
 			// Need to enable documentationProvider extension "manually"
 			ExtensionPointEnabler.enable(
