@@ -79,6 +79,18 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
     	// nichts
     }
     
+    
+    /**
+     * Overrides the default version of this method so as to do nothing, i.e.,
+     * so as to not actually create the template field for this wizard page.
+     */
+	public WizardPageField createTemplateBrowseField(Composite parent, String componentID) {
+		return null;
+	}
+    
+    
+    
+    
     /**
      * Overrides the default version of this method so as to add a viewer filter
      * for plug-in projects rather than for IDE projects (as in the default case).
