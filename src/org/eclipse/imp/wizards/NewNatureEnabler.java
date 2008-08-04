@@ -124,6 +124,7 @@ public class NewNatureEnabler extends GeneratedComponentWizard /*Wizard*/ implem
 			} catch (Exception e) {
 			    ErrorHandler.reportError("NewNatureEnablerWizardPage.createControl(..):  Internal error, extension point schema may have changed", e);
 			}
+			createTemplateBrowseField(parent, "newNatureEnabler");
 	    }
 	
 	    // Overriden so as to customize the class and package name
