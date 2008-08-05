@@ -540,8 +540,8 @@ public class WizardUtilities {
     	if (wizard instanceof NewContentProposer) {
     		return "contentProposer.java";
     	}
-    	if (wizard instanceof NewOccurrenceIdentifier) {
-    		return "occurrenceIdentifier.java";
+    	if (wizard instanceof NewOccurrenceMarker) {
+    		return "occurrenceMarker.java";
     	}
     	if (wizard instanceof NewEditorActionsContributor) {
     		return "editorActionsContributor.java";
