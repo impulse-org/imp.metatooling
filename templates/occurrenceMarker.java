@@ -33,7 +33,7 @@ import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.services.IOccurrenceMarker;
 
 
-public class $OCCURRENCE_IDENTIFIER_CLASS_NAME$ implements ILanguageService, IOccurrenceMarker {
+public class $OCCURRENCE_MARKER_CLASS_NAME$ implements ILanguageService, IOccurrenceMarker {
 //public class OccurrenceMarker implements ILanguageService, IOccurrenceMarker {
 
 	private List fOccurrences = Collections.EMPTY_LIST;
