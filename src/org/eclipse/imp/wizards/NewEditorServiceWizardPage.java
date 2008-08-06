@@ -66,16 +66,22 @@ public class NewEditorServiceWizardPage extends ExtensionPointWizardPage
 
     public Combo createAnalysisRequiredCombo(Composite parent)
     {
+    	// Create the field
     	fAnalysisRequiredField = new WizardPageField(
     		null, "Analysis level required", "Analysis level required", null, 1, true,
     		"Specifies the level of analysis required as a precondition to this service");
     	
+    	// Fill in the possible values
     	IModelListener.AnalysisRequired[] analysisLevels = IModelListener.AnalysisRequired.values();
     	String[] values = new String[analysisLevels.length];
     	for (int i =0; i < analysisLevels.length; i++) {
     		values[i] = analysisLevels[i].name();
     	}
     	Combo combo = createLabelCombo(parent, fAnalysisRequiredField, values);
+    	
+    	// Set an initial value
+    	combo.setText(analysisLevels[0].toString());
+    	fAnalysisLevel = IModelListener.AnalysisRequired.valueOf(combo.getText());
     	
     	return combo;
     }
