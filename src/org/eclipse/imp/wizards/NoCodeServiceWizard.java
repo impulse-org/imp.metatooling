@@ -20,10 +20,20 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+// SMS 7 Aug 2008
+// This class has a very minor role to play, mainly providing a little
+// computational efficiency and helping to categorized a subset of
+// our wizards.  Is it worth keeping for that reason?  (Do we imagine
+// any other purpose it might serve?)
+
 public abstract class NoCodeServiceWizard extends ExtensionPointWizard {
     public void generateCodeStubs(IProgressMonitor m) {}
 
-    protected Map getStandardSubstitutions() {
-        return Collections.EMPTY_MAP; // noone should be calling this: generateCodeStubs() is empty...
+    // SMS 7 Aug 2008
+    // This represents a minor efficiency.  It avoids the computation of the standard
+    // standard substitutions whenever one of these wizards is finished.  But the wizards
+    // will run properly even if the standard standard substitutions are computed.
+    public Map<String, String> getStandardSubstitutions() {
+        return  Collections.emptyMap(); // no one should be calling this: generateCodeStubs() is empty...
     }
 }
