@@ -35,7 +35,7 @@ public class $REFERENCE_RESOLVER_CLASS_NAME$ implements IReferenceResolver, ILan
         // that is suitable to you language and link types
 		
         // NOTE:  The code shown in this method body works with the
-        // example grammar used in the SAFARI language-service templates.
+        // example grammar used in the IMP language-service templates.
         // It may be adaptable for use with other languages.  HOWEVER,
         // this particular code is not essential to reference resolvers
         // in general, and the user should provide an implementation
