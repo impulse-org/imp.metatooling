@@ -49,7 +49,7 @@ public class NewEditorService extends CodeServiceWizard {
     }
 
     // TODO:  Rethink dependencies
-    protected List getPluginDependencies() {
+    protected List<String> getPluginDependencies() {
         return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
     	    "org.eclipse.imp.runtime" });
     }
@@ -68,7 +68,7 @@ public class NewEditorService extends CodeServiceWizard {
     public void generateCodeStubs(IProgressMonitor monitor) throws CoreException
     {	
     	// (needed for update in hover-helper template)
-    	Map subs= getStandardSubstitutions(fProject);
+    	Map<String, String> subs= getStandardSubstitutions(fProject);
 
 		subs.remove("$PACKAGE_NAME$");
 		subs.put("$PACKAGE_NAME$", fPackageName);
@@ -81,9 +81,8 @@ public class NewEditorService extends CodeServiceWizard {
 		
 		
 		String editorServiceTemplateName = "editorService.java";
-		IFile editorServiceFile = WizardUtilities.createFileFromTemplate(
-			fFullClassName + ".java", editorServiceTemplateName, fPackageFolder,
-			getProjectSourceLocation(fProject), subs, fProject, monitor);
+		IFile editorServiceFile = createFileFromTemplate(
+			fFullClassName + ".java", editorServiceTemplateName, fPackageFolder, subs, fProject, monitor);
 		ExtensionPointEnabler.enable(
 			fProject, "org.eclipse.imp.runtime", "editorService",
 			new String[][] {
@@ -123,41 +122,45 @@ public class NewEditorService extends CodeServiceWizard {
     
     
     
-    // SMS 29 May 2008:  Need to override?
-//    public boolean performFinish() {
-//    	collectCodeParms(); // Do this in the UI thread while the wizard fields are still accessible
-//    	
-//    	IRunnableWithProgress op= new IRunnableWithProgress() {
-//    	    public void run(IProgressMonitor monitor) throws InvocationTargetException {
-//    		IWorkspaceRunnable wsop= new IWorkspaceRunnable() {
-//    		    public void run(IProgressMonitor monitor) throws CoreException {
-//    			try {
-//    			    generateCodeStubs(monitor);
-//    			} catch (Exception e) {
-//    			    ErrorHandler.reportError("Could not add extension points", e);
-//    			} finally {
-//    			    monitor.done();
-//    			}
-//    		    }
-//    		};
-//    		try {
-//    		    ResourcesPlugin.getWorkspace().run(wsop, monitor);
-//    		} catch (Exception e) {
-//    		    ErrorHandler.reportError("Could not add extension points", e);
-//    		}
-//    	    }
-//    	};
-//    	try {
-//    	    getContainer().run(true, false, op);
-//    	} catch (InvocationTargetException e) {
-//    	    Throwable realException= e.getTargetException();
-//    	    ErrorHandler.reportError("Error", realException);
-//    	    return false;
-//    	} catch (InterruptedException e) {
-//    	    return false;
-//    	}
-//    	return true;
-//        }
+    // SMS 9 Aug 2008:  Need to override?  Yes--Because performFinish in ExtensionPointWizard
+    // calls both ExtensionPointEnabler.enable(..) and generateCodeStubs(..), but we want to
+    // call the other version of ExtensionPointEnabler.enable(..) ourselves, which we do in
+    // generate code stubs.  So we need a customized version of performFinish() that won't
+    // call the wrong version of enable(..).
+    public boolean performFinish() {
+    	collectCodeParms(); // Do this in the UI thread while the wizard fields are still accessible
+    	
+    	IRunnableWithProgress op= new IRunnableWithProgress() {
+    	    public void run(IProgressMonitor monitor) throws InvocationTargetException {
+    		IWorkspaceRunnable wsop= new IWorkspaceRunnable() {
+    		    public void run(IProgressMonitor monitor) throws CoreException {
+    			try {
+    			    generateCodeStubs(monitor);
+    			} catch (Exception e) {
+    			    ErrorHandler.reportError("Could not add extension points", e);
+    			} finally {
+    			    monitor.done();
+    			}
+    		    }
+    		};
+    		try {
+    		    ResourcesPlugin.getWorkspace().run(wsop, monitor);
+    		} catch (Exception e) {
+    		    ErrorHandler.reportError("Could not add extension points", e);
+    		}
+    	    }
+    	};
+    	try {
+    	    getContainer().run(true, false, op);
+    	} catch (InvocationTargetException e) {
+    	    Throwable realException= e.getTargetException();
+    	    ErrorHandler.reportError("Error", realException);
+    	    return false;
+    	} catch (InterruptedException e) {
+    	    return false;
+    	}
+    	return true;
+        }
     
     
     
