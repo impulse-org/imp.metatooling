@@ -178,7 +178,12 @@
             icon="icons/sample.gif"
             id="org.eclipse.imp.newOccurrenceMarkerWizard"
             name="Occurrence marker"/>
-            
+	  <wizard
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
+            class="org.eclipse.imp.wizards.NewEditorAnnotationCreator"
+            icon="icons/sample.gif"
+            id="org.eclipse.imp.newEditorAnnotationCreatorWizard"
+            name="Editor annotation creator"/>
       <category
             id="org.eclipse.imp.wizards.parser"
             name="Parser Services"
