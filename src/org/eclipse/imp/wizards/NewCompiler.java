@@ -65,7 +65,7 @@ public class NewCompiler extends GeneratedComponentWizard {
 
     
     class NewCompilerPage extends GeneratedComponentWizardPage {
-		public NewCompilerPage(GeneratedComponentWizard owner) {
+		public NewCompilerPage(IMPWizard owner) {
 		    super(owner, componentID, false, fWizardAttributes, thisWizardName, thisWizardDescription);
 		}
 
@@ -180,8 +180,7 @@ public class NewCompiler extends GeneratedComponentWizard {
         
         subs.remove("$PROBLEM_MARKER_ID$");
         subs.put("$PROBLEM_MARKER_ID$", fProblemMarkerID);
-        
-//        String compilerTemplateName = "compiler.java";
+
         IFile compilerSrc= createFileFromTemplate(fFullClassName + ".java", fTemplateName, fPackageFolder, subs, fProject, mon);
 
         editFile(mon, compilerSrc);

@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.imp.runtime.RuntimePlugin;
@@ -78,7 +79,7 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 //    }
 
     class NewRefactoringPage extends GeneratedComponentWizardPage {
-	public NewRefactoringPage(GeneratedComponentWizard owner) {
+	public NewRefactoringPage(IMPWizard owner) {
 	    super(owner, /*RuntimePlugin.IMP_RUNTIME,*/ "refactoring", false,
     		//refactoringAttributes.toArray(new GeneratedComponentAttribute[refactoringAttributes.size()]), 
 	    	fWizardAttributes,	
@@ -251,9 +252,10 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 	fis.close();
 	return bytes;
     }
-
+    
+    
     @Override
-    protected Map<String,String> getStandardSubstitutions() {
+    public Map<String,String> getStandardSubstitutions() {
 	return new HashMap<String,String>();
     }
 }

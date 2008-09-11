@@ -119,9 +119,9 @@ public class NewOccurrenceMarker extends GeneratedComponentWizard {
         subs.put("$PACKAGE_NAME$", fPackageName);
 
 //        String occurrenceMarkerTemplateName = "occurrenceMarker.java";
-        IFile src= WizardUtilities.createFileFromTemplate(
+        IFile src= createFileFromTemplate(
         		fFullClassName + ".java", fTemplateName,
-        		fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
+        		fPackageFolder, subs, fProject, mon);
         editFile(mon, src);
     }
  
@@ -131,7 +131,7 @@ public class NewOccurrenceMarker extends GeneratedComponentWizard {
     {
     	NewOccurrenceMarkerWizardPage thePage;
     	
-		public NewOccurrenceMarkerWizardPage(GeneratedComponentWizard owner) {
+		public NewOccurrenceMarkerWizardPage(IMPWizard owner) {
 		    super(owner, componentID, false, fWizardAttributes, thisWizardName, thisWizardDescription);
 		    thePage = this;
 		}

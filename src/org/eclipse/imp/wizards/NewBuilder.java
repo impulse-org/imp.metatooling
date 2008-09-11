@@ -121,14 +121,14 @@ public class NewBuilder extends CodeServiceWizard
         subs.put("$SMAPI_IMPORT$", fAddSMAPSupport ? k_SMAP_import : "");
 
         String builderTemplateName = "builder.java";
-        IFile builderSrc= WizardUtilities.createFileFromTemplate(	
-        	fFullClassName + ".java", builderTemplateName, fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
+        IFile builderSrc= createFileFromTemplate(	
+        	fFullClassName + ".java", builderTemplateName, fPackageFolder, subs, fProject, mon);
         // SMS 18 May 2006:
         // Note that we generate the Nature class and extension regardless of whether
         // the user has indicated in the wizard that the builder has a nature.
         String natureTemplateName = "nature.java";
-        WizardUtilities.createFileFromTemplate(
-        	fClassNamePrefix + "Nature.java", natureTemplateName, fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
+        createFileFromTemplate(
+        	fClassNamePrefix + "Nature.java", natureTemplateName, fPackageFolder, subs, fProject, mon);
 
         editFile(mon, builderSrc);
     }
@@ -173,7 +173,7 @@ public class NewBuilder extends CodeServiceWizard
 			    public void run(IProgressMonitor monitor) throws CoreException {
 				try {
 				    for(int n= 0; n < pages.length; n++) {
-					ExtensionPointWizardPage page= pages[n];
+					ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[n];
 
 					if (!page.hasBeenSkipped() && page.fSchema != null)
 //					    ExtensionPointEnabler.enable(page, false, monitor);

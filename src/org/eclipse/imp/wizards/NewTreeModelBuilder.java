@@ -144,18 +144,18 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
         // Generate the tree-model-builder implementation, if requested
         if (thePage.fGenerateTreeModelBuilder) {
 //	        String treeModelBuilderTemplateName = "treeModelBuilder.java";
-	        IFile outlinerSrc= WizardUtilities.createFileFromTemplate(
+	        IFile outlinerSrc= createFileFromTemplate(
 	        		fFullBuilderClassName + ".java", fBuilderTemplateName,
-	        		fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
+	        		fPackageFolder, subs, fProject, mon);
 	        editFile(mon, outlinerSrc);
         }
  
         // Generate the label-provider implementation, if requested
         if (thePage.fGenerateLabelProvider) {
 //	        String labelProviderTemplateName = "labelProvider.java";
-	        IFile labelProviderSrc = WizardUtilities.createFileFromTemplate(
+	        IFile labelProviderSrc = createFileFromTemplate(
 	        		fFullProviderClassName + ".java", fProviderTemplateName,
-	        		fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
+	        		fPackageFolder, subs, fProject, mon);
 	        editFile(mon, labelProviderSrc);
         }
         
@@ -177,9 +177,9 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
         File file = new File(resourcesFilePath);
         if (!file.exists()) {
         	// Create in any case
-        	WizardUtilities.createFileFromTemplate(
+        	createFileFromTemplate(
             		resourcesClassFileName, "labelResources.java",
-            		pluginFolderName, getProjectSourceLocation(fProject), subs, fProject, mon);
+            		pluginFolderName, subs, fProject, mon);
         } else if (((NewTreeModelBuilderPage)pages[0]).getResourcesAppend()) {
         	// Append only if the user has indicated so
         	WizardUtilities.extendFileFromTemplate(
@@ -230,7 +230,7 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
     	protected boolean fResourcesAppend = true;
     	NewTreeModelBuilderPage thePage;
     	
-		public NewTreeModelBuilderPage(GeneratedComponentWizard owner) {
+		public NewTreeModelBuilderPage(IMPWizard owner) {
 		    super(owner, componentID, false, fWizardAttributes, thisWizardName, thisWizardDescription);
 		    thePage = this;
 		}

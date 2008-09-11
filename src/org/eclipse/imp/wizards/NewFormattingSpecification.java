@@ -70,7 +70,7 @@ public class NewFormattingSpecification extends ExtensionPointWizard {
                 new NullProgressMonitor());
     }
 
-    protected Map<String,String> getStandardSubstitutions() {
+    public Map<String,String> getStandardSubstitutions() {
         Map<String,String> result= new HashMap<String,String>();
         result.put("$LANGUAGE_NAME$", fLanguageName);
         return result;

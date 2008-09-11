@@ -48,7 +48,7 @@ public class NewEditorActionsContributor extends CodeServiceWizard {
 		subs.put("$PACKAGE_NAME$", fPackageName);
 	
 		String editorActionsContributor = "editorActionsContributor.java";
-		IFile src= WizardUtilities.createFileFromTemplate(fFullClassName + ".java", editorActionsContributor, fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
+		IFile src= createFileFromTemplate(fFullClassName + ".java", editorActionsContributor, fPackageFolder, subs, fProject, mon);
 	
 		editFile(mon, src);
     }

@@ -105,7 +105,7 @@ public class NewHoverHelper extends CodeServiceWizard {
 		subs.put("$PARSER_PKG$", fParserPackage);
 
 //		String hoverHelperTemplateName = "hoverHelper.java";
-		IFile hoverHelperFile = WizardUtilities.createFileFromTemplate(fFullClassName + ".java", fHoverHelperTemplateName, fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, monitor);
+		IFile hoverHelperFile = createFileFromTemplate(fFullClassName + ".java", fHoverHelperTemplateName, fPackageFolder, subs, fProject, monitor);
 //		ExtensionPointEnabler.enable(pages[0], false, monitor);
 		ExtensionPointEnabler.enable(
 				fProject, "org.eclipse.imp.runtime", "hoverHelper",
@@ -128,7 +128,7 @@ public class NewHoverHelper extends CodeServiceWizard {
 	        subs.remove("$REFERENCE_RESOLVER_CLASS_NAME$");
 	        subs.put("$REFERENCE_RESOLVER_CLASS_NAME$", fRefResolverClassName);
 			
-			refResolverFile = WizardUtilities.createFileFromTemplate(fRefResolverClassName + ".java", fReferenceResolverTemplateName, refResolverPackageFolder, getProjectSourceLocation(fProject), subs, fProject, monitor);
+			refResolverFile = createFileFromTemplate(fRefResolverClassName + ".java", fReferenceResolverTemplateName, refResolverPackageFolder, subs, fProject, monitor);
 			
 			// Need to enable documentationProvider extension "manually"
 			ExtensionPointEnabler.enable(
@@ -149,7 +149,7 @@ public class NewHoverHelper extends CodeServiceWizard {
 			subs.put("$DOCUMENTATION_PROVIDER_CLASS_NAME$", fDocProviderClassName);
 			subs.put("$DOCUMENTATION_PROVIDER_PACKAGE_NAME$", fDocProviderPackageName);
 			
-			docProviderFile = WizardUtilities.createFileFromTemplate(fDocProviderClassName + ".java", fDocProviderTemplateName, docPackageFolder, getProjectSourceLocation(fProject), subs, fProject, monitor);
+			docProviderFile = createFileFromTemplate(fDocProviderClassName + ".java", fDocProviderTemplateName, docPackageFolder, subs, fProject, monitor);
 			
 			// Need to enable documentationProvider extension "manually"
 			ExtensionPointEnabler.enable(

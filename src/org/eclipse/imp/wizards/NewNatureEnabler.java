@@ -62,15 +62,10 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.osgi.framework.Bundle;
 
-public class NewNatureEnabler extends GeneratedComponentWizard /*Wizard*/ implements INewWizard {
-    private static final String START_HERE= "// START_HERE";
+public class NewNatureEnabler extends GeneratedComponentWizard implements INewWizard {
+//    private static final String START_HERE= "// START_HERE";
 
     private NewNatureEnablerPage fEnablerPage;
-
-    /**
-     * Cached from fEnablerPage field by collectCodeParms to avoid invalid SWT thread access when enabling extension
-     */
-    private IProject fProject;
 
     /**
      * Cached from fEnablerPage field by collectCodeParms to avoid invalid SWT thread access when enabling extension
@@ -89,7 +84,6 @@ public class NewNatureEnabler extends GeneratedComponentWizard /*Wizard*/ implem
     }
 
     public void addPages() {
-    	// SMS 1 Nov 2007 adapted to call addPages in GCWP rather than addPage in Wizard
     	addPages(new GeneratedComponentWizardPage[] {fEnablerPage= new NewNatureEnablerPage()} );
     }
 
@@ -204,7 +198,7 @@ public class NewNatureEnabler extends GeneratedComponentWizard /*Wizard*/ implem
 		}
     }
 
-    protected Map getStandardSubstitutions() {
+    public Map getStandardSubstitutions() {
 	return new HashMap();
     }
 
@@ -343,30 +337,6 @@ public class NewNatureEnabler extends GeneratedComponentWizard /*Wizard*/ implem
     }
 
 
-    protected byte[] getTemplateFile(String fileName) {
-	try {
-	    Bundle bundle= Platform.getBundle(getTemplateBundleID());
-	    URL templateURL= Platform.find(bundle, new Path("/templates/" + fileName));
-            if (templateURL == null) {
-                ErrorHandler.reportError("Unable to find template file: " + fileName, true);
-                return new byte[0];
-            }
-            URL url= Platform.asLocalURL(templateURL);
-	    String path= url.getPath();
-	    FileInputStream fis= new FileInputStream(path);
-	    DataInputStream is= new DataInputStream(fis);
-	    byte bytes[]= new byte[fis.available()];
-
-	    is.readFully(bytes);
-	    is.close();
-	    fis.close();
-	    return bytes;
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    return ("// missing template file: " + fileName).getBytes();
-	}
-    }
-
     protected void generateCodeStubs(IProgressMonitor mon) throws CoreException {
       	NewNatureEnablerPage page= (NewNatureEnablerPage) fEnablerPage;
         IProject project= page.getProject();
@@ -385,7 +355,7 @@ public class NewNatureEnabler extends GeneratedComponentWizard /*Wizard*/ implem
         subs.put("$PACKAGE_NAME$", actionPkgName);
         subs.put("$ENABLER_CLASS_NAME$", actionClassName);
 
-        createFileFromTemplate(actionClassName + ".java", "natureEnabler.java", actionPkgFolder, subs, project, mon);
+        createFileFromTemplate(actionClassName + ".java", fTemplateName, actionPkgFolder, subs, project, mon);
     }
 
     protected static String upperCaseFirst(String s) {

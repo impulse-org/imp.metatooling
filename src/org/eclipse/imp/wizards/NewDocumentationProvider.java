@@ -59,7 +59,7 @@ public class NewDocumentationProvider extends CodeServiceWizard {
 		subs.put("$DOCUMENTATION_PROVIDER_PACKAGE_NAME$", fDocProviderPackageName);
 	
 		String providerTemplateName = "documentationProvider.java";
-		IFile providerSrc= WizardUtilities.createFileFromTemplate(fFullClassName + ".java", providerTemplateName, fPackageFolder, getProjectSourceLocation(fProject), subs, fProject, mon);
+		IFile providerSrc= createFileFromTemplate(fFullClassName + ".java", providerTemplateName, fPackageFolder, subs, fProject, mon);
 	
 		editFile(mon, providerSrc);
     }

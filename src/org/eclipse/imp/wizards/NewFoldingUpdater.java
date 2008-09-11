@@ -46,7 +46,7 @@ public class NewFoldingUpdater extends CodeServiceWizard {
             subs.put("$PACKAGE_NAME$", fPackageName);
           
             String folderTemplateName = fTemplateName;	//"folder.java";
-            IFile folderSrc = WizardUtilities.createFileFromTemplate(fFullClassName + ".java", folderTemplateName, fPackageFolder,  getProjectSourceLocation(fProject), subs, fProject, mon);
+            IFile folderSrc = createFileFromTemplate(fFullClassName + ".java", folderTemplateName, fPackageFolder, subs, fProject, mon);
             
             editFile(mon, folderSrc);
 	}
