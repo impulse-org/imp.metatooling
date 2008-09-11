@@ -32,6 +32,8 @@ public class $COLORER_CLASS_NAME$ extends TokenColorerBase implements $CLASS_NAM
             return doubleAttribute;
 //          case TK_StringLiteral:
 //               return stringAttribute;
+		case TK_SINGLE_LINE_COMMENT:
+			return commentAttribute;
         default:
 		    if ((($CLASS_NAME_PREFIX$ParseController) controller).isKeyword(token.getKind()))
 				return keywordAttribute;
