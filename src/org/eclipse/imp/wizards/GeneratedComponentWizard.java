@@ -53,30 +53,17 @@ import org.osgi.framework.Bundle;
  * classes for language or IDE services that are not extensions
  */
 public abstract class GeneratedComponentWizard extends IMPWizard implements INewWizard {
-    private static final String START_HERE= "// START_HERE";
+//    private static final String START_HERE= "// START_HERE";
 
     // SMS 14 Nov 2007:  	now declared in IMPWizard
     //protected int currentPage;
     
-    protected GeneratedComponentWizardPage pages[];
+//    protected GeneratedComponentWizardPage pages[];
     protected GeneratedComponentAttribute[] fWizardAttributes;
 
-    protected int NPAGES;
-
-    // SMS 17 Apr 2007
-    protected IProject fProject;
-	protected String fProjectName;
-    protected String fLanguageName;
-    protected String fPackageName;
-    protected String fPackageFolder;
-    protected String fParserPackage;
-    protected String fClassNamePrefix;
-    protected String fFullClassName;	
-    
-    
     public GeneratedComponentWizard() {
-	super();
-	setNeedsProgressMonitor(true);
+		super();
+		setNeedsProgressMonitor(true);
     }
 
     
@@ -87,47 +74,51 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
      */
     
 
-    public void init(IWorkbench workbench, IStructuredSelection selection) {}
+//    public void init(IWorkbench workbench, IStructuredSelection selection) {}
 
     
-    public void setPage(int page) {
-    	currentPage= page;
-        }
+//    public void setPage(int page) {
+//    	currentPage= page;
+//        }
+//
+//    
+//    public int getPageCount() {
+//	return NPAGES;
+//    }
 
-    
-    public int getPageCount() {
-	return NPAGES;
-    }
-
-    protected void addPages(GeneratedComponentWizardPage[] pages) {
-	this.pages= pages;
-	NPAGES= pages.length;
-	for(int n= 0; n < pages.length; n++) {
-	    addPage(pages[n]);
-	}
-	List/*<String>*/extenRequires= getPluginDependencies();
-	for(Iterator/*<String>*/iter= extenRequires.iterator(); iter.hasNext();) {
-	    String requiredPlugin= (String) iter.next();
-	    for(int n= 0; n < pages.length; n++) {
-		List/*<String>*/pageRequires= pages[n].getRequires();
-		pageRequires.add(requiredPlugin);
-	    }
-	}
-    }
-
-    public IWizardPage getPreviousPage(IWizardPage page) {
-	if (currentPage == 0)
-	    return null;
-	return pages[currentPage];
-    }
-
-    public IWizardPage getNextPage(IWizardPage page) {
-	if (currentPage == pages.length - 1)
-	    return null;
-	return pages[++currentPage];
-    }
+//    protected void addPages(GeneratedComponentWizardPage[] pages) {
+//		this.pages= pages;
+//		NPAGES= pages.length;
+//		for(int n= 0; n < pages.length; n++) {
+//		    addPage(pages[n]);
+//		}
+//		List/*<String>*/extenRequires= getPluginDependencies();
+//		for(Iterator/*<String>*/iter= extenRequires.iterator(); iter.hasNext();) {
+//		    String requiredPlugin= (String) iter.next();
+//		    for(int n= 0; n < pages.length; n++) {
+//			List/*<String>*/pageRequires= pages[n].getRequires();
+//			pageRequires.add(requiredPlugin);
+//		    }
+//		}
+//    }
+//
+//    public IWizardPage getPreviousPage(IWizardPage page) {
+//	if (currentPage == 0)
+//	    return null;
+//	return pages[currentPage];
+//    }
+//
+//    public IWizardPage getNextPage(IWizardPage page) {
+//	if (currentPage == pages.length - 1)
+//	    return null;
+//	return pages[++currentPage];
+//    }
 
 
+    // SMS 6 Aug 2008:  Used in several generated-component wizards
+    // but not really needed anymore as the wizard page (which uses
+    // the attributes) can now tolerate a null value for the attribute array.
+    // Should probably remove where still called.
     public GeneratedComponentAttribute[] setupAttributes()
     {
     	// Warning:  Returning an array with empty elements may cause problems,
@@ -143,67 +134,60 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
      */
 
     
-    public boolean canFinish() {
-    	return super.canFinish();// pages[currentPage].isPageComplete() && (currentPage >= pages.length - 1);
-    }
+//    public boolean canFinish() {
+//    	return super.canFinish();// pages[currentPage].isPageComplete() && (currentPage >= pages.length - 1);
+//    }
 
 
-    /**
-     * @return the list of plugin dependencies for this language service.
-     */
-    protected abstract List getPluginDependencies();
+//    /**
+//     * @return the list of plugin dependencies for this language service.
+//     */
+//    protected abstract List getPluginDependencies();
         
 
     
-    /**
-     * Generate any necessary code for this extension from template files in the
-     * templates directory.<br>
-     * Implementations can use <code>getTemplateFile(String)</code> to access the
-     * necessary template files.<br>
-     * Implementations must be careful not to access the fields of the wizard page,
-     * as this code will probably be called from a thread other than the UI thread.
-     * I.e., don't write something like:<br>
-     * <code>pages[0].languageText.getText()</code><br>
-     * Instead, in the wizard class, override <code>collectCodeParams()</code>,
-     * which gets called earlier from the UI thread, and save any necessary data
-     * in fields in the wizard class.
-     * @param monitor
-     * @throws CoreException
-     */
-    protected abstract void generateCodeStubs(IProgressMonitor mon) throws CoreException;
+//    /**
+//     * Generate any necessary code for this extension from template files in the
+//     * templates directory.<br>
+//     * Implementations can use <code>getTemplateFile(String)</code> to access the
+//     * necessary template files.<br>
+//     * Implementations must be careful not to access the fields of the wizard page,
+//     * as this code will probably be called from a thread other than the UI thread.
+//     * I.e., don't write something like:<br>
+//     * <code>pages[0].languageText.getText()</code><br>
+//     * Instead, in the wizard class, override <code>collectCodeParams()</code>,
+//     * which gets called earlier from the UI thread, and save any necessary data
+//     * in fields in the wizard class.
+//     * @param monitor
+//     * @throws CoreException
+//     */
+//    protected abstract void generateCodeStubs(IProgressMonitor mon) throws CoreException;
 
    
-    /**
-     * Collects basic information from wizard-page fields and computes
-     * additional common values for use by wizards in generating code.
-     * 
-     * Can be extended by subclasses for specific wizards in order to
-     * gather wizard-specific values.
-     */
-    protected void collectCodeParms() {
-    	fProject = pages[0].getProjectOfRecord();
-    	fProjectName = pages[0].fProjectText.getText();
-        fLanguageName= pages[0].fLanguageText.getText();
-        
-        if (pages[0].fTemplateText != null)
-        	fTemplateName = pages[0].fTemplateText.getText();
-        
-        fClassNamePrefix= Character.toUpperCase(fLanguageName.charAt(0)) + fLanguageName.substring(1);
-        
-		String qualifiedClassName= pages[0].getField("class").fValue;
-		fFullClassName = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.') + 1);
-		fPackageName= qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
-		fPackageFolder= fPackageName.replace('.', File.separatorChar);
-		
-        String[] subPkgs= fPackageName.split("\\.");
-        StringBuffer buff= new StringBuffer();
-        for(int i= 0; i < subPkgs.length-1; i++) {
-            if (i > 0) buff.append('.');
-            buff.append(subPkgs[i]);
-        }
-        buff.append(".parser");
-        fParserPackage= buff.toString();
-    }
+//    /**
+//     * Collects basic information from wizard-page fields and computes
+//     * additional common values for use by wizards in generating code.
+//     * 
+//     * Can be extended by subclasses for specific wizards in order to
+//     * gather wizard-specific values.
+//     */
+//    protected void collectCodeParms() {
+//    	fProject = pages[0].getProjectOfRecord();
+//    	fProjectName = pages[0].fProjectText.getText();
+//        fLanguageName= pages[0].fLanguageText.getText();
+//        
+//        if (pages[0].fTemplateText != null)
+//        	fTemplateName = pages[0].fTemplateText.getText();
+//        
+//        fClassNamePrefix= Character.toUpperCase(fLanguageName.charAt(0)) + fLanguageName.substring(1);
+//        
+//		String qualifiedClassName= pages[0].getField("class").fValue;
+//		fFullClassName = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.') + 1);
+//		fPackageName= qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
+//		fPackageFolder= fPackageName.replace('.', File.separatorChar);
+//
+//		fParserPackage = CodeServiceWizard.discoverParserPackage(fProject);
+//    }
     
     
     /**
@@ -239,95 +223,82 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
      */
  
     
-    /**
-     * Opens the given file in the appropriate editor for editing.<br>
-     * If the file contains a comment "// START_HERE", the cursor will
-     * be positioned just after that.
-     * @param monitor
-     * @param file
-     */
-    protected void editFile(IProgressMonitor monitor, final IFile file)
-    {
-    	WizardUtilities.editFile(monitor, file, getShell());
-    }
+//    /**
+//     * Opens the given file in the appropriate editor for editing.<br>
+//     * If the file contains a comment "// START_HERE", the cursor will
+//     * be positioned just after that.
+//     * @param monitor
+//     * @param file
+//     */
+//    protected void editFile(IProgressMonitor monitor, final IFile file)
+//    {
+//    	WizardUtilities.editFile(monitor, file, getShell());
+//    }
     
     
 
-    public IFile createFileFromTemplate(
-    	String fileName, String templateName, String folder, Map replacements,
-	    IProject project, IProgressMonitor monitor)
-    throws CoreException
-	{
-    	return WizardUtilities.createFileFromTemplate(fileName, templateName, folder, getProjectSourceLocation(project), replacements, project, monitor);
-    }
+//    public IFile createFileFromTemplate(
+//    	String fileName, String templateName, String folder, Map replacements,
+//	    IProject project, IProgressMonitor monitor)
+//    throws CoreException
+//	{
+//    	return createFileFromTemplate(fileName, templateName, folder, getProjectSourceLocation(project), replacements, project, monitor);
+//    }
+//    
+//    
+//    protected IFile createFileFromTemplate(
+//    		String fileName, String templateBundleID, String templateName, String folder,
+//    		Map replacements, IProject project, IProgressMonitor monitor) throws CoreException
+//    {
+//    	return createFileFromTemplate(
+//    			fileName, templateBundleID, templateName, folder, getProjectSourceLocation(project),
+//    			replacements, project, monitor);
+//    }
+//    
     
     
-    protected IFile createFileFromTemplate(
-    		String fileName, String templateBundleID, String templateName, String folder,
-    		Map replacements, IProject project, IProgressMonitor monitor) throws CoreException
-    {
-    	return WizardUtilities.createFileFromTemplate(
-    			fileName, templateBundleID, templateName, folder, getProjectSourceLocation(project),
-    			replacements, project, monitor);
-    }
-    
-    
-    
-    
-    protected static IFile createFile(String fileName, String folder, IProject project, IProgressMonitor monitor) throws CoreException {
-	monitor.setTaskName("Creating " + fileName);
-
-	final IFile file= project.getFile(new Path(getProjectSourceLocation(project) + folder + "/" + fileName));
-
-	if (!file.exists()) {
-            WizardUtilities.createSubFolders(getProjectSourceLocation(project) + folder, project, monitor);
-	    file.create(new ByteArrayInputStream("".getBytes()), true, monitor);
-	}
-//	monitor.worked(1);
-	return file;
-    }
-
-    protected IFile getFile(String fileName, String folder, IProject project) throws CoreException {
-	IFile file= project.getFile(new Path(getProjectSourceLocation(fProject) + folder + "/" + fileName));
-
-	return file;
-    }
     
 
 
-    public static void replace(StringBuffer sb, String target, String substitute) {
-	for(int index= sb.indexOf(target); index != -1; index= sb.indexOf(target))
-	    sb.replace(index, index + target.length(), substitute);
-    }
+
+    
+    // SMS 6 Aug 2008:  This seems to be unused
+//    public static void replace(StringBuffer sb, String target, String substitute) {
+//	for(int index= sb.indexOf(target); index != -1; index= sb.indexOf(target))
+//	    sb.replace(index, index + target.length(), substitute);
+//    }
 
 
-    protected static String getTemplateBundleID() {
-    	return WizardPlugin.kPluginID;
-    }
+    // SMS 6 Aug 2008:  Only used in the unused getTemplateFile(..)
+//    protected static String getTemplateBundleID() {
+//    	return WizardPlugin.kPluginID;
+//    }
 
-    protected byte[] getTemplateFile(String fileName) {
-	try {
-	    Bundle bundle= Platform.getBundle(getTemplateBundleID());
-	    URL templateURL= Platform.find(bundle, new Path("/templates/" + fileName));
-            if (templateURL == null) {
-                ErrorHandler.reportError("Unable to find template file: " + fileName, true);
-                return new byte[0];
-            }
-            URL url= Platform.asLocalURL(templateURL);
-	    String path= url.getPath();
-	    FileInputStream fis= new FileInputStream(path);
-	    DataInputStream is= new DataInputStream(fis);
-	    byte bytes[]= new byte[fis.available()];
-
-	    is.readFully(bytes);
-	    is.close();
-	    fis.close();
-	    return bytes;
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    return ("// missing template file: " + fileName).getBytes();
-	}
-    }
+    
+    // SMS 6 Aug 2008:  Seems to be unused
+//    protected byte[] getTemplateFile(String fileName) {
+//	try {
+//	    Bundle bundle= Platform.getBundle(getTemplateBundleID());
+//	    URL templateURL= Platform.find(bundle, new Path("/templates/" + fileName));
+//            if (templateURL == null) {
+//                ErrorHandler.reportError("Unable to find template file: " + fileName, true);
+//                return new byte[0];
+//            }
+//            URL url= Platform.asLocalURL(templateURL);
+//	    String path= url.getPath();
+//	    FileInputStream fis= new FileInputStream(path);
+//	    DataInputStream is= new DataInputStream(fis);
+//	    byte bytes[]= new byte[fis.available()];
+//
+//	    is.readFully(bytes);
+//	    is.close();
+//	    fis.close();
+//	    return bytes;
+//	} catch (Exception e) {
+//	    e.printStackTrace();
+//	    return ("// missing template file: " + fileName).getBytes();
+//	}
+//    }
     
     
     
@@ -336,165 +307,42 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
      * for substitution parameters in implementation templates
      */
     
-    
-    // SMS 23 Mar 2007
-    // This version takes an IProject and provides mappings
-    // related to the project's plugin aspect
-    protected Map<String,String> getStandardSubstitutions(IProject project) {
-    	Map<String, String> result = getStandardSubstitutions();
-    	result.remove("$PLUGIN_PACKAGE$");
-        result.put("$PLUGIN_PACKAGE$", getPluginPackageName(project, null));
-    	result.remove("$PLUGIN_CLASS$");
-        result.put("$PLUGIN_CLASS$", getPluginClassName(project, null));
-        result.remove("$PLUGIN_ID$");
-        result.put("$PLUGIN_ID$", getPluginID(project, null));
-        return result;
-    }
-    
-    
-    
-    protected Map<String, String> getStandardSubstitutions() {
-        Map<String,String> result = new HashMap<String,String>();
-        
-        result = ExtensionPointUtils.getASTInformation((IPluginModel)pages[0].getPluginModel(), fProject);
 
-        result.put("$LANG_NAME$", fLanguageName);
-        result.put("$CLASS_NAME_PREFIX$", fClassNamePrefix);
-        result.put("$PACKAGE_NAME$", fPackageName);
-        result.put("$PROJECT_NAME$", fProjectName);
-
-        // NOTE:  These are default values for plug-in substitutions;
-        // they should typically be overridden by real values obtained
-        // from getStandardSubstitutions(IProject).  That means that
-        // that method should be called after this one (or that one
-        // should call this one before setting those values).
-        result.put("$PLUGIN_PACKAGE$", getPluginPackageName(null, null));
-        result.put("$PLUGIN_CLASS$", getPluginClassName(null, null));
-        result.put("$PLUGIN_ID$", getPluginID(null, null));
-
-        return result;
-    }
+//    public Map<String,String> getStandardSubstitutions(IProject project) {
+//    	Map<String, String> result = getStandardSubstitutions();
+//    	result.remove("$PLUGIN_PACKAGE$");
+//        result.put("$PLUGIN_PACKAGE$", getPluginPackageName(project, null));
+//    	result.remove("$PLUGIN_CLASS$");
+//        result.put("$PLUGIN_CLASS$", getPluginClassName(project, null));
+//        result.remove("$PLUGIN_ID$");
+//        result.put("$PLUGIN_ID$", getPluginID(project, null));
+//        return result;
+//    }
+//    
+//    
+//    
+//    public Map<String, String> getStandardSubstitutions() {
+//        Map<String,String> result = new HashMap<String,String>();
+//        
+//        result = ExtensionPointUtils.getASTInformation((IPluginModel)pages[0].getPluginModel(), fProject);
+//
+//        result.put("$LANG_NAME$", fLanguageName);
+//        result.put("$CLASS_NAME_PREFIX$", fClassNamePrefix);
+//        result.put("$PACKAGE_NAME$", fPackageName);
+//        result.put("$PROJECT_NAME$", fProjectName);
+//
+//        // NOTE:  These are default values for plug-in substitutions;
+//        // they should typically be overridden by real values obtained
+//        // from getStandardSubstitutions(IProject).  That means that
+//        // that method should be called after this one (or that one
+//        // should call this one before setting those values).
+//        result.put("$PLUGIN_PACKAGE$", getPluginPackageName(null, null));
+//        result.put("$PLUGIN_CLASS$", getPluginClassName(null, null));
+//        result.put("$PLUGIN_ID$", getPluginID(null, null));
+//
+//        return result;
+//    }
   
-    
-    
-
-    /**
-     * Get the name of the package in which a plugin class is defined
-     * for this project, or a default value if there is no such package
-     * or if the project is null.  If no default name is provided, then
-     * the name of the language is used for a default.
-     * 
-     * The intention here is to return a the name of the plugin package,
-     * if the package exists, or a name that could be used as the name
-     * of the plugin package, if the package does not exist.  So this
-     * method should not return null and should not be used as a test
-     * of whether a given project contains a plugin package or class.
-     * 
-     * 
-     * 
-     * SMS 23 Mar 2007
-     * 
-     * @param project		The project for which the plugin package name is sought;
-     * 						may be null
-     * @param defaultName	A name to return if the given package lacks a plugin class;
-     * 						may be null
-     * @return				The name of the package that contains the project's plugin
-     * 						class, if there is one, or a name that could be used for the
-     * 						plugin package, if there is none.
-     */
-    public String getPluginPackageName(IProject project, String defaultName)
-    {
-    	String result = defaultName;
-    	if (result == null)
-    		result = fLanguageName;
-       	if (project != null) {
-            String activator = null;
-            IPluginModel pm = ExtensionPointEnabler.getPluginModelForProject(project);
-            if (pm != null) {
-            	WorkspaceBundleModel wbm = new WorkspaceBundleModel(project.getFile("META-INF/MANIFEST.MF")); //$NON-NLS-1$
-            	activator = wbm.getBundle().getHeader("Bundle-Activator");
-            }
-
-            if (activator != null) {
-            	result = activator.substring(0, activator.lastIndexOf("."));
-            }
-    	}
-       	return result;
-    }
-    
-    /**
-     * Get the name of the plugin class for this project, or a default
-     * name if there is no plugin class or if the given project is null.
-     * If no default name is provided, then a name based on the name of
-     * the language is used for a default.
-     * 
-     * The intention here is to return a the name of the plugin class,
-     * if it exists, or a name that could be used as the name of the
-     * plugin class, if it does not exist.  So this method should not
-     * return null and should not be used as a test of whether a given
-     * project contains a plugin class.
-     * 
-     * SMS 27 Mar 2007
-     * 
-     * @param project		The project for which the plugin class name is sought;
-     * 						may be null
-     * @param defaultName	A name to return if the given package lacks a plugin class;
-     * 						may be null
-     * @return				The name of the project's plugin class, if there is one,
-     * 						or a name that could be used for the plugin class, if there
-     * 						is none.
-     */
-    public String getPluginClassName(IProject project, String defaultName)
-    {
-    	String result = defaultName;
-    	if (result == null)
-    		result = fClassNamePrefix + "Plugin";
-       	if (project != null) {
-            String activator = null;
-            IPluginModel pm = ExtensionPointEnabler.getPluginModelForProject(project);
-            if (pm != null) {
-            	WorkspaceBundleModel wbm = new WorkspaceBundleModel(project.getFile("META-INF/MANIFEST.MF")); //$NON-NLS-1$
-            	activator = wbm.getBundle().getHeader("Bundle-Activator");
-            }
-
-            if (activator != null) {
-            	result = activator.substring(activator.lastIndexOf(".")+1);
-            }
-    	}
-       	return result;
-    }
-    
-    /**
-     * Get the plugin id defined for this project, or a default value if
-     * there is no plugin id or if the given project is null.   If no default
-     * id is provided, then an id based on the name of the project is used
-     * for a default.
-     * 
-     * The intention here is to return a plugin id, if it exists, or a
-     * value that could be used as the id of the plugin, if it does not
-     * exist.  So this method should not return null and should not be
-     * used as a test of whether a given project has a plugin id.
-     * 
-     * SMS 27 Mar 2007
-     * 
-     * @param project		The project for which the plugin id name is sought;
-     * 						may be null
-     * @param defaultID		A value to return if the given package lacks a plugin id;
-     * 						may be null
-     * @return				The plugin id of the project, if there is one, or a value
-     * 						that could be used as the plugin id, if there is none.
-     */
-    public String getPluginID(IProject project, String defaultID)
-    {
-    	String result = defaultID;
-    	if (result == null)
-    		getPluginPackageName(project, null);
-       	if (project != null) {
-            result = ExtensionPointEnabler.getPluginIDForProject(project);
-    	}
-       	return result;
-    }
- 
  
     
     /* *********************************************************
@@ -503,75 +351,75 @@ public abstract class GeneratedComponentWizard extends IMPWizard implements INew
      * that already exist. 
      */
     
-    /**
-     * Returns (in an array of Strings) the names of files that will be
-     * generated by the SAFARI wizard and that thus may clobber existing
-     * files.
-     * 
-     * The basic implementation provided here simply returns an array with
-     * the name of the one class that will provide the core implementation
-     * of the service.  (It seems that this is all that is necessary for
-     * most wizards.)  If the wizard actually generates no implementation
-     * class, then an emtpy array is returned.
-     * 
-     * Subclasses for specific wizards should override this method if the
-     * wizard will generate more than one class.
-     * 
-     * @return	An array of names files that will be generated by the wizard
-     */
-    protected String[] getFilesThatCouldBeClobbered() {
-    	
-    	// In case there's not any implementation class ...
-    	if (fFullClassName == null) {
-    		return new String[0];
-    	}
-    	
-    	// In the usual case that there is ...
-    	
-    	String prefix = fProject.getLocation().toString() + '/' + getProjectSourceLocation(fProject);
-    	// getProjectSourceLocation should return a "/"-terminated string
-    	String prefixTail = (fPackageName == null ? "/" : fPackageName.replace('.', '/') + "/");
-
-    	return new String[] {prefix + prefixTail + fFullClassName + ".java" };
-    }	
+//    /**
+//     * Returns (in an array of Strings) the names of files that will be
+//     * generated by the SAFARI wizard and that thus may clobber existing
+//     * files.
+//     * 
+//     * The basic implementation provided here simply returns an array with
+//     * the name of the one class that will provide the core implementation
+//     * of the service.  (It seems that this is all that is necessary for
+//     * most wizards.)  If the wizard actually generates no implementation
+//     * class, then an emtpy array is returned.
+//     * 
+//     * Subclasses for specific wizards should override this method if the
+//     * wizard will generate more than one class.
+//     * 
+//     * @return	An array of names files that will be generated by the wizard
+//     */
+//    protected String[] getFilesThatCouldBeClobbered() {
+//    	
+//    	// In case there's not any implementation class ...
+//    	if (fFullClassName == null) {
+//    		return new String[0];
+//    	}
+//    	
+//    	// In the usual case that there is ...
+//    	
+//    	String prefix = fProject.getLocation().toString() + '/' + getProjectSourceLocation(fProject);
+//    	// getProjectSourceLocation should return a "/"-terminated string
+//    	String prefixTail = (fPackageName == null ? "/" : fPackageName.replace('.', '/') + "/");
+//
+//    	return new String[] {prefix + prefixTail + fFullClassName + ".java" };
+//    }	
    
      
     
-    /**
-     * Check whether it's okay for the files to be generated to clobber
-     * any existing files.
-     * 
-     * Current implementation expects that the file names provided will
-     * be the full absolute path names in the file system.
-     * 
-     * @param files		The names of files that would be clobbered by
-     * 					files to be generated
-     * @return			True if there are no files that would be clobbered
-     * 					or if the users presses OK; false if there are
-     * 					files and the user presses CANCEL
-     */
-    protected boolean okToClobberFiles(String[] files) {
-    	if (files.length == 0)
-    		return true;
-    	String message = "File(s) with the following name(s) already exist; do you want to overwrite?\n";
-    	boolean askUser = false;
-    	for (int i = 0; i < files.length; i++) {
-    		File file = new File(files[i]);
-    		if (file.exists()) {
-    			askUser = true;
-    			message = message + "\n" + files[i];
-    		}
-    	}
-    	if (!askUser)
-    		return true;
-    	Shell parent = this.getShell();
-    	MessageBox messageBox = new MessageBox(parent, (SWT.CANCEL | SWT.OK));
-    	messageBox.setMessage(message);
-    	int result = messageBox.open();
-    	if (result == SWT.CANCEL)
-    		return false;
-    	return true;
-    }
+//    /**
+//     * Check whether it's okay for the files to be generated to clobber
+//     * any existing files.
+//     * 
+//     * Current implementation expects that the file names provided will
+//     * be the full absolute path names in the file system.
+//     * 
+//     * @param files		The names of files that would be clobbered by
+//     * 					files to be generated
+//     * @return			True if there are no files that would be clobbered
+//     * 					or if the users presses OK; false if there are
+//     * 					files and the user presses CANCEL
+//     */
+//    protected boolean okToClobberFiles(String[] files) {
+//    	if (files.length == 0)
+//    		return true;
+//    	String message = "File(s) with the following name(s) already exist; do you want to overwrite?\n";
+//    	boolean askUser = false;
+//    	for (int i = 0; i < files.length; i++) {
+//    		File file = new File(files[i]);
+//    		if (file.exists()) {
+//    			askUser = true;
+//    			message = message + "\n" + files[i];
+//    		}
+//    	}
+//    	if (!askUser)
+//    		return true;
+//    	Shell parent = this.getShell();
+//    	MessageBox messageBox = new MessageBox(parent, (SWT.CANCEL | SWT.OK));
+//    	messageBox.setMessage(message);
+//    	int result = messageBox.open();
+//    	if (result == SWT.CANCEL)
+//    		return false;
+//    	return true;
+//    }
     
     
 }
