@@ -253,7 +253,8 @@ public class ExtensionPointEnabler {
 		    	page.getProjectBasedOnNameField(),
 		    	page.fExtPluginID,
 		    	page.fExtPointID,
-		    	page.getExtensionID(),
+//		    	page.getExtensionID(),
+		    	page.fExtensionID,
 		    	monitor);
 
 		    if (pluginModel != null) {
