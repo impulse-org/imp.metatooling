@@ -82,7 +82,19 @@ public class WizardUtilities {
     }
 
 
-    
+    /**
+     * Returns the string representation of the workbench relative
+     * path to the source location of the given project.
+     * 
+     * Note:  This method effectively duplicates one defined in IMPWizard.
+     * That one is intended for use by wizards, where it is commonly needed.
+     * This one is intended for users that are not wizards.
+     * 
+     * @param project	An IProject that also presumably represents
+     * 					an IJavaProject
+     * @return			The string representation of the path, relative
+     * 					to the workbench, to the project source location
+     */
     public static String getProjectSourceLocation(IProject project) {
 		try {
 			if (project == null)
@@ -230,7 +242,7 @@ public class WizardUtilities {
 			Map replacements, IProject project, IProgressMonitor monitor)
 		throws CoreException
 	{
-		monitor.setTaskName("WizardUtilities.createFileFromTemplate:  Creating " + fileName);
+		monitor.setTaskName("createFileFromTemplate:  Creating " + fileName);
 	
 		String packagePath = projectSourceLocation + folder.replace('.', '/');
 		IPath specFilePath = new Path(packagePath + "/" + fileName);
@@ -398,7 +410,16 @@ public class WizardUtilities {
     }
     
     
-    
+//  public void init(IWorkbench workbench, IStructuredSelection selection) {}
+
+
+    /**
+     * Opens the given file in the appropriate editor for editing.<br>
+     * If the file contains a comment "// START_HERE", the cursor will
+     * be positioned just after that.
+     * @param monitor
+     * @param file
+     */
     public static void editFile(IProgressMonitor monitor, final IFile file, Shell shell) {
     	monitor.setTaskName("Opening file for editing...");
     	shell.getDisplay().asyncExec(new Runnable() {
@@ -423,7 +444,7 @@ public class WizardUtilities {
     	    }
     	});
     	monitor.worked(1);
-    	}
+    }
     
     
     public static void createSubFolders(String folder, IProject project, IProgressMonitor monitor) throws CoreException {
@@ -558,6 +579,9 @@ public class WizardUtilities {
     	if (wizard instanceof NewCompiler) {
     		return "compiler.java";
     	}
+    	if (wizard instanceof NewEditorAnnotationCreator) {
+    		return "editorAnnotationCreator.java";
+    	}
     	
     	return null;
     }
@@ -582,12 +606,25 @@ public class WizardUtilities {
     	try {
     	    Bundle bundle= Platform.getBundle(templateBundleId);
     	    URL templateURL= Platform.find(bundle, new Path("/templates/" + fileName));
-                if (templateURL == null) {
-                    ErrorHandler.reportError("Unable to find template file: " + fileName, true);
-                    return new byte[0];
-                }
-                URL url= Platform.asLocalURL(templateURL);
-    	    String path= url.getPath();
+    	    
+    	    
+//            if (templateURL == null) {
+//                ErrorHandler.reportError("Unable to find template file: " + fileName, true);
+//                return new byte[0];
+//            }
+    	    
+    	    URL url = null;
+    	    String path = null;
+    	    if (templateURL != null) {
+	            url= Platform.asLocalURL(templateURL);
+	    	    path= url.getPath();
+    	    } else {
+    	    	// SMS 8 Aug 2008:  This is kind of a hack until the handling
+    	    	// of template names gets resolved again:
+    	    	// Pretend that the filename is a complete path
+    	    	path = fileName;
+    	    }
+    	    
     	    FileInputStream fis= new FileInputStream(path);
     	    DataInputStream is= new DataInputStream(fis);
     	    byte bytes[]= new byte[fis.available()];
