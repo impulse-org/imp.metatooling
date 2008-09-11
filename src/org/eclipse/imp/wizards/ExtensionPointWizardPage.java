@@ -53,6 +53,8 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
 {
     protected String fExtPluginID;
     protected String fExtPointID;
+    protected String fExtensionID;
+    protected String fExtensionName;
     protected Schema fSchema;
     protected WizardPageField fFirstTemplateField = null;
     
@@ -408,7 +410,8 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
     public String getExtensionID() {
            WizardPageField idField = getField("id");
            if (idField == null) return null;
-	       if (idField.getText() == null) setIDByLanguage();
+	       if (!idField.fText.isDisposed()	|| idField.getText() == null || idField.getText().length() == 0)
+	    	   setIDByLanguage();
            return idField.getText();
     }
     
@@ -462,4 +465,14 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
             }
         });
     }
+    
+    
+    public void dispose() {
+    	if (getField("id") != null)
+    		fExtensionID = getField("id").getText();
+    	if (getField("name") != null)
+    		fExtensionName = getField("name").getText();
+    }
+    
+    
 }
