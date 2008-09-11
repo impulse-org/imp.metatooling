@@ -61,7 +61,7 @@ public class GeneratedComponentWizardPage extends IMPWizardPage	//WizardPage
     
 
     public GeneratedComponentWizardPage(
-    	GeneratedComponentWizard owner, String componentID, boolean omitIDName,
+    	IMPWizard owner, String componentID, boolean omitIDName,
     	GeneratedComponentAttribute[] attributes, String wizardName, String wizardDescription)
     {
         this(owner, 0, 1, /*pluginID,*/ componentID, false, attributes, wizardName, wizardDescription);
@@ -69,7 +69,7 @@ public class GeneratedComponentWizardPage extends IMPWizardPage	//WizardPage
     }
 
     public GeneratedComponentWizardPage(
-    	GeneratedComponentWizard owner, int pageNumber, int totalPages, String componentID, boolean isOptional,
+    	IMPWizard owner, int pageNumber, int totalPages, String componentID, boolean isOptional,
     	GeneratedComponentAttribute[] attributes, String wizardName, String wizardDescription)
     {
         //	super("wizardPage");
