@@ -38,10 +38,14 @@ public class $FOLDER_CLASS_NAME$ extends FolderBase {
             IToken next_token = prsStream.getIToken(prsStream.getNext(last_token.getTokenIndex()));
             IToken[] adjuncts = next_token.getPrecedingAdjuncts();
             IToken gate_token = adjuncts.length == 0 ? next_token : adjuncts[0];
-            makeAnnotationWithOffsets(first_token.getStartOffset(), 
-                                      gate_token.getLine() > last_token.getEndLine()
-                                          ? prsStream.getLexStream().getLineOffset(gate_token.getLine() - 1)
-                                          : last_token.getEndOffset());
+            makeAnnotationWithOffsets(first_token.getStartOffset(), last_token.getEndOffset());
+            // SMS 29 Sep 2009:  modified the above to extend the foldable region just to the end
+            // of the last token rather than to the beginning of the next token (as commented out
+            // below), since that seems to simplify some aspects of annotation management (and is
+            // also consistent with the JDT Java editor).
+//                                      gate_token.getLine() > last_token.getEndLine()
+//                                          ? prsStream.getLexStream().getLineOffset(gate_token.getLine() - 1)
+//                                          : last_token.getEndOffset());
         }
     }
     
