@@ -186,17 +186,15 @@ public class $OCCURRENCE_MARKER_CLASS_NAME$ implements ILanguageService, IOccurr
 		// TODO:  Include a visit method for each AST node type for which
 		// nodeKindIndicatesLiteralOccurrence returns true
 		
-		// Note:  Depending on the node type, matches between the given
-		// node and the visited node may be made based on some value
-		// associated with the node (as with numbers) or just based on
-		// the type of the node (as with nodes that represent the names
-		// of primitive types).
+		// Note:  Depending on the node type, matches between the given node and the
+		// visited node may be made based on some value associated with the node
+		// (as with numbers) or just based on the type of the node (as with nodes that
+		// represent the names of primitive types).
 		
-		// Note:  Few (if any) of the node types addressed in this visitor
-		// will have children, and for those that do, traversal of the
-		// children will probably not contribute to occurrence marking.
-		// Therefore, these visit methods will typically return false.
-		// Similarly, endVisit(..) methos will typically be unnecessary.
+		// Note:  Few (if any) of the node types addressed in this visitor will have
+		// children, and for those that do, traversal of the children will probably not
+		// contribute to occurrence marking.  Therefore, these visit methods will
+		// typically return false and endVisit(..) methods will not be unnecessary.
 		
 		// Example visit(..) methods:
 		
@@ -266,9 +264,6 @@ public class $OCCURRENCE_MARKER_CLASS_NAME$ implements ILanguageService, IOccurr
 		
 	}
 
-	
-	
-	
 	/*
 	 * A visitor to traverse an AST and search for nodes that should be
 	 * marked along with a given node (that is provided to the constructor).
@@ -277,25 +272,16 @@ public class $OCCURRENCE_MARKER_CLASS_NAME$ implements ILanguageService, IOccurr
 	 * This visitor may perform relatively complicated computations and
 	 * make use of arbitrary ancillary methods in identifying nodes to
 	 * return.
-	 * 
-	 * FOR THE INITIAL EXAMPLE:
-	 * 
-	 * The purpose of this visitor is to identify 
-	 * 
 	 */
 	private class ComputedOccurrenceVisitor extends AbstractVisitor
 	{	
 		// The given node
 		Object ast;
-
-
-		
 		
 		ComputedOccurrenceVisitor(Object ast) {
 			super();
 			this.ast = ast;
 		}
-		
 		
 		@Override
 		public void unimplementedVisitor(String s) {}
@@ -323,9 +309,9 @@ public class $OCCURRENCE_MARKER_CLASS_NAME$ implements ILanguageService, IOccurr
 		// - This example uses one visitor to capture information related to two different
 		//   types of computed occurrence.  Some complexity is introduced into the visitor
 		//   by the need to coordinate these two purposes.  As an alternative, different
-		//   computations can be split into different visitors, which may keep them simpler.
+		//   computations can be split into different visitors, each of which may be simpler
+		//   than their combination.
 
-		
 		
 		/*
 		 * Visit methods relating to the selection of identifiers and their declarations.
@@ -352,20 +338,10 @@ public class $OCCURRENCE_MARKER_CLASS_NAME$ implements ILanguageService, IOccurr
 		public boolean visit(identifier n) {
 			if (processingFunctionCall)
 				return false;
-			
-//			System.out.println("gO.COV:  visiting identifier = " + n.getIDENTIFIER().toString());
-//			if (n.getDeclaration() instanceof functionDeclaration)
-//				System.out.println("\tn has functionDeclaration");
-//			else		
-//				System.out.println("\tn.getDeclaration   = " + n.getDeclaration().toString());
-//			if (ast instanceof identifier)
-//				System.out.println("\tast.getDeclaration = " + ((identifier)ast).getDeclaration().toString());
-			
-			if (ast instanceof identifier &&
+			if (ast instanceof identifier && n.getDeclaration() != null &&
 				// test for identity of declarations that may have the same value
 				n.getDeclaration().getLeftIToken().getStartOffset() == identifierDeclOffset)
 			{
-//				System.out.println("gO.COV:  visiting identifier:  adding identifier");
 				fOccurrences.add(n);
 			}
 			return false;
@@ -376,13 +352,10 @@ public class $OCCURRENCE_MARKER_CLASS_NAME$ implements ILanguageService, IOccurr
 			if (processingFunctionCall)
 				return false;
 			
-//			System.out.println("gO.COV:  visiting declaration = " + n.getidentifier().getIDENTIFIER().toString());
-			
 			if (ast instanceof identifier &&
 				// test for identity of declarations that may have the same value
 				n.getLeftIToken().getStartOffset() == identifierDeclOffset)
 			{
-//				System.out.println("gO.COV:  visiting declaration:  adding declaration = " + n.toString());
 				fOccurrences.add(n);
 			}
 			return false;
@@ -430,19 +403,19 @@ public class $OCCURRENCE_MARKER_CLASS_NAME$ implements ILanguageService, IOccurr
 		// This is the start construct in the grammar; if we're visiting for
 		// a function call then set up the needed data structures
 		public boolean visit(functionDeclarationList n) {
-//			System.out.println("gO.COV:  visiting functionDeclarationList for ast = " + ast.getClass().getName());
 			if (ast instanceof functionCall) {
 				// Set up for tracking innermost function decls
 				lookingForFunctionDecls = true;
 				functionName = ((functionCall)ast).getidentifier().getIDENTIFIER().toString();
-				System.out.println("gO.COV:  visiting function declaration:  " + functionName);
 				functionDeclTarget = null;
 				functionDecls = new Stack<functionDeclaration>();
 				callsWithoutDeclarations = new ArrayList<functionCall>();
 				callsWithDeclarations = new HashMap<functionDeclaration, List<functionCall>>();
 			} else if (ast instanceof identifier || ast instanceof declaration) {
 				identifierDeclTarget = ((identifier)ast).getDeclaration();
-				identifierDeclOffset = identifierDeclTarget.getLeftIToken().getStartOffset();
+				// may be null if identifier is not declared
+				if (identifierDeclTarget != null)
+					identifierDeclOffset = identifierDeclTarget.getLeftIToken().getStartOffset();
 			}
 			return true;
 		}
@@ -478,42 +451,33 @@ public class $OCCURRENCE_MARKER_CLASS_NAME$ implements ILanguageService, IOccurr
 		public boolean visit(functionCall n) {
 			if (ast instanceof functionCall) {
 				processingFunctionCall = true;
-//				System.out.println("gO.COV:  visiting function call to " + n.getidentifier().getIDENTIFIER().toString());
 				if (n.equals(ast)) {
-					System.out.println("gO.COV:  function call matches ast");
 					if (functionDecls.empty()) {
 						functionDeclTarget = null;
-						System.out.println("gO.COV:  visiting function call:  adding to callsWithoutDeclarations");
 						callsWithoutDeclarations.add(n);
 					} else {
 						List<functionCall> callList;
 						functionDeclTarget = functionDecls.peek();
 						if (!callsWithDeclarations.containsKey(functionDeclTarget)) {
-//							System.out.println("gO.COV:  visiting function call:  adding to callsWithDeclarations (new)");
 							callList = new ArrayList<functionCall>();
 							callList.add(n);
 							callsWithDeclarations.put(functionDeclTarget, callList);
 						} else {
-							System.out.println("gO.COV:  visiting function call:  adding to callsWithDeclarations (existing)");
 							callList = callsWithDeclarations.get(functionDeclTarget);
 							callList.add(n);
 						}
 					}
 				} else if (n.getidentifier().getIDENTIFIER().toString().equals(functionName)) {
-//					System.out.println("gO.COV:  function call has same identifier as ast");
 					if (functionDecls.empty()) {
-//						System.out.println("gO.COV:  visiting function call:  adding to callsWithoutDeclarations");
 						callsWithoutDeclarations.add(n);
 					} else {
 						List<functionCall> callList;
 						functionDeclaration currentDeclaration = functionDecls.peek();
 						if (!callsWithDeclarations.containsKey(currentDeclaration)) {
-//							System.out.println("gO.COV:  visiting function call:  adding to callsWithDeclarations (new)");
 							callList = new ArrayList<functionCall>();
 							callList.add(n);
 							callsWithDeclarations.put(currentDeclaration, callList);
 						} else {
-//							System.out.println("gO.COV:  visiting function call:  adding to callsWithDeclarations (existing)");
 							callList = callsWithDeclarations.get(currentDeclaration);
 							callList.add(n);
 						}
