@@ -104,7 +104,8 @@ public class NewBuilder extends CodeServiceWizard
         			// SMS 28 Mar 2007:  id based on parameter
                     { "extension:id",   (String) subs.get("$PROBLEM_ID$")},
                     { "extension:name", fLanguageName + " Error" },
-    	    	{ "super:type", "org.eclipse.core.resources.problemmarker" },
+                    { "super:type", "org.eclipse.core.resources.problemmarker" },
+                    { "persistent:value", "true" }
         	    },
         		false,
         		getPluginDependencies(),
