@@ -154,7 +154,7 @@ public class NewCompiler extends GeneratedComponentWizard {
 
 
     
-    protected List getPluginDependencies() {
+    protected List<String> getPluginDependencies() {
         return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
                 "org.eclipse.imp.runtime" });
     }
@@ -269,7 +269,7 @@ public class NewCompiler extends GeneratedComponentWizard {
     	}
 
 	    IPluginExtension[] extensions = iwem.getExtensions().getExtensions();
-        List<IPluginExtension> markerExtensions =  new ArrayList();
+        List<IPluginExtension> markerExtensions =  new ArrayList<IPluginExtension> ();
         
         for (int i = 0; i < extensions.length; i++) {
         	if(extensions[i].getPoint().equals("org.eclipse.core.resources.markers")) {
@@ -291,6 +291,6 @@ public class NewCompiler extends GeneratedComponentWizard {
         }
         return null;
     }
-    
+
     
 }
