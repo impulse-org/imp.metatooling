@@ -8,6 +8,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.imp.builder.BuilderUtils;
 import org.eclipse.imp.builder.MarkerCreator;
+import org.eclipse.imp.builder.MarkerCreatorWithBatching;
 import org.eclipse.imp.builder.BuilderBase;
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
@@ -16,12 +17,13 @@ import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.runtime.PluginBase;
+import org.eclipse.imp.utils.UnimplementedError;
 
 import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 import $PARSER_PKG$.$CLASS_NAME_PREFIX$ParseController;
 
 /**
- * A builder may be activated on a file containin $LANG_NAME$ code every time it
+ * A builder may be activated on a file containing $LANG_NAME$ code every time it
  * has changed (when "Build automatically" is on), or when the programmer
  * chooses to "Build" a project.
  * 
@@ -31,7 +33,7 @@ import $PARSER_PKG$.$CLASS_NAME_PREFIX$ParseController;
 public class $BUILDER_CLASS_NAME$ extends BuilderBase {
     /**
      * Extension ID of the $CLASS_NAME_PREFIX$ builder, which matches the ID in
-     * the corresponding extension definition in plugin.xml..
+     * the corresponding extension definition in plugin.xml.
      */
     public static final String BUILDER_ID = $PLUGIN_CLASS$.kPluginID
             + ".$BUILDER_ID$";
@@ -51,6 +53,10 @@ public class $BUILDER_CLASS_NAME$ extends BuilderBase {
         return $PLUGIN_CLASS$.getInstance();
     }
 
+    public String getBuilderID() {
+    	return BUILDER_ID;
+    }
+    
     protected String getErrorMarkerID() {
         return PROBLEM_MARKER_ID;
     }
@@ -141,8 +147,31 @@ public class $BUILDER_CLASS_NAME$ extends BuilderBase {
     }
 
     /**
-     * This is an example compiler, which simply uses the $LANG_NAME$ parse controller
-     * to parse a file.
+     * This is an example "compiler" implementation that simply uses the parse controller
+     * to parse the given file, adding error markers to the file for any parse errors
+     * that are reported.
+     * 
+     * Error markers are created by a special type of message handler (i.e., implementation
+     * of IMessageHandler) known as a MarkerCreator.  The MarkerCreator is passed to the
+     * parse controller.  The parser reports its error messages to the MarkerCreator, and
+     * the MarkerCreator puts corresponding error markers on the file.
+     * 
+     * This example shows the use of two different types of marker creator:  the MarkerCreator
+     * base type and an the MarkerCreatorWithBatching subtype.  In MarkerCreator the error
+     * markers are added to the file one at a time, as error messages are received.  In
+     * MarkerCreatorWithBatching, the information from each error message is cached; 
+     * the corresponding error markers are not created until the flush(..) method is called,
+     * at which point all markers are created together.  MarkerCreatorWithBatching is more
+     * complicated internally and requires proper use of the flush(..) method, but it may
+     * be more efficient at runtime for files that have many errors.  That is because a
+     * Workspace operation is required to add the error markers to the file.  There is one
+     * of these for each of the error markers added in MarkerCreator, but only one for all
+     * of the markers in MarkerCreatorWithBatching.
+     * 
+     * In this example we have declared a marker creator of each type but commented out the
+     * batching version.  The example should also execute correctly if you comment out the
+     * base version and uncomment the batching version, so it should be easy to experiment
+     * with them.
      * 
      * TODO remove or rename this method once an actual compiler is being called. 
      * 
@@ -153,7 +182,10 @@ public class $BUILDER_CLASS_NAME$ extends BuilderBase {
         try {
             IParseController parseController = new $CLASS_NAME_PREFIX$ParseController();
 
+            // TODO:  Pick a version of the marker creator (or just go with this one)
             MarkerCreator markerCreator = new MarkerCreator(file, parseController, PROBLEM_MARKER_ID);
+//			MarkerCreatorWithBatching markerCreator = new MarkerCreatorWithBatching(file, parseController, this);
+            
             parseController.getAnnotationTypeInfo().addProblemMarkerType(getErrorMarkerID());
 
             ISourceProject sourceProject = ModelFactory.open(file.getProject());
@@ -161,6 +193,10 @@ public class $BUILDER_CLASS_NAME$ extends BuilderBase {
 
             String contents = BuilderUtils.getFileContents(file);
             parseController.parse(contents, false, monitor);
+            
+            if (markerCreator instanceof MarkerCreatorWithBatching) {
+            	((MarkerCreatorWithBatching)markerCreator).flush(monitor);
+            }
         } catch (ModelException e) {
             getPlugin().logException("Example builder returns without parsing due to a ModelException", e);
         }
