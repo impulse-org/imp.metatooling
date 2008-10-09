@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.builder.MarkerCreator;
+import org.eclipse.imp.builder.MarkerCreatorWithBatching;
 import org.eclipse.imp.builder.BuilderUtils;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.model.ModelFactory;
@@ -60,7 +61,6 @@ public class $COMPILER_CLASS_NAME$ {
         // START_HERE
         // Provide appropriate visitor methods (like the following examples)
         // for the node types in your AST
-        ///*
         public void endVisit(statementList n) {
             StringBuffer buff= new StringBuffer();
 
@@ -277,6 +277,7 @@ public class $COMPILER_CLASS_NAME$ {
         
         // Marker creator handles error messages from the parse controller
         MarkerCreator markerCreator = new MarkerCreator(file, parseController, PROBLEM_MARKER_ID);
+//		MarkerCreatorWithBatching markerCreator = new MarkerCreatorWithBatching(file, parseController, PROBLEM_MARKER_ID);
 
         // If we have a kind of parser that might be receptive, tell it
         // what types of problem marker the builder will create
@@ -288,6 +289,10 @@ public class $COMPILER_CLASS_NAME$ {
 
         $AST_NODE$ currentAst= ($AST_NODE$) parseController.getCurrentAst();
 
+		if (markerCreator instanceof MarkerCreatorWithBatching) {
+			((MarkerCreatorWithBatching)markerCreator).flush(mon);
+		}
+        
         if (currentAst == null) {
             System.err.println("$COMPILER_CLASS_NAME$.compile(..):  current AST is null (parse errors?); unable to compile.");
         	return;
