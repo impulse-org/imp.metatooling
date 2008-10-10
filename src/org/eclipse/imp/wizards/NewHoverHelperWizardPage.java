@@ -342,9 +342,9 @@ public class NewHoverHelperWizardPage extends ExtensionPointWizardPage
     {
     	String languageName = fLanguageText.getText();
     	if (languageName == null || languageName.length() == 0) {
-    		return "imp.documentationProvider.HelperReferenceResolver";
+    		return "imp.hoverHelper.HelperReferenceResolver";
     	}
-    	return languageName + ".imp.documentationProvider.HelperReferenceResolver";
+    	return languageName + ".imp.hoverHelper.HelperReferenceResolver";
     }
     
     
