@@ -50,7 +50,7 @@ public class ExtensionPointUtils {
      * @param extName		The name of the extension sought; actually,
      * 						an extension point id
      * @param pluginModel	The model of the plug-in in which the extension is sought
-     * @return				An exstension from the given plug-in model that extends
+     * @return				An extension from the given plug-in model that extends
      * 						the extension point identified by the given name
      */
 
@@ -76,7 +76,7 @@ public class ExtensionPointUtils {
      * @param extName		The name of the extensions sought; actually,
      * 						an extension point id
      * @param pluginModel	The model of the plug-in in which the extensions are sought
-     * @return				An array of exstensions from the given plug-in model that
+     * @return				An array of extensions from the given plug-in model that
      * 						extend the extension point identified by the given name
      */
 
@@ -165,12 +165,12 @@ public class ExtensionPointUtils {
      * default case in the NewParser wizard.
      * 
      * TODO:  Provide a means for (more) persistently maintaining the names
-     * of hte AST package and class in such a way that they can become part
+     * of the AST package and class in such a way that they can become part
      * of the "standard substitutions."  (ALTERNATIVELY:  the class could just
      * be obtained in wizards where needed, in which case it need not be part
      * of the standard substitutions.)
      * 
-     * @return	A Map that contains two valuse:  the name of the package that
+     * @return	A Map that contains two values:  the name of the package that
      * 			contains the AST class, and the name of the AST class.
      * 			These values keyed, respectively, by the symbols "$AST_PACKAGE$"
      * 			and "$AST_NODE$".
@@ -200,6 +200,8 @@ public class ExtensionPointUtils {
     		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  ClassCastExeption loading extensions model; may not succeed");
     	}
     	
+        // RMF 10/14/2008 - If this isn't a plugin project, return now rather than causing an NPE
+        if (pluginModel == null) return result;
         
         IExtensions extensionsThing = pluginModel.getExtensions();
         IPluginExtension[] extensions = extensionsThing.getExtensions();
@@ -247,5 +249,4 @@ public class ExtensionPointUtils {
         
         return result;
     }
-    
 }
