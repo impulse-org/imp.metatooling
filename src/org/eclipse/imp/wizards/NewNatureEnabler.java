@@ -219,6 +219,7 @@ public class NewNatureEnabler extends GeneratedComponentWizard implements INewWi
 		// TODO Should try to find the builder package by looking at the builder extension
 		// SMS 27 Nov 2007 added toLowerCase() re:  bug #296
 		fBuilderPkgName= fLangName.toLowerCase() + ".imp.builders";
+		fTemplateName = fEnablerPage.fTemplateText.getText();
     }
 
     /**
