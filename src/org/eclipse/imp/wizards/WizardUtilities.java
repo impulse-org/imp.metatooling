@@ -28,6 +28,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -158,7 +159,7 @@ public class WizardUtilities {
      */
 	public static IFile createFileFromTemplate(
 		String fileName, String templateName, String folder, String projectSourceLocation,
-		Map replacements, IProject project, IProgressMonitor monitor)
+		Map<String,String> replacements, IProject project, IProgressMonitor monitor)
 	throws CoreException
 	{
 		monitor.setTaskName("ExtensionPointWizard.createFileFromTemplate:  Creating " + fileName);
@@ -200,7 +201,7 @@ public class WizardUtilities {
      */
 	public static String createFileContentsFromTemplate(
 			String templateName,
-			Map replacements,
+			Map<String,String> replacements,
 			IProgressMonitor monitor)
 	{
 		monitor.setTaskName("ExtensionPointWizard.createFileContentsFromTemplate:  template = " + templateName);
@@ -239,7 +240,7 @@ public class WizardUtilities {
      */
 	public static IFile createFileFromTemplate(
 			String fileName, String templateBundleId, String templateName, String folder, String projectSourceLocation,
-			Map replacements, IProject project, IProgressMonitor monitor)
+			Map<String,String> replacements, IProject project, IProgressMonitor monitor)
 		throws CoreException
 	{
 		monitor.setTaskName("createFileFromTemplate:  Creating " + fileName);
@@ -285,7 +286,7 @@ public class WizardUtilities {
      * 					 done yet, but which might reasonably be introduced)
      */
     protected static IFile extendFileFromTemplate(
-    	String fileName, String templateName, String folder, String projectSourceLocation, Map replacements,
+    	String fileName, String templateName, String folder, String projectSourceLocation, Map<String,String> replacements,
 	    IProject project, IProgressMonitor monitor)
     throws CoreException	
 	{
@@ -463,27 +464,24 @@ public class WizardUtilities {
     }
     
     
-    public static byte[] getTemplateFileContents(String fileName)
+    public static byte[] getTemplateFileContents(String filePath)
     {
     	try {
-    		// SMS 29 Jul 2008:  This is a big hack until we sort out
-    		// how we want to handle paths for templates, given that
-    		// the templates may be in non-standard locations and the
-    		// given file names may be absolute or relative
-    		String path = null;
-    		if (fileName.indexOf(':') == -1) {
+    		String path= null;
+
+    		if (!new File(filePath).exists()) {
     			// Assume that the given filename is relative to the
     			// standard templates directory
         	    Bundle bundle= Platform.getBundle(getTemplateBundleID());
-        	    URL templateURL= Platform.find(bundle, new Path("/templates/" + fileName));
+        	    URL templateURL= FileLocator.find(bundle, new Path("/templates/" + filePath), null);
                     if (templateURL == null) {
-                        ErrorHandler.reportError("Unable to find template file: " + fileName, true);
+                        ErrorHandler.reportError("Unable to find template file: " + filePath, true);
                         return new byte[0];
                     }
-                    URL url= Platform.asLocalURL(templateURL);
+                    URL url= FileLocator.toFileURL(templateURL);
         	    path= url.getPath();
     		} else {
-    			path = fileName;
+    			path = filePath;
     		}
     		
 
@@ -497,37 +495,34 @@ public class WizardUtilities {
     	    return bytes;
     	} catch (Exception e) {
     	    e.printStackTrace();
-    	    return ("// missing template file: " + fileName).getBytes();
+    	    return ("// missing template file: " + filePath).getBytes();
     	}
     }
 
     
-    
+    /**
+     * @return the path to the standard IMP template folder, in platform-specific format
+     */
     public static String getStandardTemplateFolderLocation()
     {
     	try {
+    	    // Initially, perform path computations in platform-independent format
     	    Bundle bundle= Platform.getBundle(getTemplateBundleID());
-    	    URL templateURL= Platform.find(bundle, new Path("/templates/"));
-                if (templateURL == null) {
-                    ErrorHandler.reportError("Unable to find template folder", true);
-                    return null;
-                }
-                URL url= Platform.asLocalURL(templateURL);
-    	    String path= url.getPath();
-    	    
-    	    if (path.startsWith("/"))
-    	    	path = path.substring(1);
-    	    path = path.replace('/', '\\');
-    	    
-    	    return path;
+    	    URL templateURL= FileLocator.find(bundle, new Path("/templates/"), null);
+    	    if (templateURL == null) {
+    	        ErrorHandler.reportError("Unable to find template folder", true);
+    	        return null;
+    	    }
+    	    URL url= FileLocator.toFileURL(templateURL);
+    	    IPath path= new Path(url.getPath());
+
+    	    return path.toOSString(); // Now, turn the path into platform-specific format
     	} catch (Exception e) {
     	    e.printStackTrace();
     	    ErrorHandler.reportError("Exception finding template folder", true);
     	    return null;
     	}
     }
-    
-    
     
     public static String getStandardTemplateFileName(IMPWizard wizard, String componentID) {
     	if (wizard instanceof NewTokenColorer) {
@@ -605,7 +600,7 @@ public class WizardUtilities {
     public static byte[] getTemplateFileContents(String templateBundleId, String fileName) {
     	try {
     	    Bundle bundle= Platform.getBundle(templateBundleId);
-    	    URL templateURL= Platform.find(bundle, new Path("/templates/" + fileName));
+    	    URL templateURL= FileLocator.find(bundle, new Path("/templates/" + fileName), null);
     	    
     	    
 //            if (templateURL == null) {
@@ -616,7 +611,7 @@ public class WizardUtilities {
     	    URL url = null;
     	    String path = null;
     	    if (templateURL != null) {
-	            url= Platform.asLocalURL(templateURL);
+	            url= FileLocator.toFileURL(templateURL);
 	    	    path= url.getPath();
     	    } else {
     	    	// SMS 8 Aug 2008:  This is kind of a hack until the handling
@@ -645,10 +640,10 @@ public class WizardUtilities {
     	    sb.replace(index, index + target.length(), substitute);
     }
 
-    public static String performSubstitutions(String contents, Map replacements) {
+    public static String performSubstitutions(String contents, Map<String,String> replacements) {
 		StringBuffer buffer= new StringBuffer(contents);
 		
-		for(Iterator iter= replacements.keySet().iterator(); iter.hasNext();) {
+		for(Iterator<String> iter= replacements.keySet().iterator(); iter.hasNext();) {
 		    String key= (String) iter.next();
 		    String value= (String) replacements.get(key);
 		
