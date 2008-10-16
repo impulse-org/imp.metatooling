@@ -865,11 +865,11 @@ public class IMPWizardPage extends WizardPage {
 		// Get the default template path
 		String templatePath = WizardUtilities.getStandardTemplateFolderLocation();
 		if (templatePath != null) {
-			if (templatePath.indexOf("/") > -1 && !templatePath.endsWith("/"))
-				templatePath = templatePath + "/";
-			else if (templatePath.indexOf("\\") > -1 && !templatePath.endsWith("\\"))
-				templatePath = templatePath + "\\";
+			if (!templatePath.endsWith(File.separator))
+				templatePath = templatePath + File.separator;
+
 			String templateName = WizardUtilities.getStandardTemplateFileName(fOwningWizard, componentID);
+
 			if (templateName != null) {
 				templatePath = templatePath + templateName;
 			}
