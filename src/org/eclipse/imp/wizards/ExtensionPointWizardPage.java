@@ -297,7 +297,7 @@ public class ExtensionPointWizardPage extends IMPWizardPage //	 WizardPage
 	        	
                 // SMS 28 Jul 2008
 	        	// Note:  this isn't very convenient for wizards
-	        	// that may nave more than one template
+	        	// that may have more than one template
                 fFirstTemplateField = createTemplateBrowseField(container, fComponentID);
 	        	
 	        	// To create any remaining wizard-specific controls in addition to
