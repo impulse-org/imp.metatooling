@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.extensionsmodel.ImpWorkspaceExtensionsModel;
 import org.eclipse.pde.core.plugin.IPluginElement;
@@ -40,13 +41,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 public class NewEditorAnnotationCreator extends GeneratedComponentWizard {
-    // Need a variant of CodeServiceWizard that doesn't actually create an extension, just generates code...
-	// SMS 27 Jul 2006:  This is it ...
 	
     protected static final String thisWizardName = "New Editor Annotation-Creator Wizard";
     protected static final String thisWizardDescription = "Wizard for creating an annotation creator for use by the editor";
     
     protected static final String componentID = "editorAnnotationCreator";
+    protected String fServiceExtensionId = null;
+    protected String fServiceExtensionName = null;
     
     protected String fProblemMarkerID = null;
     protected String fMarkerIDFieldName = "Problem\nmarker id";
@@ -61,7 +62,7 @@ public class NewEditorAnnotationCreator extends GeneratedComponentWizard {
     // TODO:  Revisit the dependencies
     protected List getPluginDependencies() {
         return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
-                "org.eclipse.imp.runtime" });
+                "org.eclipse.imp.runtime", "org.eclipse.ui.editors", "org.eclipse.ui.workbench.texteditor" });
     }
     
     
@@ -69,6 +70,9 @@ public class NewEditorAnnotationCreator extends GeneratedComponentWizard {
     	super.collectCodeParms();
     	
     	fProblemMarkerID = pages[0].getField(fMarkerIDFieldName).getText();
+    	
+    	fServiceExtensionId = pages[0].getField("language").getText() + "EditorAnnotationCreator";
+    	fServiceExtensionName = pages[0].getField("language").getText() + " Editor Annotation Creator";    	
     }
     
 
@@ -78,89 +82,28 @@ public class NewEditorAnnotationCreator extends GeneratedComponentWizard {
 
         subs.remove("$EDITOR_ANOTATION_CREATOR_CLASS_NAME$");
         subs.put("$EDITOR_ANOTATION_CREATOR_CLASS_NAME$", fFullClassName);
-
-//        subs.remove("$ParseControllerClassName$");
-//        String parseControllerClassName = getParseControllerClassName(fProject);
-//        subs.put("$ParseControllerClassName$", parseControllerClassName);
         
         subs.remove("$PROBLEM_MARKER_ID$");
         subs.put("$PROBLEM_MARKER_ID$", fProblemMarkerID);
 
+
+        
+        
         IFile compilerSrc= createFileFromTemplate(fFullClassName + ".java", fTemplateName, fPackageFolder, subs, fProject, mon);
 
+		ExtensionPointEnabler.enable(
+				fProject, "org.eclipse.imp.runtime", "editorAnnotationCreator",
+				new String[][] {
+						{ "extension:id", fServiceExtensionId },
+			            { "extension:name", fServiceExtensionName},
+			            { "editorAnnotationCreator:class", fPackageName + "." + fFullClassName },
+			            { "editorAnnotationCreator:language", fLanguageName} },
+			    false, getPluginDependencies(), new NullProgressMonitor());
+        
         editFile(mon, compilerSrc);
     }
  
 
-    // SMS 25 Sep 2007
-    // Now provided in GeneratedComponentWizard; this override is left here
-    // for purposes of testing
-//    public GeneratedComponentAttribute[] setupAttributes()
-//    {
-//    	// Warning:  Returning an array with empty elements may cause problems,
-//    	// so be sure to only allocate as many elements as there are actual	attributes
-//    	GeneratedComponentAttribute[] attributes = new GeneratedComponentAttribute[0];
-//    	
-//    	return attributes;
-//    }
-//    
-    
-//    public String getParseControllerClassName(IProject project)
-//    {
-//    	IPluginModelBase pluginModelBase = pages[0].getPluginModel();
-//
-//        // Get the extension that represents the parser
-//        IPluginExtension parserExtension= ExtensionPointUtils.findExtensionByName("org.eclipse.imp.runtime.parser", pluginModelBase);
-//
-//        if (parserExtension == null) return null;
-//
-//        // Get the plugin element that represents the class of the parser
-//        PluginElement parserPluginElement = ExtensionPointUtils.findElementByName(pluginModelBase, project, "parser", parserExtension);
-//        if (parserPluginElement == null) {
-//            parserPluginElement = ExtensionPointUtils.findElementByName(pluginModelBase, project, "parserWrapper", parserExtension);
-//        }
-//
-//        if (parserPluginElement == null) return null;
-// 
-//        // Get the name of the parser package
-//        String parserName = parserPluginElement.getAttribute("class").getValue();
-//        String parserPackageName = parserName.substring(0, parserName.lastIndexOf('.'));
-//
-//        // The ParseController class should be in that package, so look for it there
-//
-//        // Get the package (fragment) that contains the parser
-//    	IPackageFragment parserPackage = ExtensionPointUtils.findPackageByName(project, parserPackageName);
-//
-//    	if (parserPackage == null) return null;
-//
-//        // Check the classes in the parser package for one that represents an IParseController
-//        // (assume there's just one)
-//        try {
-//            ICompilationUnit[] compilationUnits = parserPackage.getCompilationUnits();
-//            for (int i = 0; i < compilationUnits.length; i++) {
-//            	ICompilationUnit unit = compilationUnits[i];
-//            	// Get the type(s) declared by this compilation unit
-//            	IType[] unitTypes = unit.getTypes();
-//            	for (int j = 0; j < unitTypes.length; j++) {
-//            		IType type = unitTypes[j];
-//            		String[] superInterfaceNames = type.getSuperInterfaceNames();
-//            		for (int k = 0; k < superInterfaceNames.length; k++) {
-//            			if (superInterfaceNames[k].contains("IParseController")) {
-//            				// Found it :-)
-//            				return type.getElementName();
-//            			}
-//            		}
-//            	}
-//            }
-//        } catch (JavaModelException e) {
-//        	System.err.println("NewCompiler.getParseControllerClassName(IProject):  JavaModelException checking for IParseController:  " +
-//        			"\n\t" + e.getMessage() +
-//        			"\n\tReturning null");
-//        }
-//        
-//        // Didn't find it :-(
-//        return null;
-//    }
     
     public String getProblemMarkerID(IProject project)
     {
