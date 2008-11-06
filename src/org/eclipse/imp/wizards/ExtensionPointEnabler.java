@@ -758,8 +758,8 @@ public class ExtensionPointEnabler {
     	int nextBundleStart = -1;
     	if (requireBundleStart > -1) {
     		// manifest file has a require bundle
-	    	requireBundleSemicolon = manifestContents.indexOf(":", requireBundleStart);
-	    	nextBundleSemicolon = manifestContents.indexOf(":", requireBundleSemicolon+1);
+	    	requireBundleSemicolon = manifestContents.indexOf(": ", requireBundleStart);
+	    	nextBundleSemicolon = manifestContents.indexOf(": ", requireBundleSemicolon+1);
 	    	if (nextBundleSemicolon > -1) {
 	    		// there is a bundle following the require bundle
 	    		// (this part especially is fragile (assumes semicolon immediately follows bundle name))
