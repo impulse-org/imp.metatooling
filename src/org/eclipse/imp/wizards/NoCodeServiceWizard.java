@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
+* Copyright (c) 2008 IBM Corporation.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -10,21 +10,14 @@
 
 *******************************************************************************/
 
-/**
- * 
- */
 package org.eclipse.imp.wizards;
+
 
 import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-// SMS 7 Aug 2008
-// This class has a very minor role to play, mainly providing a little
-// computational efficiency and helping to categorized a subset of
-// our wizards.  Is it worth keeping for that reason?  (Do we imagine
-// any other purpose it might serve?)
 
 public abstract class NoCodeServiceWizard extends ExtensionPointWizard {
     public void generateCodeStubs(IProgressMonitor m) {}
