@@ -28,7 +28,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -38,6 +37,7 @@ import org.eclipse.imp.extensionsmodel.ImpWorkspaceExtensionsModel;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.pde.core.IEditableModel;
+import org.eclipse.pde.core.IIdentifiable;
 import org.eclipse.pde.core.plugin.IExtensions;
 import org.eclipse.pde.core.plugin.IPluginAttribute;
 import org.eclipse.pde.core.plugin.IPluginBase;
@@ -45,7 +45,6 @@ import org.eclipse.pde.core.plugin.IPluginElement;
 import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
-import org.eclipse.pde.core.plugin.IPluginModelFactory;
 import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.core.plugin.IPluginParent;
 import org.eclipse.pde.core.plugin.ISharedExtensionsModel;
@@ -275,7 +274,7 @@ public class ExtensionPointEnabler {
    
     public static void enable(
     		IProject project, String pluginID, String pointID, String[][] attrNamesValues, boolean replace, 
-    		List imports, IProgressMonitor monitor)
+    		List<String> imports, IProgressMonitor monitor)
     {
 		try {
 		    IPluginModel pluginModel= getPluginModelForProject(project);
@@ -296,7 +295,9 @@ public class ExtensionPointEnabler {
 		    		break;
 		    	}
 		    }
-		    cleanPreviousExtensions(project, pluginID, pointID, extensionID, monitor);
+		    if (replace) {
+		        cleanPreviousExtensions(project, pluginID, pointID, extensionID, monitor);
+		    }
 		    
 		    if (pluginModel != null) {
 	//	    	if (replace) {
@@ -454,7 +455,7 @@ public class ExtensionPointEnabler {
     	//     extensions.  There seems to be no way in the current implementation of
     	//     org.eclipse.pde.core to access the details of the model
     	// 2.  Repeated cycles of saving the model followed by shallow reading of the
-    	//     model lead to the destricution of previous extensions (or of their details).
+    	//     model lead to the destruction of previous extensions (or of their details).
     	//     When we add a new extension to the model and save the model, that extension
     	//     gets saved in detail, along with the rest of the extensions model, with
     	//     whatever detail it happens to have.  But then a listener reloads the model
@@ -465,7 +466,7 @@ public class ExtensionPointEnabler {
     	//     lack details.
     	//     
     	// How can we end the cycle of destruction?
-    	// 1.  Use our own subtype of the exstensions model in which we load the extensions
+    	// 1.  Use our own subtype of the extensions model in which we load the extensions
     	//     model in detail.
     	// 2.  Always create a new extensions model (of our own subtype) whenever we want to
     	//     add a new extension, not just when the model does not already exist.
@@ -477,7 +478,7 @@ public class ExtensionPointEnabler {
 
     	loadImpExtensionsModel(pluginModel, page.getProjectOfRecord());
         
-        // Create the exstension, fill it out, and add it to the model if necessary
+        // Create the extension, fill it out, and add it to the model if necessary
         IPluginExtension extension= pluginModel.getPluginFactory().createExtension();
         if (extension == null) {
         	ErrorHandler.reportError("Unable to create extension " + page.fExtPointID + " in plugin " + pluginModel.getBundleDescription().getName(), true);
@@ -512,7 +513,7 @@ public class ExtensionPointEnabler {
     static void removeExtension(IPluginModel pluginModel, ExtensionPointWizardPage page)
     	throws CoreException, IOException
     {      
-    	IPluginModelFactory pmFactory = pluginModel.getPluginFactory();
+//    	IPluginModelFactory pmFactory = pluginModel.getPluginFactory();
     	IExtensions pmExtensions = pluginModel.getExtensions();
     	IPluginExtension[] pluginExtensions = pmExtensions.getExtensions();
     	for (int i = 0; i < pluginExtensions.length; i++) {
@@ -550,7 +551,7 @@ public class ExtensionPointEnabler {
      * @throws IOException		If there's a problem working with the plugin file
      */
     public static void addExtension(
-    	IProject project, IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues, List imports)
+    	IProject project, IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues, List<String> imports)
     throws CoreException, IOException
     {
 
@@ -627,13 +628,13 @@ public class ExtensionPointEnabler {
     	IPluginModel pluginModel, ExtensionPointWizardPage page, IPluginExtension extension)
     	throws CoreException
     {
-		List fields= page.getFields();
-		Map/*<String qualElemName, PluginElement>*/ elementMap= new HashMap(); // so we can find nested/parent elements after they've been created, somewhat regardless of the field ordering
+		List<WizardPageField> fields= page.getFields();
+		Map<String /*qualElemName*/, IIdentifiable> elementMap= new HashMap<String,IIdentifiable>(); // so we can find nested/parent elements after they've been created, somewhat regardless of the field ordering
 	
 		elementMap.put("extension", extension); // Let nested elements find the extension object itself by name
 
 		for(int n= 0; n < fields.size(); n++) {
-		    WizardPageField field= (WizardPageField) fields.get(n);
+		    WizardPageField field= fields.get(n);
 		    
             String schemaElementName= field.fSchemaElementName;
             String attributeName= field.fAttributeName;
@@ -652,7 +653,7 @@ public class ExtensionPointEnabler {
     }
 
     	
-    private static void setElementAttribute(String schemaElementName, String attributeName, String attributeValue, IPluginExtension extension, Map elementMap, IPluginModel pluginModel) throws CoreException {
+    private static void setElementAttribute(String schemaElementName, String attributeName, String attributeValue, IPluginExtension extension, Map<String,IIdentifiable> elementMap, IPluginModel pluginModel) throws CoreException {
 	
     	if (schemaElementName.equals("extension")) {
             // Handle the top-level element (the extension that was passed in)
@@ -715,7 +716,7 @@ public class ExtensionPointEnabler {
     public static void setElementAttributes(
     	IPluginModel pluginModel, IPluginExtension extension, String[][] attrNamesValues) throws CoreException
     {
-        Map/*<String qualElemName, PluginElement>*/ elementMap= new HashMap(); // so we can find nested/parent elements after they've been created, somewhat regardless of the field ordering
+        Map<String /*qualElemName*/,IIdentifiable> elementMap= new HashMap<String,IIdentifiable>(); // so we can find nested/parent elements after they've been created, somewhat regardless of the field ordering
 
         elementMap.put("extension", extension); // Let nested elements find the extension object itself by name
 
@@ -732,7 +733,7 @@ public class ExtensionPointEnabler {
     }
 
     public static void addRequiredPluginImports(
-    	IPluginModel pluginModel, IProject project, List/*<String>*/ requires)
+    	IPluginModel pluginModel, IProject project, List<String> requires)
     	throws CoreException
    	{
     	if (!project.exists()) {
@@ -750,7 +751,7 @@ public class ExtensionPointEnabler {
 		    return;
     	}
     	
-    	List importsList = new ArrayList();	
+    	List<String> importsList = new ArrayList<String>();	
     	int requireBundleStart = manifestContents.indexOf("Require-Bundle");
     	int requireBundleSemicolon = -1;
     	int nextBundleSemicolon = -1;
