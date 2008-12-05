@@ -14,9 +14,9 @@ import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
  * for naming the language plugin class and the preference-tab classes.
  * 	
  */
-public class $PREFS_CLASS_NAME$ extends TabbedPreferencesPage {
+public class $PREFS_CLASS_NAME$PreferencePage extends TabbedPreferencesPage {
 	
-	public $PREFS_CLASS_NAME$() {
+	public $PREFS_CLASS_NAME$PreferencePage() {
 		super();
 		// Get the language-specific preferences service
 		// SMS 28 Mar 2007:  parameterized full name of plugin class
@@ -50,8 +50,7 @@ public class $PREFS_CLASS_NAME$ extends TabbedPreferencesPage {
 	
 	
 	public PreferencesInitializer getPreferenceInitializer() {
-		return new $PREFS_CLASS_NAME$Initializer();
+		return new $PREFS_INIT_CLASS_NAME$();
 	}
-	
 
 }
