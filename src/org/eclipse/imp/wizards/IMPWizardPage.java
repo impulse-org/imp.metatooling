@@ -25,7 +25,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.core.ErrorHandler;
-import org.eclipse.imp.parser.IModelListener;
 import org.eclipse.imp.ui.dialogs.ListSelectionDialog;
 import org.eclipse.imp.ui.dialogs.filters.ViewerFilterForIDEProjects;
 import org.eclipse.imp.ui.dialogs.providers.ContentProviderForAllProjects;
@@ -139,7 +138,7 @@ public class IMPWizardPage extends WizardPage {
 
     protected String fPackageName;
 
-    protected List fRequiredPlugins= new ArrayList();
+    protected List<String> fRequiredPlugins= new ArrayList<String>();
 
     protected boolean fDone= true;
 
@@ -148,7 +147,7 @@ public class IMPWizardPage extends WizardPage {
     protected static String sProjectName= "";
     
     // SMS 23 Nov 2007
-    protected List<ISelectionValidator> projectValidators = new ArrayList();
+    protected List<ISelectionValidator> projectValidators = new ArrayList<ISelectionValidator>();
     
     
     
@@ -172,11 +171,11 @@ public class IMPWizardPage extends WizardPage {
     }
     
     
-    public List getFields() {
+    public List<WizardPageField> getFields() {
         return fFields;
     }
     
-	public List getRequires() {
+	public List<String> getRequires() {
 		return fRequiredPlugins;
 	}
 	
@@ -394,7 +393,7 @@ public class IMPWizardPage extends WizardPage {
      * @param validator A selection validator (may be null)
      */
     public void setSelectionValidatorForProjects(ISelectionValidator validator) {
-    	projectValidators = new ArrayList();
+    	projectValidators = new ArrayList<ISelectionValidator>();
     	if (validator != null)
     		projectValidators.add(validator);
     }
@@ -410,7 +409,7 @@ public class IMPWizardPage extends WizardPage {
      */
     public void addSelectionValdatorForProjects(ISelectionValidator validator) {
     	if (projectValidators == null) {
-    		projectValidators = new ArrayList();
+    		projectValidators = new ArrayList<ISelectionValidator>();
     	}
     	projectValidators.add(validator);
     }
@@ -1407,7 +1406,7 @@ public class IMPWizardPage extends WizardPage {
 		                    		String entry = null;
 		                    		String className = null;
 		                    		// Get candidate class names
-		                    		List<String> candidateNames = new ArrayList();
+		                    		List<String> candidateNames = new ArrayList<String>();
 		                    		while (entries.hasMoreElements()) {
 			                    		entry = (String) entries.nextElement();
 			                    		int lastIndexOfSlash = entry.lastIndexOf("/");
