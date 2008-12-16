@@ -142,7 +142,8 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
             if (node != null &&
                 (node.getParent() instanceof Iexpression ||
                  node.getParent() instanceof assignmentStmt ||
-                 node.getParent() instanceof BadAssignment)) {
+                 node.getParent() instanceof BadAssignment)
+                 node.getParent() instanceof returnStmt) {
             	HashMap symbols = getVisibleVariables(($CLASS_NAME_PREFIX$Parser) ((SimpleLPGParseController)controller).getParser(), node);
             	ArrayList vars = filterSymbols(symbols, prefix);
                 for (int i = 0; i < vars.size(); i++) {
