@@ -188,25 +188,46 @@ public class WizardUtilities {
 	
 	
     /**
-     * Returns a String consisting of the contents of a named template file
-     * subsitited with meta-variable values provided by a given map.
+     * Returns a String consisting of the contents of a named template file from the IMP
+     * metatooling plugin substituted with meta-variable values provided by a given map.
      * 
-     * @param templateName	Short (unqualified) name of the template file to be used
-     * 						in creating the String
+     * @param templateName  Short (unqualified) name of the template file to be used
+     *                      in creating the String
      * @param replacements  A Map of meta-variable substitutions to apply to the template
-     * @param monitor		A monitor
-     * @return 				A String consisting of the template contents with meta-variables
-     * 						substituted from the replacements
+     * @param monitor       A monitor
+     * @return              A String consisting of the template contents with meta-variables
+     *                      substituted from the replacements
+     * @throws CoreException
+     */
+    public static String createFileContentsFromTemplate(
+            String templateName,
+            Map<String,String> replacements,
+            IProgressMonitor monitor) {
+        return createFileContentsFromTemplate(templateName, getTemplateBundleID(), replacements, monitor);
+    }
+
+    /**
+     * Returns a String consisting of the contents of a named template file in the
+     * given plugin substituted with meta-variable values provided by a given map.
+     * 
+     * @param templateName  Short (unqualified) name of the template file to be used
+     *                      in creating the String
+     * @param pluginID      The ID of the plugin containing the template
+     * @param replacements  A Map of meta-variable substitutions to apply to the template
+     * @param monitor       A monitor
+     * @return              A String consisting of the template contents with meta-variables
+     *                      substituted from the replacements
      * @throws CoreException
      */
 	public static String createFileContentsFromTemplate(
 			String templateName,
+			String bundleID,
 			Map<String,String> replacements,
 			IProgressMonitor monitor)
 	{
-		monitor.setTaskName("ExtensionPointWizard.createFileContentsFromTemplate:  template = " + templateName);
+		monitor.setTaskName("WizardUtilities.createFileContentsFromTemplate: template = " + templateName);
 
-		String templateContents= new String(getTemplateFileContents(templateName));
+		String templateContents= new String(getTemplateFileContents(bundleID, templateName));
 		String contents= performSubstitutions(templateContents, replacements);
 	
 	//	monitor.worked(1);
