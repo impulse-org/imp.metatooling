@@ -1186,7 +1186,7 @@ public class IMPWizardPage extends WizardPage {
 	
 	protected Text createLabelTextFileBrowse(Composite container, WizardPageField field) {
 	    Widget labelWidget= null;
-	    String name= field.fAttributeName;
+	    String name= field.fAttributeName; // TODO - Why not use the "label" field of "field"?
 	    String description= field.fDescription;
 	    String value= field.fValue;
 	// BUG Prevents clicking "Finish" if an element is optional but one of its attributes isn't
