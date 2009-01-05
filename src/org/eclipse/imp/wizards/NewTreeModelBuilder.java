@@ -69,6 +69,7 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
     
     
     protected void collectCodeParms() {
+        // TODO call super.collectCodeParms() and just add to/overwrite what it set up
     	fProject = pages[0].getProjectOfRecord();
     	fProjectName = pages[0].fProjectText.getText();
         fLanguageName= pages[0].fLanguageText.getText();
@@ -121,26 +122,14 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
         subs.put("$PARSER_PKG$", fParserPackage);
         subs.put("$AST_PKG$", fParserPackage + "." + Wizards.astDirectory);
         subs.put("$AST_NODE$", Wizards.astNode);
-        
-        subs.remove("$TREE_MODEL_BUILDER_CLASS_NAME$");
         subs.put("$TREE_MODEL_BUILDER_CLASS_NAME$", fFullBuilderClassName);
-        
-        subs.remove("$LABEL_PROVIDER_CLASS_NAME$");
         subs.put("$LABEL_PROVIDER_CLASS_NAME$", fFullProviderClassName);
-        
-        subs.remove("$PACKAGE_NAME$");
         subs.put("$PACKAGE_NAME$", fPackageName);
-        
-        subs.remove("$CLASS_NAME_PREFIX_UPPER$");
         subs.put("$CLASS_NAME_PREFIX_UPPER$", fClassNamePrefix.toUpperCase());
-        
-        subs.remove("$CLASS_NAME_PREFIX_LOWER$");
         subs.put("$CLASS_NAME_PREFIX_LOWER$", fClassNamePrefix.toLowerCase());
-
-        subs.remove("$RESOURCES_CLASS$");
         subs.put("$RESOURCES_CLASS$", "I" + fClassNamePrefix + "Resources");
-        
-        
+
+
         // Generate the tree-model-builder implementation, if requested
         if (thePage.fGenerateTreeModelBuilder) {
 //	        String treeModelBuilderTemplateName = "treeModelBuilder.java";
@@ -161,9 +150,9 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
         
         // Get some names related to the plug-in activator class for use
         // in the next steps
-        String pluginPackageName = (String) subs.get("$PLUGIN_PACKAGE$");
+        String pluginPackageName = subs.get("$PLUGIN_PACKAGE$");
         String pluginFolderName = pluginPackageName.replace('.', '/');
-        String pluginClassName = (String) subs.get("$PLUGIN_CLASS$");
+        String pluginClassName = subs.get("$PLUGIN_CLASS$");
         if (!pluginClassName.endsWith(".java"))
         	pluginClassName = pluginClassName + ".java";
         
