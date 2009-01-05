@@ -410,11 +410,8 @@ public abstract class IMPWizard extends Wizard {
     
     public Map<String,String> getStandardSubstitutions(IProject project) {
     	Map<String, String> result = getStandardSubstitutions();
-    	result.remove("$PLUGIN_PACKAGE$");
         result.put("$PLUGIN_PACKAGE$", getPluginPackageName(project, null));
-    	result.remove("$PLUGIN_CLASS$");
         result.put("$PLUGIN_CLASS$", getPluginClassName(project, null));
-        result.remove("$PLUGIN_ID$");
         result.put("$PLUGIN_ID$", getPluginID(project, null));
         return result;
     }
