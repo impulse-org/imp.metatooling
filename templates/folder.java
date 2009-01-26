@@ -15,9 +15,6 @@ import lpg.runtime.*;
  * is parameterized with respect to the name of the language, the package containing
  * the language-specific types for AST nodes and AbstractVisitors, and the name of
  * the folder package and class.
- * 
- * @author suttons@us.ibm.com
- *
  */
 public class $FOLDER_CLASS_NAME$ extends FolderBase {
     IPrsStream prsStream;
