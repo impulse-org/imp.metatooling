@@ -129,7 +129,7 @@ public class $HOVER_HELPER_CLASS_NAME$ extends HoverHelperBase implements IHover
 
     public static String getSubstring(IParseController parseController, int start, int end) {
         return new String(
-        		((SimpleLPGParseController)parseController).getLexer().getLexStream().getInputChars(), start, end-start+1);
+        		((SimpleLPGParseController) parseController).getParser().getParseStream().getInputChars(), start, end-start+1);
     }
 
     public static String getSubstring(IParseController parseController, IToken token) {
