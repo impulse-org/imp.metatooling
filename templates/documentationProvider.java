@@ -8,8 +8,7 @@ import org.eclipse.imp.services.IDocumentationProvider;
 
 import $PARSER_PKG$.Ast.*;
 
-import $PARSER_PKG$.$LEXER_CLASS_NAME$;
-
+import $PARSER_PKG$.$CLASS_NAME_PREFIX$Parsersym;
 
 public class $DOCUMENTATION_PROVIDER_CLASS_NAME$ implements IDocumentationProvider, ILanguageService {
 
@@ -39,9 +38,9 @@ public class $DOCUMENTATION_PROVIDER_CLASS_NAME$ implements IDocumentationProvid
         	
         	switch (tokenKind) {
 
-        	case $LEXER_CLASS_NAME$.TK_IDENTIFIER:
+        	case $CLASS_NAME_PREFIX$Parsersym.TK_IDENTIFIER:
         		return "This is an identifier";
-        	case $LEXER_CLASS_NAME$.TK_NUMBER:
+        	case $CLASS_NAME_PREFIX$Parsersym.TK_NUMBER:
         		return "This is a number";
         			
         	default:
@@ -62,6 +61,6 @@ public class $DOCUMENTATION_PROVIDER_CLASS_NAME$ implements IDocumentationProvid
     
     
     public static String getSubstring(IParseController parseController, int start, int end) {
-        return new String(((SimpleLPGParseController) parseController).getLexer().getLexStream().getInputChars(), start, end-start+1);
+        return new String(((SimpleLPGParseController) parseController).getParser().getParseStream().getInputChars(), start, end-start+1);
     }
 }
