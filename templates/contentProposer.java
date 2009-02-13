@@ -98,7 +98,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
         int index = stream.getTokenIndexAtCharacter(offset),
             token_index = (index < 0 ? -(index - 1) : index),
             previous_index = stream.getPrevious(token_index);
-        return stream.getIToken(((stream.getKind(previous_index) == $CLASS_NAME_PREFIX$Lexer.TK_IDENTIFIER ||
+        return stream.getIToken(((stream.getKind(previous_index) == $CLASS_NAME_PREFIX$Parsersym.TK_IDENTIFIER ||
                                   (($CLASS_NAME_PREFIX$ParseController) controller).isKeyword(stream.getKind(previous_index))) &&
                                  offset == stream.getEndOffset(previous_index) + 1)
                                          ? previous_index
@@ -106,7 +106,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
     }
 
     private String getPrefix(IToken token, int offset) {
-        if (token.getKind() == $CLASS_NAME_PREFIX$Lexer.TK_IDENTIFIER)
+        if (token.getKind() == $CLASS_NAME_PREFIX$Parsersym.TK_IDENTIFIER)
             if (offset >= token.getStartOffset() && offset <= token.getEndOffset() + 1)
                 return token.toString().substring(0, offset - token.getStartOffset());
         return "";
