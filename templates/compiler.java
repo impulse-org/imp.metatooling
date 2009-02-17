@@ -191,7 +191,7 @@ public class $COMPILER_CLASS_NAME$ {
         public void endVisit(returnStmt n) {
         	String retVal= (String) fTranslationStack.pop();
         	fTranslationStack.push(
-        			"\t\tSystem.out.println(\"returning \" + " + retVal + ");\n" +
+        			"\t\tSystem.out.println(\"returning \" + (" + retVal + "));\n" +
         			"//#line " + n.getRightIToken().getEndLine() + "\n\t\treturn " + retVal + ";\n");
         }
         public void endVisit(term1 n) {
