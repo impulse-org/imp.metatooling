@@ -216,25 +216,6 @@
    </extension>
    
    <extension
-         point="org.eclipse.imp.runtime.languageDescription">
-      <language
-            description="IMP Presentation Specification"
-            extensions="spec"
-            language="spec"/>
-   </extension>
-   <extension
-         point="org.eclipse.imp.runtime.parser">
-      <parser
-            class="org.eclipse.imp.presentation.SpecParseController"
-            language="spec"/>
-   </extension>
-   <extension
-         point="org.eclipse.imp.runtime.tokenColorer">
-      <tokenColorer
-            class="org.eclipse.imp.presentation.editor.SpecTokenColorer"
-            language="spec"/>
-   </extension>
-   <extension
          point="org.eclipse.ui.perspectives">
       <perspective
             class="org.eclipse.imp.perspective.IMPPerspectiveFactory"
@@ -262,62 +243,5 @@
                id="org.eclipse.imp.perspective">
          </perspectiveShortcut>
       </perspectiveExtension>
-   </extension>
-   <extension
-         point="org.eclipse.imp.runtime.outliner">
-      <outliner
-            class="org.eclipse.imp.presentation.outliner.SpecOutliner"
-            language="spec">
-      </outliner>
-   </extension>
-   <extension
-         id="spec.imp.builder"
-         name="Presentation Specification Builder"
-         point="org.eclipse.core.resources.builders">
-      <builder>
-         <run
-               class="org.eclipse.imp.presentation.builders.SpecBuilder">
-            <parameter
-                  name="foo"
-                  value="bar">
-            </parameter>
-         </run>
-      </builder>
-   </extension>
-   <extension
-         id="spec.imp.nature"
-         name="Presentation Specification Nature"
-         point="org.eclipse.core.resources.natures">
-      <builder
-            id="spec.imp.builder">
-      </builder>
-      <runtime>
-         <run
-               class="org.eclipse.imp.presentation.builders.SpecNature">
-         </run>
-      </runtime>
-   </extension>
-   <extension
-         id="problem"
-         name="spec Error"
-         point="org.eclipse.core.resources.markers">
-      <super
-            type="org.eclipse.core.resources.problemmarker">
-      </super>
-   </extension>
-   <extension
-         point="org.eclipse.ui.popupMenus">
-      <objectContribution
-            objectClass="org.eclipse.jdt.core.IJavaProject"
-            adaptable="false"
-            nameFilter="*"
-            id="spec.imp.projectContextMenu">
-         <action
-               label="Enable Presentation Spec Builder"
-               tooltip="Enable the spec builder for this project"
-               class="org.eclipse.imp.presentation.actions.EnableNature"
-               id="spec.imp.actions.enableNatureAction">
-         </action>
-      </objectContribution>
    </extension>
 </plugin>
