@@ -143,7 +143,7 @@
             class="org.eclipse.imp.wizards.NewAutoEditStrategy"
             icon="icons/sample.gif"
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
-            name="Auto-Edit Strategy  (unfinished)"
+            name="Auto-Edit Strategy "
             id="org.eclipse.imp.wizards.NewAutoEditStrategy"/>
 
       <wizard
