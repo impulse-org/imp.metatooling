@@ -21,7 +21,6 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.core.ErrorHandler;
@@ -56,11 +55,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.pde.core.plugin.IPluginElement;
-import org.eclipse.pde.core.plugin.IPluginExtension;
-import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
-import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.ischema.IMetaAttribute;
@@ -556,55 +551,18 @@ public class IMPWizardPage extends WizardPage {
     protected void discoverProjectLanguage() {
 		if (fProjectText.getText().length() == 0)
 		    return;
-	
-		IPluginModelBase pluginModel= getPluginModel(fProjectText.getText());
-	
-		if (pluginModel != null) {
-		   	// SMS 26 Jul 2007
-	        // Load the extensions model in detail, using the adapted IMP representation,
-	        // to assure that the children of model elements are represented
-			// SMS 9 Oct 2007
-			// For some reason, when a wizard is started (it seems), fProject will
-			// be null still, so we need to grab the selected project, if any
-			// (but how can this be when fProjectText has a non-zero length???)
-			if (fProject == null) {
-				//System.out.println("IMPWIzardPage.discoverProjectLanguage():  fProject == null");
-				fProject = discoverSelectedProjectWithoutUpdating();
-				//System.out.println("IMPWIzardPage.discoverProjectLanguage():  updated fProject == " + fProject.getName());
-			} else {
-				//System.out.println("IMPWIzardPage.discoverProjectLanguage():  fProject != null");
-			}
-	    	try {
-	    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, fProject);
-	    	} catch (CoreException e) {
-	    		//System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
-	    	} catch (ClassCastException e) {
-	    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  ClassCastExeption loading extensions model; may not succeed");
-	    	}
-	    	
-		    IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
-	
-		    for(int i= 0; i < extensions.length; i++) {
-				if (extensions[i].getPoint().endsWith(".languageDescription")) {
-				    IPluginObject[] children= extensions[i].getChildren();
-		
-				    for(int j= 0; j < children.length; j++) {
-					if (children[j].getName().equals("language")) {
-						try {
-							fLanguageText.setText(((IPluginElement) children[j]).getAttribute("language").getValue());
-						} catch (Exception e) {
-							ErrorHandler.reportError("Exception getting language attribute; returning", e);
-						}
-						return;
-					}
-				    }
-				}
-		    }
-		}
+
+        if (fProject == null) {
+            //System.out.println("IMPWIzardPage.discoverProjectLanguage():  fProject == null");
+            fProject = ResourcesPlugin.getWorkspace().getRoot().getProject(fProjectText.getText());
+            //System.out.println("IMPWIzardPage.discoverProjectLanguage():  updated fProject == " + fProject.getName());
+        }
+
+        String languageName= WizardUtilities.discoverLanguageForProject(fProject);
+
+		fLanguageText.setText(languageName);
     }	
 
-    
-    
     // SMS 9 Oct 2007
     public IProject discoverSelectedProject() {
     	ISelectionService service= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
@@ -733,7 +691,7 @@ public class IMPWizardPage extends WizardPage {
     }
 
     
-    protected IPluginModelBase getPluginModel(String projectName) {
+    protected static IPluginModelBase getPluginModel(String projectName) {
         try {
         	if (projectName == null)
         		return null;

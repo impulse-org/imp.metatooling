@@ -50,6 +50,11 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextSelection;
+import org.eclipse.pde.core.plugin.IPluginElement;
+import org.eclipse.pde.core.plugin.IPluginExtension;
+import org.eclipse.pde.core.plugin.IPluginModel;
+import org.eclipse.pde.core.plugin.IPluginModelBase;
+import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
@@ -695,6 +700,44 @@ public class WizardUtilities {
     	}
     	contents= l_doc.get();
     	return contents;
+    }
+
+
+    public static String discoverLanguageForProject(IProject project) {
+        IPluginModelBase pluginModel= IMPWizardPage.getPluginModel(project.getName());
+    
+        if (pluginModel != null) {
+            // SMS 26 Jul 2007
+            // Load the extensions model in detail, using the adapted IMP representation,
+            // to assure that the children of model elements are represented
+            try {
+                ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
+            } catch (CoreException e) {
+                //System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
+            } catch (ClassCastException e) {
+                System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  ClassCastExeption loading extensions model; may not succeed");
+            }
+            
+            IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
+    
+            for(int i= 0; i < extensions.length; i++) {
+                if (extensions[i].getPoint().endsWith(".languageDescription")) {
+                    IPluginObject[] children= extensions[i].getChildren();
+        
+                    for(int j= 0; j < children.length; j++) {
+                        if (children[j].getName().equals("language")) {
+                            try {
+                                return ((IPluginElement) children[j]).getAttribute("language").getValue();
+                            } catch (Exception e) {
+                                ErrorHandler.reportError("Exception getting language attribute; returning", e);
+                            }
+                            return null;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 	
 }
