@@ -12,7 +12,7 @@ public class $ACTION_CONTRIBUTOR_CLASS_NAME$ implements ILanguageActionsContribu
 	
 	public void contributeToEditorMenu(final UniversalEditor editor,
 			IMenuManager menuManager) {
-		IMenuManager languageMenu = new MenuManager("$LANGUAGE_NAME$");
+		IMenuManager languageMenu = new MenuManager("$LANG_NAME$");
 		menuManager.add(languageMenu);
 		languageMenu.add(new Action("Example") { 
 			// TODO implement run method here
