@@ -9,110 +9,14 @@ import java.util.*;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.imp.services.IContentProposer;
+import org.eclipse.imp.editor.ErrorProposal;
 import org.eclipse.imp.editor.SourceProposal;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.SimpleLPGParseController;
+import org.eclipse.imp.parser.SymbolTable;
 
-
-public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
-{
-    private HashMap getVisibleVariables($CLASS_NAME_PREFIX$Parser parser, ASTNode n) {
-        HashMap map = new HashMap();
-        for ($CLASS_NAME_PREFIX$Parser.SymbolTable s = parser.getEnclosingSymbolTable(n); s != null; s = s.getParent())
-            for (Enumeration e = s.keys(); e.hasMoreElements(); ) {
-                Object key = e.nextElement();
-                if (! map.containsKey(key))
-                    map.put(key, s.get(key));
-            }
-
-        return map;
-    }
-
-    private String getVariableName(IAst decl){
-        if (decl instanceof declaration)
-             return ((declaration) decl).getidentifier().toString();
-        else if (decl instanceof functionHeader)
-             return ((functionHeader) decl).getidentifier().toString();
-        return "";
-    }
-    
-    // SMS 23 Apr 2008:  original
-    private String getVariableProposal(IAst decl){
-        String string = "";
-        if (decl instanceof declaration) {
-        	// SMS 6 May 2008:  modified to put type in parens after identifier
-//            string = ((declaration) decl).getprimitiveType().toString() + " " +
-//                     ((declaration) decl).getidentifier().toString();
-            string = ((declaration) decl).getidentifier().toString() +
-            	"  (" + ((declaration) decl).getprimitiveType().toString() + ")";
-        }
-        else if (decl instanceof functionHeader) {
-            functionHeader fdecl = (functionHeader) decl;
-            declarationList parameters = fdecl.getparameters();
-            string = fdecl.getType().toString() + " " + fdecl.getidentifier().toString() + "(";
-            for (int i = 0; i < parameters.size(); i++)
-                string += ((declaration) parameters.getdeclarationAt(i)).getprimitiveType()
-                          + (i < parameters.size() - 1 ? ", " : "");
-            string += ")";
-        }
-        return string;
-    }
-    
-    // SMS 23 Apr 2008:  which had been replaced by ...
-    private SourceProposal getDeclProposal(IAst decl, String prefix, int offset) {
-        if (decl instanceof declaration) {
-            String s = ((declaration) decl).getprimitiveType().toString() + " " +
-                       ((declaration) decl).getidentifier().toString();
-            return new SourceProposal(s, s, prefix, offset);
-        } else if (decl instanceof functionDeclaration) {
-            functionDeclaration fdecl = (functionDeclaration) decl;
-            declarationList parameters = fdecl.getfunctionHeader().getparameters();
-            String newText;
-
-            newText= fdecl.getfunctionHeader().getidentifier().toString() + "(";
-            for (int i = 0; i < parameters.size(); i++)
-                newText += ((declaration) parameters.getdeclarationAt(i)).getprimitiveType() +
-                           (i < parameters.size() - 1 ? ", " : "");
-            newText += ")";
-            String proposal = fdecl.getfunctionHeader().getType().toString() + " " + newText;
-            return new SourceProposal(proposal, newText, prefix, offset);
-        }
-        return null;
-    }
-
-    private ArrayList filterSymbols(HashMap in_symbols, String prefix)
-    {
-        ArrayList symbols = new ArrayList();
-        for (Iterator i = in_symbols.values().iterator(); i.hasNext(); ) {
-            IAst decl = (IAst) i.next();
-            String name = getVariableName(decl);
-            if (name.length() >= prefix.length() && prefix.equals(name.substring(0, prefix.length())))
-                symbols.add(decl);
-        }
-
-        return symbols;
-    }
-
-    private IToken getToken(IParseController controller, int offset) {
-        PrsStream stream = ((SimpleLPGParseController)controller).getParser().getParseStream();
-        int index = stream.getTokenIndexAtCharacter(offset),
-            token_index = (index < 0 ? -(index - 1) : index),
-            previous_index = stream.getPrevious(token_index);
-        return stream.getIToken(((stream.getKind(previous_index) == $CLASS_NAME_PREFIX$Parsersym.TK_IDENTIFIER ||
-                                  (($CLASS_NAME_PREFIX$ParseController) controller).isKeyword(stream.getKind(previous_index))) &&
-                                 offset == stream.getEndOffset(previous_index) + 1)
-                                         ? previous_index
-                                         : token_index);
-    }
-
-    private String getPrefix(IToken token, int offset) {
-        if (token.getKind() == $CLASS_NAME_PREFIX$Parsersym.TK_IDENTIFIER)
-            if (offset >= token.getStartOffset() && offset <= token.getEndOffset() + 1)
-                return token.toString().substring(0, offset - token.getStartOffset());
-        return "";
-    }
-
-
+public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer {
     /**
      * Returns an array of content proposals applicable relative to the AST of the given
      * parse controller at the given position.
@@ -129,38 +33,118 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer
      * @return				An array of completion proposals applicable relative to the AST of the given
      * 						parse controller at the given position
      */
-    public ICompletionProposal[] getContentProposals(IParseController controller, int offset, ITextViewer viewer)
-    {
-        // START_HERE           
-        ArrayList list = new ArrayList(); // a list of proposals.
-        if (controller.getCurrentAst() != null) {
-            IToken token = getToken(controller, offset);        
+    public ICompletionProposal[] getContentProposals(IParseController ctlr, int offset, ITextViewer viewer) {
+        ArrayList<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
+
+        if (ctlr.getCurrentAst() != null) {
+            IToken token = getToken(ctlr, offset);        
             String prefix = getPrefix(token, offset);
-        
-            $CLASS_NAME_PREFIX$ASTNodeLocator locator = new $CLASS_NAME_PREFIX$ASTNodeLocator();
-            ASTNode node = (ASTNode) locator.findNode(controller.getCurrentAst(), token.getStartOffset(), token.getEndOffset());
-            if (node != null &&
-                (node.getParent() instanceof Iexpression ||
-                 node.getParent() instanceof assignmentStmt ||
-                 node.getParent() instanceof BadAssignment ||
-                 node.getParent() instanceof returnStmt)) {
-            	HashMap symbols = getVisibleVariables(($CLASS_NAME_PREFIX$Parser) ((SimpleLPGParseController)controller).getParser(), node);
-            	ArrayList vars = filterSymbols(symbols, prefix);
-                for (int i = 0; i < vars.size(); i++) {
-                    IAst decl = (IAst) vars.get(i);
-                    // SMS 23 Apr 2008:  This is the original, which adds identifiers to the list
-                    list.add(new SourceProposal(getVariableProposal(decl),
-                            getVariableName(decl) + (decl instanceof functionHeader ? "()" : ""),
-                    		prefix,
-                            offset));
-                    // SMS 23 Apr 2008:  and which was replaced by this, which adds declarations
-                    list.add(getDeclProposal(decl, prefix, offset));
+            $CLASS_NAME_PREFIX$Parser parser = ($CLASS_NAME_PREFIX$Parser) ((SimpleLPGParseController) ctlr).getParser();
+            ISourcePositionLocator locator = ctlr.getNodeLocator();
+            ASTNode node = (ASTNode) locator.findNode(ctlr.getCurrentAst(), token.getStartOffset(), token.getEndOffset());
+
+            if (node != null) {
+                result= computeProposals(prefix, node, offset, parser);
+            }
+        } else {
+            result.add(new ErrorProposal("No proposals available - syntax errors", offset));
+        }
+        return result.toArray(new ICompletionProposal[result.size()]);
+    }
+
+    private ArrayList<ICompletionProposal> computeProposals(String prefix, ASTNode node,
+            int offset, $CLASS_NAME_PREFIX$Parser parser) {
+        ArrayList<ICompletionProposal> result= new ArrayList<ICompletionProposal>();
+
+        // START_HERE
+        if (node.getParent() instanceof Iexpression
+            || node.getParent() instanceof assignmentStmt
+            || node.getParent() instanceof BadAssignment
+            || node.getParent() instanceof returnStmt) {
+            HashMap<String, IAst> symbols = collectVisibleDecls(
+                   parser.getEnclosingSymbolTable(node), node);
+            ArrayList<IAst> matchingDecls = filterSymbols(symbols, prefix);
+
+            for (IAst decl : matchingDecls) {
+                result.add(createProposalForDecl(decl, prefix, offset));
+            }
+        } else {
+            result.add(new ErrorProposal("no completion exists for that prefix", offset));
+        }
+        return result;
+    }
+
+    private HashMap<String,IAst> collectVisibleDecls(SymbolTable<IAst> innerScope, ASTNode n) {
+        HashMap<String,IAst> map = new HashMap<String,IAst>();
+        // Move outward from innermost enclosing scope
+        for (SymbolTable<IAst> s = innerScope; s != null; s = s.getParent()) {
+            for (String key: s.keySet()) {
+                if (! map.containsKey(key)) { // omit shadowed decls
+                    map.put(key, (IAst) s.get(key));
                 }
             }
-            else list.add(new SourceProposal("no completion exists for that prefix", "", offset));
         }
-        else list.add(new SourceProposal("no info available due to Syntax error(s)", "", offset));
+        return map;
+    }
 
-        return (ICompletionProposal[]) list.toArray(new ICompletionProposal[list.size()]);
+    private ArrayList<IAst> filterSymbols(HashMap<String,IAst> in_symbols, String prefix) {
+        ArrayList<IAst> symbols = new ArrayList<IAst>();
+        for (IAst decl: in_symbols.values()) {
+            String name = getNameOf(decl);
+            if (name.length() >= prefix.length() && prefix.equals(name.substring(0, prefix.length())))
+                symbols.add(decl);
+        }
+        return symbols;
+    }
+
+    private SourceProposal createProposalForDecl(IAst decl, String prefix, int offset) {
+        String propDescrip= "", newText= "";
+
+        if (decl instanceof declaration) {
+            newText = ((declaration) decl).getidentifier().toString();
+            propDescrip = ((declaration) decl).getprimitiveType().toString() + " " + newText;
+        } else if (decl instanceof functionDeclaration) {
+            functionDeclaration fdecl = (functionDeclaration) decl;
+            declarationList parameters = fdecl.getfunctionHeader().getparameters();
+
+            newText= fdecl.getfunctionHeader().getidentifier().toString() + "(";
+            for (int i = 0; i < parameters.size(); i++)
+                newText += ((declaration) parameters.getdeclarationAt(i)).getprimitiveType() +
+                           (i < parameters.size() - 1 ? ", " : "");
+            newText += ")";
+            propDescrip = fdecl.getfunctionHeader().getType().toString() + " " + newText;
+        }
+        return new SourceProposal(propDescrip, newText, prefix, offset);
+    }
+
+    private String getNameOf(IAst decl) {
+        if (decl instanceof declaration)
+             return ((declaration) decl).getidentifier().toString();
+        else if (decl instanceof functionDeclaration)
+            return ((functionDeclaration) decl).getfunctionHeader().getidentifier().toString();
+        else if (decl instanceof functionHeader)
+             return ((functionHeader) decl).getidentifier().toString();
+        return "";
+    }
+    
+    // LPG utility methods
+    private IToken getToken(IParseController controller, int offset) {
+        PrsStream stream = ((SimpleLPGParseController)controller).getParser().getParseStream();
+        int index = stream.getTokenIndexAtCharacter(offset),
+            token_index = (index < 0 ? -(index - 1) : index),
+            previous_index = stream.getPrevious(token_index),
+            previous_kind = stream.getKind(previous_index);
+        return stream.getIToken(((previous_kind == $CLASS_NAME_PREFIX$Parsersym.TK_IDENTIFIER ||
+                                  ((SimpleLPGParseController) controller).isKeyword(previous_kind)) &&
+                                 offset == stream.getEndOffset(previous_index) + 1)
+                                         ? previous_index
+                                         : token_index);
+    }
+
+    private String getPrefix(IToken token, int offset) {
+        if (token.getKind() == $CLASS_NAME_PREFIX$Parsersym.TK_IDENTIFIER)
+            if (offset >= token.getStartOffset() && offset <= token.getEndOffset() + 1)
+                return token.toString().substring(0, offset - token.getStartOffset());
+        return "";
     }
 }
