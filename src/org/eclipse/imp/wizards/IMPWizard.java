@@ -552,21 +552,31 @@ public abstract class IMPWizard extends Wizard {
      * gather wizard-specific values.
      */
     protected void collectCodeParms() {
-    	fProject = pages[0].getProjectOfRecord();
-    	fProjectName = pages[0].fProjectText.getText();
+    	fProject= pages[0].getProjectOfRecord();
+    	fProjectName= pages[0].fProjectText.getText();
         fLanguageName= pages[0].fLanguageText.getText();
-        
-        if (pages[0].fTemplateText != null)
-        	fTemplateName = pages[0].fTemplateText.getText();
-        
-        fClassNamePrefix= Character.toUpperCase(fLanguageName.charAt(0)) + fLanguageName.substring(1);
-        
-		String qualifiedClassName= pages[0].getField("class").fValue;
-		fFullClassName = qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.') + 1);
-		fPackageName= qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
-		fPackageFolder= fPackageName.replace('.', File.separatorChar);
 
-		fParserPackage = discoverParserPackage(fProject);
+        if (pages[0].fTemplateText != null)
+        	fTemplateName= pages[0].fTemplateText.getText();
+
+        fClassNamePrefix= Character.toUpperCase(fLanguageName.charAt(0)) + fLanguageName.substring(1);
+
+		WizardPageField classField= pages[0].getField("class");
+
+		if (classField != null) {
+    		String qualifiedClassName= classField.fValue;
+    		fFullClassName= qualifiedClassName.substring(qualifiedClassName.lastIndexOf('.') + 1);
+    		fPackageName= qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf('.'));
+		} else {
+	        WizardPageField pkgField= pages[0].getField("package");
+	        if (pkgField != null) {
+	            fPackageName= pkgField.getText();
+	        } else {
+	            fPackageName= "";
+	        }
+		}
+        fPackageFolder= fPackageName.replace('.', File.separatorChar);
+		fParserPackage= discoverParserPackage(fProject);
     }
     
     
