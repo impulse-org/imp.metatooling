@@ -1,15 +1,12 @@
 package $PLUGIN_PACKAGE$;
 
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.preferences.DefaultScope;
-import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.osgi.framework.BundleContext;
 
 public class $PLUGIN_CLASS$ extends PluginBase {
 
     public static final String kPluginID= "$PLUGIN_ID$";
-    public static final String kLanguageName = "$LANG_NAME$";
+    public static final String kLanguageID = "$LANG_NAME$";
     
     /**
      * The unique instance of this plugin class
@@ -38,6 +35,6 @@ public class $PLUGIN_CLASS$ extends PluginBase {
 
     @Override
     public String getLanguageID() {
-        return kLanguageName;
+        return kLanguageID;
     }
 }
