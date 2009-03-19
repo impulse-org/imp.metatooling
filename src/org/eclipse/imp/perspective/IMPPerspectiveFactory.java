@@ -78,7 +78,7 @@ public class IMPPerspectiveFactory implements IPerspectiveFactory {
 //	layout.addNewWizardShortcut("org.eclipse.jdt.ui.wizards.NewSnippetFileCreationWizard"); //$NON-NLS-1$
 
 
-	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewLanguageWizard");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewLanguage");
 	layout.addNewWizardShortcut("org.eclipse.imp.lpg.NewLPGGrammarParserWrapperWizard");
 	layout.addNewWizardShortcut("org.eclipse.imp.lpg.NewLPGGrammarWizard");
 	layout.addNewWizardShortcut("org.eclipse.imp.lpg.NewParserWrapperWizard");	
@@ -93,17 +93,18 @@ public class IMPPerspectiveFactory implements IPerspectiveFactory {
     layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewDocumentationProvider");
 	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewHoverHelper");
 	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewContentProposer");
+    layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewOccurrenceMarker");
 //	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewAutoEditStrategy");
 //	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewFormatter");
 	layout.addNewWizardShortcut("org.eclipse.imp.formatting.wizards.NewFormattingSpecification");
-//	layout.addNewWizardShortcut("org.eclipse.imp.fancyTokenColorerWizard");
+//	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewFancyTokenColorer");
 //	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewProjectWizard");
-	layout.addNewWizardShortcut("org.eclipse.imp.newBuilder");
-	layout.addNewWizardShortcut("org.eclipse.imp.natureEnablerWizard");
-	layout.addNewWizardShortcut("org.eclipse.imp.newCompiler");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewBuilder");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewNatureEnabler");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewCompiler");
 //	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewIndexer");
-	layout.addNewWizardShortcut("org.eclipse.imp.wizards.PreferencesSpecification");
-	layout.addNewWizardShortcut("org.eclipse.imp.newRefactoring");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewPreferencesSpecification");
+	layout.addNewWizardShortcut("org.eclipse.imp.wizards.NewRefactoring");
 
 	layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");//$NON-NLS-1$
 	layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//$NON-NLS-1$
