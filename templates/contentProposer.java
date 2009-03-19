@@ -34,7 +34,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer {
      * 						parse controller at the given position
      */
     public ICompletionProposal[] getContentProposals(IParseController ctlr, int offset, ITextViewer viewer) {
-        ArrayList<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
+        List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 
         if (ctlr.getCurrentAst() != null) {
             IToken token = getToken(ctlr, offset);        
@@ -52,18 +52,18 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer {
         return result.toArray(new ICompletionProposal[result.size()]);
     }
 
-    private ArrayList<ICompletionProposal> computeProposals(String prefix, ASTNode node,
+    private List<ICompletionProposal> computeProposals(String prefix, ASTNode node,
             int offset, $CLASS_NAME_PREFIX$Parser parser) {
-        ArrayList<ICompletionProposal> result= new ArrayList<ICompletionProposal>();
-
+        List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
         // START_HERE
-        if (node.getParent() instanceof Iexpression
-            || node.getParent() instanceof assignmentStmt
-            || node.getParent() instanceof BadAssignment
-            || node.getParent() instanceof returnStmt) {
-            HashMap<String, IAst> symbols = collectVisibleDecls(
-                   parser.getEnclosingSymbolTable(node), node);
-            ArrayList<IAst> matchingDecls = filterSymbols(symbols, prefix);
+        if (node.getParent() instanceof Iexpression ||
+            node.getParent() instanceof assignmentStmt ||
+            node.getParent() instanceof BadAssignment ||
+            node.getParent() instanceof returnStmt)
+        {
+            Map<String, IAst> decls = collectVisibleDecls(
+                   parser.getEnclosingSymbolTable(node));
+            List<IAst> matchingDecls = filterSymbols(decls, prefix);
 
             for (IAst decl : matchingDecls) {
                 result.add(createProposalForDecl(decl, prefix, offset));
@@ -74,21 +74,21 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer {
         return result;
     }
 
-    private HashMap<String,IAst> collectVisibleDecls(SymbolTable<IAst> innerScope, ASTNode n) {
-        HashMap<String,IAst> map = new HashMap<String,IAst>();
+    private Map<String,IAst> collectVisibleDecls(SymbolTable<IAst> innerScope) {
+        Map<String,IAst> result = new HashMap<String,IAst>();
         // Move outward from innermost enclosing scope
         for (SymbolTable<IAst> s = innerScope; s != null; s = s.getParent()) {
             for (String key: s.keySet()) {
-                if (! map.containsKey(key)) { // omit shadowed decls
-                    map.put(key, (IAst) s.get(key));
+                if (! result.containsKey(key)) { // omit shadowed decls
+                    result.put(key, (IAst) s.get(key));
                 }
             }
         }
         return map;
     }
 
-    private ArrayList<IAst> filterSymbols(HashMap<String,IAst> in_symbols, String prefix) {
-        ArrayList<IAst> symbols = new ArrayList<IAst>();
+    private List<IAst> filterSymbols(Map<String,IAst> in_symbols, String prefix) {
+        List<IAst> symbols = new ArrayList<IAst>();
         for (IAst decl: in_symbols.values()) {
             String name = getNameOf(decl);
             if (name.length() >= prefix.length() && prefix.equals(name.substring(0, prefix.length())))
@@ -105,14 +105,15 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer {
             propDescrip = ((declaration) decl).getprimitiveType().toString() + " " + newText;
         } else if (decl instanceof functionDeclaration) {
             functionDeclaration fdecl = (functionDeclaration) decl;
-            declarationList parameters = fdecl.getfunctionHeader().getparameters();
+            functionHeader fhdr = fdecl.getfunctionHeader();
+            declarationList parameters = fhdr.getparameters();
 
-            newText= fdecl.getfunctionHeader().getidentifier().toString() + "(";
+            newText= fhdr.getidentifier().toString() + "(";
             for (int i = 0; i < parameters.size(); i++)
                 newText += ((declaration) parameters.getdeclarationAt(i)).getprimitiveType() +
                            (i < parameters.size() - 1 ? ", " : "");
             newText += ")";
-            propDescrip = fdecl.getfunctionHeader().getType().toString() + " " + newText;
+            propDescrip = fhdr.getType().toString() + " " + newText;
         }
         return new SourceProposal(propDescrip, newText, prefix, offset);
     }
