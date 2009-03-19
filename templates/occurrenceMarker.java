@@ -32,10 +32,7 @@ import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.services.IOccurrenceMarker;
 
-
 public class $OCCURRENCE_MARKER_CLASS_NAME$ implements ILanguageService, IOccurrenceMarker {
-//public class OccurrenceMarker implements ILanguageService, IOccurrenceMarker {
-
 	private List fOccurrences = Collections.EMPTY_LIST;
 	private IAst decl;
 	
@@ -43,9 +40,8 @@ public class $OCCURRENCE_MARKER_CLASS_NAME$ implements ILanguageService, IOccurr
 		return "$LANG_NAME$ Occurence Marker";
 	}
 
-	public List<Object> getOccurrencesOf(IParseController parseController, Object ast) {
-
-		if (ast == null) {
+	public List<Object> getOccurrencesOf(IParseController parseController, Object astNode) {
+		if (astNode == null) {
 			return Collections.EMPTY_LIST;
 		}
 		
@@ -59,22 +55,22 @@ public class $OCCURRENCE_MARKER_CLASS_NAME$ implements ILanguageService, IOccurr
 		
 		// For those selections where only the occurrence of the given
 		// instance is to be marked
-		if (nodeKindIndicatesAUniqueOccurrence(ast)) {
-			fOccurrences.add(ast);
+		if (nodeKindIndicatesAUniqueOccurrence(astNode)) {
+			fOccurrences.add(astNode);
 			return fOccurrences;
 		}
 		
 		// For those selections where occurrences of copies of the
 		// given instance are to be marked
-		if (nodeKindIndicatesLiteralOccurrences(ast)) {
-			root.accept(new LiteralOccurrenceVisitor(ast));
+		if (nodeKindIndicatesLiteralOccurrences(astNode)) {
+			root.accept(new LiteralOccurrenceVisitor(astNode));
 			return fOccurrences;
 		}
 				
 		// For those selections where the occurrences to be marked are
 		// determined by an arbitrary computation based on the given instance
-		if (nodeKindIndicatesComputedOccurrences(ast)) {
-			root.accept(new ComputedOccurrenceVisitor(ast));
+		if (nodeKindIndicatesComputedOccurrences(astNode)) {
+			root.accept(new ComputedOccurrenceVisitor(astNode));
 			return fOccurrences;
 		}
 		
@@ -83,7 +79,7 @@ public class $OCCURRENCE_MARKER_CLASS_NAME$ implements ILanguageService, IOccurr
 		// One option:  return nothing for these
 		//fOccurrences = Collections.EMPTY_LIST;
 		// Another option:  return just the given item:
-		fOccurrences.add(ast);
+		fOccurrences.add(astNode);
 		return fOccurrences;
 	}
 	
