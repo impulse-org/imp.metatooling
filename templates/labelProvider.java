@@ -71,6 +71,7 @@ public class $LABEL_PROVIDER_CLASS_NAME$ implements ILabelProvider
     }
 
     public static String getLabelFor(ASTNode n) {
+        // START_HERE
 		if (n instanceof IcompilationUnit)
 		    return "Compilation unit";
 		if (n instanceof block)
@@ -80,15 +81,15 @@ public class $LABEL_PROVIDER_CLASS_NAME$ implements ILabelProvider
 		    return stmt.getidentifier().toString() + "=" + stmt	.getexpression().toString();
 		}
 		if (n instanceof declarationStmt0) {
-			declaration decl= (declaration) ((declarationStmt0)n).getdeclaration();
+			declaration decl= (declaration) ((declarationStmt0) n).getdeclaration();
 	        return decl.getprimitiveType() + " " + decl.getidentifier().toString();
 		}
 		if (n instanceof declarationStmt1) {
-			declaration decl= (declaration) ((declarationStmt1)n).getdeclaration();
+			declaration decl= (declaration) ((declarationStmt1) n).getdeclaration();
 	        return decl.getprimitiveType() + " " + decl.getidentifier().toString();
 		}
 		if (n instanceof functionDeclaration) {
-			functionHeader hdr = (functionHeader) ((functionDeclaration)n).getfunctionHeader();
+			functionHeader hdr = (functionHeader) ((functionDeclaration) n).getfunctionHeader();
 			return hdr.getidentifier().toString();
 		}
 	    return "<???>";
