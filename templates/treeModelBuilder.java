@@ -4,9 +4,7 @@ import org.eclipse.imp.services.base.TreeModelBuilderBase;
 
 import $AST_PKG$.*;
 
-
-public class $TREE_MODEL_BUILDER_CLASS_NAME$ extends TreeModelBuilderBase
-{
+public class $TREE_MODEL_BUILDER_CLASS_NAME$ extends TreeModelBuilderBase {
     @Override
     public void visitTree(Object root) {
     	if (root == null)
@@ -18,8 +16,6 @@ public class $TREE_MODEL_BUILDER_CLASS_NAME$ extends TreeModelBuilderBase
     }
 
     private class $CLASS_NAME_PREFIX$ModelVisitor extends AbstractVisitor {
-        private StringBuffer fRHSLabel;
-
         @Override
         public void unimplementedVisitor(String s) { }
 
@@ -47,16 +43,6 @@ public class $TREE_MODEL_BUILDER_CLASS_NAME$ extends TreeModelBuilderBase
             return true;
         }
 
-        @Override
-        public boolean visit(functionDeclaration n) {
-        	pushSubItem(n);
-            return true;
-        }
-        
-        @Override
-        public void endVisit(functionDeclaration n) {
-            popSubItem();
-        }
-        
+        // START_HERE
     }
 }
