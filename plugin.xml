@@ -20,7 +20,7 @@
             icon="icons/sample.gif"
             category="org.eclipse.imp.wizards"
             name="Programming language descriptor"
-            id="org.eclipse.imp.wizards.NewLanguageWizard"/>
+            id="org.eclipse.imp.wizards.NewLanguage"/>
             
 	<category
 	            id="org.eclipse.imp.wizards.build"
@@ -30,19 +30,19 @@
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.build"
             class="org.eclipse.imp.wizards.NewBuilder"
             icon="icons/sample.gif"
-            id="org.eclipse.imp.newBuilder"
+            id="org.eclipse.imp.wizards.NewBuilder"
             name="Incremental Builder"/>
       <wizard
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.build"
             class="org.eclipse.imp.wizards.NewCompiler"
             icon="icons/sample.gif"
-            id="org.eclipse.imp.newCompiler"
+            id="org.eclipse.imp.wizards.NewCompiler"
             name="Poor Man's Compiler"/>
 	  <wizard
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.build"
             class="org.eclipse.imp.wizards.NewNatureEnabler"
             icon="icons/sample.gif"
-            id="org.eclipse.imp.natureEnablerWizard"
+            id="org.eclipse.imp.wizards.NewNatureEnabler"
             name="Nature Enabler"/>
             
       <category
@@ -76,7 +76,7 @@
             parentCategory="org.eclipse.imp.wizards"/>
 	<wizard
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.create"
-            name="New Project Wizard  (unfinished)"
+            name="New Project Wizard (unfinished)"
             icon="icons/sample.gif"
             class="org.eclipse.imp.wizards.NewProject"
             id="org.eclipse.imp.wizards.NewProjectWizard"/>
@@ -164,19 +164,19 @@
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             class="org.eclipse.imp.wizards.NewFancyTokenColorer"
             icon="icons/sample.gif"
-            id="org.eclipse.imp.fancyTokenColorerWizard"
+            id="org.eclipse.imp.wizards.NewFancyTokenColorer"
             name="Fancy New Token Colorer  (unfinished)"/>
 	  <wizard
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             class="org.eclipse.imp.wizards.NewEditorService"
             icon="icons/sample.gif"
-            id="org.eclipse.imp.newEditorServiceWizard"
+            id="org.eclipse.imp.wizards.NewEditorService"
             name="Introduced editor service"/>
       <wizard
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
             class="org.eclipse.imp.wizards.NewOccurrenceMarker"
             icon="icons/sample.gif"
-            id="org.eclipse.imp.newOccurrenceMarkerWizard"
+            id="org.eclipse.imp.wizards.NewOccurrenceMarker"
             name="Occurrence marker"/>
 	  <wizard
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.editor"
@@ -211,7 +211,7 @@
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.transform"
             class="org.eclipse.imp.wizards.NewRefactoringWizard"
             icon="icons/sample.gif"
-            id="org.eclipse.imp.newRefactoring"
+            id="org.eclipse.imp.wizards.NewRefactoring"
             name="Refactoring"/> 
    </extension>
    
