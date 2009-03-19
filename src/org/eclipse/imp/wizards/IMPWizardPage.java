@@ -55,11 +55,15 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
+import org.eclipse.pde.core.plugin.IPluginObject;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.ischema.IMetaAttribute;
 import org.eclipse.pde.internal.core.ischema.ISchemaAttribute;
+import org.eclipse.pde.internal.core.text.plugin.PluginElementNode;
 import org.eclipse.pde.internal.ui.util.SWTUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
@@ -651,6 +655,15 @@ public class IMPWizardPage extends WizardPage {
             }
             if (obj instanceof JavaProject) {
                 return ((JavaProject) obj).getProject();
+            }
+            if (obj instanceof IPluginObject) {
+                IPluginObject pluginObj= (IPluginObject) obj;
+                IPluginModelBase pluginBase= pluginObj.getPluginModel();
+                IProject proj= pluginBase.getUnderlyingResource().getProject();
+
+                if (proj != null && proj.exists()) {
+                    return proj;
+                }
             }
         }
         if (selection instanceof ITextSelection || selection == null) {
