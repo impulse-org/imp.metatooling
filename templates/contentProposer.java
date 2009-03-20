@@ -84,7 +84,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer {
                 }
             }
         }
-        return map;
+        return result;
     }
 
     private List<IAst> filterSymbols(Map<String,IAst> in_symbols, String prefix) {
