@@ -138,7 +138,7 @@ public class $BUILDER_CLASS_NAME$ extends BuilderBase {
             // markers for errors that will show up in the problems view
             runParserForCompiler(file, monitor);
 
-            doRefresh(file.getParent());
+            doRefresh(file.getParent()); // N.B.: Assumes all generated files go into parent folder
         } catch (Exception e) {
             // catch Exception, because any exception could break the
             // builder infra-structure.
