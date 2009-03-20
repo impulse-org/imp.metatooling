@@ -109,7 +109,7 @@ public class $BUILDER_CLASS_NAME$ extends BuilderBase {
     protected void collectDependencies(IFile file) {
         String fromPath = file.getFullPath().toString();
         
-        getPlugin().writeInfoMsg("Collecting dependencies from ${LANG_NAME} file: " + file.getName());
+        getPlugin().writeInfoMsg("Collecting dependencies from $LANG_NAME$ file: " + file.getName());
         
         // TODO: implement dependency collector
         // E.g. for each dependency:
