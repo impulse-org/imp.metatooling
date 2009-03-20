@@ -1,16 +1,12 @@
 package $PACKAGE_NAME$;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Stack;
 
-import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 import $PARSER_PACKAGE$.*;
 import $AST_PACKAGE$.*;
-import $PARSER_PACKAGE$.$CLASS_NAME_PREFIX$Parser.SymbolTable;
+
+import lpg.runtime.IAst;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -23,6 +19,7 @@ import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.parser.SymbolTable;
 
 public class $COMPILER_CLASS_NAME$ {
     private static final String sClassNameMacro= "$FILE$";
@@ -35,7 +32,7 @@ public class $COMPILER_CLASS_NAME$ {
 
     private static final String sTemplateFooter= "}\n";
 
-    Stack/*<String>*/ fTranslationStack= new Stack();
+    Stack<String> fTranslationStack= new Stack<String>();
     
     //public static final String PROBLEM_MARKER_ID= $PLUGIN_CLASS$.kPluginID + ".$PROBLEM_ID$";
     public String PROBLEM_MARKER_ID = "$PROBLEM_MARKER_ID$";
@@ -52,7 +49,7 @@ public class $COMPILER_CLASS_NAME$ {
  
     
     private final class TranslatorVisitor extends AbstractVisitor {
-    	SymbolTable innerScope;
+    	SymbolTable<IAst> innerScope;
 
         public void unimplementedVisitor(String s) {
             // System.err.println("Don't know how to translate node type '" + s + "'.");
@@ -223,7 +220,7 @@ public class $COMPILER_CLASS_NAME$ {
         	StringBuffer buff= new StringBuffer();
         	buff.append(funcName)
         	    .append('(');
-        	Stack actualArgs= new Stack();
+        	Stack<String> actualArgs= new Stack<String>();
         	for(int arg=0; arg < numArgs; arg++) {
         		actualArgs.push(fTranslationStack.pop());
         	}
@@ -256,7 +253,6 @@ public class $COMPILER_CLASS_NAME$ {
     }
 
     public void compile(IFile file, IProgressMonitor mon) {
-    	
     	if (file == null) {
             System.err.println("$COMPILER_CLASS_NAME$.compile(..):  File is null; returning without parsing");
     		return;
