@@ -1,6 +1,5 @@
 package $DOCUMENTATION_PROVIDER_PACKAGE_NAME$;
 
-import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.IDocumentationProvider;
