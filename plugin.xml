@@ -244,4 +244,58 @@
          </perspectiveShortcut>
       </perspectiveExtension>
    </extension>
+   <extension
+         id="sanityChecker"
+         name="IMP IDE Plug-in Sanity Checker"
+         point="org.eclipse.core.resources.builders">
+      <builder>
+         <run class="org.eclipse.imp.sanityChecker.SanityChecker">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="sanityNature"
+         point="org.eclipse.core.resources.natures">
+      <builder
+            id="org.eclipse.imp.metatooling.sanityChecker">
+      </builder>
+      <runtime>
+         <run
+               class="org.eclipse.imp.sanityChecker.SanityNature">
+         </run>
+      </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            objectClass="org.eclipse.jdt.core.IJavaProject"
+            adaptable="false"
+            nameFilter="*"
+            id="org.eclipse.imp.metatooling.projectContextMenu">
+         <menu
+               label="IMP"
+               path="additions"
+               id="org.eclipse.imp.metatooling.projectContextMenu">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Enable &amp;Plugin Sanity Checker"
+               icon="icons/checkerEnable.gif"
+               menubarPath="org.eclipse.imp.metatooling.projectContextMenu/group1"
+               tooltip="Enable the plugin sanity checking builder for this project"
+               class="org.eclipse.imp.actions.EnableCheckerAction"
+               id="org.eclipse.imp.metatooling.enableCheckerAction">
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
+         id="sanity.problem"
+         name="Plugin Sanity Checker Error"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+   </extension>
 </plugin>

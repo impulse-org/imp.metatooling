@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.runtime.RuntimePlugin;
+import org.eclipse.imp.sanityChecker.SanityNature;
 import org.eclipse.imp.ui.dialogs.validators.SelectionValidatorForPluginProjects;
 import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.pde.core.plugin.IPluginBase;
@@ -132,7 +133,7 @@ public class NewLanguage extends CodeServiceWizard {
     	   	// Put the text back into the file
     		manifestFile.setContents(new ByteArrayInputStream(manifestContents.getBytes()), true, true, null);
     	}
-    	
+    	new SanityNature().addToProject(fProject);
     }
     
     
