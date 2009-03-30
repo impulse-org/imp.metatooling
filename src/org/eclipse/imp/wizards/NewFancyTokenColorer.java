@@ -33,7 +33,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.imp.lpg.parser.ParseController;
-import org.eclipse.imp.lpg.parser.LPGParser.JikesPG;
+import org.eclipse.imp.lpg.parser.LPGParser.LPG;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -89,8 +89,8 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
 
 			fdp.connect(fileInput);
 			IDocument document= fdp.getDocument(fileInput);
-			JikesPG jpg= (JikesPG) ctlr.parse(document.get(), false, new NullProgressMonitor());
-			TokenStyleDialog tsd= new TokenStyleDialog(jpg, fancyButton.getShell());
+			LPG lpg= (LPG) ctlr.parse(document.get(), new NullProgressMonitor());
+			TokenStyleDialog tsd= new TokenStyleDialog(lpg, fancyButton.getShell());
 
 			if (tsd.open() == TokenStyleDialog.OK) {
 			    setStyles(tsd.getStyleMap());

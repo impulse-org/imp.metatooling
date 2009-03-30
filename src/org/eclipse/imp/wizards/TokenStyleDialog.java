@@ -1,28 +1,24 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ * Copyright (c) 2007 IBM Corporation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ *******************************************************************************/
 
-*******************************************************************************/
-
-/*
- * Created on Oct 27, 2006
- */
 package org.eclipse.imp.wizards;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;	
+import java.util.Map;
 
 import org.eclipse.imp.lpg.parser.ASTUtils;
-import org.eclipse.imp.lpg.parser.LPGParser.JikesPG;
+import org.eclipse.imp.lpg.parser.LPGParser.LPG;
 import org.eclipse.imp.lpg.parser.LPGParser.terminal;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.window.IShellProvider;
@@ -45,48 +41,50 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 public class TokenStyleDialog extends Dialog {
-    private final JikesPG fJikesPG;
+    private final LPG fLPG;
 
     /**
      * The map from token image strings to developer-specified font descriptors.
-     * This is safe to pass around freely, since FontData structures don't consume
-     * any O.S. resources.
+     * This is safe to pass around freely, since FontData structures don't
+     * consume any O.S. resources.
      */
-    private final Map<String,FontData> fStyleMap= new HashMap<String,FontData>();
+    private final Map<String, FontData> fStyleMap= new HashMap<String, FontData>();
 
     /**
-     * The map from token image strings to developer-specified color descriptors.
-     * This is safe to pass around freely, since RGB structures don't consume any
-     * O.S. resources.
+     * The map from token image strings to developer-specified color
+     * descriptors. This is safe to pass around freely, since RGB structures
+     * don't consume any O.S. resources.
      */
-    private final Map<String,RGB> fRGBMap= new HashMap<String,RGB>();
+    private final Map<String, RGB> fRGBMap= new HashMap<String, RGB>();
 
     List<Label> fTokenLabels= new ArrayList<Label>();
     List<FontData> fTokenStyle= new ArrayList<FontData>();
     List<RGB> fTokenColor= new ArrayList<RGB>();
 
     /**
-     * An internal data structure that maps terminal label widgets onto Font structures.
-     * Used solely to keep track of Font objects in order to dispose of them properly once
-     * they're no longer needed. Important, since Font structures consume O.S. resources.
+     * An internal data structure that maps terminal label widgets onto Font
+     * structures. Used solely to keep track of Font objects in order to dispose
+     * of them properly once they're no longer needed. Important, since Font
+     * structures consume O.S. resources.
      */
-    private Map<Label,Font> fFontMap;
+    private Map<Label, Font> fFontMap;
 
     /**
-     * An internal data structure that maps terminal label widgets onto Color structures.
-     * Used solely to keep track of Color objects in order to dispose of them properly once
-     * they're no longer needed. Important, since Color structures consume O.S. resources.
+     * An internal data structure that maps terminal label widgets onto Color
+     * structures. Used solely to keep track of Color objects in order to
+     * dispose of them properly once they're no longer needed. Important, since
+     * Color structures consume O.S. resources.
      */
-    private Map<Label,Color> fColorMap;
+    private Map<Label, Color> fColorMap;
 
-    public TokenStyleDialog(JikesPG jikesPG, Shell parentShell) {
-	super(parentShell);
-	fJikesPG= jikesPG;
+    public TokenStyleDialog(LPG lpg, Shell parentShell) {
+        super(parentShell);
+        fLPG= lpg;
     }
 
-    public TokenStyleDialog(JikesPG jikesPG, IShellProvider parentShell) {
-	super(parentShell);
-	fJikesPG= jikesPG;
+    public TokenStyleDialog(LPG lpg, IShellProvider parentShell) {
+        super(parentShell);
+        fLPG= lpg;
     }
 
     protected void configureShell(Shell shell) {
@@ -97,93 +95,96 @@ public class TokenStyleDialog extends Dialog {
     @Override
     public boolean close() {
         boolean result= super.close();
-        for(Iterator iter= fFontMap.keySet().iterator(); iter.hasNext(); ) {
-	    Label label= (Label) iter.next();
-	    fFontMap.get(label).dispose();
-	}
-        for(Iterator iter= fColorMap.keySet().iterator(); iter.hasNext(); ) {
-	    Label label= (Label) iter.next();
-	    fColorMap.get(label).dispose();
-	}
+        for(Iterator iter= fFontMap.keySet().iterator(); iter.hasNext();) {
+            Label label= (Label) iter.next();
+            fFontMap.get(label).dispose();
+        }
+        for(Iterator iter= fColorMap.keySet().iterator(); iter.hasNext();) {
+            Label label= (Label) iter.next();
+            fColorMap.get(label).dispose();
+        }
         return result;
     }
 
     @Override
     protected Control createDialogArea(final Composite parent) {
-	final Composite area= (Composite)super.createDialogArea(parent);
-	// TODO Treat all keywords as a single token kind
-	List<terminal> terminals= ASTUtils.getTerminals(fJikesPG);
-	fFontMap= new HashMap<Label,Font>();
-	fColorMap= new HashMap<Label,Color>();
-	GridLayout layout= new GridLayout(3, true);
-	area.setLayout(layout);
-	Label termColumn= new Label(area, SWT.NULL);
-	termColumn.setText("Token");
-	termColumn.setFont(new Font(parent.getDisplay(), new FontData("", 10, SWT.BOLD)));
-	Label styleColumn= new Label(area, SWT.NULL);
-	styleColumn.setText("Style");
-	styleColumn.setFont(new Font(parent.getDisplay(), new FontData("", 10, SWT.BOLD)));
+        final Composite area= (Composite) super.createDialogArea(parent);
+        // TODO Treat all keywords as a single token kind
+        List<terminal> terminals= ASTUtils.getTerminals(fLPG);
+        fFontMap= new HashMap<Label, Font>();
+        fColorMap= new HashMap<Label, Color>();
+        GridLayout layout= new GridLayout(3, true);
+        area.setLayout(layout);
+        Label termColumn= new Label(area, SWT.NULL);
+        termColumn.setText("Token");
+        termColumn.setFont(new Font(parent.getDisplay(), new FontData("", 10, SWT.BOLD)));
+        Label styleColumn= new Label(area, SWT.NULL);
+        styleColumn.setText("Style");
+        styleColumn.setFont(new Font(parent.getDisplay(), new FontData("", 10, SWT.BOLD)));
 
-	/*Label dummyColumn=*/ new Label(area, SWT.NULL);
+        /* Label dummyColumn= */new Label(area, SWT.NULL);
 
-	for(Iterator iter= terminals.iterator(); iter.hasNext(); ) {
-	    final terminal term= (terminal) iter.next();
-	    final Label termLabel= new Label(area, SWT.NULL);
-	    final String termString= term.getterminal_symbol().toString();
+        for(Iterator iter= terminals.iterator(); iter.hasNext();) {
+            final terminal term= (terminal) iter.next();
+            final Label termLabel= new Label(area, SWT.NULL);
+            final String termString= term.getterminal_symbol().toString();
 
-	    termLabel.setText(termString);
+            termLabel.setText(termString);
 
-	    final Label termStyle= new Label(area, SWT.NULL);
+            final Label termStyle= new Label(area, SWT.NULL);
 
-	    termStyle.setText("sample");
+            termStyle.setText("sample");
 
-	    Button termStyleButton= new Button(area, SWT.PUSH);
-	    termStyleButton.setText("Change...");
-	    termStyleButton.addSelectionListener(new SelectionAdapter() {
-		@Override
-		public void widgetSelected(SelectionEvent e) {
-		    FontDialog dlog= new FontDialog(area.getShell());
-		    if (fStyleMap.containsKey(termString)) {
-			dlog.setFontList(new FontData[] { fStyleMap.get(termString) });
-			dlog.setRGB(fRGBMap.get(termString));
-		    }
-		    FontData fd= dlog.open();
+            Button termStyleButton= new Button(area, SWT.PUSH);
+            termStyleButton.setText("Change...");
+            termStyleButton.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    FontDialog dlog= new FontDialog(area.getShell());
+                    if (fStyleMap.containsKey(termString)) {
+                        dlog.setFontList(new FontData[] { fStyleMap.get(termString) });
+                        dlog.setRGB(fRGBMap.get(termString));
+                    }
+                    FontData fd= dlog.open();
 
-		    if (fd != null) {
-			final Font font= new Font(area.getDisplay(), fd);
-			final RGB rgb= dlog.getRGB();
-			final Color color= new Color(area.getDisplay(), rgb);
-			if (fFontMap.containsKey(termStyle)) {
-			    fFontMap.get(termStyle).dispose();
-			    fColorMap.get(termStyle).dispose();
-			}
-			// Update sample text with new font + color
-			termStyle.setFont(font);
-			termStyle.setForeground(color);
-			// Keep track of structures that consume O.S. resources
-			fFontMap.put(termStyle, font);
-			fColorMap.put(termStyle, color);
-			// Maintain structures we return to the client of this dialog
-			fStyleMap.put(termString, fd);
-			fRGBMap.put(termString, rgb);
-			// Figure out how big the sample text ought to be in the new font style
-			Rectangle bounds= termStyle.getBounds();
-			GC gc= new GC(area);
-			gc.setFont(font);
-			Point labelSize= gc.stringExtent(termStyle.getText());
-			gc.dispose();
-			bounds.width= Math.min(32, labelSize.x + 4);
-			bounds.height= Math.min(12, labelSize.y + 4);
-			termStyle.setBounds(bounds);
-			// Re-layout and resize the dialog to accommodate any change in the sample text
-			area.layout();
-			area.getShell().pack();
-		    }
-		}
-	    });
-	}
-//	getButton(IDialogConstants.OK_ID).setText("&Ok");
-	return area;
+                    if (fd != null) {
+                        final Font font= new Font(area.getDisplay(), fd);
+                        final RGB rgb= dlog.getRGB();
+                        final Color color= new Color(area.getDisplay(), rgb);
+                        if (fFontMap.containsKey(termStyle)) {
+                            fFontMap.get(termStyle).dispose();
+                            fColorMap.get(termStyle).dispose();
+                        }
+                        // Update sample text with new font + color
+                        termStyle.setFont(font);
+                        termStyle.setForeground(color);
+                        // Keep track of structures that consume O.S. resources
+                        fFontMap.put(termStyle, font);
+                        fColorMap.put(termStyle, color);
+                        // Maintain structures we return to the client of this
+                        // dialog
+                        fStyleMap.put(termString, fd);
+                        fRGBMap.put(termString, rgb);
+                        // Figure out how big the sample text ought to be in the
+                        // new font style
+                        Rectangle bounds= termStyle.getBounds();
+                        GC gc= new GC(area);
+                        gc.setFont(font);
+                        Point labelSize= gc.stringExtent(termStyle.getText());
+                        gc.dispose();
+                        bounds.width= Math.min(32, labelSize.x + 4);
+                        bounds.height= Math.min(12, labelSize.y + 4);
+                        termStyle.setBounds(bounds);
+                        // Re-layout and resize the dialog to accommodate any
+                        // change in the sample text
+                        area.layout();
+                        area.getShell().pack();
+                    }
+                }
+            });
+        }
+        // getButton(IDialogConstants.OK_ID).setText("&Ok");
+        return area;
     }
 
     public Map<String, FontData> getStyleMap() {
