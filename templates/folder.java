@@ -15,10 +15,6 @@ import $AST_PACKAGE$.*;
  * the folder package and class.
  */
 public class $FOLDER_CLASS_NAME$ extends LPGFolderBase {
-    private void makeFoldable(ASTNode n) {
-    	makeAnnotation(n.getLeftIToken(), n.getRightIToken());
-    }
-
 	/*
 	 * A visitor for ASTs.  Its purpose is to create ProjectionAnnotations
 	 * for regions of text corresponding to various types of AST node or to
