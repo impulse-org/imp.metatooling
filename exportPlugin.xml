@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="org.eclipse.imp.metatooling" default="build.update.jar" basedir=".">
-	<import file="../org.eclipse.imp.feature/buildCommon.xml"/>
+	<import file="../org.eclipse.imp.metatooling.feature/buildCommon.xml"/>
 	<import file="../org.eclipse.imp.update/buildPluginCommon.xml"/>
 
 	<!-- ================================================================================= -->
