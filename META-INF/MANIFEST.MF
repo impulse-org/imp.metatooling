@@ -1,7 +1,7 @@
 Bundle-SymbolicName: org.eclipse.imp.metatooling;singleton:=true
 Bundle-Name: IMP Language Support Meta-Tooling (Incubation)
 Bundle-Vendor: rfuhrer@watson.ibm.com
-Bundle-Version: 0.1.88
+Bundle-Version: 0.1.89
 Bundle-Activator: org.eclipse.imp.WizardPlugin
 Eclipse-LazyStart: true
 Provide-Package: org.eclipse.imp,
@@ -25,7 +25,7 @@ Require-Bundle: org.eclipse.core.resources,
  org.eclipse.ui.console,
  org.eclipse.debug.ui,
  org.eclipse.imp.runtime,
- org.eclipse.imp.lpg.runtime,
+ org.eclipse.imp.lpg.ide,
  org.eclipse.imp.smapifier
 Require-Bundle-comment: Removed 'org.eclipse.core.resources.source;bundle-version="3.4.0"'
  trying to make a bundle manifest that is as version-independent as possible
