@@ -12,7 +12,7 @@ public class $FORMATTER_CLASS_NAME$ implements ILanguageService, ISourceFormatte
     private String fIndentString;
 
     public void formatterStarts(String initialIndentation) {
-        // Should pick up preferences here
+        // TODO Should pick up preferences here
         fIndentSize= 4;
         StringBuffer buff= new StringBuffer(fIndentSize);
         for(int i=0; i < fIndentSize; i++)
@@ -24,12 +24,6 @@ public class $FORMATTER_CLASS_NAME$ implements ILanguageService, ISourceFormatte
         final StringBuffer buff= new StringBuffer();
         $AST_NODE$ root= ($AST_NODE$) parseController.getCurrentAst();
 
-        // SMS 9 Aug 2006
-        // The original call to root.accept(..) assumes that the AST-related
-        // classes (including AbstractVisitor) are generated within the parser
-        // class, which (I don't think) is what happens by default now in the
-        // usual case (instead they're in the AST package)
-        //root.accept(new $CLASS_NAME_PREFIX$Parser.AbstractVisitor() {
         root.accept(new AbstractVisitor() {
             private int prodCount;
             private int prodIndent;
@@ -64,6 +58,5 @@ public class $FORMATTER_CLASS_NAME$ implements ILanguageService, ISourceFormatte
     }
 
     public void formatterStops() {
-    // TODO Auto-generated method stub
     }
 }

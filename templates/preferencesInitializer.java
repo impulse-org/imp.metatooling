@@ -2,7 +2,7 @@ package $PREFS_PACKAGE_NAME$;
 	
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.imp.preferences.IPreferencesService;
-import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;	// SMS 27 Mar 2007
+import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 
 /**
  * Provides a method to initialize the default-level preference for $PREFS_CLASS_NAME$
@@ -12,10 +12,6 @@ import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;	// SMS 27 Mar 2007
  * values on other levels will be initialized from files managed by the preferences service.
  * Preferences on the default level are not stored but are defined programmatically (which
  * is the purpose of this class).
- * 
- * For the template:
- * @author suttons@us.ibm.com
- * 	
  */
 public class $PREFS_CLASS_NAME$Initializer extends AbstractPreferenceInitializer {
     /*

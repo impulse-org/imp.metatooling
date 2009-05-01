@@ -8,23 +8,6 @@ import java.util.Map;
 import java.util.Stack;
 
 import $AST_PKG$.*;
-//import leg.imp.parser.Ast.ASTNode;
-//import leg.imp.parser.Ast.ASTNodeToken;
-//import leg.imp.parser.Ast.AbstractVisitor;
-//import leg.imp.parser.Ast.block;
-//import leg.imp.parser.Ast.declaration;
-//import leg.imp.parser.Ast.functionCall;
-//import leg.imp.parser.Ast.functionDeclaration;
-//import leg.imp.parser.Ast.functionDeclarationList;
-//import leg.imp.parser.Ast.functionHeader;
-//import leg.imp.parser.Ast.identifier;
-//import leg.imp.parser.Ast.primitiveType0;
-//import leg.imp.parser.Ast.primitiveType1;
-//import leg.imp.parser.Ast.primitiveType2;
-//import leg.imp.parser.Ast.term0;
-//import leg.imp.parser.Ast.term1;
-//import leg.imp.parser.Ast.term2;
-//import leg.imp.parser.Ast.term3;
 
 import lpg.runtime.IAst;
 
@@ -517,6 +500,4 @@ public class $OCCURRENCE_MARKER_CLASS_NAME$ implements ILanguageService, IOccurr
 		
 		
 	}
-	
-	
 }

@@ -12,14 +12,12 @@ import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
  * 
  * Naming conventions:  This template uses the language name as a prefix
  * for naming the language plugin class and the preference-tab classes.
- * 	
  */
 public class $PREFS_CLASS_NAME$PreferencePage extends TabbedPreferencesPage {
 	
 	public $PREFS_CLASS_NAME$PreferencePage() {
 		super();
 		// Get the language-specific preferences service
-		// SMS 28 Mar 2007:  parameterized full name of plugin class
 		prefService = $PLUGIN_CLASS$.getPreferencesService();
 	}
 	
@@ -52,5 +50,4 @@ public class $PREFS_CLASS_NAME$PreferencePage extends TabbedPreferencesPage {
 	public PreferencesInitializer getPreferenceInitializer() {
 		return new $PREFS_INIT_CLASS_NAME$();
 	}
-
 }

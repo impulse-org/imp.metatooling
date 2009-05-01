@@ -8,7 +8,6 @@ $SMAPI_IMPORT$
 import $PLUGIN_PACKAGE$.$PLUGIN_CLASS$;
 
 public class $CLASS_NAME_PREFIX$Nature extends ProjectNatureBase {
-	// SMS 28 Mar 2007:  plugin class now totally parameterized
 	public static final String k_natureID = $PLUGIN_CLASS$.kPluginID + ".imp.nature";
  
     public String getNatureID() {
@@ -25,12 +24,10 @@ $SMAP_SUPPORT$
     }
 
     public IPluginLog getLog() {
-    	// SMS 28 Mar 2007:  plugin class now totally parameterized
         return $PLUGIN_CLASS$.getInstance();
     }
 
     protected String getDownstreamBuilderID() {
-        // TODO Auto-generated method stub
-        return null;
+        return null; // TODO If needed, specify the builder that will consume artifacts created by this nature's builder
     }
 }

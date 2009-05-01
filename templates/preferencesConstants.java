@@ -10,15 +10,10 @@ package $PREFS_PACKAGE_NAME$;
  * 
  * Note:  The preferences service uses Strings as keys for preference
  * values, so Strings are used here to designate the preferences.
- * 
- * For the template:
- * @author suttons@us.ibm.com
  */
 public class $PREFS_CLASS_NAME$Constants {
 
 	// TODO:  Fill in constants for names of preferenes
 	// Example:
     //public static final String P_EMIT_MESSAGES= "emitMessages";
-
-
 }

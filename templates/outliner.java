@@ -10,9 +10,6 @@ import $AST_PKG$.*;
  * that is parameterized with respect to the name of the language, the package
  * containing the language-specific types for AST nodes and AbstractVisitors, and
  * the name of the outliner package and class.
- * 
- * @author suttons@us.ibm.com
- *
  */
 public class $OUTLINER_CLASS_NAME$ extends OutlinerBase
 {
