@@ -1,9 +1,10 @@
+Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.imp.metatooling;singleton:=true
 Bundle-Name: IMP Language Support Meta-Tooling (Incubation)
 Bundle-Vendor: rfuhrer@watson.ibm.com
-Bundle-Version: 0.1.90
+Bundle-Version: 0.1.91
 Bundle-Activator: org.eclipse.imp.WizardPlugin
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Provide-Package: org.eclipse.imp,
  org.eclipse.imp.presentation,
  org.eclipse.imp.presentation.ast,
@@ -27,10 +28,6 @@ Require-Bundle: org.eclipse.core.resources,
  org.eclipse.imp.runtime,
  org.eclipse.imp.lpg.ide,
  org.eclipse.imp.smapifier
-Require-Bundle-comment: Removed 'org.eclipse.core.resources.source;bundle-version="3.4.0"'
- trying to make a bundle manifest that is as version-independent as possible
- (not present in 3.3, and, even if it were, it's version wouldn't be 3.4.0)
-Bundle-ManifestVersion: 2
 Export-Package: org.eclipse.imp.extensionsmodel,
  org.eclipse.pde.internal.core.plugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
