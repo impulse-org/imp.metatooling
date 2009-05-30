@@ -1,21 +1,20 @@
 package $PACKAGE_NAME$;
 
+import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.TextEditorAction;
-import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.refactoring.RefactoringStarter;
 
 public class $REFACTORING_PREFIX$RefactoringAction extends TextEditorAction {
-//    private final UniversalEditor fEditor;
-
-    public $REFACTORING_PREFIX$RefactoringAction(UniversalEditor editor) {
-	super(RefactoringMessages.ResBundle, "$REFACTORING_PREFIX$.", editor);
-//	fEditor= editor;
+    public $REFACTORING_PREFIX$RefactoringAction(ITextEditor editor) {
+        super(RefactoringMessages.ResBundle, "$REFACTORING_PREFIX$.", editor);
     }
 
     public void run() {
-	final $REFACTORING_PREFIX$Refactoring refactoring= new $REFACTORING_PREFIX$Refactoring((UniversalEditor) this.getTextEditor());
+        final $REFACTORING_PREFIX$Refactoring refactoring= new $REFACTORING_PREFIX$Refactoring(getTextEditor());
 
-	if (refactoring != null)
-		new RefactoringStarter().activate(refactoring, new $REFACTORING_PREFIX$Wizard(refactoring, "$REFACTORING_NAME$"), this.getTextEditor().getSite().getShell(), "$REFACTORING_NAME$", false);
+        if (refactoring != null) {
+            new RefactoringStarter().activate(refactoring, new $REFACTORING_PREFIX$Wizard(refactoring),
+                    getTextEditor().getSite().getShell(), refactoring.getName(), false);
+        }
     }
 }

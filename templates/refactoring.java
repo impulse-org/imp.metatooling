@@ -18,63 +18,69 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.parser.IASTNodeLocator;
+import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.services.IASTFindReplaceTarget;
 
 public class $REFACTORING_PREFIX$Refactoring extends Refactoring {
     private final IFile fSourceFile;
     private final ASTNode fNode;
+    private final ITextEditor fEditor;
 
-    public $REFACTORING_PREFIX$Refactoring(UniversalEditor editor) {
-	super();
+    public $REFACTORING_PREFIX$Refactoring(ITextEditor editor) {
+        super();
 
-	IEditorInput input= editor.getEditorInput();
+        fEditor= editor;
 
-	if (input instanceof IFileEditorInput) {
-	    IFileEditorInput fileInput= (IFileEditorInput) input;
+        IASTFindReplaceTarget frt= (IASTFindReplaceTarget) fEditor;
+        IEditorInput input= editor.getEditorInput();
 
-	    fSourceFile= fileInput.getFile();
-	    fNode= findNode(editor);
-	} else {
-	    fSourceFile= null;
-	    fNode= null;
-	}
+        if (input instanceof IFileEditorInput) {
+            IFileEditorInput fileInput= (IFileEditorInput) input;
+
+            fSourceFile= fileInput.getFile();
+            fNode= findNode(frt);
+        } else {
+            fSourceFile= null;
+            fNode= null;
+        }
     }
 
-    private ASTNode findNode(UniversalEditor editor) {
-	Point sel= editor.getSelection();
-	IParseController parseController= editor.getParseController();
-	ASTNode root= (ASTNode) parseController.getCurrentAst();
-	IASTNodeLocator locator= parseController.getNodeLocator();
+    private ASTNode findNode(IASTFindReplaceTarget frt) {
+        Point sel= frt.getSelection();
+        IParseController parseController= frt.getParseController();
+        ASTNode root= (ASTNode) parseController.getCurrentAst();
+        ISourcePositionLocator locator= parseController.getSourcePositionLocator();
 
-	return (ASTNode) locator.findNode(root, sel.x);
+        return (ASTNode) locator.findNode(root, sel.x);
     }
 
     public String getName() {
-	return "$REFACTORING_NAME$";
+        return "$REFACTORING_NAME$";
     }
 
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-	// Check parameters retrieved from editor context
-	return new RefactoringStatus();
+        // Check parameters retrieved from editor context
+        return new RefactoringStatus();
     }
 
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-	return new RefactoringStatus();
+        return new RefactoringStatus();
     }
 
     public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-	TextFileChange tfc= new TextFileChange("$REFACTORING_NAME$", fSourceFile);
+        TextFileChange tfc= new TextFileChange("$REFACTORING_NAME$", fSourceFile);
 
-	tfc.setEdit(new MultiTextEdit());
+        tfc.setEdit(new MultiTextEdit());
 
-	int startOffset= 0;
-	int endOffset= 5;
+        int startOffset= 0;
+        int endOffset= 5;
 
-	// START HERE
-	tfc.addEdit(new ReplaceEdit(startOffset, endOffset - startOffset + 1, "Boo!"));
+        // START HERE
+        tfc.addEdit(new ReplaceEdit(startOffset, endOffset - startOffset + 1, "Boo!"));
 
-	return tfc;
+        return tfc;
     }
 }
