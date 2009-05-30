@@ -7,7 +7,6 @@
  *
  * Contributors:
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
  *******************************************************************************/
 
 package org.eclipse.imp.wizards;
@@ -84,9 +83,8 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
                     fWizardAttributes, thisWizardName, thisWizardDescription);
         }
 
-        protected void createFirstControls(Composite parent) {
-            super.createFirstControls(parent, componentID);
-            fPrefixField= new WizardPageField(null, "refactoringPrefix", "Refactoring Name Prefix:", "Insert Crud", 0, true,
+        protected void createAdditionalControls(Composite parent) {
+            fPrefixField= new WizardPageField(null, "refactoringPrefix", "Refactoring Name Prefix:", "InsertCrud", 0, true,
                     "Prefix used for the various refactoring implementation classes");
             createLabelText(parent, fPrefixField);
             fNameField= new WizardPageField(null, "refactoringName", "Refactoring Name:", "Insert Crud", 0, true,
@@ -105,10 +103,11 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
         }
     }
 
-    protected List getPluginDependencies() {
+    protected List<String> getPluginDependencies() {
         return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources", "org.eclipse.imp.runtime",
-                "org.eclipse.jdt.core", "org.eclipse.jdt.ui", "org.eclipse.ui.ide", "org.eclipse.ltk.core.refactoring",
-                "org.eclipse.ltk.ui.refactoring" });
+                "org.eclipse.jdt.core", "org.eclipse.jdt.ui",
+                "org.eclipse.ltk.core.refactoring", "org.eclipse.ltk.ui.refactoring",
+                "org.eclipse.text", "org.eclipse.ui.editors", "org.eclipse.ui.ide", "org.eclipse.ui.workbench.texteditor" });
     }
 
     protected static class InsertLocation {
