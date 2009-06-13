@@ -554,7 +554,6 @@ public class ExtensionPointEnabler {
     	IProject project, IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues, List<String> imports)
     throws CoreException, IOException
     {
-
     	loadImpExtensionsModel(pluginModel, project);
     	
         // Create the exstension, fill it out, and add it to the model if necessary
@@ -587,12 +586,14 @@ public class ExtensionPointEnabler {
     public static ImpWorkspaceExtensionsModel loadImpExtensionsModel(IPluginModel pluginModel, IProject project)
     	throws CoreException
     {
-        String filename= "plugin.xml";
-        IFile file= project.getFile(filename);
+        IFile pluginXML= project.getFile("plugin.xml");
         // Evidently, just creating the extensions model with a given file doesn't
         // actually load the model from that file, which must be done explicitly
-        ImpWorkspaceExtensionsModel extensions = new ImpWorkspaceExtensionsModel(file);
-        extensions.load(file.getContents(), true);
+        ImpWorkspaceExtensionsModel extensions = new ImpWorkspaceExtensionsModel(pluginXML);
+
+        if (pluginXML.exists()) {
+            extensions.load(pluginXML.getContents(), true);
+        }
         
         // Hook the extensions model into the bundle plugin model base
         IBundlePluginModelBase bpmb= (IBundlePluginModelBase) pluginModel;
