@@ -7,7 +7,6 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
 package org.eclipse.imp.wizards;
@@ -15,7 +14,6 @@ package org.eclipse.imp.wizards;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +52,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 
 public abstract class IMPWizard extends Wizard {
-
     protected IMPWizardPage pages[];
     protected int currentPage;
 	
@@ -83,16 +80,13 @@ public abstract class IMPWizard extends Wizard {
 	protected String fFullClassName;
 	
     protected static final String START_HERE= "// START_HERE";
-	
-	
-	
-	
+
+
     public void init(IWorkbench workbench, IStructuredSelection selection) {}
 	
 	
 	@Override
 	public boolean performFinish() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -113,36 +107,33 @@ public abstract class IMPWizard extends Wizard {
 		for(int n= 0; n < pages.length; n++) {
 		    addPage(pages[n]);
 		}
-		List/*<String>*/extenRequires= getPluginDependencies();
-		for(Iterator/*<String>*/iter= extenRequires.iterator(); iter.hasNext();) {
-		    String requiredPlugin= (String) iter.next();
+		List<String> extenRequires= getPluginDependencies();
+		for(String requiredPlugin: extenRequires) {
 		    for(int n= 0; n < pages.length; n++) {	
-			List/*<String>*/pageRequires= pages[n].getRequires();
-			pageRequires.add(requiredPlugin);
+		        List<String> pageRequires= pages[n].getRequires();
+		        pageRequires.add(requiredPlugin);
 		    }
 		}
     }
     
 
     public IWizardPage getPreviousPage(IWizardPage page) {
-	if (currentPage == 0)
-	    return null;
-	return pages[currentPage];
+        if (currentPage == 0)
+            return null;
+        return pages[currentPage];
     }
 
     public IWizardPage getNextPage(IWizardPage page) {
-	if (currentPage == pages.length - 1)
-	    return null;
-	return pages[++currentPage];
+        if (currentPage == pages.length - 1)
+            return null;
+        return pages[++currentPage];
     }
 
     
     /**
-     * @return the list of plugin dependencies for this language service.
+     * @return the list of plugin ID's for the plugin dependencies for this language service.
      */
-    protected abstract List getPluginDependencies();
-    
-    
+    protected abstract List<String> getPluginDependencies();
     
     
     /**
@@ -293,8 +284,8 @@ public abstract class IMPWizard extends Wizard {
         }
         return null;
     }
-    
-    
+
+
     public static String discoverProjectLanguage(IProject project) {
 		if (project == null)
 		    return null;
@@ -459,17 +450,17 @@ public abstract class IMPWizard extends Wizard {
      * default case in the NewParser wizard.
      * 
      * TODO:  Provide a means for (more) persistently maintaining the names
-     * of hte AST package and class in such a way that they can become part
+     * of the AST package and class in such a way that they can become part
      * of the "standard substitutions."  (ALTERNATIVELY:  the class could just
      * be obtained in wizards where needed, in which case it need not be part
      * of the standard substitutions.)
      * 
-     * @return	A Map that contains two valuse:  the name of the package that
+     * @return	A Map that contains two values:  the name of the package that
      * 			contains the AST class, and the name of the AST class.
      * 			These values keyed, respectively, by the symbols "$AST_PACKAGE$"
      * 			and "$AST_NODE$".
      * 
-     * Updates:  Stan Sutton, 9 Aug 2006
+     * Updates: Stan Sutton, 9 Aug 2006
      * 			Changed return from $AST_CLASS$ to $AST_NODE$ since the latter
      * 			is the symbol more commonly used (and the one on which I will
      * 			try to standardize)
