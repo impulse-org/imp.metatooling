@@ -332,9 +332,7 @@ public class NewNatureEnabler extends GeneratedComponentWizard implements INewWi
         String natureClassName= upperCaseFirst(language) + "Nature";
 
         String actionClassName= fQualClassName.substring(fQualClassName.lastIndexOf('.') + 1); // "EnableNature";
-        String actionPkgName= fQualClassName.substring(0, fQualClassName.lastIndexOf('.')); // language
-                                                                                            // +
-                                                                                            // ".imp.actions";
+        String actionPkgName= fQualClassName.substring(0, fQualClassName.lastIndexOf('.')); // language + ".imp.actions";
 
         String actionPkgFolder= actionPkgName.replace('.', '/');
 
@@ -351,18 +349,13 @@ public class NewNatureEnabler extends GeneratedComponentWizard implements INewWi
     }
 
     private void addEnablerAction(IProgressMonitor mon) {
-        // This one makes the action show up for Java projects
+        // This one makes the action show up for any project
         ExtensionPointEnabler.enable(fProject, "org.eclipse.ui", "popupMenus", new String[][] {
                 { "objectContribution:adaptable", "false" },
                 { "objectContribution:nameFilter", "*" },
-                { "objectContribution:objectClass", "org.eclipse.jdt.core.IJavaProject" },
+                { "objectContribution:objectClass", "org.eclipse.core.resources.IProject" },
                 { "objectContribution:id", fLangName + ".imp.projectContextMenu" },
-                { "objectContribution.action:class", fQualClassName }, // fLangName
-                                                                        // +
-                                                                        // ".imp.actions."
-                                                                        // +
-                                                                        // actionClassName
-                                                                        // },
+                { "objectContribution.action:class", fQualClassName }, // fLangName + ".imp.actions." + actionClassName },
                 { "objectContribution.action:id", fLangName + ".imp.actions.enableNatureAction" },
                 { "objectContribution.action:label", "Enable " + fLangName + " Builder" },
                 { "objectContribution.action:tooltip", "Enable the " + fLangName + " builder for this project" } }, false,
