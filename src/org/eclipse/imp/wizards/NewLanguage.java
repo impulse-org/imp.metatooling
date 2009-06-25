@@ -7,16 +7,13 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
-/**
- * 
- */
 package org.eclipse.imp.wizards;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,10 +22,14 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.WizardPlugin;
+import org.eclipse.imp.perspective.IMPPerspectiveFactory;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.sanityChecker.SanityNature;
 import org.eclipse.imp.ui.dialogs.validators.SelectionValidatorForPluginProjects;
 import org.eclipse.imp.utils.StreamUtils;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.pde.core.plugin.IPluginBase;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.internal.core.PDECore;
@@ -36,6 +37,9 @@ import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IPerspectiveDescriptor;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 
 
 /*
@@ -57,24 +61,20 @@ import org.eclipse.swt.widgets.Shell;
  */
 
 public class NewLanguage extends CodeServiceWizard {
-	
 	// For sharing between methods here, to avoid recomputation
     Map<String, String> fSubs = null;
-   
-    
+
     public void addPages() {
     	NewLanguageWizardPage page = new NewLanguageWizardPage(this, RuntimePlugin.IMP_RUNTIME, "languageDescription");
     	page.setSelectionValidatorForProjects(new SelectionValidatorForPluginProjects());
         addPages(new ExtensionPointWizardPage[] { page });
     }
 
-
-    protected List getPluginDependencies() {
+    protected List<String> getPluginDependencies() {
         return Arrays.asList(new String[] {
             "org.eclipse.core.runtime", "org.eclipse.core.resources",
     	    "org.eclipse.imp.runtime", "org.eclipse.ui" });
     }
-
 
     /*
      * Overrides the method in CodeServiceWizard because fewer parameters
@@ -90,7 +90,6 @@ public class NewLanguage extends CodeServiceWizard {
         fClassNamePrefix= Character.toUpperCase(fLanguageName.charAt(0)) + fLanguageName.substring(1);
     }
 
-    
     public void generateCodeStubs(IProgressMonitor mon) throws CoreException {
         fSubs = getStandardSubstitutions(fProject);
     	if (fProject == null) {
@@ -135,10 +134,8 @@ public class NewLanguage extends CodeServiceWizard {
     	}
     	new SanityNature().addToProject(fProject);
     }
-    
-    
-    protected String[] getFilesThatCouldBeClobbered()
-    {
+
+    protected String[] getFilesThatCouldBeClobbered() {
     	try {
         	IFile manifestFile = fProject.getFile("META-INF/MANIFEST.MF");
     	   	if (manifestFile.exists()) {
@@ -180,17 +177,14 @@ public class NewLanguage extends CodeServiceWizard {
     		return false;
     	return true;
     }
-    	
-    
-    
+
     // SMS 23 Apr 2007
     // Here we're concerned with whether the plugin id for the project
     // is a duplicate--Eclipse allows that, but the presence of duplicate
     // plugin ids can cause the Universal Editor to dispatch the wrong
     // editor on a file, so we want to check whether the user really wants
     // to define a language in this plugin.
-    public boolean performFinish()
-    {
+    public boolean performFinish() {
     	if (fProject == null || fSubs == null) {
     		ExtensionPointWizardPage page= (ExtensionPointWizardPage) pages[0];
     		fProject = page.getProjectOfRecord();
@@ -207,13 +201,37 @@ public class NewLanguage extends CodeServiceWizard {
         		}
         	}
         }
+        maybeSwitchPerspective();
     	return super.performFinish();
     }
-    
-    
-    public List<String> getPluginIds()
-    {
-    	List<String> result = new ArrayList();
+
+    private void maybeSwitchPerspective() {
+        final IWorkbenchWindow window= PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        String curPerspective= window.getActivePage().getPerspective().getId();
+
+        if (!curPerspective.equals(IMPPerspectiveFactory.IMP_PERSPECTIVE_ID)) {
+            try {
+                window.run(false, false, new IRunnableWithProgress() {
+                    public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                        boolean answer= MessageDialog.openConfirm(window.getShell(), "Switch perspective?", "Would you like to switch to the IMP IDE Building perspective now?");
+
+                        if (answer) {
+                            IPerspectiveDescriptor perspective= PlatformUI.getWorkbench().getPerspectiveRegistry().findPerspectiveWithId(IMPPerspectiveFactory.IMP_PERSPECTIVE_ID);
+
+                            window.getActivePage().setPerspective(perspective);
+                        }
+                    }
+                });
+            } catch (InvocationTargetException e) {
+                WizardPlugin.getInstance().logException("Error posting switch-perspective dialog", e);
+            } catch (InterruptedException e) {
+                WizardPlugin.getInstance().logException("Error posting switch-perspective dialog", e);
+            }
+        }
+    }
+
+    public List<String> getPluginIds() {
+    	List<String> result = new ArrayList<String>();
     	
 		PluginModelManager pmm = PDECore.getDefault().getModelManager();
 		IPluginModelBase[] wsPlugins= pmm.getWorkspaceModels();
@@ -228,10 +246,8 @@ public class NewLanguage extends CodeServiceWizard {
 		}
 		return result;
 	}
-    
-    
-    protected boolean okToDuplicatePluginIds(String pluginId)
-    {
+
+    protected boolean okToDuplicatePluginIds(String pluginId) {
     	String message = "This project has id = '" + pluginId + "', which duplicates that of another project.\n" +
     					 "Duplicate plugin ids can lead to errors in the enabling of new language services;\n" +
     					 "do you wish to continue to define your language in this project?";
