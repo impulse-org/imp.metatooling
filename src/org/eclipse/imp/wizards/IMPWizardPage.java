@@ -25,10 +25,11 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.ui.dialogs.ListSelectionDialog;
-import org.eclipse.imp.ui.dialogs.filters.ViewerFilterForIDEProjects;
+import org.eclipse.imp.ui.dialogs.filters.ViewerFilterForPluginProjects;
 import org.eclipse.imp.ui.dialogs.providers.ContentProviderForAllProjects;
 import org.eclipse.imp.ui.dialogs.providers.LabelProviderForProjects;
 import org.eclipse.imp.ui.dialogs.validators.SelectionValidatorForIDEProjects;
+import org.eclipse.imp.ui.dialogs.validators.SelectionValidatorForPluginProjects;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -345,7 +346,7 @@ public class IMPWizardPage extends WizardPage {
      * 			opened by this wizard page
      */
     protected ViewerFilter getViewerFilterForProjects() {
-    	return new ViewerFilterForIDEProjects();
+    	return new ViewerFilterForPluginProjects();
     }
     
 
@@ -375,7 +376,7 @@ public class IMPWizardPage extends WizardPage {
 	 * @return	A project-selection validator to use on this page.
 	 */
 	protected ISelectionValidator getSelectionValidatorForProjects() {
-		return new SelectionValidatorForIDEProjects();
+		return new SelectionValidatorForPluginProjects();
 	}
 
 
@@ -758,22 +759,23 @@ public class IMPWizardPage extends WizardPage {
           return "Please select a project";
       }
       String errorMessage = null;
-      boolean isIDEProject= true;
 
       for (int i = 0; i < projectValidators.size(); i++) {
     	  errorMessage = projectValidators.get(i).isValid(project);
     	  // RMF 5/29/2009 - Allow non-IDE projects, but enable the language ID field if the user selects one of those
     	  if (SelectionValidatorForIDEProjects.ERROR_MSG_NOT_IDE_PROJECT.equals(errorMessage)) {
     	      fLanguageText.setEnabled(true);
-    	      isIDEProject= false;
     	      continue;
     	  }
     	  if (errorMessage == null || errorMessage.length() == 0)
     		  continue;
     	  return errorMessage;
       }
-      if (isIDEProject)
-          fLanguageText.setEnabled(false); // a non-IDE project was selected
+      if (new SelectionValidatorForIDEProjects().isValid(project) == null) {
+          fLanguageText.setEnabled(false); // an IDE project was selected
+      } else {
+          fLanguageText.setEnabled(true); // a non-IDE project was selected
+      }
       return null;
     }
     
