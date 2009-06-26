@@ -42,8 +42,8 @@ import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
+import org.eclipse.jdt.internal.ui.dialogs.FilteredTypesSelectionDialog;
 import org.eclipse.jdt.internal.ui.dialogs.PackageSelectionDialog;
-import org.eclipse.jdt.internal.ui.dialogs.TypeSelectionDialog2;
 import org.eclipse.jdt.internal.ui.wizards.NewClassCreationWizard;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jdt.ui.wizards.NewClassWizardPage;
@@ -885,10 +885,10 @@ public class IMPWizardPage extends WizardPage {
 	            try {
 	                IRunnableContext context= PlatformUI.getWorkbench().getProgressService();
 	                IJavaSearchScope scope= new JavaWorkspaceScope();
-	                TypeSelectionDialog2 dialog= new TypeSelectionDialog2(null, false, context, scope, IJavaSearchConstants.CLASS);
+	                FilteredTypesSelectionDialog dialog= new FilteredTypesSelectionDialog(null, false, context, scope, IJavaSearchConstants.CLASS);
 	                dialog.setTitle("Class Browse");
 	
-	                if (dialog.open() == TypeSelectionDialog2.OK) {
+	                if (dialog.open() == FilteredTypesSelectionDialog.OK) {
 	                    Text text= (Text) e.widget.getData();
 	                    //BinaryType type= (BinaryType) dialog.getFirstResult();
 	                    Object type = dialog.getFirstResult();
@@ -1375,9 +1375,10 @@ public class IMPWizardPage extends WizardPage {
 		                    	{   // Assume that the interface name begins with an "I" that won't be found
 		                    		// in the service name
 		                    		serviceName = basedOnTypeName.substring(1);
-		                    	} else
+		                    	} else {
 		                    		// Just use the basedOnTypeName
 		                    		serviceName = basedOnTypeName;
+		                    	}
 		                    	
 		                    	// Now look for a base class with a name that includes that service name
 		                	    Bundle irb = Platform.getBundle("org.eclipse.imp.runtime");
