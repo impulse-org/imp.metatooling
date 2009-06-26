@@ -107,7 +107,7 @@ public class NewHoverHelper extends CodeServiceWizard {
 //		String hoverHelperTemplateName = "hoverHelper.java";
 		IFile hoverHelperFile = createFileFromTemplate(fFullClassName + ".java", fHoverHelperTemplateName, fPackageFolder, subs, fProject, monitor);
 //		ExtensionPointEnabler.enable(pages[0], false, monitor);
-		ExtensionPointEnabler.enable(
+		ExtensionEnabler.enable(
 				fProject, "org.eclipse.imp.runtime", "hoverHelper",
 				 new String[][] {
 		                { "extension:id", fProject.getName() + ".hoverHelper" },
@@ -131,7 +131,7 @@ public class NewHoverHelper extends CodeServiceWizard {
 			refResolverFile = createFileFromTemplate(fRefResolverClassName + ".java", fReferenceResolverTemplateName, refResolverPackageFolder, subs, fProject, monitor);
 			
 			// Need to enable documentationProvider extension "manually"
-			ExtensionPointEnabler.enable(
+			ExtensionEnabler.enable(
 				fProject, "org.eclipse.imp.runtime", "referenceResolvers",
 				 new String[][] {
 		                { "extension:id", fProject.getName() + ".referenceResolver" },
@@ -152,7 +152,7 @@ public class NewHoverHelper extends CodeServiceWizard {
 			docProviderFile = createFileFromTemplate(fDocProviderClassName + ".java", fDocProviderTemplateName, docPackageFolder, subs, fProject, monitor);
 			
 			// Need to enable documentationProvider extension "manually"
-			ExtensionPointEnabler.enable(
+			ExtensionEnabler.enable(
 				fProject, "org.eclipse.imp.runtime", "documentationProvider",
 				 new String[][] {
 		                { "extension:id", fProject.getName() + ".documentationProvider" },

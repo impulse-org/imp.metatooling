@@ -83,7 +83,7 @@ public class NewEditorService extends CodeServiceWizard {
 		String editorServiceTemplateName = "editorService.java";
 		IFile editorServiceFile = createFileFromTemplate(
 			fFullClassName + ".java", editorServiceTemplateName, fPackageFolder, subs, fProject, monitor);
-		ExtensionPointEnabler.enable(
+		ExtensionEnabler.enable(
 			fProject, "org.eclipse.imp.runtime", "editorService",
 			new String[][] {
 					{ "extension:id", fServiceExtensionId },

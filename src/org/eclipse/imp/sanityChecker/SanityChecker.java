@@ -13,7 +13,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.builder.BuilderBase;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.runtime.RuntimePlugin;
-import org.eclipse.imp.wizards.ExtensionPointEnabler;
+import org.eclipse.imp.wizards.ExtensionEnabler;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -126,7 +126,7 @@ public class SanityChecker extends BuilderBase {
     }
 
     private boolean readPluginManifest() {
-        IPluginModel pluginModel = ExtensionPointEnabler.getPluginModel(getProject());
+        IPluginModel pluginModel = ExtensionEnabler.getPluginModel(getProject());
 
         if (pluginModel instanceof BundlePluginModel) {
             BundlePluginModel bpm = (BundlePluginModel) pluginModel;
@@ -137,7 +137,7 @@ public class SanityChecker extends BuilderBase {
         }
 
         try {
-            ExtensionPointEnabler.loadImpExtensionsModel(pluginModel, getProject());
+            ExtensionEnabler.loadImpExtensionsModel(pluginModel, getProject());
             IExtensions pmExtensions = pluginModel.getExtensions();
             fPluginExtensions= pmExtensions.getExtensions();
         } catch (CoreException e) {

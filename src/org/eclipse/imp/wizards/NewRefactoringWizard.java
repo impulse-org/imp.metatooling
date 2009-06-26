@@ -189,7 +189,7 @@ public class NewRefactoringWizard extends GeneratedComponentWizard {
 
         if (ExtensionPointUtils.findExtensionByName("refactoringContributor", pages[0].getPluginModel()) == null) {
             try {
-                ExtensionPointEnabler.addExtension(
+                ExtensionEnabler.addExtension(
                         // SMS 24 Jul 2007: added project parameter reflecting
                         // change
                         // in ExtensionPointEnabler (evidently)

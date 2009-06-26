@@ -102,7 +102,7 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
     {	
     	// Enable the first extension provided through this wizard
     	// (enable the second one later, to accommodate timing issues)
-        ExtensionPointEnabler.enable(
+        ExtensionEnabler.enable(
         	fProject, "org.eclipse.imp.runtime", "modelTreeBuilder",
         	new String[][] {
         			{ "treeBuilder:class", fPackageName + "." + fFullBuilderClassName },
@@ -197,7 +197,7 @@ public class NewTreeModelBuilder extends GeneratedComponentWizard {
         // of timing problem (you can see it happen in the debugger if you put the two
         // enablings in sequence but stop after the first one).  Separating the enablings by
         // the rest of the code in this method seems to allow both of them to succeed regularly.
-        ExtensionPointEnabler.enable(
+        ExtensionEnabler.enable(
             	fProject, "org.eclipse.imp.runtime", "labelProvider",
             	new String[][] {
             			{ "labelProvider:class", fPackageName + "." + fFullProviderClassName },

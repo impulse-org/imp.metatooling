@@ -7,15 +7,9 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
 package org.eclipse.imp.wizards;
-
-/*
- * Licensed Materials - Property of IBM,
- * (c) Copyright IBM Corp. 2005  All Rights Reserved
- */
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -64,7 +58,7 @@ import org.eclipse.pde.internal.core.plugin.PluginElement;
  * @author rfuhrer@watson.ibm.com
  * @author suttons@us.ibm.com
  */
-public class ExtensionPointEnabler {
+public class ExtensionEnabler {
     public static String findServiceImplClass(String servicePointID, String lang, String defaultImplClass) {
         // Following assumes that the impl class is given by the "class" attribute of
         // a child element whose name is the last component of the extension point ID.
@@ -116,7 +110,7 @@ public class ExtensionPointEnabler {
     	        // Load the extensions model in detail, using the adapted IMP representation,
     	        // to assure that the children of model elements are represented
     	    	try {
-    	    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
+    	    		ExtensionEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
     	    	} catch (CoreException e) {
     	    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
     	    	} catch (ClassCastException e) {
@@ -187,9 +181,9 @@ public class ExtensionPointEnabler {
 		// (extension "id" is an attribute of the "page" child
 		// of the "preferencePage" extension)
 		try {
-			IPluginModel pluginModel = ExtensionPointEnabler.getPluginModel(project);
+			IPluginModel pluginModel = ExtensionEnabler.getPluginModel(project);
 			// Load the IMP way to get the complete model
-			ExtensionPointEnabler.loadImpExtensionsModel(pluginModel, project);
+			ExtensionEnabler.loadImpExtensionsModel(pluginModel, project);
 			IExtensions pmExtensions = pluginModel.getExtensions();
 			IPluginExtension[] pluginExtensions = pmExtensions.getExtensions();
 			for (int i = 0; i < pluginExtensions.length; i++) {
@@ -219,7 +213,7 @@ public class ExtensionPointEnabler {
 					}
 				}
 			}
-			ExtensionPointEnabler.saveAndRefresh(pluginModel);
+			ExtensionEnabler.saveAndRefresh(pluginModel);
 		} catch (CoreException e) {
 			String msg = "ExtensionPointEnabler.cleanPreviousExtensions(..):  CoreException when removing extension\n" + 
 				"\textension id = " + extensionId + ",\n" +

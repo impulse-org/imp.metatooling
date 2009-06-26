@@ -91,7 +91,7 @@ public class NewEditorAnnotationCreator extends GeneratedComponentWizard {
         
         IFile compilerSrc= createFileFromTemplate(fFullClassName + ".java", fTemplateName, fPackageFolder, subs, fProject, mon);
 
-		ExtensionPointEnabler.enable(
+		ExtensionEnabler.enable(
 				fProject, "org.eclipse.imp.runtime", "editorAnnotationCreator",
 				new String[][] {
 						{ "extension:id", fServiceExtensionId },
@@ -109,7 +109,7 @@ public class NewEditorAnnotationCreator extends GeneratedComponentWizard {
     {
     	ImpWorkspaceExtensionsModel iwem = null;
     	try {
-    		iwem = ExtensionPointEnabler.loadImpExtensionsModel(
+    		iwem = ExtensionEnabler.loadImpExtensionsModel(
 	    			(IPluginModel)pages[0].getPluginModel(), project);
     	} catch (CoreException e) {
 		    ErrorHandler.reportError("CoreException getting problem marker id; returning null", e);

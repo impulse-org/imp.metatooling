@@ -713,7 +713,7 @@ public class WizardUtilities {
             // Load the extensions model in detail, using the adapted IMP representation,
             // to assure that the children of model elements are represented
             try {
-                ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel) pluginModel, project);
+                ExtensionEnabler.loadImpExtensionsModel((IPluginModel) pluginModel, project);
             } catch (CoreException e) {
                 //System.err.println("WizardUtilities.discoverProjectLanguage(): CoreException loading extensions model; may not succeed");
             } catch (ClassCastException e) {

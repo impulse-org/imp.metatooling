@@ -350,7 +350,7 @@ public class NewNatureEnabler extends GeneratedComponentWizard implements INewWi
 
     private void addEnablerAction(IProgressMonitor mon) {
         // This one makes the action show up for any project
-        ExtensionPointEnabler.enable(fProject, "org.eclipse.ui", "popupMenus", new String[][] {
+        ExtensionEnabler.enable(fProject, "org.eclipse.ui", "popupMenus", new String[][] {
                 { "objectContribution:adaptable", "false" },
                 { "objectContribution:nameFilter", "*" },
                 { "objectContribution:objectClass", "org.eclipse.core.resources.IProject" },

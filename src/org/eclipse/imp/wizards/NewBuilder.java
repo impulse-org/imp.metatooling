@@ -85,7 +85,7 @@ public class NewBuilder extends CodeServiceWizard
         subs.put("$PROBLEM_ID$", fBuilderExtensionId + ".problem");
         
         
-        ExtensionPointEnabler.enable(fProject, "org.eclipse.core.resources", "natures", new String[][] {
+        ExtensionEnabler.enable(fProject, "org.eclipse.core.resources", "natures", new String[][] {
                 // RMF 10/18/2006: The nature ID should NOT have the plugin ID as a prefix (it's implicit)
                 { "extension:id", "imp.nature" },
                 { "extension:name", fLanguageName + " Nature" },
@@ -99,7 +99,7 @@ public class NewBuilder extends CodeServiceWizard
         		false,
         		getPluginDependencies(),
         		mon);
-        ExtensionPointEnabler.enable(fProject, "org.eclipse.core.resources", "markers",
+        ExtensionEnabler.enable(fProject, "org.eclipse.core.resources", "markers",
     	    new String[][] {
         			// SMS 28 Mar 2007:  id based on parameter
                     { "extension:id",   (String) subs.get("$PROBLEM_ID$")},
@@ -178,7 +178,7 @@ public class NewBuilder extends CodeServiceWizard
 
 					if (!page.hasBeenSkipped() && page.fSchema != null)
 //					    ExtensionPointEnabler.enable(page, false, monitor);
-						ExtensionPointEnabler.enable(
+						ExtensionEnabler.enable(
 							fProject, "org.eclipse.core.resources", "builders",
 							new String[][] {
 			                { "extension:id", fBuilderExtensionId },

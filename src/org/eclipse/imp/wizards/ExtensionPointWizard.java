@@ -185,7 +185,7 @@ public abstract class ExtensionPointWizard extends IMPWizard implements INewWiza
 	
 					// BUG Make sure the extension ID is correctly set
 					if (!page.hasBeenSkipped() && page.fSchema != null)
-					    ExtensionPointEnabler.enable(page, false, monitor);
+					    ExtensionEnabler.enable(page, false, monitor);
 				    }
 				    generateCodeStubs(monitor);
 				} catch (Exception e) {

@@ -158,11 +158,11 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
             String projectName = fProjectText.getText();
 		    IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 		    requiredPluginName = "org.eclipse.imp.runtime";
-            if (!ExtensionPointEnabler.hasRequiredPluginImport(project, requiredPluginName)) {
+            if (!ExtensionEnabler.hasRequiredPluginImport(project, requiredPluginName)) {
 			    List<String> requires = new ArrayList();
 			    requires.add(requiredPluginName);
 			    try {
-			    	ExtensionPointEnabler.addRequiredPluginImports(null, project, requires);
+			    	ExtensionEnabler.addRequiredPluginImports(null, project, requires);
 			    	addedRequiredPluginImport = true;
 			    	projectReceivingRequiredPluginImport = project;
 			    } catch (CoreException ce) {
@@ -220,12 +220,12 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
 		    removeRequiredPluginImportIfNecessary();
 
 		    // Now add the plugin import to the currently selected project, if it's not already there
-            if (!ExtensionPointEnabler.hasRequiredPluginImport(project, requiredPluginName)) {
+            if (!ExtensionEnabler.hasRequiredPluginImport(project, requiredPluginName)) {
 			    List<String> requires = new ArrayList();
 			    requires.add(requiredPluginName);
 			    
 			    try {
-			    	ExtensionPointEnabler.addRequiredPluginImports(null, project, requires);
+			    	ExtensionEnabler.addRequiredPluginImports(null, project, requires);
 			    	addedRequiredPluginImport = true;
 			    	projectReceivingRequiredPluginImport = project;
 			    } catch (CoreException ce) {
@@ -243,7 +243,7 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
      */
     private void removeRequiredPluginImportIfNecessary() {
 	    if (addedRequiredPluginImport && requiredPluginName != null) {
-	    	ExtensionPointEnabler.removeRequiredPluginImport(projectReceivingRequiredPluginImport, requiredPluginName);
+	    	ExtensionEnabler.removeRequiredPluginImport(projectReceivingRequiredPluginImport, requiredPluginName);
 	    	addedRequiredPluginImport = false;
 	    	projectReceivingRequiredPluginImport = null;
 	    }

@@ -80,7 +80,7 @@ public class NewFormattingSpecification extends ExtensionPointWizard {
                         fSpecFilename, WizardPlugin.kPluginID, "formatter.fsp", "", getProjectSourceLocation(fProject),
                         subs, fProject, new NullProgressMonitor());
         
-        ExtensionPointEnabler.
+        ExtensionEnabler.
         enable(
                 fProject, RuntimePlugin.IMP_RUNTIME, "formatter", 
                 new String[][] {

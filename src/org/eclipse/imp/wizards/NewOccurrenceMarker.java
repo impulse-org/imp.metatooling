@@ -92,7 +92,7 @@ public class NewOccurrenceMarker extends GeneratedComponentWizard {
     {	
     	// Enable the first extension provided through this wizard
     	// (enable the second one later, to accommodate timing issues)
-        ExtensionPointEnabler.enable(
+        ExtensionEnabler.enable(
         	fProject, "org.eclipse.imp.runtime", "markOccurrences",
         	new String[][] {
         			{ "occurrenceMarker:class", fPackageName + "." + fFullClassName },

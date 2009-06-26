@@ -171,7 +171,7 @@ public abstract class IMPWizard extends Wizard {
     	}
        	if (project != null) {
             String activator = null;
-            IPluginModel pm = ExtensionPointEnabler.getPluginModelForProject(project);
+            IPluginModel pm = ExtensionEnabler.getPluginModelForProject(project);
             if (pm != null) {
             	WorkspaceBundleModel wbm = new WorkspaceBundleModel(project.getFile("META-INF/MANIFEST.MF")); //$NON-NLS-1$
             	activator = wbm.getBundle().getHeader("Bundle-Activator");
@@ -227,7 +227,7 @@ public abstract class IMPWizard extends Wizard {
 	
 		if (pluginModel != null) {
 	    	try {
-	    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
+	    		ExtensionEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
 	    	} catch (CoreException e) {
 	    		System.err.println("CodeServiceWizard.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
 	    	} catch (ClassCastException e) {
@@ -294,7 +294,7 @@ public abstract class IMPWizard extends Wizard {
 	
 		if (pluginModel != null) {
 	    	try {
-	    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
+	    		ExtensionEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
 	    	} catch (CoreException e) {
 	    		System.err.println("CodeServiceWizard.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
 	    	} catch (ClassCastException e) {
@@ -353,7 +353,7 @@ public abstract class IMPWizard extends Wizard {
     		result = fClassNamePrefix + "Plugin";
        	if (project != null) {
             String activator = null;
-            IPluginModel pm = ExtensionPointEnabler.getPluginModelForProject(project);
+            IPluginModel pm = ExtensionEnabler.getPluginModelForProject(project);
             if (pm != null) {
             	WorkspaceBundleModel wbm = new WorkspaceBundleModel(project.getFile("META-INF/MANIFEST.MF")); //$NON-NLS-1$
             	activator = wbm.getBundle().getHeader("Bundle-Activator");
@@ -392,7 +392,7 @@ public abstract class IMPWizard extends Wizard {
     	if (result == null)
     		getPluginPackageName(project, null);
        	if (project != null) {
-            result = ExtensionPointEnabler.getPluginIDForProject(project);
+            result = ExtensionEnabler.getPluginIDForProject(project);
     	}
        	return result;
     }
@@ -478,7 +478,7 @@ public abstract class IMPWizard extends Wizard {
         // Load the extensions model in detail, using the adapted IMP representation,
         // to assure that the children of model elements are represented
     	try {
-    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
+    		ExtensionEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
     	} catch (CoreException e) {
     		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
     	} catch (ClassCastException e) {

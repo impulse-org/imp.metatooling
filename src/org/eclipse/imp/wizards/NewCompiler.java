@@ -262,7 +262,7 @@ public class NewCompiler extends GeneratedComponentWizard {
     {
     	ImpWorkspaceExtensionsModel iwem = null;
     	try {
-    		iwem = ExtensionPointEnabler.loadImpExtensionsModel(
+    		iwem = ExtensionEnabler.loadImpExtensionsModel(
 	    			(IPluginModel)pages[0].getPluginModel(), project);
     	} catch (CoreException e) {
 		    ErrorHandler.reportError("CoreException getting problem marker id; returning null", e);

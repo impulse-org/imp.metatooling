@@ -163,8 +163,8 @@ public class NewFancyTokenColorer extends CodeServiceWizard {
 	subs.put("$PACKAGE_NAME$", fPackageName);
 
 	// TODO Need to add the base language plugin (if any) as a plugin dependency
-	final String baseLang= ExtensionPointEnabler.findServiceAttribute(RuntimePlugin.IMP_RUNTIME + ".languageDescription", fLanguageName, "language", "derivedFrom", "");
-	final String baseLangServiceImpl= ExtensionPointEnabler.findServiceImplClass(RuntimePlugin.IMP_RUNTIME + ".tokenColorer", baseLang, DEFAULT_TOKEN_COLORER);
+	final String baseLang= ExtensionEnabler.findServiceAttribute(RuntimePlugin.IMP_RUNTIME + ".languageDescription", fLanguageName, "language", "derivedFrom", "");
+	final String baseLangServiceImpl= ExtensionEnabler.findServiceImplClass(RuntimePlugin.IMP_RUNTIME + ".tokenColorer", baseLang, DEFAULT_TOKEN_COLORER);
 	subs.put("$BASE_CLASS$", baseLangServiceImpl);
 
 	subs.put("$TOKEN_ATTRIBUTE_DECLS$", computeTokenAttribDecls());

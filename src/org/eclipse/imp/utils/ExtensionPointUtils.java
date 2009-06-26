@@ -20,7 +20,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.imp.wizards.ExtensionPointEnabler;
+import org.eclipse.imp.wizards.ExtensionEnabler;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -129,7 +129,7 @@ public class ExtensionPointUtils {
     		IPluginModelBase pluginModelBase, IProject project, String name, IPluginExtension parserExtension)
     {
     	try {
-    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel) pluginModelBase, project);
+    		ExtensionEnabler.loadImpExtensionsModel((IPluginModel) pluginModelBase, project);
     	} catch (CoreException e) {
     		System.err.println("ExtensionPointUtils.findElementByName(..):  CoreExeption loading extensions model; returning null");
     		return null;
@@ -193,7 +193,7 @@ public class ExtensionPointUtils {
         // Load the extensions model in detail, using the adapted IMP representation,
         // to assure that the children of model elements are represented
     	try {
-    		ExtensionPointEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
+    		ExtensionEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
     	} catch (CoreException e) {
     		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
     	} catch (ClassCastException e) {
