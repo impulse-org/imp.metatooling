@@ -5,6 +5,7 @@ Bundle-Vendor: rfuhrer@watson.ibm.com
 Bundle-Version: 0.1.91
 Bundle-Activator: org.eclipse.imp.WizardPlugin
 Bundle-ActivationPolicy: lazy
+Eclipse-LazyStart: true
 Provide-Package: org.eclipse.imp,
  org.eclipse.imp.presentation,
  org.eclipse.imp.presentation.ast,
