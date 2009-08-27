@@ -30,6 +30,7 @@ import org.eclipse.imp.ui.dialogs.providers.ContentProviderForAllProjects;
 import org.eclipse.imp.ui.dialogs.providers.LabelProviderForProjects;
 import org.eclipse.imp.ui.dialogs.validators.SelectionValidatorForIDEProjects;
 import org.eclipse.imp.ui.dialogs.validators.SelectionValidatorForPluginProjects;
+import org.eclipse.imp.ui.dialogs.validators.ValidationUtils;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -771,10 +772,12 @@ public class IMPWizardPage extends WizardPage {
     		  continue;
     	  return errorMessage;
       }
-      if (new SelectionValidatorForIDEProjects().isValid(project) == null) {
-          fLanguageText.setEnabled(false); // an IDE project was selected
-      } else {
-          fLanguageText.setEnabled(true); // a non-IDE project was selected
+      if (fLanguageText != null) {
+	      if (new SelectionValidatorForIDEProjects().isValid(project) == null) {
+	          fLanguageText.setEnabled(false); // an IDE project was selected
+	      } else {
+	          fLanguageText.setEnabled(true); // a non-IDE project was selected
+	      }
       }
       return null;
     }
@@ -1278,7 +1281,7 @@ public class IMPWizardPage extends WizardPage {
 	 * the IDE developer to set the language field independently.
 	 * 
 	 * May be overridden by derived types of wizard page.  One particular
-	 * reason to override is to have the langauage be enabled, as when the
+	 * reason to override is to have the language be enabled, as when the
 	 * language is first defined for a project.
 	 * 
 	 * @param parent		The page in which the field will reside
@@ -1292,7 +1295,17 @@ public class IMPWizardPage extends WizardPage {
         fLanguageText= createLabelTextBrowse(parent, languageField, null);
         fLanguageText.setData(languageField);
 
-        fLanguageText.setEnabled(false);
+        if (fProjectText != null && fProjectText.getText().length() > 0) {
+            if (fProject == null) {
+                fProject = ResourcesPlugin.getWorkspace().getRoot().getProject(fProjectText.getText());
+            }
+
+            String langName= WizardUtilities.discoverLanguageForProject(fProject);
+
+            if (langName != null) {
+            	fLanguageText.setEnabled(false);
+            }
+        }
         
         fFields.add(languageField);
     
