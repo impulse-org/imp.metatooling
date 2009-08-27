@@ -185,11 +185,21 @@ public class ExtensionPointUtils {
      */
     public static Map<String,String> getASTInformation(IPluginModel pluginModel, IProject project)
     {
-    	Map<String,String> result = new HashMap();
-    	
+    	Map<String,String> result = new HashMap<String, String>();
+
+        // TBD: check whether this exists (or put the info somewhere where we can find it here)
+        String astClassName = "ASTNode";
+
+        result.put("$PROJ_NAME$", project.getName());
+        result.put("$AST_NODE$", astClassName);
+
+    	if (pluginModel == null) {
+    		return result;
+    	}
+
         // Get the extension that represents the parser
-        
-	   	// SMS 26 Jul 2007
+
+    	// SMS 26 Jul 2007
         // Load the extensions model in detail, using the adapted IMP representation,
         // to assure that the children of model elements are represented
     	try {
@@ -227,26 +237,18 @@ public class ExtensionPointUtils {
         }
         if (parserPluginElement == null) return result;
 
-        
         // Get the names of the parser package, AST package, and AST (node) class name
-        
+
         IPluginAttribute parserClassAttribute = parserPluginElement.getAttribute("class");
         String parserPackageName = parserClassAttribute.getValue();
         parserPackageName = parserPackageName.substring(0, parserPackageName.lastIndexOf('.'));
         // ASSUME that the AST package name is the parser package name extended 
         // with ".Ast" (this is the default when auto-generated)
         String astPackageName = parserPackageName + ".Ast";
-        // Just assume this is true
-        // TBD:  check whether this exists (or put the info somewhere from
-        // where it can be retrieved here)
-        String astClassName = "ASTNode";
-        
-        // Save these values in the substitutions map
-        result.put("$PROJ_NAME$", project.getName());
+
         result.put("$PARSER_PACKAGE$", parserPackageName);
         result.put("$AST_PACKAGE$", astPackageName);
-        result.put("$AST_NODE$", astClassName);
-        
+
         return result;
     }
 }
