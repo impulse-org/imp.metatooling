@@ -22,6 +22,6 @@ public class SelectionValidatorForIDEProjects extends SelectionValidatorForPlugi
             if (!ValidationUtils.isIDEProject((IProject) selection))
                 return ERROR_MSG_NOT_IDE_PROJECT;
         }
-        return null;
+        return result;
     }
 }
