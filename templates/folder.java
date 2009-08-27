@@ -49,6 +49,6 @@ public class $FOLDER_CLASS_NAME$ extends LPGFolderBase {
         prsStream = theAST.getLeftIToken().getIPrsStream();
         AbstractVisitor abstractVisitor = new FoldingVisitor();
         theAST.accept(abstractVisitor);
-        makeAdjunctAnnotations();		
+        makeAdjunctsFoldable();		
 	}
 }

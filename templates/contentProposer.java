@@ -40,7 +40,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer {
             IToken token = getToken(ctlr, offset);        
             String prefix = getPrefix(token, offset);
             $CLASS_NAME_PREFIX$Parser parser = ($CLASS_NAME_PREFIX$Parser) ((SimpleLPGParseController) ctlr).getParser();
-            ISourcePositionLocator locator = ctlr.getNodeLocator();
+            ISourcePositionLocator locator = ctlr.getSourcePositionLocator();
             ASTNode node = (ASTNode) locator.findNode(ctlr.getCurrentAst(), token.getStartOffset(), token.getEndOffset());
 
             if (node != null) {
@@ -130,7 +130,7 @@ public class $CONTENT_PROPOSER_CLASS_NAME$ implements IContentProposer {
     
     // LPG utility methods
     private IToken getToken(IParseController controller, int offset) {
-        PrsStream stream = ((SimpleLPGParseController)controller).getParser().getParseStream();
+        IPrsStream stream = ((SimpleLPGParseController)controller).getParser().getIPrsStream();
         int index = stream.getTokenIndexAtCharacter(offset),
             token_index = (index < 0 ? -(index - 1) : index),
             previous_index = stream.getPrevious(token_index),
