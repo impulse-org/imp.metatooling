@@ -1,6 +1,6 @@
 package $PACKAGE_NAME$;
 
-import java.util.List;
+ import java.util.List;
 
 import lpg.runtime.IToken;
 
@@ -57,7 +57,7 @@ public class $HOVER_HELPER_CLASS_NAME$ extends HoverHelperBase implements IHover
         String msg = null;           // the help message for helpNode
         
         // Get the node at the given offset; no node implies no message
-        ISourcePositionLocator nodeLocator= parseController.getNodeLocator();
+        ISourcePositionLocator nodeLocator= parseController.getSourcePositionLocator();
         sourceNode = nodeLocator.findNode(ast, offset);
         if (sourceNode == null)
             return null;
@@ -129,7 +129,7 @@ public class $HOVER_HELPER_CLASS_NAME$ extends HoverHelperBase implements IHover
 
     public static String getSubstring(IParseController parseController, int start, int end) {
         return new String(
-        		((SimpleLPGParseController) parseController).getParser().getParseStream().getInputChars(), start, end-start+1);
+        		((SimpleLPGParseController) parseController).getParser().getIPrsStream().getInputChars(), start, end-start+1);
     }
 
     public static String getSubstring(IParseController parseController, IToken token) {
