@@ -7,7 +7,6 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
 package org.eclipse.imp.utils;
@@ -77,5 +76,4 @@ public class ExtensionUtils {
 		//ErrorHandler.reportError("Could not find plugin for project " + project.getName(), true);
 		return null;
     }
-	
 }
