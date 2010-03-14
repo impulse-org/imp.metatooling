@@ -269,7 +269,7 @@ public class $COMPILER_CLASS_NAME$ {
             System.err.println("$COMPILER_CLASS_NAME$.compile(..):  Model exception:\n" + me.getMessage() + "\nReturning without parsing");
             return;
     	}
-        IParseController parseController= new $ParseControllerClassName$();
+        IParseController parseController= new $PARSE_CONTROLLER_CLASS_NAME$();
         
         // Marker creator handles error messages from the parse controller
         MarkerCreator markerCreator = new MarkerCreator(file, parseController, PROBLEM_MARKER_ID);
@@ -281,7 +281,7 @@ public class $COMPILER_CLASS_NAME$ {
         
         parseController.initialize(file.getProjectRelativePath(), sourceProject, markerCreator);
     	
-        parseController.parse(getFileContents(file), false, mon);
+        parseController.parse(getFileContents(file), mon);
 
         $AST_NODE$ currentAst= ($AST_NODE$) parseController.getCurrentAst();
 
