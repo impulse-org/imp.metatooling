@@ -127,7 +127,6 @@ public class NewNatureEnabler extends GeneratedComponentWizard implements INewWi
                                                                                                 // +
                                                                                                 // upperCaseFirst(fComponentID));
                 }
-
             } catch (Exception e) {
                 ErrorHandler.reportError("Cannot set class", e);
             }
@@ -351,7 +350,7 @@ public class NewNatureEnabler extends GeneratedComponentWizard implements INewWi
     private void addEnablerAction(IProgressMonitor mon) {
         // This one makes the action show up for any project
         ExtensionEnabler.enable(fProject, "org.eclipse.ui", "popupMenus", new String[][] {
-                { "objectContribution:adaptable", "false" },
+                { "objectContribution:adaptable", "true" }, // RMF 3/14/2010 - In the JDT Package Explorer, project selections are IJavaProject, but are adaptable to IProject
                 { "objectContribution:nameFilter", "*" },
                 { "objectContribution:objectClass", "org.eclipse.core.resources.IProject" },
                 { "objectContribution:id", fLangName + ".imp.projectContextMenu" },
