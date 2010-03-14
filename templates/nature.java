@@ -28,6 +28,7 @@ $SMAP_SUPPORT$
     }
 
     protected String getDownstreamBuilderID() {
-        return null; // TODO If needed, specify the builder that will consume artifacts created by this nature's builder
+        // TODO If needed, specify the builder that will consume artifacts created by this nature's builder, or null if none
+        return "org.eclipse.jdt.core.javabuilder";
     }
 }
