@@ -7,7 +7,6 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
 package org.eclipse.imp.wizards;
@@ -18,6 +17,7 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.imp.WizardPlugin;
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.ui.dialogs.ListSelectionDialog;
 import org.eclipse.imp.ui.dialogs.filters.ViewerFilterForPluginProjects;
@@ -39,7 +39,6 @@ import org.eclipse.ui.dialogs.ISelectionValidator;
  * 
  * @author sutton (Stan Sutton, suttons@us.ibm.com)
  * @since 20071113
- *
  */
 public class NewLanguageWizardPage extends ExtensionPointWizardPage {
 
@@ -65,8 +64,8 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
      * so as to not create a language field.
      * 
      * This method is called "automatically" for all IMP wizard pages.  By default
-     * it creates a language field that shows the langauge associated with the
-     * selected project.  This is apporpriate for almost all IMP wizards.  The
+     * it creates a language field that shows the language associated with the
+     * selected project.  This is appropriate for almost all IMP wizards.  The
      * NewLanguage wizard is an exception, since this is the wizard through which
      * the language is associated with the project in the first place.  The wizard
      * page does need a language field (for the naming of the new language), but the
@@ -78,8 +77,7 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
     protected void createLanguageFieldForComponent(Composite parent, String componentID) {
     	// nichts
     }
-    
-    
+
     /**
      * Overrides the default version of this method so as to do nothing, i.e.,
      * so as to not actually create the template field for this wizard page.
@@ -87,10 +85,7 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
 	public WizardPageField createTemplateBrowseField(Composite parent, String componentID) {
 		return null;
 	}
-    
-    
-    
-    
+
     /**
      * Overrides the default version of this method so as to add a viewer filter
      * for plug-in projects rather than for IDE projects (as in the default case).
@@ -114,9 +109,7 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
 	protected ISelectionValidator getSelectionValidatorForProjects() {
 		return new SelectionValidatorForPluginProjects();
 	}
-    
-	
-	
+
 	/*
 	 * Used to track whether org.eclipse.imp.runtime has been added to
 	 * the require-bundle of a particular project (so that it can be
@@ -125,8 +118,7 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
 	protected boolean addedRequiredPluginImport = false;
 	protected String requiredPluginName = "org.eclipse.imp.runtime";
 	protected IProject projectReceivingRequiredPluginImport = null;
-	
-	
+
 	/**
 	 * Opens a class-creation dialog.  The dialog is actually opened in a call to super.openClassDiallg(..).
 	 * Here conditions are prepared for that call to succeed.  That ivolves managing the plug-in ipmorts
@@ -141,8 +133,7 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
 	 * 
 	 * @see org.eclipse.imp.wizards.IMPWizardPage#openClassDialog(java.lang.String, java.lang.String, java.lang.String, org.eclipse.swt.widgets.Text)
 	 */
-    protected WizardDialog openClassDialog(String componentID, String interfaceQualName, String superClassName, Text text)
-    {	
+    protected WizardDialog openClassDialog(String componentID, String interfaceQualName, String superClassName, Text text) {	
     	// SMS 1 Mar 2008:  It might also be a good idea to check whether the language is
     	// known at this point (since the validator will validate with respect to that language),
     	// but the implementation here is robust with respect to the lack of a language name.
@@ -205,7 +196,6 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
     	return dialog;
     }
 
-    
 	/**
 	 * Listens for changes in the setting of the project in this wizard
 	 * and manages the occurrence of the required plugin import accordingly
@@ -221,7 +211,7 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
 
 		    // Now add the plugin import to the currently selected project, if it's not already there
             if (!ExtensionEnabler.hasRequiredPluginImport(project, requiredPluginName)) {
-			    List<String> requires = new ArrayList();
+			    List<String> requires = new ArrayList<String>();
 			    requires.add(requiredPluginName);
 			    
 			    try {
@@ -229,13 +219,13 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
 			    	addedRequiredPluginImport = true;
 			    	projectReceivingRequiredPluginImport = project;
 			    } catch (CoreException ce) {
-			    	System.err.println("NewLanguageWizard.ProjectTextModifyListener.modifyText:  " +
-			    			"Something went wrong adding required plug-in org.eclipse.imp.runtime");
+			    	WizardPlugin.getInstance().logException("ProjectTextModifyListener.modifyText(): " +
+			    			"exception while adding required plug-in " + requiredPluginName, ce);
 			    }
             }
 		}
     }
-	
+
     /*
      * Utility routine to undo the addition of the required plugin import to a project's
      * bundle manifest.  Operation is applied to the project to which the import was
@@ -248,13 +238,9 @@ public class NewLanguageWizardPage extends ExtensionPointWizardPage {
 	    	projectReceivingRequiredPluginImport = null;
 	    }
     }
-    
-    
+
     private void commitAdditionOfRequiredPluginImport() {
     	addedRequiredPluginImport = false;
     	projectReceivingRequiredPluginImport = null;
     }
-    
-    
-	
 }
