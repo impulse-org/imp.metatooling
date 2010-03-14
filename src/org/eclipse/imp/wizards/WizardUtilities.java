@@ -56,7 +56,6 @@ import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.IPluginObject;
-import org.eclipse.pde.internal.core.plugin.ImpPluginElement;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
@@ -715,9 +714,9 @@ public class WizardUtilities {
             try {
                 ExtensionEnabler.loadImpExtensionsModel((IPluginModel) pluginModel, project);
             } catch (CoreException e) {
-                //System.err.println("WizardUtilities.discoverProjectLanguage(): CoreException loading extensions model; may not succeed");
+                // WizardPlugin.getInstance().logException("WizardUtilities.discoverLanguageForProject(): exception loading extensions model", e);
             } catch (ClassCastException e) {
-                WizardPlugin.getInstance().logException("ClassCastException while loading extensions model; may not succeed", e);
+                WizardPlugin.getInstance().logException("exception while loading extensions model", e);
             }
 
             IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
