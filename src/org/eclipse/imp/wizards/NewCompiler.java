@@ -7,7 +7,6 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
 /**
@@ -24,6 +23,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.WizardPlugin;
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.extensionsmodel.ImpWorkspaceExtensionsModel;
 import org.eclipse.imp.utils.ExtensionPointUtils;
@@ -56,14 +56,12 @@ public class NewCompiler extends GeneratedComponentWizard {
     protected static final String componentID = "compiler";
     
     protected String fProblemMarkerID = null;
-    
-	
+
     public void addPages() {
     	fWizardAttributes = setupAttributes();
         addPages(new GeneratedComponentWizardPage[] { new NewCompilerPage(this) });
     }
 
-    
     class NewCompilerPage extends GeneratedComponentWizardPage {
 		public NewCompilerPage(IMPWizard owner) {
 		    super(owner, componentID, false, fWizardAttributes, thisWizardName, thisWizardDescription);
@@ -74,8 +72,7 @@ public class NewCompiler extends GeneratedComponentWizard {
 		    createClassField(parent, "ClassBrowse");
 		}
 		
-	    protected void createAdditionalControls(Composite parent)
-	    {
+	    protected void createAdditionalControls(Composite parent) {
 	    	createTextField(parent, "PoorMansCompiler", "class",
 	    		"The qualified name of the compiler class to be generated", 
 	    		"", "ClassBrowse", true);
@@ -110,18 +107,14 @@ public class NewCompiler extends GeneratedComponentWizard {
 			    }
 			    public void widgetDefaultSelected(SelectionEvent e) {}
 			});
-			
 	    }
-	    
-	    
+
 	    private void fillColumns(Composite parent, int numCols) {
 	    	for (int i = 0; i < numCols; i++) {
 		        Label label= new Label(parent, SWT.NULL);
 		        label.setText("");
 		        label.setBackground(parent.getBackground());
 	    	}
-	    	
-	    	
 	    }
 	    
 	    public void createControl(Composite parent) {
@@ -152,56 +145,44 @@ public class NewCompiler extends GeneratedComponentWizard {
 
     }
 
-
-    
     protected List<String> getPluginDependencies() {
         return Arrays.asList(new String[] { "org.eclipse.core.runtime", "org.eclipse.core.resources",
                 "org.eclipse.imp.runtime" });
     }
-    
-    
+
     protected void collectCodeParms() {
     	super.collectCodeParms();
     	
     	fProblemMarkerID = pages[0].getField("Problem\nmarker id").getText();
     }
-    
 
-    public void generateCodeStubs(IProgressMonitor mon) throws CoreException
-    {	
+    public void generateCodeStubs(IProgressMonitor mon) throws CoreException {	
         Map<String,String> subs= getStandardSubstitutions(fProject);
 
-        subs.remove("$COMPILER_CLASS_NAME$");
         subs.put("$COMPILER_CLASS_NAME$", fFullClassName);
 
-        subs.remove("$ParseControllerClassName$");
         String parseControllerClassName = getParseControllerClassName(fProject);
-        subs.put("$ParseControllerClassName$", parseControllerClassName);
+        subs.put("$PARSE_CONTROLLER_CLASS_NAME$", parseControllerClassName);
         
-        subs.remove("$PROBLEM_MARKER_ID$");
         subs.put("$PROBLEM_MARKER_ID$", fProblemMarkerID);
 
         IFile compilerSrc= createFileFromTemplate(fFullClassName + ".java", fTemplateName, fPackageFolder, subs, fProject, mon);
 
         editFile(mon, compilerSrc);
     }
- 
 
     // SMS 25 Sep 2007
     // Now provided in GeneratedComponentWizard; this override is left here
     // for purposes of testing
-    public GeneratedComponentAttribute[] setupAttributes()
-    {
+    public GeneratedComponentAttribute[] setupAttributes() {
     	// Warning:  Returning an array with empty elements may cause problems,
     	// so be sure to only allocate as many elements as there are actual	attributes
     	GeneratedComponentAttribute[] attributes = new GeneratedComponentAttribute[0];
     	
     	return attributes;
     }
-    
-    
-    public String getParseControllerClassName(IProject project)
-    {
+
+    public String getParseControllerClassName(IProject project) {
     	IPluginModelBase pluginModelBase = pages[0].getPluginModel();
 
         // Get the extension that represents the parser
@@ -248,18 +229,14 @@ public class NewCompiler extends GeneratedComponentWizard {
             	}
             }
         } catch (JavaModelException e) {
-        	System.err.println("NewCompiler.getParseControllerClassName(IProject):  JavaModelException checking for IParseController:  " +
-        			"\n\t" + e.getMessage() +
-        			"\n\tReturning null");
+        	WizardPlugin.getInstance().logException("NewCompiler.getParseControllerClassName(): exception looking for IParseController", e);
         }
         
         // Didn't find it :-(
         return null;
     }
-    
-    
-    public String getProblemMarkerID(IProject project)
-    {
+
+    public String getProblemMarkerID(IProject project) {
     	ImpWorkspaceExtensionsModel iwem = null;
     	try {
     		iwem = ExtensionEnabler.loadImpExtensionsModel(
@@ -291,6 +268,4 @@ public class NewCompiler extends GeneratedComponentWizard {
         }
         return null;
     }
-
-    
 }
