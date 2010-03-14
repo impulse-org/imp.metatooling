@@ -26,6 +26,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.imp.WizardPlugin;
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.extensionsmodel.ImpWorkspaceExtensionsModel;
 import org.eclipse.imp.runtime.RuntimePlugin;
@@ -51,7 +52,6 @@ import org.eclipse.pde.internal.core.ibundle.IBundlePluginModel;
 import org.eclipse.pde.internal.core.ibundle.IBundlePluginModelBase;
 import org.eclipse.pde.internal.core.plugin.ImpPluginElement;
 import org.eclipse.pde.internal.core.plugin.PluginElement;
-
 
 /**
  * @author Claffra
@@ -104,30 +104,30 @@ public class ExtensionEnabler {
     public static IPluginExtension getServiceExtension(String pointID, IProject project) {
         try {
             IPluginModel pluginModel= getPluginModel(project);
-    
             if (pluginModel != null) {
-    		   	// SMS 26 Jul 2007
-    	        // Load the extensions model in detail, using the adapted IMP representation,
-    	        // to assure that the children of model elements are represented
-    	    	try {
-    	    		ExtensionEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
-    	    	} catch (CoreException e) {
-    	    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
-    	    	} catch (ClassCastException e) {
-    	    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  ClassCastExeption loading extensions model; may not succeed");
-    	    	}
-    	    	
-	        	IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
-	    
-	        	for(int n= 0; n < extensions.length; n++) {
-	        	    IPluginExtension extension= extensions[n];
-	    
-	                    if (extension.getPoint().equals(pointID))
-	                        return extension;
-	        	}
-	        	System.out.println("Unable to find language descriptor extension in plugin '" + pluginModel.getBundleDescription().getName() + "'.");
-            } else if (project != null)
-            	System.out.println("Not a plugin project: " + project.getName());
+                // SMS 26 Jul 2007
+                // Load the extensions model in detail, using the adapted IMP
+                // representation,
+                // to assure that the children of model elements are represented
+                try {
+                    ExtensionEnabler.loadImpExtensionsModel((IPluginModel) pluginModel, project);
+                } catch (CoreException e) {
+                    WizardPlugin.getInstance().logException("ExtensionEnabler.getServiceExtension(): CoreExeption loading extensions model; may not succeed", e);
+                } catch (ClassCastException e) {
+                    WizardPlugin.getInstance().logException("ExtensionEnabler.getServiceExtension(): ClassCastExeption loading extensions model; may not succeed", e);
+                }
+                IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
+                for(int n= 0; n < extensions.length; n++) {
+                    IPluginExtension extension= extensions[n];
+                    if (extension.getPoint().equals(pointID))
+                        return extension;
+                }
+                WizardPlugin.getInstance().writeErrorMsg("Unable to find language descriptor extension in plugin '"
+                                + pluginModel.getBundleDescription().getName()
+                                + "'.");
+            } else if (project != null) {
+                WizardPlugin.getInstance().writeErrorMsg("Not a plugin project: " + project.getName());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -135,25 +135,25 @@ public class ExtensionEnabler {
     }
 
     public static IProject findProjectForLanguage(String langName) {
-	IWorkspace ws= ResourcesPlugin.getWorkspace();
-	IWorkspaceRoot root= ws.getRoot();
-	IProject[] projects= root.getProjects();
+    	IWorkspace ws= ResourcesPlugin.getWorkspace();
+    	IWorkspaceRoot root= ws.getRoot();
+    	IProject[] projects= root.getProjects();
 
-	for(int i= 0; i < projects.length; i++) {
-	    IProject project= projects[i];
+    	for(int i= 0; i < projects.length; i++) {
+    		IProject project= projects[i];
 
-	    try {
-		if (project.isNatureEnabled("org.eclipse.pde.PluginNature")) {
-		    String projLangName= determineLanguage(project);
+    		try {
+    			if (project.isNatureEnabled("org.eclipse.pde.PluginNature")) {
+    				String projLangName= determineLanguage(project);
 
-		    if (projLangName.equals(langName))
-			return project;
-		}
-	    } catch (CoreException e) {
-	    }
-	    // Do nothing if this was not a plugin project
-	}
-	return null;
+    				if (projLangName.equals(langName))
+    					return project;
+    			}
+    		} catch (CoreException e) {
+    		}
+    		// Do nothing if this was not a plugin project
+    	}
+    	return null;
     }
 
     
@@ -222,14 +222,8 @@ public class ExtensionEnabler {
 		    ErrorHandler.reportError(msg, e);
 		}
 	}
-    
-    
-    
-    
-    public static void enable(
-    		ExtensionPointWizardPage page,
-    		boolean remove, IProgressMonitor monitor)
-    {
+
+    public static void enable(ExtensionPointWizardPage page, boolean remove, IProgressMonitor monitor) {
 		try {
 		    IPluginModel pluginModel= getPluginModel(page.getProjectOfRecord());
 	
@@ -309,15 +303,15 @@ public class ExtensionEnabler {
     // Changed showDialog parameter in ErrorHandler.reportError to false on 
     // the assumption that a lot of error management will occur within dialogs
     public static IPluginModel getPluginModel(final IProject project) {
-	try {
-	    if (project == null) return null;
+    	try {
+    		if (project == null) return null;
 
-            maybeCreatePluginXML(project);
-            return getPluginModelForProject(project);
-	} catch (Exception e) {
-	    ErrorHandler.reportError("Could not find plugin for project " + project.getName(), false, e);
-	    return null;
-	}
+    		maybeCreatePluginXML(project);
+    		return getPluginModelForProject(project);
+    	} catch (Exception e) {
+    		ErrorHandler.reportError("Could not find plugin for project " + project.getName(), false, e);
+    		return null;
+    	}
     }
 
     private static final String pluginXMLSkeleton= "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -379,8 +373,7 @@ public class ExtensionEnabler {
 		ErrorHandler.reportError("Could not find plugin for project " + project.getName(), false);
 		return null;
     }
-    
-    
+
     // SMS 27 Mar 2007
     // New; based on getPluginModelForProject(Iproject)
     // SMS 28 Nov 2007
@@ -415,11 +408,7 @@ public class ExtensionEnabler {
 		ErrorHandler.reportError("Could not find plugin id for project " + project.getName(), false);
 		return null;
     }
-    
-    
-    
-    
-    
+
     /**
      * Adds an extension to a plugin, where the extension is represented by
      * an ExtensionPointWizardPage.
@@ -497,12 +486,10 @@ public class ExtensionEnabler {
 		saveAndRefresh(pluginModel);
 	}
 
-
     protected static String lowerCaseFirst(String s) {
         return Character.toLowerCase(s.charAt(0)) + s.substring(1);
     }	
-    
-    
+
     // SMS 20 Jul 2006
     static void removeExtension(IPluginModel pluginModel, ExtensionPointWizardPage page)
     	throws CoreException, IOException
@@ -522,7 +509,6 @@ public class ExtensionEnabler {
     	saveAndRefresh(pluginModel);
      }
 
- 
     /**
      * Adds an extension to a plugin, where the extension is represented by
      * various given values.
@@ -573,10 +559,8 @@ public class ExtensionEnabler {
 
 		addRequiredPluginImports(pluginModel, project, imports);
 		saveAndRefresh(pluginModel);
-     }
+    }
 
-    
-    
     public static ImpWorkspaceExtensionsModel loadImpExtensionsModel(IPluginModel pluginModel, IProject project)
     	throws CoreException
     {
@@ -595,10 +579,7 @@ public class ExtensionEnabler {
         bpmb.setExtensionsModel(extensions);
     	return extensions;
     }
-    
-    
-    
-    // SMS 20 Jul 2006
+
     public static void removeExtension(IPluginModel pluginModel, String pluginID, String pointID, String[][] attrNamesValues)
     	throws CoreException, IOException
     {
@@ -617,8 +598,7 @@ public class ExtensionEnabler {
     	}
     	saveAndRefresh(pluginModel);
     }
-    
-    
+
     private static void setElementAttributes(
     	IPluginModel pluginModel, ExtensionPointWizardPage page, IPluginExtension extension)
     	throws CoreException
@@ -647,9 +627,7 @@ public class ExtensionEnabler {
 		}
     }
 
-    	
     private static void setElementAttribute(String schemaElementName, String attributeName, String attributeValue, IPluginExtension extension, Map<String,IIdentifiable> elementMap, IPluginModel pluginModel) throws CoreException {
-	
     	if (schemaElementName.equals("extension")) {
             // Handle the top-level element (the extension that was passed in)
             if (attributeName.equals("id")) {
@@ -659,12 +637,12 @@ public class ExtensionEnabler {
                 extension.setName(attributeValue);
             }
             else
-                System.err.println("Unknown 'extension' attribute: '" + attributeName + "'.");
+                WizardPlugin.getInstance().writeErrorMsg("Unknown 'extension' attribute: '" + attributeName + "'.");
         }
         // SMS 10 May 2006
         // Avoid irregular "builders" element
         else if (schemaElementName.equals("builders")) {
-        	System.err.println("Irregular schema element name 'builders'; ignoring");
+            WizardPlugin.getInstance().writeErrorMsg("Irregular schema element name 'builders'; ignoring");
         }
         // End SMS
     	else {
@@ -721,7 +699,7 @@ public class ExtensionEnabler {
 	            String attrName= elementAttrName.substring(elementAttrName.indexOf(':') + 1);
 	            String attrValue= attrNamesValues[i][1];
 	
-	            System.out.println("Creating attribute " + elementAttrName + " => " + attrValue);
+//              System.out.println("Creating attribute " + elementAttrName + " => " + attrValue);
 	
 	            setElementAttribute(elementName, attrName, attrValue, extension, elementMap, pluginModel);
 		}
@@ -856,12 +834,9 @@ public class ExtensionEnabler {
     	
     	// Put the text back into the file
 		manifestFile.setContents(new ByteArrayInputStream(updatedNewManifestContents.getBytes()), true, true, null);
-
     }
-    
-    
-    public static boolean hasRequiredPluginImport(IProject project, String bundleName)
-    {
+
+    public static boolean hasRequiredPluginImport(IProject project, String bundleName) {
     	if (!project.exists()) {
 		    ErrorHandler.reportError("Project does not exist:  " + project);
 			return false;
@@ -897,11 +872,8 @@ public class ExtensionEnabler {
     	
     	return false;
     }
-    
-    
-    
-    public static void removeRequiredPluginImport(IProject project, String bundleName)
-    {
+
+    public static void removeRequiredPluginImport(IProject project, String bundleName) {
     	if (!project.exists()) {
 		    ErrorHandler.reportError("Project does not exist:  " + project);
 			return;
@@ -965,10 +937,7 @@ public class ExtensionEnabler {
 		    return;
 		}
     }
-    
-    
-    
-    
+
     public static void saveAndRefresh(IPluginModel pluginModel) throws CoreException {
 		if (pluginModel instanceof IBundlePluginModel) {
 		    IBundlePluginModel bundlePluginModel= (IBundlePluginModel) pluginModel;
@@ -1001,5 +970,4 @@ public class ExtensionEnabler {
 		}
 		pluginModel.getUnderlyingResource().refreshLocal(1, null);
     }
-
 }
