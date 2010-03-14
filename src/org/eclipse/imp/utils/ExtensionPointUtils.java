@@ -7,7 +7,6 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
 package org.eclipse.imp.utils;
@@ -20,6 +19,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.imp.WizardPlugin;
 import org.eclipse.imp.wizards.ExtensionEnabler;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
@@ -37,7 +37,6 @@ import org.eclipse.pde.internal.core.plugin.PluginElement;
 public class ExtensionPointUtils {
     private ExtensionPointUtils() { }
 
-
     /**
      * Return an extension with a given name in a given plug-in model.
      * 
@@ -53,9 +52,7 @@ public class ExtensionPointUtils {
      * @return				An extension from the given plug-in model that extends
      * 						the extension point identified by the given name
      */
-
-    public static IPluginExtension findExtensionByName(String extName, IPluginModelBase pluginModel)
-    {
+    public static IPluginExtension findExtensionByName(String extName, IPluginModelBase pluginModel) {
         IPluginExtension[] extensions = pluginModel.getExtensions().getExtensions();
         IPluginExtension extension = null;
     
@@ -68,8 +65,6 @@ public class ExtensionPointUtils {
         return extension;
     }
 
-    
-    
     /**
      * Return an array of extensions with a given name in a given plug-in model.
      * 
@@ -79,13 +74,10 @@ public class ExtensionPointUtils {
      * @return				An array of extensions from the given plug-in model that
      * 						extend the extension point identified by the given name
      */
-
-    public static IPluginExtension[] findExtensionsByName(String extName, IPluginModelBase pluginModel)
-    {
+    public static IPluginExtension[] findExtensionsByName(String extName, IPluginModelBase pluginModel) {
         IPluginExtension[] extensions = pluginModel.getExtensions().getExtensions();
         List extensionsList = new ArrayList();
 
-    
         for (int i = 0; i < extensions.length; i++) {
         	if(extensions[i].getPoint().equals(extName)) {
         		extensionsList.add(extensions[i]);
@@ -98,10 +90,6 @@ public class ExtensionPointUtils {
         return namedExtensions;
     }
 
-    
-    
-    
-    
     public static IPackageFragment findPackageByName(IProject project, String parserPackageName) {
         IWorkspace workspace = project.getWorkspace();
         IJavaModel javaModel = JavaCore.create(workspace.getRoot());
@@ -114,9 +102,7 @@ public class ExtensionPointUtils {
         		}
         	}
         } catch (JavaModelException e) {
-        	System.err.println("ExtensionPointUtils.findPackageByName(..):  JavaModelException getting parser package:  " +
-        			"\n\t" + e.getMessage() +
-        			"\n\tReturning null");
+            WizardPlugin.getInstance().logException("ExtensionPointUtils.findPackageByName(): JavaModelException getting parser package", e);
         }
         return null;
     }
@@ -125,17 +111,15 @@ public class ExtensionPointUtils {
     // Adapted to take plugin model base and project parameters so as to be able to call
     // ExtensionPointEnabler.loadImpExtensionsModel so as to assure that the extensions
     // model is loaded in detail, i.e., including children
-    public static PluginElement findElementByName(
-    		IPluginModelBase pluginModelBase, IProject project, String name, IPluginExtension parserExtension)
-    {
+    public static PluginElement findElementByName(IPluginModelBase pluginModelBase, IProject project, String name, IPluginExtension parserExtension) {
     	try {
     		ExtensionEnabler.loadImpExtensionsModel((IPluginModel) pluginModelBase, project);
     	} catch (CoreException e) {
-    		System.err.println("ExtensionPointUtils.findElementByName(..):  CoreExeption loading extensions model; returning null");
+    	    WizardPlugin.getInstance().logException("ExtensionPointUtils.findElementByName(): Exception loading extensions model", e);
     		return null;
     	} catch (ClassCastException e) {
-    		System.err.println("ExtensionPointUtils.findElementByName(..):  ClassCastExeption loading extensions model; returning null");
-    		return  null;
+    	    WizardPlugin.getInstance().logException("ExtensionPointUtils.findElementByName(): exception loading extensions model", e);
+    		return null;
     	}
 		IPluginObject[] children = parserExtension.getChildren();
         for (int i = 0; i < children.length; i++) {
@@ -145,8 +129,7 @@ public class ExtensionPointUtils {
         }
         return null;
     }
-    
-    
+
     /**
      * Return a Map containing the the names of the AST package and class
      * bound to "well-known" symbols, "$AST_PACKAGE$" and "$AST_CLASS$", 
@@ -183,8 +166,7 @@ public class ExtensionPointUtils {
      * @author	Stan Sutton
      * @since	17 May 2006
      */
-    public static Map<String,String> getASTInformation(IPluginModel pluginModel, IProject project)
-    {
+    public static Map<String,String> getASTInformation(IPluginModel pluginModel, IProject project) {
     	Map<String,String> result = new HashMap<String, String>();
 
         // TBD: check whether this exists (or put the info somewhere where we can find it here)
@@ -205,14 +187,14 @@ public class ExtensionPointUtils {
     	try {
     		ExtensionEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
     	} catch (CoreException e) {
-    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
+    	    WizardPlugin.getInstance().logException("ExtensionPointUtils.getASTInformation(): exception loading extensions model; may not succeed", e);
     	} catch (ClassCastException e) {
-    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  ClassCastExeption loading extensions model; may not succeed");
+    	    WizardPlugin.getInstance().logException("ExtensionPointUtils.getASTInformation(): exception loading extensions model; may not succeed", e);
     	}
-    	
+
         // RMF 10/14/2008 - If this isn't a plugin project, return now rather than causing an NPE
         if (pluginModel == null) return result;
-        
+
         IExtensions extensionsThing = pluginModel.getExtensions();
         IPluginExtension[] extensions = extensionsThing.getExtensions();
         IPluginExtension parserExtension = null;
