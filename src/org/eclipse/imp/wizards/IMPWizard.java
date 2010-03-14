@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.imp.WizardPlugin;
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.utils.ExtensionPointUtils;
 import org.eclipse.jdt.core.IJavaProject;
@@ -81,26 +82,21 @@ public abstract class IMPWizard extends Wizard {
 	
     protected static final String START_HERE= "// START_HERE";
 
-
     public void init(IWorkbench workbench, IStructuredSelection selection) {}
-	
-	
+
 	@Override
 	public boolean performFinish() {
 		return false;
 	}
 
-	
     public void setPage(int page) {
     	currentPage= page;
     }
-    
-    
+
     public int getPageCount() {
     	return NPAGES;
     }
-    
-    
+
     protected void addPages(IMPWizardPage[] pages) {
 		this.pages= pages;
 		NPAGES= pages.length;
@@ -115,7 +111,6 @@ public abstract class IMPWizard extends Wizard {
 		    }
 		}
     }
-    
 
     public IWizardPage getPreviousPage(IWizardPage page) {
         if (currentPage == 0)
@@ -129,13 +124,11 @@ public abstract class IMPWizard extends Wizard {
         return pages[++currentPage];
     }
 
-    
     /**
      * @return the list of plugin ID's for the plugin dependencies for this language service.
      */
     protected abstract List<String> getPluginDependencies();
-    
-    
+
     /**
      * Get the name of the package in which a plugin class is defined
      * for this project, or a default value if there is no such package
@@ -148,10 +141,6 @@ public abstract class IMPWizard extends Wizard {
      * method should not return null and should not be used as a test
      * of whether a given project contains a plugin package or class.
      * 
-     * 
-     * 
-     * SMS 23 Mar 2007
-     * 
      * @param project		The project for which the plugin package name is sought;
      * 						may be null
      * @param defaultName	A name to return if the given package lacks a plugin class;
@@ -160,8 +149,7 @@ public abstract class IMPWizard extends Wizard {
      * 						class, if there is one, or a name that could be used for the
      * 						plugin package, if there is none.
      */
-    public static String getPluginPackageName(IProject project, String defaultName)
-    {
+    public static String getPluginPackageName(IProject project, String defaultName) {
     	String result = defaultName;
     	if (result == null) {
     		result = discoverProjectLanguage(project);
@@ -184,9 +172,7 @@ public abstract class IMPWizard extends Wizard {
     	}
        	return result;
     }
-    
 
-    
     public static String getProjectSourceLocation(IProject project) {
 		try {
 			if (project == null)
@@ -215,10 +201,7 @@ public abstract class IMPWizard extends Wizard {
 		}
 		return null;
     }
-    
-    
-    
-    
+
     public static String discoverParserPackage(IProject project) {
 		if (project == null)
 		    return null;
@@ -229,9 +212,9 @@ public abstract class IMPWizard extends Wizard {
 	    	try {
 	    		ExtensionEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
 	    	} catch (CoreException e) {
-	    		System.err.println("CodeServiceWizard.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
+	    		WizardPlugin.getInstance().logException("IMPWizard.discoverParserLanguage(): exception loading extensions model", e);
 	    	} catch (ClassCastException e) {
-	    		System.err.println("CodeServiceWizard.discoverProjectLanguage():  ClassCastExeption loading extensions model; may not succeed");
+	    	    WizardPlugin.getInstance().logException("IMPWizard.discoverParserLanguage(): exception loading extensions model", e);
 	    	}
 	    	
 		    IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
@@ -261,9 +244,7 @@ public abstract class IMPWizard extends Wizard {
 		}
 		return null;
     }
-    
-    
-    
+
     public static IPluginModelBase getPluginModel(String projectName) {
         try {
         	if (projectName == null)
@@ -285,7 +266,6 @@ public abstract class IMPWizard extends Wizard {
         return null;
     }
 
-
     public static String discoverProjectLanguage(IProject project) {
 		if (project == null)
 		    return null;
@@ -296,9 +276,9 @@ public abstract class IMPWizard extends Wizard {
 	    	try {
 	    		ExtensionEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
 	    	} catch (CoreException e) {
-	    		System.err.println("CodeServiceWizard.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
+	    		WizardPlugin.getInstance().logException("IMPWizard.discoverProjectLanguage(): exception loading extensions model", e);
 	    	} catch (ClassCastException e) {
-	    		System.err.println("CodeServiceWizard.discoverProjectLanguage():  ClassCastExeption loading extensions model; may not succeed");
+	    	    WizardPlugin.getInstance().logException("IMPWizard.discoverProjectLanguage(): exception loading extensions model", e);
 	    	}
 	    	
 		    IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
@@ -321,9 +301,7 @@ public abstract class IMPWizard extends Wizard {
 		}
 		return null;
     }	
-    
 
-    
     /**
      * Get the name of the plugin class for this project, or a default
      * name if there is no plugin class or if the given project is null.
@@ -346,8 +324,7 @@ public abstract class IMPWizard extends Wizard {
      * 						or a name that could be used for the plugin class, if there
      * 						is none.
      */
-    public String getPluginClassName(IProject project, String defaultName)
-    {
+    public String getPluginClassName(IProject project, String defaultName) {
     	String result = defaultName;
     	if (result == null)
     		result = fClassNamePrefix + "Plugin";
@@ -386,8 +363,7 @@ public abstract class IMPWizard extends Wizard {
      * @return				The plugin id of the project, if there is one, or a value
      * 						that could be used as the plugin id, if there is none.
      */
-    public String getPluginID(IProject project, String defaultID)
-    {
+    public String getPluginID(IProject project, String defaultID) {
     	String result = defaultID;
     	if (result == null)
     		getPluginPackageName(project, null);
@@ -396,9 +372,7 @@ public abstract class IMPWizard extends Wizard {
     	}
        	return result;
     }
- 
-    
-    
+
     public Map<String,String> getStandardSubstitutions(IProject project) {
     	Map<String, String> result = getStandardSubstitutions();
         result.put("$PLUGIN_PACKAGE$", getPluginPackageName(project, null));
@@ -406,9 +380,7 @@ public abstract class IMPWizard extends Wizard {
         result.put("$PLUGIN_ID$", getPluginID(project, null));
         return result;
     }
-    
-    
-    
+
     public Map<String, String> getStandardSubstitutions() {
         Map<String,String> result = new HashMap<String,String>();
         
@@ -430,8 +402,7 @@ public abstract class IMPWizard extends Wizard {
 
         return result;
     }
-    
-    
+
     /**
      * Return a Map containing the the names of the AST package and class
      * bound to "well-known" symbols, "$AST_PACKAGE$" and "$AST_CLASS$", 
@@ -468,8 +439,7 @@ public abstract class IMPWizard extends Wizard {
      * @author	Stan Sutton
      * @since	17 May 2006
      */
-    public static Map<String,String> getASTInformation(IPluginModel pluginModel, IProject project)
-    {
+    public static Map<String,String> getASTInformation(IPluginModel pluginModel, IProject project) {
     	Map<String,String> result = new HashMap<String,String>();
     	
         // Get the extension that represents the parser
@@ -480,12 +450,11 @@ public abstract class IMPWizard extends Wizard {
     	try {
     		ExtensionEnabler.loadImpExtensionsModel((IPluginModel)pluginModel, project);
     	} catch (CoreException e) {
-    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  CoreExeption loading extensions model; may not succeed");
+    	    WizardPlugin.getInstance().logException("IMPWizard.discoverProjectLanguage(): exception loading extensions model", e);
     	} catch (ClassCastException e) {
-    		System.err.println("GeneratedComponentWizardPage.discoverProjectLanguage():  ClassCastExeption loading extensions model; may not succeed");
+    	    WizardPlugin.getInstance().logException("IMPWizard.discoverProjectLanguage(): exception loading extensions model", e);
     	}
-    	
-        
+
         IExtensions extensionsThing = pluginModel.getExtensions();
         IPluginExtension[] extensions = extensionsThing.getExtensions();
         IPluginExtension parserExtension = null;
