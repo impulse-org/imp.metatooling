@@ -320,8 +320,8 @@ public class ExtensionEnabler {
     "</plugin>";
 
     private static void maybeCreatePluginXML(final IProject project) throws CoreException {
-    	IFile pluginXML= project.getFile("plugin.xml"); 
-    	if (!pluginXML.exists()) {
+    	IFile pluginXML= project.getFile("plugin.xml");
+    	if (project.exists() && !pluginXML.exists()) { // check for project's existence - this can be called from the dialog field text listener
     		// SMS 10 Aug 2006:  to remove use of deprecated type StringBufferInputStream
     		//pluginXML.create(new StringBufferInputStream(pluginXMLSkeleton), false, new NullProgressMonitor());
     		byte[] skeletonBytes = pluginXMLSkeleton.getBytes();
