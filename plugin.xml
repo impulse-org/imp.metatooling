@@ -11,7 +11,7 @@
 
    <extension
          point="org.eclipse.ui.newWizards">
-      <primaryWizard id="org.eclipse.imp.wizards.NewLanguageWizard"/>
+      <primaryWizard id="org.eclipse.imp.wizards.NewLanguage"/>
       <category
             id="org.eclipse.imp.wizards"
             name="IDE Language Support"/>
@@ -63,14 +63,14 @@
             name="Preference Page"
             id="org.eclipse.imp.wizards.NewPreferencesDialog"/>
 -->
-  <wizard
+      <wizard
             class="org.eclipse.imp.wizards.NewReferenceResolver"
             icon="icons/sample.gif"
             category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.core"
             name="Reference Resolver"
             id="org.eclipse.imp.wizards.NewReferenceResolver"/>
             
- 	<category
+    <category
             id="org.eclipse.imp.wizards.create"
             name="Creation Services"
             parentCategory="org.eclipse.imp.wizards"/>
@@ -184,6 +184,7 @@
             icon="icons/sample.gif"
             id="org.eclipse.imp.newEditorAnnotationCreatorWizard"
             name="Editor annotation creator"/>
+
       <category
             id="org.eclipse.imp.wizards.parser"
             name="Parser Services"
@@ -202,7 +203,18 @@
             name="Model Listener"
             id="org.eclipse.imp.wizards.NewModelListener"/>
  -->            
-            
+
+    <category
+                id="org.eclipse.imp.wizards.debug"
+                name="Debug Services"
+                parentCategory="org.eclipse.imp.wizards"/>
+      <wizard
+            category="org.eclipse.imp.wizards/org.eclipse.imp.wizards.debug"
+            class="org.eclipse.imp.wizards.NewBreakpointHandler"
+            icon="icons/sample.gif"
+            id="org.eclipse.imp.wizards.NewBreakpointHandler"
+            name="Toggle Breakpoint Handler"/>
+
 	<category
             id="org.eclipse.imp.wizards.transform"
             name="Transformation Services"
