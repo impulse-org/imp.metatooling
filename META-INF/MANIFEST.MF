@@ -2,7 +2,7 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.imp.metatooling;singleton:=true
 Bundle-Name: IMP Language Support Meta-Tooling (Incubation)
 Bundle-Vendor: rfuhrer@watson.ibm.com
-Bundle-Version: 0.1.95.qualifier
+Bundle-Version: 0.2.1.qualifier
 Bundle-Activator: org.eclipse.imp.WizardPlugin
 Bundle-ActivationPolicy: lazy
 Eclipse-LazyStart: true
@@ -17,7 +17,7 @@ Require-Bundle: lpg.runtime.java;bundle-version="2.0.17",
  org.eclipse.core.runtime,
  org.eclipse.debug.ui,
  org.eclipse.imp.lpg.ide,
- org.eclipse.imp.runtime;bundle-version="0.1.104",
+ org.eclipse.imp.runtime;bundle-version="0.2.1",
  org.eclipse.jdt.core,
  org.eclipse.jdt.ui,
  org.eclipse.jface.text,
