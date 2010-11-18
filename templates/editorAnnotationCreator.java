@@ -55,4 +55,8 @@ public class $EDITOR_ANOTATION_CREATOR_CLASS_NAME$ implements IMessageHandler {
     public void clearMessages() {
         removeAnnotations();
     }
+
+    public void endMessages() {
+        
+    }
 }
