@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
@@ -37,7 +38,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.WizardPlugin;
 import org.eclipse.imp.core.ErrorHandler;
-import org.eclipse.imp.language.ServiceFactory;
 import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -46,16 +46,12 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextSelection;
-import org.eclipse.pde.core.plugin.IPluginAttribute;
-import org.eclipse.pde.core.plugin.IPluginElement;
-import org.eclipse.pde.core.plugin.IPluginExtension;
-import org.eclipse.pde.core.plugin.IPluginModel;
-import org.eclipse.pde.core.plugin.IPluginModelBase;
-import org.eclipse.pde.core.plugin.IPluginObject;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
@@ -205,10 +201,7 @@ public class WizardUtilities {
      *                      substituted from the replacements
      * @throws CoreException
      */
-    public static String createFileContentsFromTemplate(
-            String templateName,
-            Map<String,String> replacements,
-            IProgressMonitor monitor) {
+    public static String createFileContentsFromTemplate(String templateName, Map<String,String> replacements, IProgressMonitor monitor) {
         return createFileContentsFromTemplate(templateName, getTemplateBundleID(), replacements, monitor);
     }
 
@@ -350,18 +343,13 @@ public class WizardUtilities {
 
 		return file;
     }
-	
-	
-	
+
     /**
      * Like createFileFromTemplate, but does not attempt to perform any meta-variable substitutions.
      * Useful for binary files (e.g. images) that are to be copied as-is to the user's workspace.
      * The name of the source file is used for that of the target file.
      */
-    protected static IFile copyLiteralFile(
-    	String fileName, String folder, IProject project, IProgressMonitor monitor)
-    throws CoreException
-    {
+    protected static IFile copyLiteralFile(String fileName, String folder, IProject project, IProgressMonitor monitor) throws CoreException {
 		monitor.setTaskName("Creating " + fileName);
 	
 		final IFile file= project.getFile(new Path(folder + "/" + fileName));
@@ -376,17 +364,13 @@ public class WizardUtilities {
 	//	monitor.worked(1);
 		return file;
     }
-	
-    
+
     /**
      * Like createFileFromTemplate, but does not attempt to perform any meta-variable substitutions.
      * Useful for binary files (e.g. images) that are to be copied as-is to the user's workspace.
      * This version allows the name of the target file to be specified independently of the source file.
      */
-    protected static IFile copyLiteralFile(
-    	String inFileName, String outFileName, String folder, IProject project, IProgressMonitor monitor)
-    throws CoreException
-    {
+    protected static IFile copyLiteralFile(String inFileName, String outFileName, String folder, IProject project, IProgressMonitor monitor) throws CoreException {
 		monitor.setTaskName("Creating " + outFileName + " as a copy of " + inFileName);
 	
 		final IFile file= project.getFile(new Path(folder + "/" + outFileName));
@@ -401,14 +385,15 @@ public class WizardUtilities {
 	//	monitor.worked(1);
 		return file;
     }
-    
-	
+
     public static void addBuilder(IProject project, String id) throws CoreException {
 		IProjectDescription desc= project.getDescription();
 		ICommand[] commands= desc.getBuildSpec();
-		for(int i= 0; i < commands.length; ++i)
-		    if (commands[i].getBuilderName().equals(id))
-			return;
+		for(int i= 0; i < commands.length; ++i) {
+		    if (commands[i].getBuilderName().equals(id)) {
+		        return;
+		    }
+		}
 		//add builder to project
 		ICommand command= desc.newCommand();
 		command.setBuilderName(id);
@@ -421,25 +406,21 @@ public class WizardUtilities {
     }
 
     public static void enableBuilders(IProgressMonitor monitor, final IProject project, final String[] builderIDs) {
-	monitor.setTaskName("Enabling builders...");
-	Job job= new WorkspaceJob("Enabling builders...") {
-	    public IStatus runInWorkspace(IProgressMonitor monitor) {
-		try {
-		    for(int i= 0; i < builderIDs.length; i++) {
-			addBuilder(project, builderIDs[i]);
-		    }
-		} catch (Throwable e) {
-		    e.printStackTrace();
-		}
-		return Status.OK_STATUS;
-	    }
-	};
-	job.schedule();
+        monitor.setTaskName("Enabling builders...");
+        Job job= new WorkspaceJob("Enabling builders...") {
+            public IStatus runInWorkspace(IProgressMonitor monitor) {
+                try {
+                    for(int i= 0; i < builderIDs.length; i++) {
+                        addBuilder(project, builderIDs[i]);
+                    }
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
     }
-    
-    
-//  public void init(IWorkbench workbench, IStructuredSelection selection) {}
-
 
     /**
      * Opens the given file in the appropriate editor for editing.<br>
@@ -473,8 +454,7 @@ public class WizardUtilities {
     	});
     	monitor.worked(1);
     }
-    
-    
+
     public static void createSubFolders(String folder, IProject project, IProgressMonitor monitor) throws CoreException {
         String[] subFolderNames= folder.split("[\\" + File.separator + "\\/]");
         String subFolderStr= "";
@@ -489,10 +469,8 @@ public class WizardUtilities {
             subFolderStr= childPath;
         }
     }
-    
-    
-    public static byte[] getTemplateFileContents(String filePath)
-    {
+
+    public static byte[] getTemplateFileContents(String filePath) {
     	try {
     		String path= null;
 
@@ -526,12 +504,10 @@ public class WizardUtilities {
     	}
     }
 
-    
     /**
      * @return the path to the standard IMP template folder, in platform-specific format
      */
-    public static String getStandardTemplateFolderLocation()
-    {
+    public static String getStandardTemplateFolderLocation() {
     	try {
     	    // Initially, perform path computations in platform-independent format
     	    Bundle bundle= Platform.getBundle(getTemplateBundleID());
@@ -550,7 +526,7 @@ public class WizardUtilities {
     	    return null;
     	}
     }
-    
+
     public static String getStandardTemplateFileName(IMPWizard wizard, String componentID) {
     	if (wizard instanceof NewTokenColorer) {
     		return "colorer_simple.java";
@@ -608,11 +584,6 @@ public class WizardUtilities {
     	return null;
     }
 
-    
-    
-    
-    
-    
     /**
      * Gets the contents of a named template file from the "templates" folder
      * of a plugin with a given plugin id.  Created for use with the version of
@@ -624,7 +595,7 @@ public class WizardUtilities {
      * 							are to be returned
      * @return					The contents of the named template file
      */
-    public static byte[] getTemplateFileContents(String templateBundleId, String fileName) {
+    public static byte[] getTemplateFileContents(String templateBundleId, final String fileName) {
     	try {
     	    Bundle bundle= Platform.getBundle(templateBundleId);
     	    URL templateURL= FileLocator.find(bundle, new Path("/templates/" + fileName), null);
@@ -655,10 +626,18 @@ public class WizardUtilities {
     	    is.close();
     	    fis.close();
     	    return bytes;
+    	} catch (FileNotFoundException e) {
+            final Display display= PlatformUI.getWorkbench().getDisplay();
+            display.asyncExec(new Runnable() {
+                public void run() {
+                    MessageDialog.openError(display.getActiveShell(), "Unable to find code template", "Error when attempting to locate code template " + fileName);
+                }
+            });
     	} catch (Exception e) {
+            MessageDialog.openError(null, "Unable to find code template", "Error when attempting to locate code template " + fileName);
     	    e.printStackTrace();
-    	    return ("// missing template file: " + fileName).getBytes();
     	}
+        return ("// missing template file: " + fileName).getBytes();
     }
     
         
@@ -701,82 +680,5 @@ public class WizardUtilities {
     	}
     	contents= l_doc.get();
     	return contents;
-    }
-
-
-    public static String discoverLanguageForProject(IProject project) {
-        IPluginModelBase pluginModel= IMPWizardPage.getPluginModel(project.getName());
-
-        if (pluginModel != null) {
-            // SMS 26 Jul 2007
-            // Load the extensions model in detail, using the adapted IMP representation,
-            // to assure that the children of model elements are represented
-            try {
-                ExtensionEnabler.loadImpExtensionsModel((IPluginModel) pluginModel, project);
-            } catch (CoreException e) {
-                // WizardPlugin.getInstance().logException("WizardUtilities.discoverLanguageForProject(): exception loading extensions model", e);
-            } catch (ClassCastException e) {
-                WizardPlugin.getInstance().logException("exception while loading extensions model", e);
-            }
-
-            IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
-
-            // Prefer the language descriptor, if it exists
-            for(int i= 0; i < extensions.length; i++) {
-                IPluginExtension extension= extensions[i];
-                if (extension.getPoint().equals(ServiceFactory.LANGUAGE_DESCRIPTION_QUALIFIED_POINT_ID)) {
-                    String langID= getLanguageIDFromDescriptor(extension);
-                    if (langID != null) {
-                        return langID;
-                    }
-                }
-            }
-            // No language descriptor; take the language ID from any of the IMP extensions
-            for(int i= 0; i < extensions.length; i++) {
-                IPluginExtension extension= extensions[i];
-                String pointID= extension.getPoint();
-                if (ServiceFactory.ALL_SERVICES.contains(pointID)) {
-                    String langID= getLanguageID(extension);
-                    if (langID != null) {
-                        return langID;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private static String getLanguageIDFromDescriptor(IPluginExtension extension) {
-        IPluginObject[] children= extension.getChildren();
-
-        for(int j= 0; j < children.length; j++) {
-            if (children[j].getName().equals("language")) {
-                try {
-                    return ((IPluginElement) children[j]).getAttribute("language").getValue();
-                } catch (Exception e) {
-                    ErrorHandler.reportError("Exception getting language attribute value; returning", e);
-                }
-                return null;
-            }
-        }
-        return null;
-    }
-
-    private static String getLanguageID(IPluginExtension extension) {
-        IPluginObject[] children= extension.getChildren();
-
-        for(int j= 0; j < children.length; j++) {
-            IPluginElement childElt= (IPluginElement) children[j];
-            IPluginAttribute langAttr= childElt.getAttribute("language");
-            if (langAttr != null) { 
-                try {
-                    return langAttr.getValue();
-                } catch (Exception e) {
-                    ErrorHandler.reportError("Exception getting language attribute value; returning", e);
-                }
-                return null;
-            }
-        }
-        return null;
     }
 }

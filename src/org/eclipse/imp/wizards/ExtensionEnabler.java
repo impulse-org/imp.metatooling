@@ -575,6 +575,7 @@ public class ExtensionEnabler {
         
         // Hook the extensions model into the bundle plugin model base
         IBundlePluginModelBase bpmb= (IBundlePluginModelBase) pluginModel;
+
         extensions.setBundleModel(bpmb);	
         bpmb.setExtensionsModel(extensions);
     	return extensions;

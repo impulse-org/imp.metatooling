@@ -18,9 +18,13 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.WizardPlugin;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.language.ServiceFactory;
 import org.eclipse.imp.wizards.ExtensionEnabler;
+import org.eclipse.imp.wizards.IMPWizardPage;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -28,6 +32,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.pde.core.plugin.IExtensions;
 import org.eclipse.pde.core.plugin.IPluginAttribute;
+import org.eclipse.pde.core.plugin.IPluginElement;
 import org.eclipse.pde.core.plugin.IPluginExtension;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
@@ -232,5 +237,135 @@ public class ExtensionPointUtils {
         result.put("$AST_PACKAGE$", astPackageName);
 
         return result;
+    }
+
+    public static IProject findProjectForLanguage(String langName) {
+        IProject[] allProjects= ResourcesPlugin.getWorkspace().getRoot().getProjects();
+        String lowerLangName= langName.toLowerCase();
+    
+        for(IProject proj: allProjects) {
+            String projLangName= ExtensionPointUtils.discoverLanguageForProject(proj);
+            if (projLangName != null && projLangName.toLowerCase().equals(lowerLangName)) {
+                return proj;
+            }
+        }
+        return null;
+    }
+
+    public static IProject findProjectForLanguageExtension(String langName, String extensionPointID) {
+        IProject[] allProjects= ResourcesPlugin.getWorkspace().getRoot().getProjects();
+        String lowerLangName= langName.toLowerCase();
+    
+        for(IProject proj: allProjects) {
+            if (ExtensionPointUtils.projectHasLanguageExtension(proj, lowerLangName, extensionPointID)) {
+                return proj;
+            }
+        }
+        return null;
+    }
+
+    public static String getLanguageID(IPluginExtension extension) {
+        IPluginObject[] children= extension.getChildren();
+    
+        for(int j= 0; j < children.length; j++) {
+            IPluginElement childElt= (IPluginElement) children[j];
+            IPluginAttribute langAttr= childElt.getAttribute("language");
+            if (langAttr != null) { 
+                try {
+                    return langAttr.getValue();
+                } catch (Exception e) {
+                    ErrorHandler.reportError("Exception getting language attribute value; returning", e);
+                }
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public static String getLanguageIDFromDescriptor(IPluginExtension extension) {
+        IPluginObject[] children= extension.getChildren();
+    
+        for(int j= 0; j < children.length; j++) {
+            if (children[j].getName().equals("language")) {
+                try {
+                    return ((IPluginElement) children[j]).getAttribute("language").getValue();
+                } catch (Exception e) {
+                    ErrorHandler.reportError("Exception getting language attribute value; returning", e);
+                }
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public static String discoverLanguageForProject(IProject project) {
+        IPluginModelBase pluginModel= IMPWizardPage.getPluginModel(project.getName());
+    
+        if (pluginModel != null) {
+            // SMS 26 Jul 2007
+            // Load the extensions model in detail, using the adapted IMP representation,
+            // to assure that the children of model elements are represented
+            try {
+                ExtensionEnabler.loadImpExtensionsModel((IPluginModel) pluginModel, project);
+            } catch (CoreException e) {
+                // WizardPlugin.getInstance().logException("WizardUtilities.discoverLanguageForProject(): exception loading extensions model", e);
+            } catch (ClassCastException e) {
+                WizardPlugin.getInstance().logException("exception while loading extensions model", e);
+            }
+    
+            IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
+    
+            // Prefer the language descriptor, if it exists
+            for(int i= 0; i < extensions.length; i++) {
+                IPluginExtension extension= extensions[i];
+                if (extension.getPoint().equals(ServiceFactory.LANGUAGE_DESCRIPTION_QUALIFIED_POINT_ID)) {
+                    String langID= getLanguageIDFromDescriptor(extension);
+                    if (langID != null) {
+                        return langID;
+                    }
+                }
+            }
+            // No language descriptor; take the language ID from any of the IMP extensions
+            for(int i= 0; i < extensions.length; i++) {
+                IPluginExtension extension= extensions[i];
+                String pointID= extension.getPoint();
+                if (ServiceFactory.ALL_SERVICES.contains(pointID)) {
+                    String langID= getLanguageID(extension);
+                    if (langID != null) {
+                        return langID;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public static boolean projectHasLanguageExtension(IProject project, String langName, String extensionPointID) {
+        IPluginModelBase pluginModel= IMPWizardPage.getPluginModel(project.getName()); // TODO getPluginModel() probably belongs on ExtensionPointUtils
+    
+        if (pluginModel != null) {
+            try {
+                ExtensionEnabler.loadImpExtensionsModel((IPluginModel) pluginModel, project);
+            } catch (CoreException e) {
+                // WizardPlugin.getInstance().logException("WizardUtilities.discoverLanguageForProject(): exception loading extensions model", e);
+            } catch (ClassCastException e) {
+                WizardPlugin.getInstance().logException("exception while loading extensions model", e);
+            }
+    
+            IPluginExtension[] extensions= pluginModel.getExtensions().getExtensions();
+    
+            for(int i= 0; i < extensions.length; i++) {
+                IPluginExtension extension= extensions[i];
+                String pointID= extension.getPoint();
+                if (pointID.equals(extensionPointID)) {
+                    String langID= getLanguageID(extension);
+    
+                    if (langID != null && langID.equals(langName)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

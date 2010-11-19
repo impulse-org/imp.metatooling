@@ -29,6 +29,7 @@ import org.eclipse.imp.ui.dialogs.providers.ContentProviderForAllProjects;
 import org.eclipse.imp.ui.dialogs.providers.LabelProviderForProjects;
 import org.eclipse.imp.ui.dialogs.validators.SelectionValidatorForIDEProjects;
 import org.eclipse.imp.ui.dialogs.validators.SelectionValidatorForPluginProjects;
+import org.eclipse.imp.utils.ExtensionPointUtils;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -494,7 +495,7 @@ public class IMPWizardPage extends WizardPage {
             // System.out.println("IMPWIzardPage.discoverProjectLanguage():  updated fProject == "
             // + fProject.getName());
         }
-        String languageName= WizardUtilities.discoverLanguageForProject(fProject);
+        String languageName= ExtensionPointUtils.discoverLanguageForProject(fProject);
         if (languageName != null) {
             fLanguageText.setText(languageName);
         }
@@ -612,7 +613,7 @@ public class IMPWizardPage extends WizardPage {
         return null;
     }
 
-    protected static IPluginModelBase getPluginModel(String projectName) {
+    public static IPluginModelBase getPluginModel(String projectName) {
         try {
             if (projectName == null)
                 return null;
@@ -1116,7 +1117,7 @@ public class IMPWizardPage extends WizardPage {
             if (fProject == null) {
                 fProject= ResourcesPlugin.getWorkspace().getRoot().getProject(fProjectText.getText());
             }
-            String langName= WizardUtilities.discoverLanguageForProject(fProject);
+            String langName= ExtensionPointUtils.discoverLanguageForProject(fProject);
             if (langName != null) {
                 fLanguageText.setEnabled(false);
             }

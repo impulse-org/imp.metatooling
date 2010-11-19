@@ -7,7 +7,6 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
 package org.eclipse.imp.wizards;
@@ -22,19 +21,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.WizardPlugin;
 import org.eclipse.imp.runtime.RuntimePlugin;
-/*******************************************************************************
-* Copyright (c) 2008 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 
-*******************************************************************************/
-
-
+// TODO Move this wizard to the formatting plugin
 public class NewFormattingSpecification extends ExtensionPointWizard {
     private String fSpecFilename;
 
@@ -43,29 +31,30 @@ public class NewFormattingSpecification extends ExtensionPointWizard {
     }
 
     protected List<String> getPluginDependencies() {
-        return Arrays.asList(new String[] { 
-                "org.eclipse.core.runtime", 
-                "org.eclipse.core.resources",             
-                "org.eclipse.imp.runtime", 
+        return Arrays.asList(new String[] {
+                "org.eclipse.core.runtime",
+                "org.eclipse.core.resources",
+                "org.eclipse.imp.runtime",
                 "org.eclipse.imp.formatting" });
     }
-    
+
     private class NewFormattingSpecificationWizardPage extends ExtensionPointWizardPage {
         public NewFormattingSpecificationWizardPage(ExtensionPointWizard owner) {
-            super(owner, WizardPlugin.kPluginID, "formattingSpecification");
+            // TODO Replace the literal plugin ID below with a ref to the appropriate activator constant field
+            super(owner, "org.eclipse.imp.formatting", "formattingSpecification");
         }
     }
-    
+
     @Override
     public boolean canFinish() {
         if (!fileFieldIsValid()) {
-            pages[0].setErrorMessage("File name should end with \".fsp\"");
+            pages[0].setErrorMessage("File name must end with \".fsp\"");
             return false;
         }
-        
+
         return super.canFinish();
     }
-    
+
     protected void collectCodeParms() {
         fSpecFilename = pages[0].getValue("file");
         fLanguageName = pages[0].getValue("language");
@@ -75,22 +64,21 @@ public class NewFormattingSpecification extends ExtensionPointWizard {
     @Override
     protected void generateCodeStubs(IProgressMonitor mon) throws CoreException {
         Map<String,String> subs= getStandardSubstitutions();
-        
+
         WizardUtilities.createFileFromTemplate(
-                        fSpecFilename, WizardPlugin.kPluginID, "formatter.fsp", "", getProjectSourceLocation(fProject),
+                        fSpecFilename, WizardPlugin.kPluginID /*"org.eclipse.imp.formatting.metatooling"*/, "formatter.fsp", "", getProjectSourceLocation(fProject),
                         subs, fProject, new NullProgressMonitor());
-        
-        ExtensionEnabler.
-        enable(
-                fProject, RuntimePlugin.IMP_RUNTIME, "formatter", 
+
+        ExtensionEnabler.enable(
+                fProject, RuntimePlugin.IMP_RUNTIME, "formatter",
                 new String[][] {
                         { "extension:id", fProject.getName() + ".formatter" },
                         { "extension:name", fLanguageName + " Formatter" },
                         { "formatter:class", "org.eclipse.imp.formatting.SourceFormatter" },
-                        { "formatter:language", fLanguageName }   
-                }
-                , false, 
-                getPluginDependencies(), 
+                        { "formatter:language", fLanguageName }
+                },
+                false,
+                getPluginDependencies(),
                 new NullProgressMonitor());
     }
 
@@ -104,5 +92,4 @@ public class NewFormattingSpecification extends ExtensionPointWizard {
         final String text = pages[0].getField("file").fText.getText();
         return text == null || text.length() == 0 || text.endsWith(".fsp");
     }
-       
 }
